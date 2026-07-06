@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메이플 수익 기록장</title>
-<meta name="description" content="재획 메소, 보스 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
 <meta name="theme-color" content="#14161f">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="메이플 수익 기록장">
 <meta property="og:title" content="메이플 수익 기록장">
-<meta property="og:description" content="재획 메소, 보스 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<meta property="og:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
 <meta property="og:url" content="https://xenon201313.github.io/maple-tracker/">
 <meta property="og:image" content="https://xenon201313.github.io/maple-tracker/thumbnail.png">
 <meta property="og:image:secure_url" content="https://xenon201313.github.io/maple-tracker/thumbnail.png">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="쌀 포대를 든 버섯 모자 원숭이와 메이플스토리 배경">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="메이플 수익 기록장">
-<meta name="twitter:description" content="재획 메소, 보스 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<meta name="twitter:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
 <meta name="twitter:image" content="https://xenon201313.github.io/maple-tracker/thumbnail.png">
 <link rel="icon" type="image/png" href="thumbnail.png">
 <link rel="apple-touch-icon" href="thumbnail.png">
@@ -176,8 +176,9 @@
 
 <div class="tabs">
   <div class="tab active" data-page="daily">📋 재획 기록</div>
-  <div class="tab" data-page="boss">👑 보스 결정석</div>
-  <div class="tab" data-page="dailyboss">☀️ 일일 보스</div>
+  <div class="tab" data-page="boss">👑 주간 결정석</div>
+  <div class="tab" data-page="monthlyboss">🌑 월간 결정석</div>
+  <div class="tab" data-page="dailyboss">☀️ 일간 결정석</div>
   <div class="tab" data-page="stats">📊 통계</div>
 </div>
 
@@ -249,7 +250,7 @@
   </div>
 </div>
 
-<!-- ══════════ 보스 결정석 ══════════ -->
+<!-- ══════════ 주간 결정석 ══════════ -->
 <div class="page" id="page-boss">
   <div class="card">
     <h2>👑 캐릭터 등록</h2>
@@ -267,38 +268,56 @@
       </div>
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
-    <div class="muted" style="margin-top:8px;">캐릭터 이름을 눌러 다니는 보스를 체크하세요. 보스마다 <b>파티 인원수</b>를 고르면 결정석 가격이 나눠서 계산됩니다. · <b>캐릭터당 최대 12개</b>까지 체크할 수 있습니다. 검은 마법사/메이린은 한도에서 제외됩니다.</div>
+    <div class="muted" style="margin-top:8px;">캐릭터 이름을 눌러 주간 보스를 체크하세요. 보스마다 <b>파티 인원수</b>를 고르면 결정석 가격이 나눠서 계산됩니다. · <b>캐릭터당 최대 12개</b>까지 체크할 수 있습니다. 메이린은 한도에서 제외됩니다.</div>
   </div>
 
   <div id="charlist"></div>
 
   <div class="card">
-    <h2>💰 전체 합계</h2>
+    <h2>💰 주간 결정석 합계</h2>
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
       ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수, 메소 단위 절사)<br>
-      ※ 가격 출처: KMS 1.2.416 강렬한 힘의 결정 개편 (2026-06-18 기준). 검은 마법사 가격은 2026-07-01 적용분입니다.
+      ※ 가격 출처: KMS 1.2.416 강렬한 힘의 결정 개편 (2026-06-18 기준).
     </div>
   </div>
 </div>
 
+<!-- ══════════ 월간 결정석 ══════════ -->
+<div class="page" id="page-monthlyboss">
+  <div class="card">
+    <h2>🌑 월간 결정석</h2>
+    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>주간 결정석</b> 탭에서 관리합니다.</div>
+  </div>
 
-<!-- ══════════ 일일 보스 ══════════ -->
+  <div id="monthlyboss-list"></div>
+
+  <div class="card">
+    <h2>💰 월간 결정석 합계</h2>
+    <div class="totalbar" id="monthlyboss-total"></div>
+    <div class="muted" style="margin-top:10px;">
+      ※ 검은 마법사는 주간 보스 12개 제한과 월드당 주간 90개 결정석 한도 표시에서 제외됩니다.<br>
+      ※ 가격 출처: 검은 마법사 가격은 2026-07-01 적용분입니다.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 일간 결정석 ══════════ -->
 <div class="page" id="page-dailyboss">
   <div class="card">
-    <h2>☀️ 일일 보스</h2>
+    <h2>☀️ 일간 결정석</h2>
     <div class="daily-date-row">
       <div>
         <label>날짜</label>
         <input type="text" id="dailyboss-date" placeholder="예: 2026-07-06" inputmode="numeric" autocomplete="off">
       </div>
     </div>
-    <div class="muted daily-boss-note">일일보스는 결정석 수익만 기록합니다. 보상 체크리스트는 넣지 않습니다.</div>
+    <div class="muted daily-boss-note">일간 보스 결정석을 날짜별로 기록합니다. 일부 일간 보상은 같은 형식으로 체크하고 가격을 합산할 수 있습니다.</div>
   </div>
   <div id="dailyboss-list"></div>
   <div class="card">
-    <h2>💰 일일 보스 합계</h2>
+    <h2>💰 일간 결정석 합계</h2>
     <div class="totalbar" id="dailyboss-total"></div>
   </div>
 </div>
@@ -390,8 +409,19 @@ function normalizeChar(c){
   c.dropPrices = c.dropPriceWeeks[wk];
   c.dailyBossDays = ensureObj(c.dailyBossDays);
   const legacyDaily = ensureObj(c.dailyBosses);
-  if(Object.keys(legacyDaily).length && !c.dailyBossDays[todayStr()]) c.dailyBossDays[todayStr()] = Object.assign({}, legacyDaily);
-  c.dailyBosses = legacyDaily;
+  const today = todayStr();
+  if(Object.keys(legacyDaily).length && !c.dailyBossDays[today]) c.dailyBossDays[today] = Object.assign({}, legacyDaily);
+  c.dailyBosses = c.dailyBossDays[today] || legacyDaily;
+  const legacyDailyDrops = ensureObj(c.dailyDrops);
+  c.dailyDropDays = ensureObj(c.dailyDropDays);
+  if(Object.keys(legacyDailyDrops).length && !c.dailyDropDays[today]) c.dailyDropDays[today] = Object.assign({}, legacyDailyDrops);
+  if(!c.dailyDropDays[today] || typeof c.dailyDropDays[today] !== 'object' || Array.isArray(c.dailyDropDays[today])) c.dailyDropDays[today] = {};
+  c.dailyDrops = c.dailyDropDays[today];
+  const legacyDailyDropPrices = ensureObj(c.dailyDropPrices);
+  c.dailyDropPriceDays = ensureObj(c.dailyDropPriceDays);
+  if(Object.keys(legacyDailyDropPrices).length && !c.dailyDropPriceDays[today]) c.dailyDropPriceDays[today] = Object.assign({}, legacyDailyDropPrices);
+  if(!c.dailyDropPriceDays[today] || typeof c.dailyDropPriceDays[today] !== 'object' || Array.isArray(c.dailyDropPriceDays[today])) c.dailyDropPriceDays[today] = {};
+  c.dailyDropPrices = c.dailyDropPriceDays[today];
   return c;
 }
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
@@ -837,6 +867,16 @@ function makeDailyBossGroups(){
 }
 const DAILY_BOSS_GROUPS = makeDailyBossGroups();
 const DAILY_BOSS_GROUP_MAP = Object.fromEntries(DAILY_BOSS_GROUPS.map(g=>[g.key,g]));
+const DOMINATOR_PENDANT_IMG = 'data:image/png;base64,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';
+const DAILY_DROP_ITEMS = {
+  "dnark": [
+    {
+      "id": "dominator_pendant",
+      "name": "도미네이터 펜던트",
+      "img": DOMINATOR_PENDANT_IMG
+    }
+  ]
+};
 
 const DROP_ITEMS = {
   "nsu": [],
@@ -2748,6 +2788,18 @@ function dailyBossStore(c, date=todayStr()){
   if(date === todayStr()) c.dailyBosses = c.dailyBossDays[date];
   return c.dailyBossDays[date];
 }
+function dailyDropStore(c, date=todayStr()){
+  c.dailyDropDays = ensureObj(c.dailyDropDays);
+  if(!c.dailyDropDays[date] || typeof c.dailyDropDays[date] !== 'object' || Array.isArray(c.dailyDropDays[date])) c.dailyDropDays[date] = {};
+  if(date === todayStr()) c.dailyDrops = c.dailyDropDays[date];
+  return c.dailyDropDays[date];
+}
+function dailyDropPriceStore(c, date=todayStr()){
+  c.dailyDropPriceDays = ensureObj(c.dailyDropPriceDays);
+  if(!c.dailyDropPriceDays[date] || typeof c.dailyDropPriceDays[date] !== 'object' || Array.isArray(c.dailyDropPriceDays[date])) c.dailyDropPriceDays[date] = {};
+  if(date === todayStr()) c.dailyDropPrices = c.dailyDropPriceDays[date];
+  return c.dailyDropPriceDays[date];
+}
 function bossPartyForDropKey(c, week, key){
   const bossId = String(key||'').split('|')[0];
   const b = BOSS_MAP[bossId];
@@ -2779,36 +2831,86 @@ function dropPriceSumForBoss(c, b, week=currentWeekKey()){
   }
   return total;
 }
-function dropPriceSumForCharWeek(c, week=currentWeekKey()){
+function bossKindFromDropKey(key){
+  const bossId = String(key||'').split('|')[0];
+  const b = BOSS_MAP[bossId];
+  return b ? b[3] : null;
+}
+function dropPriceSumForCharKind(c, kind, week=currentWeekKey()){
   const drops = ensureObj(ensureObj(c.dropWeeks)[week] || (week===currentWeekKey()?c.drops:null));
   const prices = ensureObj(ensureObj(c.dropPriceWeeks)[week] || (week===currentWeekKey()?c.dropPrices:null));
   let total=0n;
-  for(const key in prices){ if(drops[key]) total += sharedDropPrice(c,week,key); }
+  for(const key in prices){ if(drops[key] && bossKindFromDropKey(key)===kind) total += sharedDropPrice(c,week,key); }
   return total;
 }
+function dropPriceSumForCharWeek(c, week=currentWeekKey()){ return dropPriceSumForCharKind(c,'w',week); }
+function dropPriceSumForCharMonth(c, week=currentWeekKey()){ return dropPriceSumForCharKind(c,'m',week); }
 function dropPriceSumForWeek(week=currentWeekKey()){
   return db.chars.reduce((sum,c)=>sum+dropPriceSumForCharWeek(c,week),0n);
 }
+function dropPriceSumForMonth(week=currentWeekKey()){
+  return db.chars.reduce((sum,c)=>sum+dropPriceSumForCharMonth(c,week),0n);
+}
+function dailyBossPartyForDropKey(c, date, key){
+  const bossId = String(key||'').split('|')[0];
+  const store = ensureObj(ensureObj(c.dailyBossDays)[date] || (date===todayStr()?c.dailyBosses:null));
+  return Math.max(1, Math.min(MAX_PARTY, Number(store[bossId])||1));
+}
+function sharedDailyDropPrice(c, date, key){
+  const prices = ensureObj(ensureObj(c.dailyDropPriceDays)[date] || (date===todayStr()?c.dailyDropPrices:null));
+  const raw = toMesoBig(prices[key] || 0);
+  if(raw<=0n) return 0n;
+  return raw / BigInt(dailyBossPartyForDropKey(c,date,key));
+}
+function dailyDropPriceText(c, date, key){
+  const prices = ensureObj(ensureObj(c.dailyDropPriceDays)[date] || (date===todayStr()?c.dailyDropPrices:null));
+  const raw = toMesoBig(prices[key] || 0);
+  if(raw<=0n) return '';
+  const party = dailyBossPartyForDropKey(c,date,key);
+  const mine = sharedDailyDropPrice(c,date,key);
+  return party>1 ? korMeso(mine)+' (총 '+korMeso(raw)+' ÷ '+party+'인)' : korMeso(raw);
+}
+function dailyDropPriceSumForBoss(c, b, date=todayStr()){
+  const drops = ensureObj(ensureObj(c.dailyDropDays)[date] || (date===todayStr()?c.dailyDrops:null));
+  const prices = ensureObj(ensureObj(c.dailyDropPriceDays)[date] || (date===todayStr()?c.dailyDropPrices:null));
+  const prefix = b[0]+'|';
+  let total=0n;
+  for(const key in prices){
+    if(key.startsWith(prefix) && drops[key]) total += sharedDailyDropPrice(c,date,key);
+  }
+  return total;
+}
+function dailyDropPriceSumForCharDate(c, date=todayStr()){
+  const drops = ensureObj(ensureObj(c.dailyDropDays)[date] || (date===todayStr()?c.dailyDrops:null));
+  const prices = ensureObj(ensureObj(c.dailyDropPriceDays)[date] || (date===todayStr()?c.dailyDropPrices:null));
+  let total=0n;
+  for(const key in prices){ if(drops[key]) total += sharedDailyDropPrice(c,date,key); }
+  return total;
+}
 function dailyBossSumForDate(date){
-  let meso=0, crystals=0;
+  let crystalMeso=0, dropMeso=0n, crystals=0;
   db.chars.forEach(c=>{
     const store = ensureObj(ensureObj(c.dailyBossDays)[date]);
     for(const id in store){
       const b=DAILY_BOSS_MAP[id]; if(!b) continue;
-      meso += share(b[2], Math.max(1, Number(store[id])||1));
+      crystalMeso += share(b[2], Math.max(1, Number(store[id])||1));
       crystals++;
     }
+    dropMeso += dailyDropPriceSumForCharDate(c,date);
   });
-  return {meso, crystals};
+  return {meso:toMesoBig(crystalMeso)+dropMeso, crystalMeso, dropMeso, crystals};
 }
 function dailyBossTotalsForWeek(week=currentWeekKey()){
-  let meso=0, crystals=0;
+  let meso=0n, crystalMeso=0, dropMeso=0n, crystals=0;
   for(let i=0;i<7;i++){
     const d=addDays(week,i);
     const s=dailyBossSumForDate(d);
-    meso += s.meso; crystals += s.crystals;
+    meso += toMesoBig(s.meso);
+    crystalMeso += s.crystalMeso || 0;
+    dropMeso += toMesoBig(s.dropMeso);
+    crystals += s.crystals;
   }
-  return {meso, crystals};
+  return {meso, crystalMeso, dropMeso, crystals};
 }
 function trackedWeeks(){
   const set = new Set();
@@ -2821,12 +2923,16 @@ function trackedWeeks(){
       const nd=normalizeDateInput(d);
       if(nd) set.add(mapleWeekStart(nd));
     });
+    Object.keys(ensureObj(c.dailyDropDays)).forEach(d=>{
+      const nd=normalizeDateInput(d);
+      if(nd) set.add(mapleWeekStart(nd));
+    });
   });
   set.add(currentWeekKey());
   return Array.from(set).sort().reverse();
 }
 function dropCountForWeek(week){
-  return lootEntryCount(resolvedDropEntriesForWeek(week));
+  return lootEntryCount(mergeLootEntries(resolvedDropEntriesForWeek(week), resolvedDailyDropEntriesForWeek(week)));
 }
 
 /* ───────── 탭 ───────── */
@@ -3009,7 +3115,7 @@ function renderStats(){
     row.m+=recordMesoTotal(r); row.e+=Number(r.erda)||0; row.days++; }
   trackedWeeks().forEach(w=>{
     const row=ensureWeek(w), b=bossTotals(w);
-    row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=resolvedDropEntriesForWeek(w);
+    row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w));
   });
   document.getElementById('tbody-weekly').innerHTML = Object.keys(weeks).sort().reverse().map(w=>{
     const cur = w===wkStart ? ' ← 이번 주' : '';
@@ -3025,7 +3131,7 @@ function renderStats(){
     row.m+=recordMesoTotal(r); row.e+=Number(r.erda)||0; row.days++; }
   trackedWeeks().forEach(w=>{
     const m=w.slice(0,7), row=ensureMonth(m), b=bossTotals(w);
-    row.boss+=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(row.loot,resolvedDropEntriesForWeek(w));
+    row.boss+=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(row.loot,mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w)));
   });
   document.getElementById('tbody-monthly').innerHTML = Object.keys(months).sort().reverse().map(m=>
     '<tr><td>'+m.replace('-','년 ')+'월</td><td>'+months[m].days+'일</td>'+
@@ -3058,6 +3164,7 @@ function renderErdaCalculator(){
 /* ───────── 보스 결정석 ───────── */
 const openChars = new Set();
 const bossDrafts = new Map();
+const monthlyOpenChars = new Set();
 const dailyOpenChars = new Set();
 const dailyBossDrafts = new Map();
 document.getElementById('btn-addchar').onclick=()=>{
@@ -3065,8 +3172,9 @@ document.getElementById('btn-addchar').onclick=()=>{
   const server=document.querySelector('input[name="in-server"]:checked')?.value || 'main';
   if(!nm){ alert('캐릭터 이름을 입력하세요.'); return; }
   if(db.chars.some(c=>c.name===nm)){ alert('이미 등록된 캐릭터입니다.'); return; }
-  db.chars.push({name:nm, server:server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dailyBossDays:{}});
+  db.chars.push({name:nm, server:server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dailyBossDays:{}, dailyDropDays:{}, dailyDropPriceDays:{}});
   openChars.add(nm);
+  monthlyOpenChars.add(nm);
   dailyOpenChars.add(nm);
   document.getElementById('in-char').value='';
   save(); renderAll();
@@ -3089,24 +3197,123 @@ function charSum(c, week=currentWeekKey()){
   return {w,m,wc,mc,count:limitCount,limitCount,freeCount,totalCount:limitCount+freeCount};
 }
 function bossTotals(week=currentWeekKey()){
-  let crystalWeek=0, month=0, weeklyCrystals=0;
-  db.chars.forEach(c=>{ const s=charSum(c, week); crystalWeek+=s.w; month+=s.m; weeklyCrystals+=s.wc; });
+  let crystalWeek=0, monthCrystal=0, weeklyCrystals=0, monthlyCrystals=0;
+  db.chars.forEach(c=>{ const s=charSum(c, week); crystalWeek+=s.w; monthCrystal+=s.m; weeklyCrystals+=s.wc; monthlyCrystals+=s.mc; });
   const dropMeso = dropPriceSumForWeek(week);
+  const monthDropMeso = dropPriceSumForMonth(week);
   const daily = dailyBossTotalsForWeek(week);
   return {
     week: toMesoBig(crystalWeek)+dropMeso,
     crystalWeek,
     dropMeso,
-    month,
+    month: toMesoBig(monthCrystal)+monthDropMeso,
+    monthCrystal,
+    monthDropMeso,
     daily: daily.meso,
+    dailyCrystalMeso: daily.crystalMeso,
+    dailyDropMeso: daily.dropMeso,
     weeklyCrystals,
+    monthlyCrystals,
     dailyCrystals: daily.crystals,
     weekCrystals: weeklyCrystals + daily.crystals
   };
 }
+function bindBossListHandlers(bl,c,wk){
+  bl.querySelectorAll('select.diff').forEach(sel=>{
+    sel.onchange=()=>{
+      const group=BOSS_GROUP_MAP[sel.dataset.group];
+      const oldId=sel.dataset.current;
+      const newId=sel.value;
+      const bosses=bossStore(c,wk);
+      const newBoss=BOSS_MAP[newId];
+      if(!canUseBoss(c,newBoss)){ alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.'); renderAll(); return; }
+      bossDrafts.set(c.name+'|'+sel.dataset.group, newId);
+      if(oldId in bosses){
+        const party=clampPartyForBoss(newBoss,bosses[oldId]||1);
+        if(group) group.bosses.forEach(b=>{ delete bosses[b[0]]; });
+        else delete bosses[oldId];
+        bosses[newId]=party;
+        c.bosses=bosses;
+        save();
+      }
+      renderAll();
+    };
+  });
+  bl.querySelectorAll('input.boss-check').forEach(chk=>{
+    chk.onchange=()=>{
+      const id=chk.dataset.id;
+      const group=BOSS_GROUP_MAP[chk.dataset.group];
+      const bosses=bossStore(c,wk);
+      const alreadyOn = group ? group.bosses.some(b=>b[0] in bosses) : (id in bosses);
+      if(chk.checked){
+        const b=BOSS_MAP[id];
+        if(!canUseBoss(c,b)){
+          chk.checked=false;
+          alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.');
+          return;
+        }
+        if(!alreadyOn && !isLimitFreeBoss(b) && charSum(c,wk).limitCount>=MAX_CHECK){
+          chk.checked=false;
+          alert('한 캐릭터는 최대 '+MAX_CHECK+'개까지만 체크할 수 있습니다.');
+          return;
+        }
+        if(group) group.bosses.forEach(b=>{ if(b[0]!==id) delete bosses[b[0]]; });
+        bosses[id]=clampPartyForBoss(b,bosses[id]||1);
+      } else {
+        if(group) group.bosses.forEach(b=>{ delete bosses[b[0]]; });
+        else delete bosses[id];
+      }
+      c.bosses=bosses;
+      save(); renderAll();
+    };
+  });
+  bl.querySelectorAll('select.party').forEach(sel=>{
+    sel.onchange=()=>{
+      const id=sel.dataset.id;
+      const bosses=bossStore(c,wk);
+      bosses[id]=clampPartyForBoss(BOSS_MAP[id], Number(sel.value));
+      c.bosses=bosses;
+      save(); renderAll();
+    };
+  });
+  bl.querySelectorAll('input.drop-check').forEach(chk=>{
+    chk.onchange=()=>{
+      const week=chk.dataset.week || wk;
+      const drops=dropStore(c,week);
+      const prices=dropPriceStore(c,week);
+      if(chk.checked) drops[chk.dataset.key]=true;
+      else {
+        delete drops[chk.dataset.key];
+        delete prices[chk.dataset.key];
+        if(chk.dataset.legacyKey) delete drops[chk.dataset.legacyKey];
+        if(chk.dataset.childKeys) chk.dataset.childKeys.split(',').filter(Boolean).forEach(k=>{ delete drops[k]; delete prices[k]; });
+      }
+      c.drops=dropStore(c,wk);
+      c.dropPrices=dropPriceStore(c,wk);
+      save(); renderAll();
+    };
+  });
+  bl.querySelectorAll('input.drop-price').forEach(inp=>{
+    inp.oninput=()=>{
+      const digits=onlyDigits(inp.value);
+      inp.value=digits ? formatDigits(digits) : '';
+    };
+    inp.onchange=()=>{
+      const week=inp.dataset.week || wk;
+      const prices=dropPriceStore(c,week);
+      const drops=dropStore(c,week);
+      const digits=onlyDigits(inp.value);
+      if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
+      else delete prices[inp.dataset.key];
+      c.dropPrices=dropPriceStore(c,wk);
+      save(); renderAll();
+    };
+  });
+}
 function renderBoss(){
   normalizeAllBosses();
   const list=document.getElementById('charlist');
+  if(!list) return;
   const wk=currentWeekKey();
   list.innerHTML='';
   db.chars.forEach((c,idx)=>{
@@ -3115,14 +3322,14 @@ function renderBoss(){
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
     head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
-      '<span class="sum">이번 주 '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.limitCount>=MAX_CHECK?' full':'')+'">('+s.limitCount+'/'+MAX_CHECK+')</span>'+
-      (s.m? ' · 월간 '+korMeso(s.m):'')+'</span>';
+      '<span class="sum">이번 주 '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.limitCount>=MAX_CHECK?' full':'')+'">('+s.limitCount+'/'+MAX_CHECK+')</span></span>';
     const del=document.createElement('button'); del.className='danger'; del.textContent='캐릭터 삭제';
     del.onclick=(e)=>{
       e.stopPropagation();
       if(confirm(c.name+' 캐릭터를 삭제할까요?')){
         db.chars.splice(idx,1);
         openChars.delete(c.name);
+        monthlyOpenChars.delete(c.name);
         dailyOpenChars.delete(c.name);
         Array.from(bossDrafts.keys()).forEach(k=>{ if(k.startsWith(c.name+'|')) bossDrafts.delete(k); });
         Array.from(dailyBossDrafts.keys()).forEach(k=>{ if(k.startsWith(c.name+'|')) dailyBossDrafts.delete(k); });
@@ -3134,114 +3341,51 @@ function renderBoss(){
     const bl=document.createElement('div'); bl.className='bosslist'+(openChars.has(c.name)?' open':'');
     head.onclick=()=>{ openChars.has(c.name)?openChars.delete(c.name):openChars.add(c.name); bl.classList.toggle('open'); };
 
-    let html='<div class="bossgroup">🗡 주간 보스 (이번 주 '+fmtWeekRange(wk)+')</div><div class="bgrid">';
+    let html='<div class="bossgroup">🗡 주간 결정석 (이번 주 '+fmtWeekRange(wk)+')</div><div class="bgrid">';
     BOSS_GROUPS.w.forEach(g=>{ html+=bossGroupCard(g,c); });
-    html+='</div><div class="bossgroup">🌑 월간 보스 (월간 결정석 · 이번 주 기록)</div><div class="bgrid">';
-    BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c); });
     html+='</div>';
     bl.innerHTML=html;
-
-    bl.querySelectorAll('select.diff').forEach(sel=>{
-      sel.onchange=()=>{
-        const group=BOSS_GROUP_MAP[sel.dataset.group];
-        const oldId=sel.dataset.current;
-        const newId=sel.value;
-        const bosses=bossStore(c,wk);
-        const newBoss=BOSS_MAP[newId];
-        if(!canUseBoss(c,newBoss)){ alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.'); renderBoss(); return; }
-        bossDrafts.set(c.name+'|'+sel.dataset.group, newId);
-        if(oldId in bosses){
-          const party=clampPartyForBoss(newBoss,bosses[oldId]||1);
-          if(group) group.bosses.forEach(b=>{ delete bosses[b[0]]; });
-          else delete bosses[oldId];
-          bosses[newId]=party;
-          c.bosses=bosses;
-          save();
-        }
-        renderBoss();
-      };
-    });
-    bl.querySelectorAll('input.boss-check').forEach(chk=>{
-      chk.onchange=()=>{
-        const id=chk.dataset.id;
-        const group=BOSS_GROUP_MAP[chk.dataset.group];
-        const bosses=bossStore(c,wk);
-        const alreadyOn = group ? group.bosses.some(b=>b[0] in bosses) : (id in bosses);
-        if(chk.checked){
-          const b=BOSS_MAP[id];
-          if(!canUseBoss(c,b)){
-            chk.checked=false;
-            alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.');
-            return;
-          }
-          if(!alreadyOn && !isLimitFreeBoss(b) && charSum(c,wk).limitCount>=MAX_CHECK){
-            chk.checked=false;
-            alert('한 캐릭터는 최대 '+MAX_CHECK+'개까지만 체크할 수 있습니다.');
-            return;
-          }
-          if(group) group.bosses.forEach(b=>{ if(b[0]!==id) delete bosses[b[0]]; });
-          bosses[id]=clampPartyForBoss(b,bosses[id]||1);
-        } else {
-          if(group) group.bosses.forEach(b=>{ delete bosses[b[0]]; });
-          else delete bosses[id];
-        }
-        c.bosses=bosses;
-        save(); renderBoss();
-      };
-    });
-    bl.querySelectorAll('select.party').forEach(sel=>{
-      sel.onchange=()=>{
-        const id=sel.dataset.id;
-        const bosses=bossStore(c,wk);
-        bosses[id]=clampPartyForBoss(BOSS_MAP[id], Number(sel.value));
-        c.bosses=bosses;
-        save(); renderBoss();
-      };
-    });
-    bl.querySelectorAll('input.drop-check').forEach(chk=>{
-      chk.onchange=()=>{
-        const week=chk.dataset.week || wk;
-        const drops=dropStore(c,week);
-        const prices=dropPriceStore(c,week);
-        if(chk.checked) drops[chk.dataset.key]=true;
-        else {
-          delete drops[chk.dataset.key];
-          delete prices[chk.dataset.key];
-          if(chk.dataset.legacyKey) delete drops[chk.dataset.legacyKey];
-          if(chk.dataset.childKeys) chk.dataset.childKeys.split(',').filter(Boolean).forEach(k=>{ delete drops[k]; delete prices[k]; });
-        }
-        c.drops=dropStore(c,wk);
-        c.dropPrices=dropPriceStore(c,wk);
-        save(); renderBoss();
-      };
-    });
-    bl.querySelectorAll('input.drop-price').forEach(inp=>{
-      inp.oninput=()=>{
-        const digits=onlyDigits(inp.value);
-        inp.value=digits ? formatDigits(digits) : '';
-      };
-      inp.onchange=()=>{
-        const week=inp.dataset.week || wk;
-        const prices=dropPriceStore(c,week);
-        const drops=dropStore(c,week);
-        const digits=onlyDigits(inp.value);
-        if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
-        else delete prices[inp.dataset.key];
-        c.dropPrices=dropPriceStore(c,wk);
-        save(); renderStats(); renderBoss();
-      };
-    });
+    bindBossListHandlers(bl,c,wk);
     box.appendChild(head); box.appendChild(bl); list.appendChild(box);
   });
 
   const t=bossTotals(wk);
-  const over = t.weekCrystals>CRYSTAL_LIMIT;
+  const over = t.weeklyCrystals>CRYSTAL_LIMIT;
   document.getElementById('boss-total').innerHTML=
-    '👑 <b>이번 주 주간 보스 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(wk)+')</span>'+
-    '<br>☀️ <b>이번 주 일일 보스 수익:</b> <span class="meso">'+korMeso(t.daily)+'</span> <span class="muted">(결정석 '+t.dailyCrystals+'개)</span>'+
+    '👑 <b>이번 주 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(wk)+')</span>'+
     (over?' <span class="warn">⚠ 주간 판매 한도 '+CRYSTAL_LIMIT+'개 초과!</span>':'')+
-    '<br>🌑 <b>월간(검은 마법사) 예상 수익:</b> <span class="meso">'+korMeso(t.month)+'</span>'+
-    '<br>💎 <b>이번 주 보스 합산:</b> <span class="meso">'+korMeso(toMesoBig(t.week)+toMesoBig(t.month)+toMesoBig(t.daily))+'</span> <span class="muted">(주간 + 일일 + 월간 체크 · 결정석 '+t.weekCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+    '<br>💎 <b>이번 주 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+}
+function renderMonthlyBoss(){
+  const list=document.getElementById('monthlyboss-list');
+  const total=document.getElementById('monthlyboss-total');
+  if(!list || !total) return;
+  normalizeAllBosses();
+  const wk=currentWeekKey();
+  list.innerHTML='';
+  if(!db.chars.length){
+    list.innerHTML='<div class="card muted">주간 결정석 탭에서 캐릭터를 먼저 추가하세요.</div>';
+  }
+  db.chars.forEach(c=>{
+    const s=charSum(c,wk);
+    const itemMeso=dropPriceSumForCharMonth(c,wk);
+    const box=document.createElement('div'); box.className='card';
+    const head=document.createElement('div'); head.className='charhead';
+    head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
+      '<span class="sum">월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span></span>';
+    const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
+    head.onclick=()=>{ monthlyOpenChars.has(c.name)?monthlyOpenChars.delete(c.name):monthlyOpenChars.add(c.name); bl.classList.toggle('open'); };
+    let html='<div class="bossgroup">🌑 월간 결정석 (검은 마법사)</div><div class="bgrid">';
+    BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c); });
+    html+='</div>';
+    bl.innerHTML=html;
+    bindBossListHandlers(bl,c,wk);
+    box.appendChild(head); box.appendChild(bl); list.appendChild(box);
+  });
+  const t=bossTotals(wk);
+  total.innerHTML=
+    '🌑 <b>월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
+    '<br>💎 <b>월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
 }
 function selectedBossForGroup(g,c){
   const bosses=bossStore(c);
@@ -3262,22 +3406,30 @@ function esc(s){
 }
 function imageKeyClass(key){ return String(key||'').replace(/[^a-z0-9_-]/gi,'').toLowerCase(); }
 function dropKey(b,item){ return b[0]+'|'+item.id; }
+function dailyDropKey(b,item){ return b[0]+'|'+item.id; }
 function legacyDropKeys(g,item){ return [g.key+'|'+item.id, g.name+'|'+item.id]; }
 function dropItemsForBoss(b){ return DROP_ITEMS[b[0]] || []; }
+function dailyDropItemsForBoss(b){ return DAILY_DROP_ITEMS[b[0]] || []; }
 function visibleDropItems(){
   const items=[];
   Object.values(DROP_ITEMS).forEach(list=>list.forEach(item=>items.push(item)));
   return items;
 }
+function visibleDailyDropItems(){
+  const items=[];
+  Object.values(DAILY_DROP_ITEMS).forEach(list=>list.forEach(item=>items.push(item)));
+  return items;
+}
 function visibleDropIds(){
   const ids=new Set();
-  visibleDropItems().forEach(item=>{
+  visibleDropItems().concat(visibleDailyDropItems()).forEach(item=>{
     ids.add(item.id);
     (item.children||[]).forEach(child=>ids.add(child.id));
   });
   return ids;
 }
 function visibleDropItemById(id){ return visibleDropItems().find(item=>item.id===id); }
+function visibleDailyDropItemById(id){ return visibleDailyDropItems().find(item=>item.id===id); }
 function dropKeyItemId(key){ const parts=String(key).split('|'); return parts[parts.length-1]; }
 function isCountedDropKey(key){ return !String(key).includes('|child|') && visibleDropIds().has(dropKeyItemId(key)); }
 function selectedChildForDrop(parentKey,item,drops){
@@ -3296,6 +3448,26 @@ function resolvedDropEntriesForWeek(week){
       const prev=map.get(shown.id) || {id:shown.id, name:shown.name, img:shown.img, count:0};
       prev.count++;
       map.set(shown.id, prev);
+    }
+  });
+  return Array.from(map.values()).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ko'));
+}
+function resolvedDailyDropEntriesForWeek(week){
+  const map=new Map();
+  db.chars.forEach(c=>{
+    const days=ensureObj(c.dailyDropDays);
+    for(const date in days){
+      const nd=normalizeDateInput(date);
+      if(!nd || mapleWeekStart(nd)!==week) continue;
+      const drops=ensureObj(days[date]);
+      for(const key in drops){
+        if(!drops[key] || !isCountedDropKey(key)) continue;
+        const item=visibleDailyDropItemById(dropKeyItemId(key));
+        if(!item) continue;
+        const prev=map.get(item.id) || {id:item.id, name:item.name, img:item.img, count:0};
+        prev.count++;
+        map.set(item.id, prev);
+      }
     }
   });
   return Array.from(map.values()).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ko'));
@@ -3407,6 +3579,31 @@ function dropChecklistHtml(g,b,c){
         '<span>'+esc(item.name)+'</span></label>'+priceInput(key, checked)+children;
     }).join('')+'</div></div>';
 }
+function dailyDropChecklistHtml(g,b,c,date){
+  const items = dailyDropItemsForBoss(b);
+  if(!items.length) return '';
+  const drops = dailyDropStore(c,date);
+  const prices = dailyDropPriceStore(c,date);
+  const priceInput = (key, checked) => checked
+    ? '<input class="drop-price daily-drop-price" type="text" inputmode="numeric" autocomplete="off" data-date="'+esc(date)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="아이템 가격">'
+    : '';
+  const selected = items.filter(item=>drops[dailyDropKey(b,item)]);
+  const summary = selected.length
+    ? selected.map(item=>{
+        const key=dailyDropKey(b,item);
+        const price=prices[key]&&drops[key] ? ' · '+dailyDropPriceText(c,date,key) : '';
+        return '<span class="drop-chip"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+price+'</span></span>';
+      }).join('')
+    : '<span class="drop-empty">오늘 획득한 아이템 없음</span>';
+  return '<div class="drops"><div class="drop-title"><span>오늘 획득 <b>'+selected.length+'</b>개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,b,date))+'</span><span class="drop-week">'+fmtShort(date)+'</span></div><div class="drop-selected">'+summary+'</div><div class="drop-grid">'+
+    items.map(item=>{
+      const key=dailyDropKey(b,item), checked=!!drops[key];
+      return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'">'+
+        '<input class="daily-drop-check" type="checkbox" data-date="'+esc(date)+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'>'+
+        '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'">'+
+        '<span>'+esc(item.name)+'</span></label>'+priceInput(key, checked);
+    }).join('')+'</div></div>';
+}
 function bossGroupCard(g,c){
   const b=selectedBossForGroup(g,c);
   const id=b[0], price=b[2];
@@ -3459,6 +3656,7 @@ function dailyBossGroupCard(g,c,date){
     ? '<div class="bdiff">난이도 <select class="daily-diff" data-date="'+esc(date)+'" data-group="'+g.key+'" data-current="'+id+'">'+diffOpts+'</select></div>'
     : '<div class="bmeta">난이도 '+bossDiff(b)+'</div>';
   const shareTxt = on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;');
+  const dropHtml = dailyDropChecklistHtml(g,b,c,date);
   return '<div class="bcard'+(on?' checked':'')+'">'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
@@ -3467,6 +3665,7 @@ function dailyBossGroupCard(g,c,date){
     '<div class="bparty">파티 <select class="daily-party" data-date="'+esc(date)+'" data-id="'+id+'"'+(on?'':' disabled')+'>'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
     '<label class="bcheck"><input class="daily-boss-check" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+'>'+(on?'다님':'체크')+'</label>'+
+    dropHtml+
     '</div>';
 }
 function renderDailyBoss(){
@@ -3476,20 +3675,21 @@ function renderDailyBoss(){
   const date=selectedDailyBossDate();
   list.innerHTML='';
   if(!db.chars.length){
-    list.innerHTML='<div class="card muted">보스 결정석 탭에서 캐릭터를 먼저 추가하세요.</div>';
+    list.innerHTML='<div class="card muted">주간 결정석 탭에서 캐릭터를 먼저 추가하세요.</div>';
   }
   db.chars.forEach(c=>{
-    const day=dailyBossSumForDate(date);
     const store=ensureObj(ensureObj(c.dailyBossDays)[date]);
-    let charMeso=0, charCrystals=0;
-    for(const id in store){ const b=DAILY_BOSS_MAP[id]; if(b){ charMeso += share(b[2], Math.max(1,Number(store[id])||1)); charCrystals++; } }
+    let crystalMeso=0, charCrystals=0;
+    for(const id in store){ const b=DAILY_BOSS_MAP[id]; if(b){ crystalMeso += share(b[2], Math.max(1,Number(store[id])||1)); charCrystals++; } }
+    const itemMeso=dailyDropPriceSumForCharDate(c,date);
+    const charMeso=toMesoBig(crystalMeso)+itemMeso;
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
     head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
-      '<span class="sum">'+date+' '+korMeso(charMeso)+' <span class="cnt">('+charCrystals+'개)</span></span>';
+      '<span class="sum">'+date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span></span>';
     const bl=document.createElement('div'); bl.className='bosslist'+(dailyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ dailyOpenChars.has(c.name)?dailyOpenChars.delete(c.name):dailyOpenChars.add(c.name); bl.classList.toggle('open'); };
-    let html='<div class="bossgroup">☀️ 일일 보스 ('+date+')</div><div class="bgrid">';
+    let html='<div class="bossgroup">☀️ 일간 결정석 ('+date+')</div><div class="bgrid">';
     DAILY_BOSS_GROUPS.forEach(g=>{ html+=dailyBossGroupCard(g,c,date); });
     html+='</div>';
     bl.innerHTML=html;
@@ -3501,6 +3701,14 @@ function renderDailyBoss(){
         dailyBossDrafts.set(c.name+'|'+date+'|'+sel.dataset.group,newId);
         if(oldId in store){
           const party=store[oldId]||1;
+          const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
+          group.bosses.forEach(b=>{
+            dailyDropItemsForBoss(b).forEach(item=>{
+              const key=dailyDropKey(b,item);
+              delete drops[key];
+              delete prices[key];
+            });
+          });
           group.bosses.forEach(b=>{ delete store[b[0]]; });
           store[newId]=party;
           save();
@@ -3517,6 +3725,14 @@ function renderDailyBoss(){
           group.bosses.forEach(b=>{ if(b[0]!==id) delete store[b[0]]; });
           store[id]=Math.max(1,Number(store[id])||1);
         } else {
+          const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
+          group.bosses.forEach(b=>{
+            dailyDropItemsForBoss(b).forEach(item=>{
+              const key=dailyDropKey(b,item);
+              delete drops[key];
+              delete prices[key];
+            });
+          });
           group.bosses.forEach(b=>{ delete store[b[0]]; });
         }
         save(); renderAll();
@@ -3529,12 +3745,41 @@ function renderDailyBoss(){
         save(); renderAll();
       };
     });
+    bl.querySelectorAll('input.daily-drop-check').forEach(chk=>{
+      chk.onchange=()=>{
+        const drops=dailyDropStore(c,date);
+        const prices=dailyDropPriceStore(c,date);
+        if(chk.checked) drops[chk.dataset.key]=true;
+        else {
+          delete drops[chk.dataset.key];
+          delete prices[chk.dataset.key];
+        }
+        c.dailyDrops=dailyDropStore(c,todayStr());
+        c.dailyDropPrices=dailyDropPriceStore(c,todayStr());
+        save(); renderAll();
+      };
+    });
+    bl.querySelectorAll('input.daily-drop-price').forEach(inp=>{
+      inp.oninput=()=>{
+        const digits=onlyDigits(inp.value);
+        inp.value=digits ? formatDigits(digits) : '';
+      };
+      inp.onchange=()=>{
+        const prices=dailyDropPriceStore(c,date);
+        const drops=dailyDropStore(c,date);
+        const digits=onlyDigits(inp.value);
+        if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
+        else delete prices[inp.dataset.key];
+        c.dailyDropPrices=dailyDropPriceStore(c,todayStr());
+        save(); renderAll();
+      };
+    });
     box.appendChild(head); box.appendChild(bl); list.appendChild(box);
   });
   const dayTotal=dailyBossSumForDate(date);
   const week=mapleWeekStart(date), weekTotal=dailyBossTotalsForWeek(week);
-  total.innerHTML='☀️ <b>'+date+' 일일 보스 수익:</b> <span class="meso">'+korMeso(dayTotal.meso)+'</span> <span class="daily-total-detail">(결정석 '+dayTotal.crystals+'개)</span>'+
-    '<br>🗓 <b>해당 주 일일 보스 합계:</b> <span class="meso">'+korMeso(weekTotal.meso)+'</span> <span class="daily-total-detail">('+fmtWeekRange(week)+' · 결정석 '+weekTotal.crystals+'개)</span>';
+  total.innerHTML='☀️ <b>'+date+' 일간 결정석 수익:</b> <span class="meso">'+korMeso(dayTotal.meso)+'</span> <span class="daily-total-detail">(결정석 '+korMeso(dayTotal.crystalMeso)+' + 아이템 '+korMeso(dayTotal.dropMeso)+' · 결정석 '+dayTotal.crystals+'개)</span>'+
+    '<br>🗓 <b>해당 주 일간 결정석 합계:</b> <span class="meso">'+korMeso(weekTotal.meso)+'</span> <span class="daily-total-detail">('+fmtWeekRange(week)+' · 결정석 '+korMeso(weekTotal.crystalMeso)+' + 아이템 '+korMeso(weekTotal.dropMeso)+' · 결정석 '+weekTotal.crystals+'개)</span>';
 }
 
 /* ───────── 백업/복원 ───────── */
@@ -3553,7 +3798,7 @@ document.getElementById('file-import').onchange=(e)=>{
     try{
       const data=JSON.parse(r.result);
       if(!data.records) throw new Error('형식 오류');
-      db={records:normalizeRecords(data.records||{}), settings:ensureObj(data.settings), chars:(data.chars||[]).map(c=>normalizeChar({name:c.name, server:c.server, bosses:c.bosses, bossWeeks:c.bossWeeks, drops:c.drops, dropWeeks:c.dropWeeks, dropPrices:c.dropPrices, dropPriceWeeks:c.dropPriceWeeks, dailyBosses:c.dailyBosses, dailyBossDays:c.dailyBossDays}))};
+      db={records:normalizeRecords(data.records||{}), settings:ensureObj(data.settings), chars:(data.chars||[]).map(c=>normalizeChar({name:c.name, server:c.server, bosses:c.bosses, bossWeeks:c.bossWeeks, drops:c.drops, dropWeeks:c.dropWeeks, dropPrices:c.dropPrices, dropPriceWeeks:c.dropPriceWeeks, dailyBosses:c.dailyBosses, dailyBossDays:c.dailyBossDays, dailyDrops:c.dailyDrops, dailyDropDays:c.dailyDropDays, dailyDropPrices:c.dailyDropPrices, dailyDropPriceDays:c.dailyDropPriceDays}))};
       save(); renderAll(); alert('복원 완료!');
     }catch(err){ alert('복원 실패: 올바른 백업 파일이 아닙니다.'); }
   };
@@ -3561,7 +3806,7 @@ document.getElementById('file-import').onchange=(e)=>{
 };
 
 /* ───────── 렌더 ───────── */
-function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderBoss(); renderDailyBoss(); }
+function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderBoss(); renderMonthlyBoss(); renderDailyBoss(); }
 renderAll();
 </script>
 <div class="watermark">크로아/얀보 제작</div>
