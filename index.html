@@ -58,9 +58,10 @@
   .hint{font-size:12px; color:var(--orange); margin-top:4px; min-height:15px; overflow-wrap:anywhere;}
   .calc-card .row{align-items:flex-start;}
   .calc-card input{width:220px; max-width:100%;}
-  .calc-options{margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;}
-  .inline-check{display:inline-flex; align-items:center; gap:6px; margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:rgba(0,0,0,.14); color:var(--text); font-size:12px; cursor:pointer;}
-  .inline-check input{width:auto; accent-color:var(--gold);}
+  .calc-options{margin-top:10px; display:flex; flex-wrap:wrap; align-items:stretch; gap:8px;}
+  .inline-check{display:inline-flex; align-items:center; gap:6px; max-width:100%; margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:rgba(0,0,0,.14); color:var(--text); font-size:12px; line-height:1.45; white-space:normal; word-break:keep-all; cursor:pointer;}
+  .inline-check input{flex:0 0 auto; width:auto; accent-color:var(--gold);}
+  .inline-check span{display:block; flex:1 1 0; min-width:0; max-width:100%;}
   .calc-result{margin-top:10px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px;}
   .calc-result .pill{background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:12px; color:var(--sub);}
   .calc-result .pill b{display:block; color:var(--gold); font-size:14px; margin-top:3px;}
@@ -111,7 +112,7 @@
   .bimg{max-height:84px; max-width:150px; image-rendering:auto; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
   .boss-img-adversary{filter:drop-shadow(0 0 2px rgba(128,185,255,.9)) drop-shadow(0 0 8px rgba(71,120,255,.45)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
   .boss-img-star{filter:drop-shadow(0 0 2px rgba(255,218,84,.92)) drop-shadow(0 0 8px rgba(255,128,28,.5)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
-  .boss-img-baldrix{filter:drop-shadow(0 0 2px rgba(255,65,165,.92)) drop-shadow(0 0 8px rgba(190,0,120,.52)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
+  .boss-img-baldrix{filter:drop-shadow(0 0 2px rgba(166,112,255,.9)) drop-shadow(0 0 9px rgba(74,48,160,.54)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
   .boss-img-meirin{filter:drop-shadow(0 0 2px rgba(96,218,255,.92)) drop-shadow(0 0 9px rgba(35,135,255,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
   .bname{font-size:13px; font-weight:bold; text-align:center; line-height:1.25; min-height:18px; display:flex; align-items:center;}
   .bdiff{width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:var(--sub);}
@@ -146,6 +147,13 @@
   .loot-row img{width:28px; height:28px; object-fit:contain;}
   .loot-row .loot-name{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .loot-row .loot-count{color:var(--gold); font-weight:bold;}
+  .chart-float{position:fixed; z-index:10001; min-width:178px; max-width:260px; padding:9px 10px; border-radius:8px; border:1px solid rgba(245,197,66,.42); background:rgba(20,22,31,.96); box-shadow:0 12px 28px rgba(0,0,0,.42); color:var(--text); pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s ease, transform .14s ease, left .12s ease, top .12s ease; will-change:left,top,opacity,transform;}
+  .chart-float.show{opacity:1; transform:translateY(0);}
+  .chart-tip-title{font-size:13px; font-weight:800; color:#f2f4ff; margin-bottom:7px;}
+  .chart-tip-row{display:grid; grid-template-columns:14px minmax(0,1fr); gap:7px; align-items:center; font-size:12px; color:#dfe4f2;}
+  .chart-tip-row b{display:block; margin-top:3px; color:var(--gold); font-size:12px; line-height:1.25; overflow-wrap:anywhere;}
+  .chart-swatch{width:14px; height:14px; border-radius:3px; border:2px solid #7ee884; background:rgba(126,232,132,.18); box-shadow:0 0 0 1px rgba(0,0,0,.22) inset;}
+  .chart-tip-sub{margin-top:6px; color:var(--sub); font-size:11px; line-height:1.35;}
   .drop-empty{font-size:10px; color:var(--sub); padding:3px 2px;}
   .drop-child{grid-column:1 / -1; margin-left:22px; padding:5px 6px; border-left:2px solid rgba(115,208,255,.45); display:grid; gap:4px;}
   .drop-child-title{font-size:10px; color:#aee6ff; font-weight:bold;}
@@ -160,10 +168,19 @@
   .totalbar{background:linear-gradient(90deg,#2c2410,#1e2130); border:1px solid var(--gold); border-radius:10px; padding:14px; font-size:14px; line-height:1.9; overflow-wrap:anywhere; word-break:keep-all;}
   .warn{color:var(--red); font-size:12px;}
   .muted{color:var(--sub); font-size:12px; line-height:1.6;}
-  .bar-wrap{display:flex; align-items:flex-end; gap:4px; height:120px; margin-top:10px;}
-  .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0;}
-  .bar{width:100%; background:linear-gradient(180deg,var(--gold),#8f6d13); border-radius:3px 3px 0 0; min-height:2px;}
-  .bar-lbl{font-size:10px; color:var(--sub); white-space:nowrap; overflow:hidden; max-width:100%;}
+  .chart-box{display:grid; grid-template-columns:62px minmax(0,1fr); column-gap:8px; margin-top:10px;}
+  .chart-axis,.chart-plot{position:relative; height:142px;}
+  .chart-axis{border-right:1px solid var(--line);}
+  .axis-tick{position:absolute; right:8px; transform:translateY(50%); color:var(--sub); font-size:10px; line-height:1; white-space:nowrap;}
+  .chart-plot{min-width:0;}
+  .chart-grid-line{position:absolute; left:0; right:0; transform:translateY(50%); border-top:1px solid rgba(154,160,184,.22);}
+  .chart-bars{position:absolute; inset:0; display:flex; align-items:flex-end; gap:4px;}
+  .chart-bars .bar-col{flex:1; height:100%; display:flex; align-items:flex-end; min-width:0;}
+  .bar{width:100%; background:linear-gradient(180deg,var(--gold),#8f6d13); border-radius:4px 4px 0 0; min-height:2px; cursor:help; transition:filter .15s ease, transform .15s ease, opacity .15s ease;}
+  .bar:hover,.bar:focus{filter:brightness(1.16); transform:translateY(-1px); outline:none;}
+  .bar.empty{background:#333a55; opacity:.75;}
+  .chart-labels{grid-column:2; display:flex; gap:4px; margin-top:5px;}
+  .bar-lbl{flex:1; min-width:0; font-size:10px; color:var(--sub); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:clip;}
   .toolbar{display:flex; gap:8px; justify-content:flex-end; margin-bottom:10px; flex-wrap:wrap;}
   @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:900px){ #page-daily>.card:first-child .row{grid-template-columns:1fr;} #page-daily>.card:first-child .row>div:last-child{grid-column:auto;} #page-daily>.card:first-child .row button{margin-top:0;} }
@@ -183,6 +200,11 @@
     #page-daily>.card:first-child .row button{height:42px; margin-top:0;}
     #page-daily>.card:first-child .row>div[style]{min-width:0 !important;}
     .daily-date-row input,.calc-card input{width:100%;}
+    .calc-options{display:grid; grid-template-columns:1fr;}
+    .inline-check{width:100%; align-items:flex-start;}
+    .calc-card .inline-check input{width:auto !important; max-width:none;}
+    .calc-result{grid-template-columns:1fr;}
+    .calc-result .pill b{overflow-wrap:anywhere;}
     #in-erda{width:100% !important;}
     button{width:100%; white-space:normal;}
     button.ghost,button.danger{width:auto;}
@@ -206,8 +228,8 @@
     .drop-chip span,.loot-row .loot-name,.drop-item span,.drop-child-item span{white-space:normal;}
     .drop-child{margin-left:0;}
     .totalbar{padding:12px; font-size:13px; line-height:1.75;}
-    .bar-wrap{min-width:520px;}
-    .bar-col{min-width:28px;}
+    .chart-box{min-width:560px;}
+    .chart-bars .bar-col,.chart-labels .bar-lbl{min-width:28px;}
     .watermark{right:8px; bottom:8px; font-size:10px; padding:5px 8px;}
   }
   @media (max-width:380px){
@@ -270,7 +292,7 @@
       <div class="muted" style="padding-top:24px;">직접 입력한 단가로 저장된 조각 수를 메소 가치로 환산합니다.</div>
     </div>
     <div class="calc-options">
-      <label class="inline-check"><input type="checkbox" id="erda-include-meso"> 환산한 조각 가격을 재획 메소 합계에 포함</label>
+      <label class="inline-check"><input type="checkbox" id="erda-include-meso"><span>환산한 조각 가격을 재획 메소 합계에 포함</span></label>
     </div>
     <div class="calc-result" id="erda-price-result"></div>
   </div>
@@ -327,7 +349,7 @@
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
-      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수, 메소 단위 절사)<br>
+      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
       ※ 가격 출처: KMS 1.2.416 강렬한 힘의 결정 개편 (2026-06-18 기준).
     </div>
   </div>
@@ -379,7 +401,7 @@
   </div>
   <div class="card">
     <h2>📈 최근 14일 재획 메소</h2>
-    <div class="bar-wrap" id="chart14"></div>
+    <div class="chart-box" id="chart14"></div>
   </div>
   <div class="card">
     <h2>🗓 주간 합계 <span class="muted">(목요일 ~ 수요일)</span></h2>
@@ -3117,6 +3139,70 @@ function sumRange(pred){
   }
   return {m,e,days};
 }
+function niceMesoStep(max){
+  max=toMesoBig(max);
+  if(max<=0n) return 100000000n;
+  const target=(max+2n)/3n;
+  const base=10n ** BigInt(Math.max(0, target.toString().length-1));
+  for(const unit of [1n,2n,5n,10n]){
+    const step=base*unit;
+    if(target<=step) return step;
+  }
+  return base*10n;
+}
+function chartDateLabel(d){
+  const parts=String(d).split('-');
+  if(parts.length!==3) return d;
+  return parts[0].slice(2)+'년 '+Number(parts[1])+'월 '+Number(parts[2])+'일';
+}
+function chartTooltipEl(){
+  let el=document.getElementById('chart-float');
+  if(!el){
+    el=document.createElement('div');
+    el.id='chart-float';
+    el.className='chart-float';
+    const root=document.body || document.documentElement;
+    if(root) root.appendChild(el);
+  }
+  return el;
+}
+function positionMesoTooltip(anchor, evt){
+  const el=document.getElementById('chart-float');
+  if(!el || !anchor || typeof window==='undefined') return;
+  const r=anchor.getBoundingClientRect();
+  const w=el.offsetWidth || 210;
+  const h=el.offsetHeight || 94;
+  const vw=window.innerWidth || 1280;
+  const vh=window.innerHeight || 720;
+  const x=evt && typeof evt.clientX==='number' ? evt.clientX : r.left + r.width/2;
+  let left=x - w/2;
+  left=Math.max(8, Math.min(left, vw-w-8));
+  let top=r.top - h - 12;
+  if(top < 8) top = r.bottom + 12;
+  if(top + h > vh - 8) top = Math.max(8, vh - h - 8);
+  el.style.left=left+'px';
+  el.style.top=top+'px';
+}
+function showMesoTooltip(anchor, evt){
+  const el=chartTooltipEl();
+  if(!el || !anchor) return;
+  const meso=anchor.dataset.meso || '0';
+  const label=anchor.dataset.label || '재획 메소';
+  el.innerHTML=
+    '<div class="chart-tip-title">'+esc(anchor.dataset.dateLabel || anchor.dataset.date || '')+'</div>'+
+    '<div class="chart-tip-row"><span class="chart-swatch"></span><span>'+esc(label)+'<b>'+fmt(meso)+' 메소</b></span></div>'+
+    '<div class="chart-tip-sub">'+korMeso(meso)+'</div>';
+  el.classList.add('show');
+  positionMesoTooltip(anchor, evt);
+}
+function hideMesoTooltip(){
+  const el=document.getElementById('chart-float');
+  if(el) el.classList.remove('show');
+}
+if(typeof window!=='undefined'){
+  window.addEventListener('scroll', hideMesoTooltip, {passive:true});
+  window.addEventListener('resize', hideMesoTooltip);
+}
 function renderStats(){
   const today=todayStr();
   const wkStart=mapleWeekStart(today), wkEnd=addDays(wkStart,6);
@@ -3142,21 +3228,41 @@ function renderStats(){
 
   const wrap=document.getElementById('chart14'); wrap.innerHTML='';
   const days=[]; for(let i=13;i>=0;i--) days.push(addDays(today,-i));
-  const max=days.reduce((mx,d)=>{
-    const v=db.records[d]?recordMesoTotal(normalizeRecord(db.records[d])):0n;
-    return v>mx ? v : mx;
-  }, 1n);
-  days.forEach(d=>{
-    const v=db.records[d]?recordMesoTotal(normalizeRecord(db.records[d])):0n;
-    const col=document.createElement('div'); col.className='bar-col';
-    const bar=document.createElement('div'); bar.className='bar';
-    bar.style.height=Number((v*100n)/max)+'px';
-    bar.title=d+' '+mesoLabel+': '+fmt(v)+' 메소';
-    bar.setAttribute('aria-label', bar.title);
-    if(v===0n) bar.style.background='#333a55';
-    const lbl=document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=fmtShort(d);
-    col.appendChild(bar); col.appendChild(lbl); wrap.appendChild(col);
+  const vals=days.map(d=>db.records[d]?recordMesoTotal(normalizeRecord(db.records[d])):0n);
+  const max=vals.reduce((mx,v)=>v>mx?v:mx,0n);
+  const step=niceMesoStep(max);
+  const axisTop=step*3n;
+  const axis=document.createElement('div'); axis.className='chart-axis';
+  const plot=document.createElement('div'); plot.className='chart-plot';
+  const bars=document.createElement('div'); bars.className='chart-bars';
+  const labels=document.createElement('div'); labels.className='chart-labels';
+  [1n,2n,3n].forEach(i=>{
+    const pct=Number((step*i*100n)/axisTop);
+    const tick=document.createElement('div'); tick.className='axis-tick'; tick.style.bottom=pct+'%'; tick.textContent=korShort(step*i);
+    const line=document.createElement('div'); line.className='chart-grid-line'; line.style.bottom=pct+'%';
+    axis.appendChild(tick); plot.appendChild(line);
   });
+  days.forEach((d,idx)=>{
+    const v=vals[idx];
+    const col=document.createElement('div'); col.className='bar-col';
+    const bar=document.createElement('div'); bar.className='bar'+(v===0n?' empty':'');
+    bar.style.height=Number((v*100n)/axisTop)+'%';
+    bar.dataset.date=d;
+    bar.dataset.dateLabel=chartDateLabel(d);
+    bar.dataset.label=mesoLabel;
+    bar.dataset.meso=String(v);
+    bar.setAttribute('tabindex','0');
+    bar.setAttribute('aria-label', d+' '+mesoLabel+': '+fmt(v)+' 메소');
+    bar.addEventListener('mouseenter', e=>showMesoTooltip(bar,e));
+    bar.addEventListener('mousemove', e=>positionMesoTooltip(bar,e));
+    bar.addEventListener('mouseleave', hideMesoTooltip);
+    bar.addEventListener('focus', e=>showMesoTooltip(bar,e));
+    bar.addEventListener('blur', hideMesoTooltip);
+    const lbl=document.createElement('div'); lbl.className='bar-lbl'; lbl.textContent=fmtShort(d);
+    col.appendChild(bar); bars.appendChild(col); labels.appendChild(lbl);
+  });
+  plot.appendChild(bars);
+  wrap.appendChild(axis); wrap.appendChild(plot); wrap.appendChild(labels);
 
   const weeks={};
   const ensureWeek=w=>weeks[w]||(weeks[w]={m:0n,e:0,days:0,boss:0n,loot:[]});
