@@ -79,9 +79,9 @@
   .drop-price{grid-column:2 / -1; width:100%; min-width:0; padding:6px 8px !important; font-size:11px !important; border-radius:6px !important; color:var(--gold) !important; margin:0 0 2px;}
   .drop-price.child-price{grid-column:2 / -1; margin-left:0;}
   .drop-price::placeholder{color:rgba(245,197,66,.48);}
-  .drop-split{grid-column:2 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; width:100%; margin:-3px 0 3px;}
-  .drop-split label{display:flex; align-items:center; gap:5px; margin:0; color:var(--sub); font-size:10px; min-width:0;}
-  .drop-split select{flex:1 1 0; width:100%; min-width:0; padding:5px 6px; font-size:11px; border-radius:6px;}
+  .drop-split{grid-column:2 / -1; display:grid; grid-template-columns:1fr; gap:5px; width:100%; margin:-3px 0 3px;}
+  .drop-split label{display:grid; grid-template-columns:42px minmax(96px,1fr); align-items:center; gap:6px; margin:0; color:var(--sub); font-size:11px; min-width:0;}
+  .drop-split select{width:100%; min-width:0; padding:5px 24px 5px 8px; font-size:12px; border-radius:6px;}
   .drop-split-result{grid-column:1 / -1; color:var(--green); font-size:10px; line-height:1.45; overflow-wrap:anywhere;}
   .daily-date-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
   .daily-date-row input{width:180px;}
@@ -469,7 +469,7 @@
 <div class="page" id="page-monthlyboss">
   <div class="card">
     <h2>🌑 월간 결정석</h2>
-    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>주간 결정석</b> 탭에서 관리합니다.</div>
+    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>주간 결정석</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
   </div>
 
   <div id="monthlyboss-list"></div>
