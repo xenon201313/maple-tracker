@@ -65,6 +65,17 @@
   .calc-result{margin-top:10px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px;}
   .calc-result .pill{background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:8px; padding:9px 10px; font-size:12px; color:var(--sub);}
   .calc-result .pill b{display:block; color:var(--gold); font-size:14px; margin-top:3px;}
+  .guide-hero h2{font-size:24px; margin-bottom:8px;}
+  .guide-lead{color:var(--text); line-height:1.65; max-width:920px; margin:0 0 14px;}
+  .guide-pills{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+  .guide-pill{display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid rgba(245,197,66,.35); border-radius:999px; color:var(--gold); background:rgba(245,197,66,.08); font-size:12px; font-weight:bold;}
+  .guide-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px;}
+  .guide-item{border:1px solid var(--line); border-radius:10px; padding:12px; background:rgba(0,0,0,.12);}
+  .guide-item b{display:block; color:var(--gold); margin-bottom:5px;}
+  .guide-item p{margin:0; color:var(--sub); font-size:13px; line-height:1.55;}
+  .guide-list{margin:0; padding-left:18px; color:var(--text); line-height:1.65;}
+  .guide-list li{margin:4px 0;}
+  .guide-note{margin-top:10px; padding:10px 12px; border-left:3px solid var(--gold); background:rgba(245,197,66,.08); color:var(--sub); border-radius:8px; line-height:1.6; font-size:13px;}
   .drop-price{grid-column:2 / -1; width:100%; min-width:0; padding:6px 8px !important; font-size:11px !important; border-radius:6px !important; color:var(--gold) !important; margin:0 0 2px;}
   .drop-price.child-price{grid-column:2 / -1; margin-left:0;}
   .drop-price::placeholder{color:rgba(245,197,66,.48);}
@@ -191,6 +202,7 @@
     .subtitle{font-size:11px; line-height:1.5; margin-bottom:12px;}
     .tabs{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px;}
     .tab{display:flex; align-items:center; justify-content:center; min-width:0; padding:9px 6px; border-radius:8px; text-align:center; font-size:13px; line-height:1.25; word-break:keep-all;}
+    .tab[data-page="intro"]{grid-column:1 / -1;}
     .tab[data-page="stats"]{grid-column:1 / -1;}
     .card{padding:12px; border-radius:10px; margin-bottom:12px; overflow-x:auto;}
     .card h2{font-size:15px; line-height:1.25;}
@@ -205,6 +217,9 @@
     .calc-card .inline-check input{width:auto !important; max-width:none;}
     .calc-result{grid-template-columns:1fr;}
     .calc-result .pill b{overflow-wrap:anywhere;}
+    .guide-hero h2{font-size:18px;}
+    .guide-grid{grid-template-columns:1fr;}
+    .guide-item{padding:10px;}
     #in-erda{width:100% !important;}
     button{width:100%; white-space:normal;}
     button.ghost,button.danger{width:auto;}
@@ -246,15 +261,99 @@
 <div class="subtitle">데이터는 이 브라우저에 자동 저장됩니다. · 주간 초기화: 매주 목요일 · 월간(검은 마법사): 매월 1일<br>결정석 가격 기준: KMS 1.2.416 패치 (2026-06-18) · 보스 일러스트: 넥슨/나무위키</div>
 
 <div class="tabs">
-  <div class="tab active" data-page="daily">📋 재획 기록</div>
+  <div class="tab active" data-page="intro">📖 설명</div>
+  <div class="tab" data-page="daily">📋 재획 기록</div>
   <div class="tab" data-page="boss">👑 주간 결정석</div>
   <div class="tab" data-page="monthlyboss">🌑 월간 결정석</div>
   <div class="tab" data-page="dailyboss">☀️ 일간 결정석</div>
   <div class="tab" data-page="stats">📊 통계</div>
 </div>
 
+<!-- ══════════ 설명 ══════════ -->
+<div class="page active" id="page-intro">
+  <div class="card guide-hero">
+    <h2>📖 메이플 수익 기록장 사용 설명</h2>
+    <p class="guide-lead">재획 수익, 솔 에르다 조각, 추가 부수입, 주간/월간/일간 결정석, 보스 드랍 아이템 가격을 한 곳에서 기록하는 개인용 수익 기록장입니다. 기록은 이 브라우저에 자동 저장되며, 같은 주소라도 다른 기기나 다른 브라우저에는 자동으로 옮겨지지 않습니다.</p>
+    <div class="guide-pills">
+      <span class="guide-pill">자동 저장</span>
+      <span class="guide-pill">주간 초기화 목요일</span>
+      <span class="guide-pill">월간 보스 매월 1일</span>
+      <span class="guide-pill">백업 JSON 권장</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. 기본 개념</h2>
+    <div class="guide-grid">
+      <div class="guide-item"><b>브라우저 저장</b><p>입력한 데이터는 현재 브라우저의 localStorage에 저장됩니다. 사이트 링크를 공유해도 내 기록이 다른 사람에게 전달되지는 않습니다.</p></div>
+      <div class="guide-item"><b>날짜 기준 집계</b><p>재획과 일간 보스는 날짜별로, 주간 보스는 목요일 시작 주간별로, 검은 마법사는 월간 기준으로 집계됩니다.</p></div>
+      <div class="guide-item"><b>백업 필요</b><p>브라우저 데이터를 지우면 기록도 사라질 수 있으니 중요한 기록은 백업(JSON)으로 저장해 두는 것을 권장합니다.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 재획 기록</h2>
+    <ul class="guide-list">
+      <li><b>날짜</b>는 YYYY-MM-DD 형식으로 입력합니다. 미래 날짜는 저장할 수 없습니다.</li>
+      <li><b>캐릭터</b>에는 재획한 캐릭터 이름을 적습니다.</li>
+      <li><b>획득 메소</b>는 사냥으로 직접 얻은 메소입니다. 숫자를 입력하면 111,111,111처럼 쉼표가 자동 적용됩니다.</li>
+      <li><b>추가 부수입</b>은 코어 젬스톤, 장비 판매, 기타 판매 수익처럼 재획과 함께 잡고 싶은 수익을 자유롭게 입력하는 칸입니다.</li>
+      <li><b>솔 에르다 조각</b>은 개수로 저장됩니다. 조각 계산기에서 단가를 입력하면 메소 가치로 환산할 수 있습니다.</li>
+    </ul>
+    <div class="guide-note">조각 가격을 재획 수익에 포함하고 싶으면 “환산한 조각 가격을 재획 메소 합계에 포함” 옵션을 켜면 됩니다.</div>
+  </div>
+
+  <div class="card">
+    <h2>3. 주간 결정석</h2>
+    <ul class="guide-list">
+      <li>먼저 캐릭터 이름을 등록하고, 본서버 또는 챌린저스 서버를 선택합니다.</li>
+      <li>캐릭터 이름을 누르면 보스 카드가 열리고, 보스마다 난이도와 파티 인원수를 선택할 수 있습니다.</li>
+      <li>주간 보스 12개 제한은 일반 주간 보스에만 적용됩니다. 검은 마법사와 메이린처럼 별도 규칙이 있는 보스는 해당 제한에서 제외됩니다.</li>
+      <li>파티 인원수를 고르면 결정석 가격이 인원수로 나뉘어 “내 몫”으로 표시됩니다.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. 보스 드랍 아이템과 가격</h2>
+    <div class="guide-grid">
+      <div class="guide-item"><b>난이도별 보상</b><p>보스 난이도에 따라 체크 가능한 드랍 아이템이 다르게 표시됩니다.</p></div>
+      <div class="guide-item"><b>아이템 가격</b><p>획득한 아이템을 체크하고 가격을 입력하면 보스 수익에 포함됩니다.</p></div>
+      <div class="guide-item"><b>파티 분배</b><p>아이템 가격도 선택한 파티 인원수로 나눈 내 몫 기준으로 계산됩니다.</p></div>
+      <div class="guide-item"><b>선택 상자</b><p>칠흑 장신구 상자나 보스 반지 상자처럼 구성품이 있는 보상은 실제로 얻은 세부 아이템을 선택할 수 있습니다.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. 월간 결정석과 일간 결정석</h2>
+    <ul class="guide-list">
+      <li><b>월간 결정석</b> 탭은 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
+      <li><b>일간 결정석</b> 탭은 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
+      <li>월간/일간 결정석도 전체 통계의 주간/월간 집계에 함께 반영됩니다.</li>
+      <li>일간 결정석을 쓰려면 주간 결정석 탭에서 캐릭터를 먼저 등록해 주세요.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>6. 통계 보기</h2>
+    <ul class="guide-list">
+      <li>오늘, 이번 주, 이번 달 재획 수익과 조각 수, 보스 수익, 획득 아이템을 요약해서 볼 수 있습니다.</li>
+      <li>최근 14일 그래프는 날짜별 재획 수익 흐름을 보여줍니다. 그래프에 커서를 올리면 정확한 메소 수치가 표시됩니다.</li>
+      <li>주간/월간 합계의 획득 아이템에 커서를 올리면 아이템 이미지, 이름, 개수를 확인할 수 있습니다.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>7. 백업과 공유</h2>
+    <div class="guide-grid">
+      <div class="guide-item"><b>공유</b><p>다른 사람에게 프로그램을 공유할 때는 GitHub Pages 주소를 알려주면 됩니다.</p></div>
+      <div class="guide-item"><b>내 기록 이동</b><p>내 기록을 다른 기기로 옮기려면 백업(JSON)을 내려받은 뒤 새 기기에서 복원 기능을 사용합니다.</p></div>
+      <div class="guide-item"><b>주의</b><p>브라우저 캐시/사이트 데이터를 삭제하면 저장된 기록이 사라질 수 있습니다.</p></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ 재획 기록 ══════════ -->
-<div class="page active" id="page-daily">
+<div class="page" id="page-daily">
   <div class="card">
     <h2><img id="h-meso1">오늘의 재획 입력</h2>
     <div class="row">
