@@ -48,7 +48,7 @@
   }
   html{width:100%; min-height:100%; overflow-x:hidden; background:var(--bg);}
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{width:100%; min-height:100vh; background:transparent; color:var(--text); font-family:var(--font-body); font-weight:400; padding:20px; max-width:1180px; margin:0 auto; overflow-x:hidden; position:relative; isolation:isolate;}
+  body{width:100%; min-height:100vh; background:transparent; color:var(--text); font-family:var(--font-body); font-weight:400; line-height:1.45; padding:20px; max-width:1180px; margin:0 auto; overflow-x:hidden; position:relative; isolation:isolate;}
   body.modal-open{overflow:hidden;}
   body::before{content:""; position:fixed; inset:0; z-index:-2; background:linear-gradient(180deg,rgba(7,10,18,.34),rgba(7,10,18,.72)),url("assets/maple-village-bg.png") center center/cover no-repeat; transform:translateZ(0);}
   body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 34%),linear-gradient(90deg,rgba(4,7,12,.62),rgba(4,7,12,.24) 22%,rgba(4,7,12,.28) 78%,rgba(4,7,12,.66)),rgba(4,7,12,.18);}
@@ -99,6 +99,7 @@
   .guide-list{margin:0; padding-left:18px; color:var(--text); line-height:1.65;}
   .guide-list li{margin:4px 0;}
   .guide-note{margin-top:10px; padding:10px 12px; border-left:3px solid var(--gold); background:rgba(255,210,77,.1); color:#d9dfef; border-radius:8px; line-height:1.6; font-size:13px;}
+  .guide-lead,.guide-list,.guide-item p,.guide-note,.muted,.api-copy,.api-help,.totalbar{word-break:keep-all; overflow-wrap:anywhere;}
   .drop-price{grid-column:2 / -1; width:100%; min-width:0; padding:6px 8px !important; font-size:11px !important; border-radius:6px !important; color:var(--gold) !important; margin:0 0 2px;}
   .drop-price.child-price{grid-column:2 / -1; margin-left:0;}
   .drop-price::placeholder{color:rgba(245,197,66,.48);}
@@ -135,17 +136,20 @@
   .char-avatar img{width:100%; height:100%; object-fit:contain; object-position:center center; transform:scale(1.48); transform-origin:center 55%;}
   .char-avatar.placeholder{color:var(--sub); font-weight:bold;}
   .char-info{display:flex; flex-direction:column; min-width:0; gap:3px;}
-  .charhead .nm{font-size:15px; font-weight:bold; color:var(--blue); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .char-meta{font-size:11px; color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .char-info .nm{font-size:15px; font-weight:bold; color:var(--blue); min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.3;}
+  .char-meta{font-size:11px; color:var(--sub); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.4;}
   .charhead .sum{font-size:13px; color:var(--gold); min-width:0; overflow-wrap:anywhere; word-break:keep-all;}
   .registered-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;}
   .registered-head h2{margin-bottom:0;}
   .registered-tools{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
-  .registered-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px;}
-  .registered-card{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(220,230,255,.18); border-radius:12px; background:rgba(6,10,18,.38);}
-  .registered-card .char-profile{flex:1 1 auto;}
-  .registered-actions{display:flex; flex-direction:column; gap:6px; align-items:stretch; flex:0 0 auto;}
-  .registered-actions button{padding:7px 10px; font-size:12px;}
+  .registered-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:10px;}
+  .registered-card{display:grid; grid-template-columns:1fr; align-items:stretch; gap:10px; padding:12px; border:1px solid rgba(220,230,255,.18); border-radius:12px; background:rgba(6,10,18,.38);}
+  .registered-card .char-profile{display:grid; grid-template-columns:82px minmax(0,1fr); align-items:center; width:100%; flex:none; gap:14px;}
+  .registered-card .char-info .nm{font-size:16px;}
+  .registered-card .char-meta{white-space:normal; overflow:visible; text-overflow:clip; word-break:keep-all; overflow-wrap:anywhere;}
+  .registered-actions{display:grid; grid-template-columns:1fr; gap:6px; align-items:stretch;}
+  .registered-actions button{width:100%; padding:7px 10px; font-size:12px;}
+  .registered-actions .muted{white-space:normal; word-break:keep-all; overflow-wrap:anywhere;}
   .registered-empty{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.28);}
   .guide-modal{display:none; position:fixed; inset:0; z-index:10002; padding:22px; align-items:center; justify-content:center;}
   .guide-modal.open{display:flex;}
@@ -325,13 +329,14 @@
     .char-avatar{width:72px; height:72px; flex-basis:72px; border-radius:18px;}
     .charhead{align-items:flex-start;}
     .char-profile,.charhead .sum{width:100%; flex-basis:100%;}
-    .charhead .nm,.char-meta{white-space:normal;}
+    .char-info .nm,.char-meta{white-space:normal; overflow:visible; text-overflow:clip;}
     .charhead button.danger{width:auto; margin-left:auto;}
     .registered-head{display:grid; grid-template-columns:1fr; gap:8px;}
     .registered-head button{width:100%;}
     .registered-tools{display:grid; grid-template-columns:1fr; justify-content:stretch;}
     .registered-list{grid-template-columns:1fr;}
     .registered-card{display:grid; grid-template-columns:1fr; align-items:stretch;}
+    .registered-card .char-profile{grid-template-columns:72px minmax(0,1fr);}
     .registered-actions{display:grid; grid-template-columns:1fr;}
     .guide-modal{padding:10px;}
     .guide-modal-panel{max-height:88vh; padding:13px; border-radius:12px;}
@@ -366,6 +371,7 @@
     .tab{font-size:12px; padding:8px 4px; min-height:40px;}
     .card{padding:10px;}
     .char-avatar{width:66px; height:66px; flex-basis:66px;}
+    .registered-card .char-profile{grid-template-columns:66px minmax(0,1fr); gap:10px;}
     .bimg{max-width:130px;}
   }
 </style>
