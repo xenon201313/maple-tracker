@@ -111,6 +111,7 @@
   .daily-total-detail{color:var(--sub); font-size:12px;}
   button{background:var(--gold); color:#222; border:none; border-radius:8px; padding:10px 18px; font-family:var(--font-body); font-size:14px; font-weight:bold; cursor:pointer; min-width:0; max-width:100%; white-space:nowrap;}
   button:hover{filter:brightness(1.1);}
+  button:disabled{opacity:.55; cursor:not-allowed; filter:none;}
   button.ghost{background:rgba(28,34,52,.92); color:#d3daed; border:1px solid rgba(220,230,255,.2); padding:6px 10px; font-size:12px;}
   button.danger{background:rgba(255,123,139,.08); color:var(--red); border:1px solid rgba(255,123,139,.62); padding:4px 10px; font-size:12px;}
   table{width:100%; border-collapse:collapse; font-size:13px;}
@@ -128,14 +129,22 @@
   .stat .s{font-size:12px; color:var(--sub); margin-top:4px;}
   .icon-sm{height:18px; vertical-align:-3px; image-rendering:pixelated; margin-right:3px;}
   .charhead{display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:10px; flex-wrap:wrap;}
-  .char-profile{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 300px;}
-  .char-avatar{width:66px; height:66px; flex:0 0 66px; border-radius:18px; display:inline-flex; align-items:center; justify-content:center; overflow:hidden; background:radial-gradient(circle at 50% 34%, rgba(125,180,255,.18), #151a2a 68%); border:1px solid rgba(125,180,255,.32); box-shadow:0 8px 18px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.03);}
-  .char-avatar img{width:100%; height:100%; object-fit:contain; object-position:center center; transform:scale(1.42); transform-origin:center 55%;}
+  .char-profile{display:flex; align-items:center; gap:14px; min-width:0; flex:1 1 320px;}
+  .char-avatar{width:82px; height:82px; flex:0 0 82px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; overflow:hidden; background:radial-gradient(circle at 50% 34%, rgba(125,180,255,.18), #151a2a 68%); border:1px solid rgba(125,180,255,.32); box-shadow:0 10px 22px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.03);}
+  .char-avatar img{width:100%; height:100%; object-fit:contain; object-position:center center; transform:scale(1.48); transform-origin:center 55%;}
   .char-avatar.placeholder{color:var(--sub); font-weight:bold;}
   .char-info{display:flex; flex-direction:column; min-width:0; gap:3px;}
   .charhead .nm{font-size:15px; font-weight:bold; color:var(--blue); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .char-meta{font-size:11px; color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .charhead .sum{font-size:13px; color:var(--gold); min-width:0; overflow-wrap:anywhere; word-break:keep-all;}
+  .registered-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;}
+  .registered-head h2{margin-bottom:0;}
+  .registered-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px;}
+  .registered-card{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(220,230,255,.18); border-radius:12px; background:rgba(6,10,18,.38);}
+  .registered-card .char-profile{flex:1 1 auto;}
+  .registered-actions{display:flex; flex-direction:column; gap:6px; align-items:stretch; flex:0 0 auto;}
+  .registered-actions button{padding:7px 10px; font-size:12px;}
+  .registered-empty{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.28);}
   .api-box{position:relative; overflow:hidden; border:1px solid rgba(154,198,255,.34); background:linear-gradient(135deg, rgba(57,94,145,.42), rgba(19,42,55,.34) 52%, rgba(91,72,20,.22)); border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 14px 28px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.04);}
   .api-box::before{content:""; position:absolute; inset:0 0 auto; height:3px; background:linear-gradient(90deg,var(--blue),var(--green),var(--gold)); opacity:.9;}
   .api-head{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; position:relative;}
@@ -303,11 +312,16 @@
     .api-head{flex-direction:column; align-items:stretch;}
     .api-row{grid-template-columns:1fr; align-items:stretch;}
     .api-row button{width:100%; min-width:0;}
-    .char-avatar{width:58px; height:58px; flex-basis:58px; border-radius:16px;}
+    .char-avatar{width:72px; height:72px; flex-basis:72px; border-radius:18px;}
     .charhead{align-items:flex-start;}
     .char-profile,.charhead .sum{width:100%; flex-basis:100%;}
     .charhead .nm,.char-meta{white-space:normal;}
     .charhead button.danger{width:auto; margin-left:auto;}
+    .registered-head{display:grid; grid-template-columns:1fr; gap:8px;}
+    .registered-head button{width:100%;}
+    .registered-list{grid-template-columns:1fr;}
+    .registered-card{display:grid; grid-template-columns:1fr; align-items:stretch;}
+    .registered-actions{display:grid; grid-template-columns:1fr;}
     .server-choice label{flex:1 1 120px; justify-content:center;}
     .bossgroup{font-size:12px;}
     .bgrid{grid-template-columns:1fr;}
@@ -336,6 +350,7 @@
     h1{font-size:20px;}
     .tab{font-size:12px; padding:8px 4px; min-height:40px;}
     .card{padding:10px;}
+    .char-avatar{width:66px; height:66px; flex-basis:66px;}
     .bimg{max-width:130px;}
   }
 </style>
@@ -520,6 +535,17 @@
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
     <div class="muted" style="margin-top:8px;">등록한 캐릭터 이름을 주간/월간/일간 결정석 탭에서 눌러 보스 체크 목록을 열 수 있습니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="registered-head">
+      <div>
+        <h2>🪪 등록된 캐릭터</h2>
+        <div class="muted">저장된 캐릭터 프로필입니다. 새로고침을 누르면 넥슨 Open API 기준 최신 레벨, 직업, 월드, 캐릭터 이미지를 다시 불러옵니다.</div>
+      </div>
+      <button class="ghost" id="btn-refresh-all-chars" type="button">전체 새로고침</button>
+    </div>
+    <div id="registered-char-list" class="registered-list"></div>
   </div>
 </div>
 
@@ -3811,12 +3837,19 @@ async function fetchNexonCharacterProfile(name, fallbackServer){
   const idData=await nexonFetch('/id',{character_name:name});
   const ocid=String(idData.ocid || '').trim();
   if(!ocid) throw new Error('캐릭터 식별자(ocid)를 찾지 못했습니다.');
+  const basic=await fetchNexonCharacterBasicByOcid(ocid);
+  return profileFromNexonBasic(basic,name,ocid,fallbackServer);
+}
+async function fetchNexonCharacterBasicByOcid(ocid){
   let basic;
   try{
     basic=await nexonFetch('/character/basic',{ocid});
   }catch(err){
     basic=await nexonFetch('/character/basic',{ocid,date:addDays(todayStr(),-1)});
   }
+  return basic;
+}
+function profileFromNexonBasic(basic, name, ocid, fallbackServer){
   const world=String(basic.world_name || '').trim();
   return {
     name: String(basic.character_name || name).trim(),
@@ -3828,6 +3861,16 @@ async function fetchNexonCharacterProfile(name, fallbackServer){
     server: serverFromNexonWorld(world, fallbackServer),
     lastApiSync: todayStr()
   };
+}
+async function refreshStoredCharacterProfile(c){
+  if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
+  const fallbackServer=charServer(c);
+  const ocid=String(c.ocid || '').trim();
+  const profile=ocid
+    ? profileFromNexonBasic(await fetchNexonCharacterBasicByOcid(ocid),c.name,ocid,fallbackServer)
+    : await fetchNexonCharacterProfile(c.name,fallbackServer);
+  applyCharacterProfile(c,profile,fallbackServer);
+  return c;
 }
 function createEmptyChar(name, server){
   return normalizeChar({name, server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dropShares:{}, dropShareWeeks:{}, dailyBossDays:{}, dailyDropDays:{}, dailyDropPriceDays:{}});
@@ -3898,6 +3941,75 @@ function charProfileHtml(c){
 }
 function charHeadHtml(c, summaryHtml){
   return charProfileHtml(c)+'<span class="sum">'+summaryHtml+'</span>';
+}
+function renderRegisteredCharacters(){
+  const list=document.getElementById('registered-char-list');
+  const refreshAll=document.getElementById('btn-refresh-all-chars');
+  if(!list) return;
+  if(refreshAll){
+    refreshAll.disabled=!db.chars.length;
+    refreshAll.onclick=async()=>{
+      if(!db.chars.length) return;
+      if(!nexonApiKey()){ alert('넥슨 Open API 키를 먼저 저장하세요.'); return; }
+      const oldText=refreshAll.textContent;
+      refreshAll.disabled=true;
+      refreshAll.textContent='갱신 중...';
+      const failed=[];
+      let updated=0;
+      for(const c of [...db.chars]){
+        try{
+          await refreshStoredCharacterProfile(c);
+          updated++;
+        }catch(err){
+          failed.push(c.name+': '+err.message);
+        }
+      }
+      save();
+      updateNexonApiStatus(failed.length?'일부 갱신 실패':'캐릭터 정보 갱신 완료',failed.length?'err':'ok');
+      renderAll();
+      if(failed.length) alert('갱신 완료: '+updated+'명\n실패:\n'+failed.join('\n'));
+      else alert('등록된 캐릭터 '+updated+'명의 최신 정보를 갱신했습니다.');
+      refreshAll.disabled=false;
+      refreshAll.textContent=oldText;
+    };
+  }
+  list.innerHTML='';
+  if(!db.chars.length){
+    list.innerHTML='<div class="registered-empty">아직 등록된 캐릭터가 없습니다. 위에서 캐릭터명을 입력해 먼저 추가해 주세요.</div>';
+    return;
+  }
+  db.chars.forEach((c,idx)=>{
+    const card=document.createElement('div');
+    card.className='registered-card';
+    const synced=c.lastApiSync ? '마지막 API 갱신: '+esc(c.lastApiSync) : 'API 정보 없음';
+    card.innerHTML=
+      charProfileHtml(c)+
+      '<div class="registered-actions">'+
+        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">새로고침</button>'+
+        '<span class="muted">'+synced+'</span>'+
+      '</div>';
+    const btn=card.querySelector('.char-refresh-btn');
+    btn.onclick=async()=>{
+      if(!nexonApiKey()){ alert('넥슨 Open API 키를 먼저 저장하세요.'); return; }
+      const target=db.chars[idx];
+      if(!target){ renderAll(); return; }
+      const oldText=btn.textContent;
+      btn.disabled=true;
+      btn.textContent='갱신 중...';
+      try{
+        await refreshStoredCharacterProfile(target);
+        save();
+        updateNexonApiStatus('캐릭터 정보 갱신 완료','ok');
+        renderAll();
+      }catch(err){
+        updateNexonApiStatus('캐릭터 정보 갱신 실패','err');
+        alert('캐릭터 정보 갱신 실패: '+err.message);
+        btn.disabled=false;
+        btn.textContent=oldText;
+      }
+    };
+    list.appendChild(card);
+  });
 }
 function updateNexonApiStatus(text, kind=''){
   const el=document.getElementById('nexon-api-status');
@@ -4656,7 +4768,7 @@ document.getElementById('file-import').onchange=(e)=>{
 };
 
 /* ───────── 렌더 ───────── */
-function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderBoss(); renderMonthlyBoss(); renderDailyBoss(); }
+function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderRegisteredCharacters(); renderBoss(); renderMonthlyBoss(); renderDailyBoss(); }
 renderAll();
 </script>
 <div class="watermark">크로아/얀보 제작</div>
