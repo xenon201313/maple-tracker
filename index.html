@@ -49,6 +49,7 @@
   html{width:100%; min-height:100%; overflow-x:hidden; background:var(--bg);}
   *{box-sizing:border-box; margin:0; padding:0;}
   body{width:100%; min-height:100vh; background:transparent; color:var(--text); font-family:var(--font-body); font-weight:400; padding:20px; max-width:1180px; margin:0 auto; overflow-x:hidden; position:relative; isolation:isolate;}
+  body.modal-open{overflow:hidden;}
   body::before{content:""; position:fixed; inset:0; z-index:-2; background:linear-gradient(180deg,rgba(7,10,18,.34),rgba(7,10,18,.72)),url("assets/maple-village-bg.png") center center/cover no-repeat; transform:translateZ(0);}
   body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 34%),linear-gradient(90deg,rgba(4,7,12,.62),rgba(4,7,12,.24) 22%,rgba(4,7,12,.28) 78%,rgba(4,7,12,.66)),rgba(4,7,12,.18);}
   h1{font-family:var(--font-title); font-weight:700; font-size:24px; display:flex; align-items:center; gap:10px; margin-bottom:4px; text-shadow:0 3px 12px rgba(0,0,0,.85);}
@@ -139,12 +140,21 @@
   .charhead .sum{font-size:13px; color:var(--gold); min-width:0; overflow-wrap:anywhere; word-break:keep-all;}
   .registered-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;}
   .registered-head h2{margin-bottom:0;}
+  .registered-tools{display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
   .registered-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px;}
   .registered-card{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(220,230,255,.18); border-radius:12px; background:rgba(6,10,18,.38);}
   .registered-card .char-profile{flex:1 1 auto;}
   .registered-actions{display:flex; flex-direction:column; gap:6px; align-items:stretch; flex:0 0 auto;}
   .registered-actions button{padding:7px 10px; font-size:12px;}
   .registered-empty{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.28);}
+  .guide-modal{display:none; position:fixed; inset:0; z-index:10002; padding:22px; align-items:center; justify-content:center;}
+  .guide-modal.open{display:flex;}
+  .guide-modal-backdrop{position:absolute; inset:0; background:rgba(3,6,12,.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);}
+  .guide-modal-panel{position:relative; width:min(920px,100%); max-height:min(86vh,820px); overflow:auto; padding:18px; border:1px solid rgba(220,230,255,.24); border-radius:14px; background:linear-gradient(180deg,rgba(20,25,39,.98),rgba(13,17,28,.96)); box-shadow:0 24px 70px rgba(0,0,0,.58);}
+  .guide-modal-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;}
+  .guide-modal-head h2{margin:0; color:var(--gold); font-size:18px;}
+  .guide-modal-close{flex:0 0 auto;}
+  .guide-modal-section{margin-top:14px;}
   .api-box{position:relative; overflow:hidden; border:1px solid rgba(154,198,255,.34); background:linear-gradient(135deg, rgba(57,94,145,.42), rgba(19,42,55,.34) 52%, rgba(91,72,20,.22)); border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 14px 28px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.04);}
   .api-box::before{content:""; position:absolute; inset:0 0 auto; height:3px; background:linear-gradient(90deg,var(--blue),var(--green),var(--gold)); opacity:.9;}
   .api-head{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; position:relative;}
@@ -319,9 +329,14 @@
     .charhead button.danger{width:auto; margin-left:auto;}
     .registered-head{display:grid; grid-template-columns:1fr; gap:8px;}
     .registered-head button{width:100%;}
+    .registered-tools{display:grid; grid-template-columns:1fr; justify-content:stretch;}
     .registered-list{grid-template-columns:1fr;}
     .registered-card{display:grid; grid-template-columns:1fr; align-items:stretch;}
     .registered-actions{display:grid; grid-template-columns:1fr;}
+    .guide-modal{padding:10px;}
+    .guide-modal-panel{max-height:88vh; padding:13px; border-radius:12px;}
+    .guide-modal-head{display:grid; grid-template-columns:1fr; gap:8px;}
+    .guide-modal-close{width:100%;}
     .server-choice label{flex:1 1 120px; justify-content:center;}
     .bossgroup{font-size:12px;}
     .bgrid{grid-template-columns:1fr;}
@@ -471,29 +486,6 @@
 <!-- ══════════ 캐릭터 등록 ══════════ -->
 <div class="page" id="page-character">
   <div class="card">
-    <h2>👤 캐릭터 등록</h2>
-    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어옵니다.</p>
-    <div class="guide-grid">
-      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다.</p></div>
-      <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
-      <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>🔑 넥슨 Open API 키 준비</h2>
-    <ul class="guide-list">
-      <li>넥슨 Open API 사이트에 로그인합니다.</li>
-      <li>마이 페이지에서 <b>Nexon Open API → 애플리케이션 등록</b>을 선택합니다.</li>
-      <li>게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택합니다.</li>
-      <li><b>서비스 단계</b>를 현재 사용 목적에 맞게 설정하고 서비스명, 소개, URL 정보를 입력합니다.</li>
-      <li>등록 후 <b>애플리케이션 목록 → 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
-    </ul>
-    <div class="guide-note">API Key는 비밀번호처럼 조심해서 관리하세요. 이 사이트의 JSON 백업에는 API Key를 포함하지 않습니다.</div>
-    <div class="muted" style="margin-top:8px;">자세한 발급 화면은 <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a>를 참고하세요.</div>
-  </div>
-
-  <div class="card">
     <h2>👑 캐릭터 등록</h2>
     <div class="api-box">
       <div class="api-head">
@@ -543,9 +535,41 @@
         <h2>🪪 등록된 캐릭터</h2>
         <div class="muted">저장된 캐릭터 프로필입니다. 새로고침을 누르면 넥슨 Open API 기준 최신 레벨, 직업, 월드, 캐릭터 이미지를 다시 불러옵니다.</div>
       </div>
-      <button class="ghost" id="btn-refresh-all-chars" type="button">전체 새로고침</button>
+      <div class="registered-tools">
+        <button class="ghost" id="btn-character-guide" type="button">등록방법</button>
+        <button class="ghost" id="btn-refresh-all-chars" type="button">전체 새로고침</button>
+      </div>
     </div>
     <div id="registered-char-list" class="registered-list"></div>
+  </div>
+</div>
+
+<div class="guide-modal" id="character-guide-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="character-guide-title">
+  <div class="guide-modal-backdrop" data-guide-close></div>
+  <div class="guide-modal-panel" role="document">
+    <div class="guide-modal-head">
+      <h2 id="character-guide-title">👤 캐릭터 등록 방법</h2>
+      <button class="ghost guide-modal-close" type="button" data-guide-close>닫기</button>
+    </div>
+    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어옵니다.</p>
+    <div class="guide-grid">
+      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다.</p></div>
+      <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
+      <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
+    </div>
+
+    <div class="guide-modal-section">
+      <h2>🔑 넥슨 Open API 키 준비</h2>
+      <ul class="guide-list">
+        <li>넥슨 Open API 사이트에 로그인합니다.</li>
+        <li>마이 페이지에서 <b>Nexon Open API → 애플리케이션 등록</b>을 선택합니다.</li>
+        <li>게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택합니다.</li>
+        <li><b>서비스 단계</b>를 현재 사용 목적에 맞게 설정하고 서비스명, 소개, URL 정보를 입력합니다.</li>
+        <li>등록 후 <b>애플리케이션 목록 → 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
+      </ul>
+      <div class="guide-note">API Key는 비밀번호처럼 조심해서 관리하세요. 이 사이트의 JSON 백업에는 API Key를 포함하지 않습니다.</div>
+      <div class="muted" style="margin-top:8px;">자세한 발급 화면은 <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a>를 참고하세요.</div>
+    </div>
   </div>
 </div>
 
@@ -4052,6 +4076,28 @@ function initNexonApiControls(){
   refresh();
 }
 initNexonApiControls();
+function initCharacterGuideModal(){
+  const modal=document.getElementById('character-guide-modal');
+  const openBtn=document.getElementById('btn-character-guide');
+  if(!modal || !openBtn) return;
+  const closeBtns=modal.querySelectorAll('[data-guide-close]');
+  const open=()=>{
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('modal-open');
+  };
+  const close=()=>{
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+  };
+  openBtn.onclick=open;
+  closeBtns.forEach(btn=>btn.addEventListener('click',close));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape' && modal.classList.contains('open')) close();
+  });
+}
+initCharacterGuideModal();
 document.getElementById('btn-addchar').onclick=async()=>{
   const nm=document.getElementById('in-char').value.trim();
   const server=document.querySelector('input[name="in-server"]:checked')?.value || 'main';
