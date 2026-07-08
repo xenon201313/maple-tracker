@@ -234,7 +234,6 @@
     .subtitle{font-size:11px; line-height:1.5; margin-bottom:12px;}
     .tabs{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px;}
     .tab{display:flex; align-items:center; justify-content:center; min-width:0; padding:9px 6px; border-radius:8px; text-align:center; font-size:13px; line-height:1.25; word-break:keep-all;}
-    .tab[data-page="intro"]{grid-column:1 / -1;}
     .tab[data-page="stats"]{grid-column:1 / -1;}
     .card{padding:12px; border-radius:10px; margin-bottom:12px; overflow-x:visible;}
     .card h2{font-size:15px; line-height:1.25;}
@@ -308,6 +307,7 @@
 
 <div class="tabs">
   <div class="tab active" data-page="intro">📖 설명</div>
+  <div class="tab" data-page="character">👤 캐릭터 등록</div>
   <div class="tab" data-page="daily">📋 재획 기록</div>
   <div class="tab" data-page="boss">👑 주간 결정석</div>
   <div class="tab" data-page="monthlyboss">🌑 월간 결정석</div>
@@ -335,6 +335,20 @@
       <div class="guide-item"><b>날짜 기준 집계</b><p>재획과 일간 보스는 날짜별로, 주간 보스는 목요일 시작 주간별로, 검은 마법사는 월간 기준으로 집계됩니다.</p></div>
       <div class="guide-item"><b>백업 필요</b><p>브라우저 데이터를 지우면 기록도 사라질 수 있으니 중요한 기록은 백업(JSON)으로 저장해 두는 것을 권장합니다.</p></div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>API 키 발급과 캐릭터 등록</h2>
+    <ul class="guide-list">
+      <li><b>넥슨 Open API 사이트</b>에 접속해 넥슨 계정으로 로그인합니다.</li>
+      <li><b>마이 페이지 → Nexon Open API → 애플리케이션 등록</b>으로 이동합니다.</li>
+      <li>서비스 이용약관에 동의하고, 게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택합니다.</li>
+      <li>서비스명과 소개, URL 정보를 입력한 뒤 애플리케이션을 등록합니다.</li>
+      <li><b>애플리케이션 목록 → 등록한 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
+      <li>이 사이트의 <b>캐릭터 등록</b> 탭에서 API Key를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지가 자동 등록됩니다.</li>
+    </ul>
+    <div class="guide-note">API Key는 다른 사람에게 보여주면 안 됩니다. 노출된 경우 넥슨 Open API에서 재발급하는 것을 권장합니다.</div>
+    <div class="muted" style="margin-top:8px;">참고: <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a></div>
   </div>
 
   <div class="card">
@@ -375,7 +389,7 @@
       <li><b>월간 결정석</b> 탭은 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
       <li><b>일간 결정석</b> 탭은 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
       <li>월간/일간 결정석도 전체 통계의 주간/월간 집계에 함께 반영됩니다.</li>
-      <li>일간 결정석을 쓰려면 주간 결정석 탭에서 캐릭터를 먼저 등록해 주세요.</li>
+      <li>일간 결정석을 쓰려면 캐릭터 등록 탭에서 캐릭터를 먼저 등록해 주세요.</li>
     </ul>
   </div>
 
@@ -396,6 +410,65 @@
       <div class="guide-item"><b>내 기록 이동</b><p>내 기록을 다른 기기로 옮기려면 백업(JSON)을 내려받은 뒤 새 기기에서 복원 기능을 사용합니다.</p></div>
       <div class="guide-item"><b>주의</b><p>브라우저 캐시/사이트 데이터를 삭제하면 저장된 기록이 사라질 수 있습니다.</p></div>
     </div>
+  </div>
+</div>
+
+<!-- ══════════ 캐릭터 등록 ══════════ -->
+<div class="page" id="page-character">
+  <div class="card">
+    <h2>👤 캐릭터 등록</h2>
+    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어옵니다.</p>
+    <div class="guide-grid">
+      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다.</p></div>
+      <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
+      <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔑 넥슨 Open API 키 준비</h2>
+    <ul class="guide-list">
+      <li>넥슨 Open API 사이트에 로그인합니다.</li>
+      <li>마이 페이지에서 <b>Nexon Open API → 애플리케이션 등록</b>을 선택합니다.</li>
+      <li>게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택하고 서비스 정보를 입력합니다.</li>
+      <li>등록 후 <b>애플리케이션 목록 → 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
+    </ul>
+    <div class="guide-note">API Key는 비밀번호처럼 조심해서 관리하세요. 이 사이트의 JSON 백업에는 API Key를 포함하지 않습니다.</div>
+    <div class="muted" style="margin-top:8px;">자세한 발급 화면은 <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a>를 참고하세요.</div>
+  </div>
+
+  <div class="card">
+    <h2>👑 캐릭터 등록</h2>
+    <div class="api-box">
+      <div class="api-head">
+        <div>
+          <b>넥슨 Open API 연동</b>
+          <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록합니다.</div>
+        </div>
+        <span class="api-status" id="nexon-api-status">API 키 미등록</span>
+      </div>
+      <div class="api-row">
+        <input type="password" id="nexon-api-key" placeholder="넥슨 Open API 키 입력" autocomplete="off" spellcheck="false">
+        <button class="ghost" id="btn-save-api-key" type="button">API 키 저장</button>
+        <button class="danger" id="btn-clear-api-key" type="button">키 삭제</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">키는 이 브라우저에만 저장되며 백업 JSON에는 포함하지 않습니다. API 키가 있으면 아래 캐릭터명 입력 후 자동 조회됩니다.</div>
+    </div>
+    <div class="row">
+      <div style="flex:1; min-width:200px;">
+        <label>캐릭터 이름</label>
+        <input type="text" id="in-char" placeholder="예: 얀보" style="width:100%;">
+      </div>
+      <div style="min-width:190px;">
+        <label>서버</label>
+        <div class="server-choice">
+          <label><input type="radio" name="in-server" value="main" checked> 본서버</label>
+          <label><input type="radio" name="in-server" value="challenger"> 챌린저스 서버</label>
+        </div>
+      </div>
+      <div><button id="btn-addchar">캐릭터 추가</button></div>
+    </div>
+    <div class="muted" style="margin-top:8px;">등록한 캐릭터 이름을 주간/월간/일간 결정석 탭에서 눌러 보스 체크 목록을 열 수 있습니다.</div>
   </div>
 </div>
 
@@ -483,40 +556,6 @@
 
 <!-- ══════════ 주간 결정석 ══════════ -->
 <div class="page" id="page-boss">
-  <div class="card">
-    <h2>👑 캐릭터 등록</h2>
-    <div class="api-box">
-      <div class="api-head">
-        <div>
-          <b>넥슨 Open API 연동</b>
-          <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록합니다.</div>
-        </div>
-        <span class="api-status" id="nexon-api-status">API 키 미등록</span>
-      </div>
-      <div class="api-row">
-        <input type="password" id="nexon-api-key" placeholder="넥슨 Open API 키 입력" autocomplete="off" spellcheck="false">
-        <button class="ghost" id="btn-save-api-key" type="button">API 키 저장</button>
-        <button class="danger" id="btn-clear-api-key" type="button">키 삭제</button>
-      </div>
-      <div class="muted" style="margin-top:8px;">키는 이 브라우저에만 저장되며 백업 JSON에는 포함하지 않습니다. API 키가 있으면 아래 캐릭터명 입력 후 자동 조회됩니다.</div>
-    </div>
-    <div class="row">
-      <div style="flex:1; min-width:200px;">
-        <label>캐릭터 이름</label>
-        <input type="text" id="in-char" placeholder="예: 얀보" style="width:100%;">
-      </div>
-      <div style="min-width:190px;">
-        <label>서버</label>
-        <div class="server-choice">
-          <label><input type="radio" name="in-server" value="main" checked> 본서버</label>
-          <label><input type="radio" name="in-server" value="challenger"> 챌린저스 서버</label>
-        </div>
-      </div>
-      <div><button id="btn-addchar">캐릭터 추가</button></div>
-    </div>
-    <div class="muted" style="margin-top:8px;">캐릭터 이름을 눌러 주간 보스를 체크하세요. API 키가 있으면 캐릭터 정보가 자동 등록되고, 없으면 이름만 수동 등록됩니다. 보스마다 <b>파티 인원수</b>를 고르면 결정석 가격이 나눠서 계산됩니다. · <b>캐릭터당 최대 12개</b>까지 체크할 수 있습니다. 메이린은 한도에서 제외됩니다.</div>
-  </div>
-
   <div id="charlist"></div>
 
   <div class="card">
@@ -534,7 +573,7 @@
 <div class="page" id="page-monthlyboss">
   <div class="card">
     <h2>🌑 월간 결정석</h2>
-    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>주간 결정석</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
+    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>캐릭터 등록</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
   </div>
 
   <div id="monthlyboss-list"></div>
@@ -4098,7 +4137,7 @@ function renderMonthlyBoss(){
   const wk=currentWeekKey();
   list.innerHTML='';
   if(!db.chars.length){
-    list.innerHTML='<div class="card muted">주간 결정석 탭에서 캐릭터를 먼저 추가하세요.</div>';
+    list.innerHTML='<div class="card muted">캐릭터 등록 탭에서 캐릭터를 먼저 추가하세요.</div>';
   }
   db.chars.forEach(c=>{
     const s=charSum(c,wk);
@@ -4428,7 +4467,7 @@ function renderDailyBoss(){
   const date=selectedDailyBossDate();
   list.innerHTML='';
   if(!db.chars.length){
-    list.innerHTML='<div class="card muted">주간 결정석 탭에서 캐릭터를 먼저 추가하세요.</div>';
+    list.innerHTML='<div class="card muted">캐릭터 등록 탭에서 캐릭터를 먼저 추가하세요.</div>';
   }
   db.chars.forEach(c=>{
     const store=ensureObj(ensureObj(c.dailyBossDays)[date]);
