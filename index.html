@@ -108,8 +108,21 @@
   .stat .s{font-size:12px; color:var(--sub); margin-top:4px;}
   .icon-sm{height:18px; vertical-align:-3px; image-rendering:pixelated; margin-right:3px;}
   .charhead{display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:10px; flex-wrap:wrap;}
-  .charhead .nm{font-size:15px; font-weight:bold; color:var(--blue); min-width:0;}
+  .char-profile{display:flex; align-items:center; gap:9px; min-width:0; flex:1 1 260px;}
+  .char-avatar{width:44px; height:44px; flex:0 0 44px; border-radius:50%; object-fit:cover; object-position:center top; background:#151a2a; border:1px solid var(--line); box-shadow:0 2px 8px rgba(0,0,0,.35);}
+  .char-avatar.placeholder{display:inline-flex; align-items:center; justify-content:center; color:var(--sub); font-weight:bold;}
+  .char-info{display:flex; flex-direction:column; min-width:0; gap:3px;}
+  .charhead .nm{font-size:15px; font-weight:bold; color:var(--blue); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .char-meta{font-size:11px; color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .charhead .sum{font-size:13px; color:var(--gold); min-width:0; overflow-wrap:anywhere; word-break:keep-all;}
+  .api-box{border:1px solid var(--line); background:rgba(125,180,255,.05); border-radius:10px; padding:12px; margin-bottom:12px;}
+  .api-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
+  .api-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .api-row input{flex:1 1 320px; min-width:220px;}
+  .api-row button{white-space:nowrap;}
+  .api-status{display:inline-flex; align-items:center; justify-content:center; min-height:28px; padding:4px 9px; border-radius:999px; border:1px solid var(--line); color:var(--sub); background:var(--panel2); font-size:12px; white-space:nowrap;}
+  .api-status.ok{border-color:rgba(58,232,160,.5); color:var(--green); background:rgba(58,232,160,.08);}
+  .api-status.err{border-color:rgba(255,107,122,.55); color:var(--red); background:rgba(255,107,122,.08);}
   .server-choice{display:flex; gap:8px; flex-wrap:wrap; align-items:center; min-height:38px;}
   .server-choice label{display:flex; align-items:center; gap:5px; margin:0; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); color:var(--text); font-size:12px; cursor:pointer;}
   .server-choice input{accent-color:var(--gold);}
@@ -252,8 +265,12 @@
     .statgrid{grid-template-columns:1fr;}
     .stat{padding:12px;}
     .stat .v{font-size:18px; overflow-wrap:anywhere;}
+    .api-head{flex-direction:column; align-items:stretch;}
+    .api-row{align-items:stretch;}
+    .api-row input,.api-row button{width:100%; min-width:0;}
     .charhead{align-items:flex-start;}
-    .charhead .nm,.charhead .sum{width:100%;}
+    .char-profile,.charhead .sum{width:100%; flex-basis:100%;}
+    .charhead .nm,.char-meta{white-space:normal;}
     .charhead button.danger{width:auto; margin-left:auto;}
     .server-choice label{flex:1 1 120px; justify-content:center;}
     .bossgroup{font-size:12px;}
@@ -468,6 +485,21 @@
 <div class="page" id="page-boss">
   <div class="card">
     <h2>👑 캐릭터 등록</h2>
+    <div class="api-box">
+      <div class="api-head">
+        <div>
+          <b>넥슨 Open API 연동</b>
+          <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록합니다.</div>
+        </div>
+        <span class="api-status" id="nexon-api-status">API 키 미등록</span>
+      </div>
+      <div class="api-row">
+        <input type="password" id="nexon-api-key" placeholder="넥슨 Open API 키 입력" autocomplete="off" spellcheck="false">
+        <button class="ghost" id="btn-save-api-key" type="button">API 키 저장</button>
+        <button class="danger" id="btn-clear-api-key" type="button">키 삭제</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">키는 이 브라우저에만 저장되며 백업 JSON에는 포함하지 않습니다. API 키가 있으면 아래 캐릭터명 입력 후 자동 조회됩니다.</div>
+    </div>
     <div class="row">
       <div style="flex:1; min-width:200px;">
         <label>캐릭터 이름</label>
@@ -482,7 +514,7 @@
       </div>
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
-    <div class="muted" style="margin-top:8px;">캐릭터 이름을 눌러 주간 보스를 체크하세요. 보스마다 <b>파티 인원수</b>를 고르면 결정석 가격이 나눠서 계산됩니다. · <b>캐릭터당 최대 12개</b>까지 체크할 수 있습니다. 메이린은 한도에서 제외됩니다.</div>
+    <div class="muted" style="margin-top:8px;">캐릭터 이름을 눌러 주간 보스를 체크하세요. API 키가 있으면 캐릭터 정보가 자동 등록되고, 없으면 이름만 수동 등록됩니다. 보스마다 <b>파티 인원수</b>를 고르면 결정석 가격이 나눠서 계산됩니다. · <b>캐릭터당 최대 12개</b>까지 체크할 수 있습니다. 메이린은 한도에서 제외됩니다.</div>
   </div>
 
   <div id="charlist"></div>
@@ -616,6 +648,13 @@ function normalizeChar(c){
   c = c || {};
   c.name = c.name || '';
   c.server = c.server === 'challenger' ? 'challenger' : 'main';
+  c.ocid = String(c.ocid || '').trim();
+  c.worldName = String(c.worldName || c.world_name || c.world || '').trim();
+  c.characterClass = String(c.characterClass || c.character_class || c.className || '').trim();
+  c.characterImage = String(c.characterImage || c.character_image || c.image || '').trim();
+  const level = Number(c.characterLevel || c.character_level || c.level || 0);
+  c.characterLevel = Number.isFinite(level) && level > 0 ? Math.floor(level) : 0;
+  c.lastApiSync = String(c.lastApiSync || '').trim();
   c.bosses = migrateBosses(c.bosses);
   const hadBossWeeks = c.bossWeeks && typeof c.bossWeeks === 'object' && !Array.isArray(c.bossWeeks);
   c.bossWeeks = hadBossWeeks ? c.bossWeeks : {};
@@ -681,6 +720,7 @@ function normalizeRecords(records){
 }
 function normalizeSettings(settings){
   const s=ensureObj(settings);
+  s.nexonApiKey = String(s.nexonApiKey || '').trim();
   if(s.erdaPrice !== undefined) s.erdaPrice = mesoValueFromDigits(s.erdaPrice);
   s.erdaFee = [5,3,0].includes(Number(s.erdaFee)) ? Number(s.erdaFee) : 5;
   s.includeErdaMeso = !!s.includeErdaMeso;
@@ -3647,17 +3687,201 @@ const bossDrafts = new Map();
 const monthlyOpenChars = new Set();
 const dailyOpenChars = new Set();
 const dailyBossDrafts = new Map();
-document.getElementById('btn-addchar').onclick=()=>{
+const NEXON_API_BASE = 'https://open.api.nexon.com/maplestory/v1';
+function nexonApiKey(){ return String(db.settings.nexonApiKey || '').trim(); }
+function nexonApiErrorMessage(status, data){
+  const err = data && (data.error || data);
+  const msg = err && (err.message || err.error_message || err.name || err.code);
+  if(status === 401 || status === 403) return 'API 키가 올바르지 않거나 권한이 없습니다.';
+  if(status === 404) return '캐릭터를 찾지 못했습니다.';
+  if(status === 429) return 'API 호출이 너무 많습니다. 잠시 후 다시 시도하세요.';
+  return msg ? String(msg) : 'API 요청에 실패했습니다. (HTTP '+status+')';
+}
+async function nexonFetch(path, params={}){
+  const key=nexonApiKey();
+  if(!key) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
+  const url=new URL(NEXON_API_BASE+path);
+  Object.keys(params).forEach(k=>{
+    const v=params[k];
+    if(v!==undefined && v!==null && String(v).trim()!=='') url.searchParams.set(k,String(v));
+  });
+  const res=await fetch(url.toString(), {headers:{'x-nxopen-api-key':key}});
+  let data={};
+  try{ data=await res.json(); }catch(e){}
+  if(!res.ok) throw new Error(nexonApiErrorMessage(res.status,data));
+  return data;
+}
+function serverFromNexonWorld(world, fallback='main'){
+  const w=String(world||'');
+  if(/챌린저|challenger/i.test(w)) return 'challenger';
+  if(w.trim()) return 'main';
+  return fallback === 'challenger' ? 'challenger' : 'main';
+}
+async function fetchNexonCharacterProfile(name, fallbackServer){
+  const idData=await nexonFetch('/id',{character_name:name});
+  const ocid=String(idData.ocid || '').trim();
+  if(!ocid) throw new Error('캐릭터 식별자(ocid)를 찾지 못했습니다.');
+  let basic;
+  try{
+    basic=await nexonFetch('/character/basic',{ocid});
+  }catch(err){
+    basic=await nexonFetch('/character/basic',{ocid,date:addDays(todayStr(),-1)});
+  }
+  const world=String(basic.world_name || '').trim();
+  return {
+    name: String(basic.character_name || name).trim(),
+    ocid,
+    worldName: world,
+    characterClass: String(basic.character_class || '').trim(),
+    characterLevel: Math.max(0, Math.floor(Number(basic.character_level)||0)),
+    characterImage: String(basic.character_image || '').trim(),
+    server: serverFromNexonWorld(world, fallbackServer),
+    lastApiSync: todayStr()
+  };
+}
+function createEmptyChar(name, server){
+  return normalizeChar({name, server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dropShares:{}, dropShareWeeks:{}, dailyBossDays:{}, dailyDropDays:{}, dailyDropPriceDays:{}});
+}
+function remapCharNameState(oldName, newName){
+  if(!oldName || !newName || oldName===newName) return;
+  [[openChars],[monthlyOpenChars],[dailyOpenChars]].forEach(([set])=>{
+    if(set.has(oldName)){ set.delete(oldName); set.add(newName); }
+  });
+  [bossDrafts,dailyBossDrafts].forEach(map=>{
+    Array.from(map.keys()).forEach(k=>{
+      if(k.startsWith(oldName+'|')){
+        const v=map.get(k);
+        map.delete(k);
+        map.set(newName+k.slice(oldName.length),v);
+      }
+    });
+  });
+}
+function applyCharacterProfile(c, profile, fallbackServer){
+  if(profile){
+    const oldName=c.name;
+    c.name=profile.name || c.name;
+    c.server=profile.server || fallbackServer || c.server;
+    c.ocid=profile.ocid || c.ocid || '';
+    c.worldName=profile.worldName || c.worldName || '';
+    c.characterClass=profile.characterClass || c.characterClass || '';
+    c.characterLevel=profile.characterLevel || c.characterLevel || 0;
+    c.characterImage=profile.characterImage || c.characterImage || '';
+    c.lastApiSync=profile.lastApiSync || todayStr();
+    remapCharNameState(oldName,c.name);
+  }else{
+    c.server=fallbackServer || c.server;
+  }
+  return normalizeChar(c);
+}
+function findRegisteredChar(name, profile){
+  const nm=String(name||'').trim();
+  const official=String(profile?.name||'').trim();
+  const ocid=String(profile?.ocid||'').trim();
+  return db.chars.find(c=>(ocid && c.ocid===ocid) || (official && c.name===official) || c.name===nm);
+}
+function addOrUpdateCharacter(name, server, profile){
+  const existing=findRegisteredChar(name,profile);
+  if(existing){
+    applyCharacterProfile(existing,profile,server);
+    return {char:existing, updated:true};
+  }
+  const c=createEmptyChar(profile?.name || name, profile?.server || server);
+  applyCharacterProfile(c,profile,server);
+  db.chars.push(c);
+  return {char:c, updated:false};
+}
+function characterMetaText(c){
+  const parts=[];
+  if(c.worldName) parts.push(c.worldName);
+  if(c.characterClass) parts.push(c.characterClass);
+  if(c.characterLevel) parts.push('Lv.'+fmt(c.characterLevel));
+  if(c.lastApiSync) parts.push('API '+c.lastApiSync);
+  return parts.join(' · ');
+}
+function charProfileHtml(c){
+  const avatar=c.characterImage
+    ? '<img class="char-avatar" src="'+esc(c.characterImage)+'" alt="'+esc(c.name)+' 캐릭터 이미지" loading="lazy" referrerpolicy="no-referrer">'
+    : '<span class="char-avatar placeholder">?</span>';
+  const meta=characterMetaText(c);
+  return '<span class="char-profile">'+avatar+'<span class="char-info"><span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+(meta?'<span class="char-meta">'+esc(meta)+'</span>':'')+'</span></span>';
+}
+function charHeadHtml(c, summaryHtml){
+  return charProfileHtml(c)+'<span class="sum">'+summaryHtml+'</span>';
+}
+function updateNexonApiStatus(text, kind=''){
+  const el=document.getElementById('nexon-api-status');
+  if(!el) return;
+  el.textContent=text;
+  el.className='api-status'+(kind?' '+kind:'');
+}
+function initNexonApiControls(){
+  const input=document.getElementById('nexon-api-key');
+  const saveBtn=document.getElementById('btn-save-api-key');
+  const clearBtn=document.getElementById('btn-clear-api-key');
+  if(!input || !saveBtn || !clearBtn) return;
+  const refresh=()=>{
+    if(nexonApiKey()){
+      input.value='';
+      input.placeholder='저장된 API 키가 있습니다. 변경하려면 새 키 입력';
+      updateNexonApiStatus('API 키 저장됨','ok');
+    }else{
+      input.value='';
+      input.placeholder='넥슨 Open API 키 입력';
+      updateNexonApiStatus('API 키 미등록','');
+    }
+  };
+  saveBtn.onclick=()=>{
+    const key=input.value.trim();
+    if(!key){ alert(nexonApiKey() ? '새 API 키를 입력하면 기존 키가 변경됩니다.' : 'API 키를 입력하세요.'); return; }
+    db.settings.nexonApiKey=key;
+    save();
+    refresh();
+  };
+  clearBtn.onclick=()=>{
+    if(!nexonApiKey()){ refresh(); return; }
+    if(confirm('저장된 넥슨 Open API 키를 삭제할까요?')){
+      delete db.settings.nexonApiKey;
+      save();
+      refresh();
+    }
+  };
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter') saveBtn.click(); });
+  refresh();
+}
+initNexonApiControls();
+document.getElementById('btn-addchar').onclick=async()=>{
   const nm=document.getElementById('in-char').value.trim();
   const server=document.querySelector('input[name="in-server"]:checked')?.value || 'main';
-  if(!nm){ alert('캐릭터 이름을 입력하세요.'); return; }
-  if(db.chars.some(c=>c.name===nm)){ alert('이미 등록된 캐릭터입니다.'); return; }
-  db.chars.push({name:nm, server:server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dropShares:{}, dropShareWeeks:{}, dailyBossDays:{}, dailyDropDays:{}, dailyDropPriceDays:{}});
-  openChars.add(nm);
-  monthlyOpenChars.add(nm);
-  dailyOpenChars.add(nm);
+  const addBtn=document.getElementById('btn-addchar');
+  if(!nm){ alert('캐릭터 이름을 입력하세요. 넥슨 API도 캐릭터명 기준으로 조회합니다.'); return; }
+  let profile=null;
+  if(nexonApiKey()){
+    try{
+      addBtn.disabled=true;
+      addBtn.textContent='API 조회 중...';
+      updateNexonApiStatus('캐릭터 조회 중...','');
+      profile=await fetchNexonCharacterProfile(nm,server);
+      updateNexonApiStatus('API 조회 성공','ok');
+    }catch(err){
+      updateNexonApiStatus('API 조회 실패','err');
+      if(!confirm('넥슨 API 조회 실패: '+err.message+'\n수동 정보로 캐릭터를 등록할까요?')) return;
+    }finally{
+      addBtn.disabled=false;
+      addBtn.textContent='캐릭터 추가';
+    }
+  }else if(db.chars.some(c=>c.name===nm)){
+    alert('이미 등록된 캐릭터입니다.');
+    return;
+  }
+  if(!profile && db.chars.some(c=>c.name===nm)){ alert('이미 등록된 캐릭터입니다.'); return; }
+  const result=addOrUpdateCharacter(nm,server,profile);
+  openChars.add(result.char.name);
+  monthlyOpenChars.add(result.char.name);
+  dailyOpenChars.add(result.char.name);
   document.getElementById('in-char').value='';
   save(); renderAll();
+  if(profile && result.updated) alert('기존 캐릭터의 API 정보를 갱신했습니다.');
 };
 function share(price, party){ return Math.floor(price/(party||1)); }
 function charSum(c, week=currentWeekKey()){
@@ -3832,8 +4056,7 @@ function renderBoss(){
     const itemMeso=dropPriceSumForCharWeek(c,wk);
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
-    head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
-      '<span class="sum">이번 주 '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.limitCount>=MAX_CHECK?' full':'')+'">('+s.limitCount+'/'+MAX_CHECK+')</span></span>';
+    head.innerHTML=charHeadHtml(c,'이번 주 '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.limitCount>=MAX_CHECK?' full':'')+'">('+s.limitCount+'/'+MAX_CHECK+')</span>');
     const del=document.createElement('button'); del.className='danger'; del.textContent='캐릭터 삭제';
     del.onclick=(e)=>{
       e.stopPropagation();
@@ -3882,8 +4105,7 @@ function renderMonthlyBoss(){
     const itemMeso=dropPriceSumForCharMonth(c,wk);
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
-    head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
-      '<span class="sum">월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span></span>';
+    head.innerHTML=charHeadHtml(c,'월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ monthlyOpenChars.has(c.name)?monthlyOpenChars.delete(c.name):monthlyOpenChars.add(c.name); bl.classList.toggle('open'); };
     let html='<div class="bossgroup">🌑 월간 결정석 (검은 마법사)</div><div class="bgrid">';
@@ -4216,8 +4438,7 @@ function renderDailyBoss(){
     const charMeso=toMesoBig(crystalMeso)+itemMeso;
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
-    head.innerHTML='<span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+
-      '<span class="sum">'+date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span></span>';
+    head.innerHTML=charHeadHtml(c,date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(dailyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ dailyOpenChars.has(c.name)?dailyOpenChars.delete(c.name):dailyOpenChars.add(c.name); bl.classList.toggle('open'); };
     let html='<div class="bossgroup">☀️ 일간 결정석 ('+date+')</div><div class="bgrid">';
@@ -4314,8 +4535,13 @@ function renderDailyBoss(){
 }
 
 /* ───────── 백업/복원 ───────── */
+function exportDb(){
+  const data=JSON.parse(JSON.stringify(db));
+  if(data.settings) delete data.settings.nexonApiKey;
+  return data;
+}
 document.getElementById('btn-export').onclick=()=>{
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(exportDb(),null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='maple_tracker_backup_'+todayStr()+'.json';
@@ -4329,8 +4555,11 @@ document.getElementById('file-import').onchange=(e)=>{
     try{
       const data=JSON.parse(r.result);
       if(!data.records) throw new Error('형식 오류');
-      db={records:normalizeRecords(data.records||{}), settings:normalizeSettings(data.settings), chars:(data.chars||[]).map(c=>normalizeChar({name:c.name, server:c.server, bosses:c.bosses, bossWeeks:c.bossWeeks, drops:c.drops, dropWeeks:c.dropWeeks, dropPrices:c.dropPrices, dropPriceWeeks:c.dropPriceWeeks, dropShares:c.dropShares, dropShareWeeks:c.dropShareWeeks, dailyBosses:c.dailyBosses, dailyBossDays:c.dailyBossDays, dailyDrops:c.dailyDrops, dailyDropDays:c.dailyDropDays, dailyDropPrices:c.dailyDropPrices, dailyDropPriceDays:c.dailyDropPriceDays}))};
-      save(); renderAll(); alert('복원 완료!');
+      const currentApiKey=nexonApiKey();
+      const importedSettings=normalizeSettings(data.settings);
+      if(currentApiKey && !importedSettings.nexonApiKey) importedSettings.nexonApiKey=currentApiKey;
+      db={records:normalizeRecords(data.records||{}), settings:importedSettings, chars:(data.chars||[]).map(c=>normalizeChar(c))};
+      save(); initNexonApiControls(); renderAll(); alert('복원 완료!');
     }catch(err){ alert('복원 실패: 올바른 백업 파일이 아닙니다.'); }
   };
   r.readAsText(f); e.target.value='';
