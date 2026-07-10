@@ -325,13 +325,17 @@
   .profit-metric.good b{color:var(--green);}
   .profit-metric.bad b{color:var(--red);}
   .profit-note{margin-top:12px; padding:10px 12px; border-radius:10px; background:rgba(255,204,51,.12); border:1px solid rgba(255,204,51,.26); color:#f6e7ad; font-size:13px; line-height:1.45;}
+  .profit-note a{color:#6ee7ff; font-weight:900; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px;}
+  .profit-note a:hover{color:#a7f3ff;}
   .profit-entry-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:end;}
   .profit-entry-grid .wide{grid-column:1 / -1;}
   .profit-entry-grid input,.profit-entry-grid select{width:100%;}
   .profit-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:14px; flex-wrap:wrap;}
   .profit-item-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:8px; margin-top:10px;}
-  .profit-item-chip{display:flex; align-items:center; gap:8px; min-width:0; padding:8px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(6,10,18,.34); color:var(--text); font-size:13px;}
+  .profit-item-chip{display:flex; align-items:center; justify-content:flex-start; gap:8px; min-width:0; min-height:58px; padding:8px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(6,10,18,.34); color:var(--text); font-size:13px; text-align:left; cursor:pointer; white-space:normal;}
+  .profit-item-chip.active,.profit-item-chip:hover{border-color:rgba(110,231,255,.78); background:rgba(110,231,255,.12); color:#e9fbff;}
   .profit-item-chip span:last-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .profit-item-chip small{display:block; margin-top:2px; color:var(--sub); font-size:11px; font-weight:800;}
   .profit-lines{display:grid; gap:9px; margin-top:12px;}
   .profit-line{display:grid; grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr); gap:8px; align-items:end; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
   .profit-line.output{grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr) minmax(96px,.42fr);}
@@ -339,6 +343,7 @@
   .profit-line-name span:last-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .profit-line small{display:block; color:var(--sub); font-weight:600; margin-top:2px;}
   .profit-symbol-icon{width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background:rgba(255,204,51,.13); border:1px solid rgba(255,204,51,.24); font-size:17px;}
+  .profit-img-icon{width:30px; height:30px; object-fit:contain; flex:0 0 auto; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); padding:3px;}
   .profit-sprite-icon{width:30px; height:30px; flex:0 0 auto; display:inline-grid; place-items:center; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); overflow:hidden;}
   .profit-sprite-piece{width:24px; height:24px; display:block; background-image:url('https://www.boomback.com/equipments/sprite.png'); background-repeat:no-repeat; background-size:120px 168px; image-rendering:auto;}
   .profit-sprite-icon.multi{position:relative;}
@@ -1063,6 +1068,7 @@ function normalizeProfitLine(line){
     id: String(o.id || o.name || '').trim(),
     name: String(o.name || '').trim(),
     icon: String(o.icon || '').trim(),
+    img: String(o.img || '').trim(),
     sprite: Array.isArray(o.sprite) ? o.sprite.map(v=>String(v||'')).filter(Boolean) : (o.sprite ? [String(o.sprite)] : []),
     note: String(o.note || '').trim(),
     price: mesoValueFromDigits(o.price),
@@ -4134,6 +4140,10 @@ const PROFIT_EQUIP_ITEMS=[
   {id:'ecstatic_nightmare', name:'황홀한 악몽', note:'Lv.250', sprite:['-96px -120px']},
   {id:'destiny_weapon', name:'데스티니 무기', note:'Lv.250', sprite:['-48px -48px']}
 ];
+const PROFIT_GENESIS_ICON='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAlCAYAAADFniADAAAEHklEQVR4AcyX23HjRhBFr1T2twoOAQoBCkFMwLWgXRuAHAIZAhnCMgB/gFtOgAxhGYIQwqL8bxu+p4FB0ZRoEUutRGka8+qZOejHQLrWZfy0xkiiS4FS+5iZK0p7MVC3k0xfPgXU5Viqrmvd/XYZUCmOrowzyHu6r72/vzfL0/KeUNputxBhIepB3gPq0GUDTGq8NdRRlyUg6reGOuoyYJKcC5VcQZ32fK5mHiF+kOd0hrFzoNo8z5UPWx1tnOSy/dXfCtWmz0Ld7fa/b38sy7qlT59joDB/CBa6um3ELfx0y2EkdN0DGHHztDIGSsAgwCwWC202G/UXIAD7J4522f7iUVBZlulx0wzrJ5PJ0D5sjHXZ/vpRUM1uJ77mbMChWAqr0e8FiyG4C+mHx1UvQXFASLit35s2UDtD9lAAnOWyfuuojkEFSFEUXRxZlcPT3zvuRpnP51H7gf5JF6N1XyzPQbXAkPJN02VYn/aaLvPYEEDmgUT6YGcuLOYGkIibUWgj0XnpcQjVFqywW+6meaQ8ByIMA4MAdOcrYeo/ypBFGV97VFqSAX3EA4C03au4d2I5hNLOCxEZzM1IeeKHoOYaYExZodyZmCwYY34wX1VVuHE2m3lEyqzXWKJz4uMQCvNf/SzdBpg3wZUcRvrPyqWq7ixVX7+q9GEZOvc8JWJsuVwKfZLAU9osGhEGbrO3q5fLf6A++sVKqfhBKj9IS7dXwMwd0LiMW3y6lK5+sruaiarHQl/8XwjjWATBqugj9Pu/u08Gkn8GKFsn/0t68NhDJS0+S7N11/eQxMFTG8MSN+Z6uQ04xjlc/Q9tgp96rIX6LRRQAGEdDxaAlHmhIs9DuJMK9z1HKfxAfFWY3J8a96N8eujclDljU5bGxDc8AupXZfdOk9wWKme+m9jHezsWZGmUFwYsCjFvWWAJ3EK8dbqNrwv7PstE8JOhvZWYHi3XWOmzmiwslPka8KetdM1OD2VJFdlEI0EAtLCViLc+9ZVboQchfvbFM+NKWKp04rIs3tImmtc7ulquV1GnR26XpjaAgKX+2LRP656rA6qypfYn7QUVRW7ULtWZwwq4hbbtN2Ql2ZYblsBm7jUkoBxPdpriQkybApDJvxCmwb5O+kQ8QNWsjtvf07jN1Xnl+qNuSMGA2vr/eXPEjgzUTR2BzgCWAJS236RxLMYFm3nNudnGnvty/UF/1rw5LnFSq3ZMIbgrKWINgBhDz/rbPxSJFirMufEqVvI+GEn6W9p6x9oX45qDsQqTSTiUcebR+3EPqEsJeThpn1/bExJv7dvct4J2lbJVggAkCRbycTv0fvf15TYFGIT2q0lAsRtgU92s12p2tsg8ffuo6VsngNBz+7uWAYpTiC+ba+VPzuofafWLbpbU9Bl/CyA4/gUAAP//ZJ5DhwAAAAZJREFUAwCtWrL1c2zLeQAAAABJRU5ErkJggg==';
+const PROFIT_POTENTIAL_EXTRA_ITEMS=[
+  {id:'genesis_weapon', name:'제네시스 무기', note:'Lv.200', img:PROFIT_GENESIS_ICON}
+];
 const PROFIT_SCROLL_COSTS=[
   {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', icon:'📜'},
   {id:'return_scroll', name:'리턴스크롤', icon:'↩'},
@@ -4189,8 +4199,15 @@ const PROFIT_PLATINUM_OUTPUTS=[
 ];
 const profitState={active:'starforce'};
 function profitCategory(id){ return PROFIT_CATEGORIES.find(c=>c.id===id) || PROFIT_CATEGORIES[0]; }
-function profitEquipById(id){ return PROFIT_EQUIP_ITEMS.find(i=>i.id===id) || PROFIT_EQUIP_ITEMS[0]; }
+function profitEquipItemsForType(type){
+  return type==='potential' ? PROFIT_EQUIP_ITEMS.concat(PROFIT_POTENTIAL_EXTRA_ITEMS) : PROFIT_EQUIP_ITEMS;
+}
+function profitEquipById(id,type=profitState.active){
+  const items=profitEquipItemsForType(type);
+  return items.find(i=>i.id===id) || items[0];
+}
 function profitIconHtml(item){
+  if(item?.img) return '<img class="profit-img-icon" src="'+esc(item.img)+'" alt="'+esc(item.name||'아이템')+'">';
   const sprites=Array.isArray(item?.sprite) ? item.sprite.filter(Boolean) : [];
   if(sprites.length){
     const cls=sprites.length>1 ? 'profit-sprite-icon multi' : 'profit-sprite-icon';
@@ -4205,10 +4222,13 @@ function profitNumberBlock(label,key,value='',attrs=''){
   return '<div><label>'+label+'</label><input data-profit-input="'+key+'" type="number" min="0" inputmode="numeric" value="'+esc(value)+'" '+attrs+'></div>';
 }
 function profitDateBlock(){
-  return '<div><label>날짜</label><input data-profit-input="date" type="date" max="'+todayStr()+'" value="'+todayStr()+'"></div>';
+  return '<div><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+todayStr()+'" value="'+todayStr()+'"></div>';
 }
 function profitSelectBlock(label,key,value,options){
   return '<div><label>'+label+'</label><select data-profit-input="'+key+'">'+options.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===value?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select></div>';
+}
+function profitSoldBlock(){
+  return '<div><label>판매 여부</label><label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label></div>';
 }
 function profitCostRowsHtml(items){
   return '<div class="profit-lines">'+items.map(item=>
@@ -4231,9 +4251,9 @@ function profitOutputRowsHtml(items){
     '</div>'
   ).join('')+'</div>';
 }
-function profitEquipmentGrid(){
-  return '<div class="profit-item-grid">'+PROFIT_EQUIP_ITEMS.map(item=>
-    '<div class="profit-item-chip">'+profitIconHtml(item)+'<span>'+esc(item.name)+'<small>'+esc(item.note)+'</small></span></div>'
+function profitEquipmentGrid(type){
+  return '<div class="profit-item-grid">'+profitEquipItemsForType(type).map(item=>
+    '<button type="button" class="profit-item-chip" data-profit-equip="'+esc(item.id)+'">'+profitIconHtml(item)+'<span>'+esc(item.name)+'<small>'+esc(item.note)+'</small></span></button>'
   ).join('')+'</div>';
 }
 function renderProfitMenu(){
@@ -4254,16 +4274,17 @@ function renderProfitCalculator(){
   const cat=profitCategory(type);
   let body='';
   if(type==='starforce' || type==='potential'){
+    const equipItems=profitEquipItemsForType(type);
     body=
       '<div class="profit-entry-grid">'+
       profitDateBlock()+
-      profitSelectBlock('아이템', 'itemId', PROFIT_EQUIP_ITEMS[0].id, PROFIT_EQUIP_ITEMS)+
+      profitSelectBlock('아이템', 'itemId', equipItems[0].id, equipItems)+
       profitMoneyBlock('사용 메소', 'used')+
       profitMoneyBlock('외부 계산 기대값', 'expected')+
-      '<label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label>'+
+      profitSoldBlock()+
       profitMoneyBlock('실제 판매가', 'sale')+
       '<div class="wide profit-note">기대값 대비 이득/손실은 참고용입니다. 통계에는 사용 메소와 판매 완료한 아이템의 판매가만 반영됩니다.</div>'+
-      '<div class="wide">'+profitEquipmentGrid()+'</div>'+
+      '<div class="wide">'+profitEquipmentGrid(type)+'</div>'+
       '</div>';
   }else if(type==='scroll'){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">가격과 사용 장수를 입력하면 전부 지출로 반영됩니다.</div></div>'+profitCostRowsHtml(PROFIT_SCROLL_COSTS);
@@ -4300,12 +4321,27 @@ function bindProfitForm(box){
   });
   const saveBtn=box.querySelector('#profit-save');
   if(saveBtn) saveBtn.onclick=saveProfitRecord;
+  box.querySelectorAll('[data-profit-equip]').forEach(btn=>{
+    btn.onclick=()=>{
+      const select=box.querySelector('[data-profit-input="itemId"]');
+      if(select){
+        select.value=btn.dataset.profitEquip;
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+    };
+  });
+  updateProfitEquipSelection(box);
 }
 function profitInputValue(key){
   const el=document.querySelector('[data-profit-input="'+key+'"]');
   if(!el) return '';
   if(el.type==='checkbox') return el.checked;
   return el.value;
+}
+function updateProfitEquipSelection(scope=document){
+  const select=scope.querySelector?.('[data-profit-input="itemId"]') || document.querySelector('[data-profit-input="itemId"]');
+  const value=select ? select.value : '';
+  document.querySelectorAll('[data-profit-equip]').forEach(btn=>btn.classList.toggle('active', btn.dataset.profitEquip===value));
 }
 function profitReadCostLines(items){
   return items.map(item=>{
@@ -4336,7 +4372,7 @@ function buildProfitRecord(showErrors){
   }
   const base={id:'profit_'+Date.now()+'_'+Math.random().toString(36).slice(2), date, type, title:cat.title, costs:[], outputs:[], expected:0, createdAt:new Date().toISOString()};
   if(type==='starforce' || type==='potential'){
-    const item=profitEquipById(profitInputValue('itemId'));
+    const item=profitEquipById(profitInputValue('itemId'), type);
     const used=mesoValueFromDigits(profitInputValue('used'));
     const sale=mesoValueFromDigits(profitInputValue('sale'));
     base.itemId=item.id; base.itemName=item.name; base.expected=mesoValueFromDigits(profitInputValue('expected'));
@@ -4380,6 +4416,7 @@ function saveProfitRecord(){
 function renderProfitResult(){
   const out=document.getElementById('profit-result');
   if(!out) return;
+  updateProfitEquipSelection(document.getElementById('profit-calculator') || document);
   const record=buildProfitRecord(false);
   if(!record){ out.innerHTML=''; return; }
   const totals=profitRecordTotals(record);
