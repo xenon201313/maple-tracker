@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>메이플 수익 기록장</title>
-<meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<title>나만의 메계부</title>
+<meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta name="theme-color" content="#14161f">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="메이플 수익 기록장">
-<meta property="og:title" content="메이플 수익 기록장">
-<meta property="og:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="나만의 메계부">
+<meta property="og:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta property="og:url" content="https://maple-trackers.com/">
 <meta property="og:image" content="https://maple-trackers.com/thumbnail.png">
 <meta property="og:image:secure_url" content="https://maple-trackers.com/thumbnail.png">
@@ -18,8 +18,8 @@
 <meta property="og:image:height" content="1254">
 <meta property="og:image:alt" content="쌀 포대를 든 버섯 모자 원숭이와 메이플스토리 배경">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="메이플 수익 기록장">
-<meta name="twitter:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 메이플 수익 기록장">
+<meta name="twitter:title" content="나만의 메계부">
+<meta name="twitter:description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta name="twitter:image" content="https://maple-trackers.com/thumbnail.png">
 <link rel="icon" type="image/png" href="thumbnail.png">
 <link rel="apple-touch-icon" href="thumbnail.png">
@@ -52,11 +52,11 @@
   body.modal-open{overflow:hidden;}
   body::before{content:""; position:fixed; inset:0; z-index:-2; background:linear-gradient(180deg,rgba(7,10,18,.34),rgba(7,10,18,.72)),url("assets/maple-village-bg.png") center center/cover no-repeat; transform:translateZ(0);}
   body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 34%),linear-gradient(90deg,rgba(4,7,12,.62),rgba(4,7,12,.24) 22%,rgba(4,7,12,.28) 78%,rgba(4,7,12,.66)),rgba(4,7,12,.18);}
-  h1{font-family:var(--font-title); font-weight:700; font-size:26px; display:flex; align-items:center; gap:10px; margin-bottom:4px; text-shadow:0 3px 12px rgba(0,0,0,.85);}
-  h1 img{height:38px; image-rendering:pixelated;}
-  .subtitle{color:#d7deef; font-size:13px; margin-bottom:16px; line-height:1.6; text-shadow:0 2px 10px rgba(0,0,0,.85);}
-  .tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
-  .tab{font-family:var(--font-title); font-weight:700; padding:10px 20px; background:rgba(17,22,36,.84); border:1px solid rgba(220,230,255,.2); border-radius:10px 10px 0 0; cursor:pointer; font-size:15px; color:#d5dbee; box-shadow:0 10px 22px rgba(0,0,0,.22); backdrop-filter:blur(10px) saturate(116%); -webkit-backdrop-filter:blur(10px) saturate(116%);}
+  h1{font-family:var(--font-title); font-weight:700; font-size:36px; display:flex; align-items:center; gap:12px; margin-bottom:4px; text-shadow:0 3px 12px rgba(0,0,0,.85); letter-spacing:0;}
+  h1 img{height:48px; image-rendering:pixelated;}
+  .subtitle{color:#d7deef; font-size:13px; margin-bottom:16px; line-height:1.6; text-shadow:0 2px 10px rgba(0,0,0,.85); word-break:keep-all; overflow-wrap:anywhere;}
+  .tabs{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:6px; margin-bottom:16px; max-width:100%;}
+  .tab{font-family:var(--font-title); font-weight:700; min-width:0; padding:10px 12px; background:rgba(17,22,36,.84); border:1px solid rgba(220,230,255,.2); border-radius:10px 10px 0 0; cursor:pointer; font-size:15px; color:#d5dbee; text-align:center; box-shadow:0 10px 22px rgba(0,0,0,.22); backdrop-filter:blur(10px) saturate(116%); -webkit-backdrop-filter:blur(10px) saturate(116%);}
   .tab.active{background:rgba(35,42,65,.96); color:var(--gold); border-color:rgba(255,210,77,.46); border-bottom:2px solid var(--gold);}
   .page{display:none;}
   .page.active{display:block;}
@@ -373,8 +373,8 @@
     body{padding:10px; max-width:none;}
     body::before{background-position:center top;}
     body::after{background:linear-gradient(180deg,rgba(4,7,12,.34),rgba(4,7,12,.7)),linear-gradient(90deg,rgba(4,7,12,.5),rgba(4,7,12,.18) 50%,rgba(4,7,12,.5));}
-    h1{font-size:22px; line-height:1.25; flex-wrap:wrap;}
-    h1 img{height:32px;}
+    h1{font-size:28px; line-height:1.2; flex-wrap:wrap; gap:9px;}
+    h1 img{height:38px;}
     .subtitle{font-size:11px; line-height:1.5; margin-bottom:12px;}
     .tabs{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px;}
     .tab{display:flex; align-items:center; justify-content:center; min-width:0; min-height:42px; padding:9px 6px; border-radius:8px; text-align:center; font-size:13px; line-height:1.25; word-break:keep-all;}
@@ -406,6 +406,9 @@
     .calc-result{grid-template-columns:1fr;}
     .calc-result .pill b{overflow-wrap:anywhere;}
     .guide-hero h2{font-size:18px;}
+    .guide-lead{word-break:keep-all; overflow-wrap:anywhere;}
+    .guide-pills{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px;}
+    .guide-pill{justify-content:center; text-align:center; white-space:normal; min-width:0; padding:7px 8px;}
     .guide-grid{grid-template-columns:1fr;}
     .guide-item{padding:10px;}
     .drop-split{grid-template-columns:1fr;}
@@ -471,7 +474,7 @@
   }
   @media (max-width:380px){
     body{padding:8px;}
-    h1{font-size:20px;}
+    h1{font-size:25px;}
     .tab{font-size:12px; padding:8px 4px; min-height:40px;}
     .card{padding:10px;}
     .char-avatar{width:66px; height:66px; flex-basis:66px;}
@@ -482,8 +485,8 @@
 </head>
 <body>
 
-<h1><img id="logo-meso"> 메이플 수익 기록장</h1>
-<div class="subtitle">데이터는 이 브라우저에 자동 저장됩니다. · 주간 초기화: 매주 목요일 · 월간(검은 마법사): 매월 1일<br>결정석 가격 기준: KMS 1.2.416 패치 (2026-06-18) · 보스 일러스트: 넥슨/나무위키</div>
+<h1><img id="logo-meso"> 나만의 메계부</h1>
+<div class="subtitle">데이터는 이 브라우저에 자동 저장됩니다. · 주간 초기화: 매주 목요일 · 월간(검은 마법사): 매월 1일</div>
 
 <div class="tabs">
   <div class="tab active" data-page="intro">📖 설명</div>
@@ -499,7 +502,7 @@
 <!-- ══════════ 설명 ══════════ -->
 <div class="page active" id="page-intro">
   <div class="card guide-hero">
-    <h2>📖 메이플 수익 기록장 사용 설명</h2>
+    <h2>📖 나만의 메계부 사용 설명</h2>
     <p class="guide-lead">재획 수익, 솔 에르다 조각, 추가 부수입, 주간/월간/일간 결정석, 보스 드랍 아이템 가격을 한 곳에서 기록하는 개인용 수익 기록장입니다. 기록은 이 브라우저에 자동 저장되며, 같은 주소라도 다른 기기나 다른 브라우저에는 자동으로 옮겨지지 않습니다.</p>
     <div class="guide-pills">
       <span class="guide-pill">자동 저장</span>
@@ -785,7 +788,8 @@
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
-      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)
+      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
+      ※ 결정석 가격 기준: KMS 1.2.416 패치 (2026-06-18) · 보스 일러스트: 넥슨/나무위키
     </div>
   </div>
 </div>
@@ -4306,7 +4310,7 @@ function renderProfitCalculator(){
   }else if(type==='royal'){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">로얄스타일과 프리미엄 마스터피스는 지출입니다. 결과물은 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
   }else{
-    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('깐 개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+cat.icon+' '+cat.title+'</h2><div class="muted">'+cat.desc+'</div></div></div>'+
