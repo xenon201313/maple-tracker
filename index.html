@@ -340,9 +340,10 @@
   .profit-line small{display:block; color:var(--sub); font-weight:600; margin-top:2px;}
   .profit-symbol-icon{width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background:rgba(255,204,51,.13); border:1px solid rgba(255,204,51,.24); font-size:17px;}
   .profit-sprite-icon{width:30px; height:30px; flex:0 0 auto; display:inline-grid; place-items:center; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); overflow:hidden;}
-  .profit-sprite-piece{width:24px; height:24px; display:block; background-image:url('https://www.boomback.com/equipments/sprite.png'); background-repeat:no-repeat; image-rendering:auto;}
-  .profit-sprite-icon.multi{grid-template-columns:repeat(2,12px); grid-template-rows:repeat(2,12px);}
-  .profit-sprite-icon.multi .profit-sprite-piece{width:12px; height:12px; background-size:60px 60px;}
+  .profit-sprite-piece{width:24px; height:24px; display:block; background-image:url('https://www.boomback.com/equipments/sprite.png'); background-repeat:no-repeat; background-size:120px 168px; image-rendering:auto;}
+  .profit-sprite-icon.multi{position:relative;}
+  .profit-sprite-icon.multi .profit-sprite-piece:not(:first-child){display:none;}
+  .profit-sprite-icon.multi::after{content:'+'; position:absolute; right:1px; bottom:1px; min-width:12px; height:12px; padding:0 2px; border-radius:999px; background:rgba(255,204,51,.95); color:#172033; font-size:10px; line-height:12px; font-weight:900;}
   .profit-check{display:flex; align-items:center; justify-content:center; gap:6px; min-height:42px; padding:8px 10px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(18,23,38,.72); color:var(--sub); font-weight:800;}
   .profit-check input{width:auto !important; accent-color:var(--gold);}
   .profit-records{display:grid; gap:8px; margin-top:10px;}
@@ -576,7 +577,7 @@
   <div class="card">
     <h2>7. 손익 계산기</h2>
     <ul class="guide-list">
-      <li>스타포스와 잠재능력은 mesu.live 등에서 확인한 기대값을 직접 입력하고, 실제 사용 메소와 비교합니다.</li>
+      <li>스타포스와 잠재능력은 기대값 계산기에서 확인한 값을 직접 입력하고, 실제 사용 메소와 비교합니다.</li>
       <li>기대값 대비 이득은 참고로만 표시되며 통계에는 들어가지 않습니다. 통계에는 사용 메소와 판매 체크된 아이템 수익만 반영됩니다.</li>
       <li>주문서, 추가옵션, 어빌리티, 원더베리, 로얄스타일, 플래티넘 애플은 실제 지출과 판매 수익을 기록하는 방식으로 관리합니다.</li>
     </ul>
@@ -774,8 +775,7 @@
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
-      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
-      ※ 가격 출처: KMS 1.2.416 강렬한 힘의 결정 개편 (2026-06-18 기준).
+      ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)
     </div>
   </div>
 </div>
@@ -793,8 +793,7 @@
     <h2>💰 월간 결정석 합계</h2>
     <div class="totalbar" id="monthlyboss-total"></div>
     <div class="muted" style="margin-top:10px;">
-      ※ 검은 마법사는 주간 보스 12개 제한과 월드당 주간 90개 결정석 한도 표시에서 제외됩니다.<br>
-      ※ 가격 출처: 검은 마법사 가격은 2026-07-01 적용분입니다.
+      ※ 검은 마법사는 주간 보스 12개 제한과 월드당 주간 90개 결정석 한도 표시에서 제외됩니다.
     </div>
   </div>
 </div>
@@ -823,7 +822,7 @@
   <div class="card">
     <h2>💸 손익 계산기</h2>
     <p class="muted">강화, 큐브, 주문서, 뽑기에서 실제로 쓴 메소와 판매된 아이템 수익을 기록합니다. 기대값 비교는 참고용이며 통계에는 실제 지출/판매만 들어갑니다.</p>
-    <div class="profit-note">스타포스와 잠재능력 기대값은 mesu.live 같은 외부 계산기에서 확인한 값을 입력해 주세요. BOOMBACK 장비 목록은 참고 이미지와 장비 선택용으로만 사용합니다.</div>
+    <div class="profit-note">스타포스와 잠재능력 기대값은 <a href="https://www.mesu.live/" target="_blank" rel="noopener">mesu.live에서 기대값을 검색</a>한 뒤 입력해 주세요. 이 탭은 기대값 대비 참고 차이와 실제 손익 기록을 분리해서 보여줍니다.</div>
   </div>
   <div class="profit-layout">
     <div class="card">
@@ -4100,14 +4099,14 @@ function renderErdaCalculator(){
 
 /* ───────── 손익 계산기 ───────── */
 const PROFIT_CATEGORIES=[
-  {id:'starforce', icon:'⭐', title:'스타포스', tag:'강화', desc:'mesu.live 또는 BOOMBACK에서 확인한 기대값과 실제 사용 메소를 비교합니다.'},
+  {id:'starforce', icon:'⭐', title:'스타포스', tag:'강화', desc:'위 링크에서 확인한 기대값과 실제 사용 메소를 비교합니다.'},
   {id:'potential', icon:'🧊', title:'잠재능력', tag:'큐브', desc:'잠재능력 기대값은 외부 계산기에서 확인하고, 실제 지출과 판매 여부만 기록합니다.'},
   {id:'scroll', icon:'📜', title:'주문서', tag:'주문서', desc:'주문서와 주문의 흔적 사용량을 지출로 기록합니다.'},
   {id:'bonus', icon:'🔥', title:'추가옵션', tag:'환불', desc:'추가옵션 재설정 1회당 300만 메소로 손실을 기록합니다.'},
   {id:'ability', icon:'🏅', title:'어빌리티', tag:'어빌', desc:'대형 보스 명예의 훈장 가격과 사용 개수를 지출로 기록합니다.'},
   {id:'wonderberry', icon:'🧺', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
   {id:'royal', icon:'👗', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
-  {id:'platinumapple', icon:'💎', title:'플래티넘 애플', tag:'뽑기', desc:'공식 확률표 항목을 기준으로 나온 아이템과 판매 여부를 기록합니다.'}
+  {id:'platinumapple', icon:'💎', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'}
 ];
 const PROFIT_EQUIP_ITEMS=[
   {id:'meister_ring', name:'마이스터링', note:'Lv.140', sprite:['-48px -120px']},
@@ -4200,7 +4199,7 @@ function profitIconHtml(item){
   return '<span class="profit-symbol-icon">'+esc(item?.icon || '💰')+'</span>';
 }
 function profitMoneyBlock(label,key,value=''){
-  return '<div><label>'+label+'</label><input data-profit-input="'+key+'" class="profit-money" inputmode="numeric" autocomplete="off" value="'+esc(value ? formatDigits(value) : '')+'"></div>';
+  return '<div><label>'+label+'</label><input data-profit-input="'+key+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off" value="'+esc(value ? formatDigits(value) : '')+'"></div>';
 }
 function profitNumberBlock(label,key,value='',attrs=''){
   return '<div><label>'+label+'</label><input data-profit-input="'+key+'" type="number" min="0" inputmode="numeric" value="'+esc(value)+'" '+attrs+'></div>';
@@ -4215,7 +4214,7 @@ function profitCostRowsHtml(items){
   return '<div class="profit-lines">'+items.map(item=>
     '<div class="profit-line" data-profit-line="'+esc(item.id)+'">'+
       '<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>'+esc(item.note)+'</small>':'')+'</span></div>'+
-      '<div><label>개당 가격</label><input data-profit-cost-price="'+esc(item.id)+'" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
+      '<div><label>개당 가격</label><input data-profit-cost-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
       '<div><label>개수</label><input data-profit-cost-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>'+
       '<div><label>지출</label><div class="profit-record-stat bad"><b data-profit-cost-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
     '</div>'
@@ -4225,7 +4224,7 @@ function profitOutputRowsHtml(items){
   return '<div class="profit-lines">'+items.map(item=>
     '<div class="profit-line output" data-profit-line="'+esc(item.id)+'">'+
       '<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>확률 '+esc(item.note)+'</small>':'')+'</span></div>'+
-      '<div><label>개당 판매가</label><input data-profit-out-price="'+esc(item.id)+'" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
+      '<div><label>개당 판매가</label><input data-profit-out-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
       '<div><label>개수</label><input data-profit-out-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>'+
       '<label class="profit-check"><input data-profit-out-sold="'+esc(item.id)+'" type="checkbox"> 판매</label>'+
       '<div><label>수익 반영</label><div class="profit-record-stat good"><b data-profit-out-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
@@ -4277,7 +4276,7 @@ function renderProfitCalculator(){
   }else if(type==='royal'){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">로얄스타일과 프리미엄 마스터피스는 지출입니다. 결과물은 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
   }else{
-    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('깐 개수','platinumCount')+'<div class="wide profit-note">목록은 넥슨 공식 플래티넘 애플 확률표 기준입니다. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('깐 개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+cat.icon+' '+cat.title+'</h2><div class="muted">'+cat.desc+'</div></div></div>'+
