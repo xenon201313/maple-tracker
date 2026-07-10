@@ -330,6 +330,9 @@
   .profit-entry-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:end;}
   .profit-entry-grid .wide{grid-column:1 / -1;}
   .profit-entry-grid input,.profit-entry-grid select{width:100%;}
+  .profit-field{display:flex; flex-direction:column; min-width:0;}
+  .profit-field>label:first-child{display:flex; align-items:center; min-height:20px; margin-bottom:6px;}
+  .profit-field input,.profit-field select{width:100%;}
   .profit-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:14px; flex-wrap:wrap;}
   .profit-item-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:8px; margin-top:10px;}
   .profit-item-chip{display:flex; align-items:center; justify-content:flex-start; gap:8px; min-width:0; min-height:58px; padding:8px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(6,10,18,.34); color:var(--text); font-size:13px; text-align:left; cursor:pointer; white-space:normal;}
@@ -351,6 +354,8 @@
   .profit-sprite-icon.multi::after{content:'+'; position:absolute; right:1px; bottom:1px; min-width:12px; height:12px; padding:0 2px; border-radius:999px; background:rgba(255,204,51,.95); color:#172033; font-size:10px; line-height:12px; font-weight:900;}
   .profit-check{display:flex; align-items:center; justify-content:center; gap:6px; min-height:42px; padding:8px 10px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(18,23,38,.72); color:var(--sub); font-weight:800;}
   .profit-check input{width:auto !important; accent-color:var(--gold);}
+  .profit-sold-field .profit-check{height:42px; min-height:42px; margin:0; box-sizing:border-box;}
+  .profit-sold-field .profit-check input{margin:0;}
   .profit-records{display:grid; gap:8px; margin-top:10px;}
   .profit-record{display:grid; grid-template-columns:minmax(160px,1fr) repeat(3,minmax(130px,.65fr)) auto; gap:10px; align-items:center; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
   .profit-record-title{display:flex; align-items:center; gap:8px; min-width:0; font-weight:900;}
@@ -4144,21 +4149,25 @@ const PROFIT_GENESIS_ICON='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAA
 const PROFIT_POTENTIAL_EXTRA_ITEMS=[
   {id:'genesis_weapon', name:'제네시스 무기', note:'Lv.200', img:PROFIT_GENESIS_ICON}
 ];
+const PROFIT_ASSET_BASE='assets/profit/';
 const PROFIT_SCROLL_COSTS=[
-  {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', icon:'📜'},
-  {id:'return_scroll', name:'리턴스크롤', icon:'↩'},
-  {id:'spell_trace', name:'주문의 흔적', icon:'✦'}
+  {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', img:PROFIT_ASSET_BASE+'scroll-chaos-positive.png'},
+  {id:'magical_scroll', name:'매지컬 주문서', img:PROFIT_ASSET_BASE+'magical-scroll.png'},
+  {id:'premium_pet_scroll', name:'프리미엄 펫장비 주문서', img:PROFIT_ASSET_BASE+'premium-pet-scroll.png'},
+  {id:'premium_accessory_scroll', name:'프리미엄 악세서리 주문서', img:PROFIT_ASSET_BASE+'premium-accessory-scroll.png'},
+  {id:'return_scroll', name:'리턴스크롤', img:PROFIT_ASSET_BASE+'return-scroll.png'},
+  {id:'spell_trace', name:'주문의 흔적', img:PROFIT_ASSET_BASE+'spell-trace.png'}
 ];
-const PROFIT_ABILITY_COSTS=[{id:'large_boss_honor', name:'대형 보스 명예의 훈장', icon:'🏅'}];
+const PROFIT_ABILITY_COSTS=[{id:'large_boss_honor', name:'대형 보스 명예의 훈장', img:PROFIT_ASSET_BASE+'large-boss-honor.png'}];
 const PROFIT_WONDER_COSTS=[
   {id:'wonderberry', name:'위습의 원더베리', icon:'🧺'},
   {id:'luna_crystal', name:'루나 크리스탈', icon:'🔮'}
 ];
 const PROFIT_WONDER_OUTPUTS=[
-  {id:'wonder_black', name:'원더블랙', icon:'🖤'},
-  {id:'luna_sweet', name:'루나스윗', icon:'🍬'},
-  {id:'luna_dream', name:'루나드림', icon:'🌙'},
-  {id:'luna_petite', name:'루나쁘띠 펫', icon:'✨'},
+  {id:'wonder_black', name:'원더블랙 펫', icon:'🖤'},
+  {id:'luna_sweet', name:'루나 스윗 펫', icon:'🍬'},
+  {id:'luna_dream', name:'루나 드림 펫', icon:'🌙'},
+  {id:'luna_petite', name:'루나 쁘띠 펫', icon:'✨'},
   {id:'luna_crystal_key', name:'루나 크리스탈 키', icon:'🗝'}
 ];
 const PROFIT_ROYAL_COSTS=[
@@ -4216,19 +4225,19 @@ function profitIconHtml(item){
   return '<span class="profit-symbol-icon">'+esc(item?.icon || '💰')+'</span>';
 }
 function profitMoneyBlock(label,key,value=''){
-  return '<div><label>'+label+'</label><input data-profit-input="'+key+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off" value="'+esc(value ? formatDigits(value) : '')+'"></div>';
+  return '<div class="profit-field"><label>'+label+'</label><input data-profit-input="'+key+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off" value="'+esc(value ? formatDigits(value) : '')+'"></div>';
 }
 function profitNumberBlock(label,key,value='',attrs=''){
-  return '<div><label>'+label+'</label><input data-profit-input="'+key+'" type="number" min="0" inputmode="numeric" value="'+esc(value)+'" '+attrs+'></div>';
+  return '<div class="profit-field"><label>'+label+'</label><input data-profit-input="'+key+'" type="number" min="0" inputmode="numeric" value="'+esc(value)+'" '+attrs+'></div>';
 }
 function profitDateBlock(){
-  return '<div><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+todayStr()+'" value="'+todayStr()+'"></div>';
+  return '<div class="profit-field"><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+todayStr()+'" value="'+todayStr()+'"></div>';
 }
 function profitSelectBlock(label,key,value,options){
-  return '<div><label>'+label+'</label><select data-profit-input="'+key+'">'+options.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===value?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select></div>';
+  return '<div class="profit-field"><label>'+label+'</label><select data-profit-input="'+key+'">'+options.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===value?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select></div>';
 }
 function profitSoldBlock(){
-  return '<div><label>판매 여부</label><label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label></div>';
+  return '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label></div>';
 }
 function profitCostRowsHtml(items){
   return '<div class="profit-lines">'+items.map(item=>
@@ -4246,7 +4255,7 @@ function profitOutputRowsHtml(items){
       '<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>확률 '+esc(item.note)+'</small>':'')+'</span></div>'+
       '<div><label>개당 판매가</label><input data-profit-out-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
       '<div><label>개수</label><input data-profit-out-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>'+
-      '<label class="profit-check"><input data-profit-out-sold="'+esc(item.id)+'" type="checkbox"> 판매</label>'+
+      '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-out-sold="'+esc(item.id)+'" type="checkbox"> 판매</label></div>'+
       '<div><label>수익 반영</label><div class="profit-record-stat good"><b data-profit-out-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
     '</div>'
   ).join('')+'</div>';
