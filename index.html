@@ -4663,7 +4663,7 @@ function characterMetaText(c){
   if(c.worldName) parts.push(c.worldName);
   if(c.characterClass) parts.push(c.characterClass);
   if(c.characterLevel) parts.push('Lv.'+fmt(c.characterLevel));
-  if(c.combatPower) parts.push('보스 전투력 '+fmt(c.combatPower));
+  if(c.combatPower) parts.push('전투력 '+fmt(c.combatPower));
   if(c.lastApiSync) parts.push('API '+c.lastApiSync);
   return parts.join(' · ');
 }
