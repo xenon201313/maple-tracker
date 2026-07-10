@@ -303,6 +303,28 @@
   .ledger-demo-value{color:var(--red); font-weight:bold; white-space:nowrap;}
   .ledger-principles{margin-top:12px; display:grid; gap:8px;}
   .ledger-principles .guide-note{margin-top:0;}
+  .profit-layout{display:grid; grid-template-columns:260px minmax(0,1fr); gap:14px; align-items:start;}
+  .profit-menu{display:grid; gap:8px;}
+  .profit-type-btn{width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid rgba(220,230,255,.16); border-radius:10px; background:rgba(18,23,38,.72); color:var(--text); cursor:pointer; text-align:left; font-weight:800;}
+  .profit-type-btn span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .profit-type-btn b{color:var(--sub); font-size:12px; font-weight:800;}
+  .profit-type-btn.active{border-color:rgba(255,210,77,.78); background:rgba(255,204,51,.13); color:var(--gold);}
+  .profit-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:14px;}
+  .profit-head h2{margin:0 0 5px;}
+  .profit-form{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:end;}
+  .profit-form .wide{grid-column:1 / -1;}
+  .profit-form input,.profit-form select{width:100%;}
+  .profit-mode{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .profit-mode label{display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid rgba(220,230,255,.16); border-radius:999px; background:rgba(18,23,38,.72); color:var(--sub); font-size:13px; cursor:pointer;}
+  .profit-mode input{accent-color:var(--gold);}
+  .profit-star-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+  .profit-result{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:14px;}
+  .profit-metric{padding:12px; border:1px solid rgba(220,230,255,.14); border-radius:10px; background:rgba(6,10,18,.38); min-width:0;}
+  .profit-metric span{display:block; color:var(--sub); font-size:13px; margin-bottom:5px;}
+  .profit-metric b{display:block; color:var(--gold); font-size:18px; overflow-wrap:anywhere;}
+  .profit-metric.good b{color:var(--green);}
+  .profit-metric.bad b{color:var(--red);}
+  .profit-note{margin-top:12px; padding:10px 12px; border-radius:10px; background:rgba(255,204,51,.12); border:1px solid rgba(255,204,51,.26); color:#f6e7ad; font-size:13px; line-height:1.45;}
   .toolbar{display:flex; gap:8px; justify-content:flex-end; margin-bottom:10px; flex-wrap:wrap;}
   @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:900px){ #page-daily>.card:first-child .row{grid-template-columns:1fr;} #page-daily>.card:first-child .row>div:last-child{grid-column:auto;} #page-daily>.card:first-child .row button{margin-top:0;} }
@@ -316,7 +338,7 @@
     .subtitle{font-size:11px; line-height:1.5; margin-bottom:12px;}
     .tabs{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px;}
     .tab{display:flex; align-items:center; justify-content:center; min-width:0; min-height:42px; padding:9px 6px; border-radius:8px; text-align:center; font-size:13px; line-height:1.25; word-break:keep-all;}
-    .tab[data-page="stats"]{grid-column:1 / -1;}
+    .tab[data-page="profit"],.tab[data-page="stats"]{grid-column:1 / -1;}
     .card{padding:12px; border-radius:10px; margin-bottom:12px; overflow-x:visible;}
     .card h2{font-size:15px; line-height:1.25;}
     .row,.daily-date-row,.calc-card .row{display:grid; grid-template-columns:1fr; gap:10px; align-items:stretch;}
@@ -393,6 +415,8 @@
     .ledger-form-preview .wide{grid-column:auto;}
     .ledger-demo-item{grid-template-columns:1fr;}
     .ledger-demo-value{white-space:normal;}
+    .profit-layout,.profit-form,.profit-star-grid,.profit-result{grid-template-columns:1fr;}
+    .profit-head{display:grid; grid-template-columns:1fr;}
     .watermark{right:8px; bottom:8px; font-size:10px; padding:5px 8px;}
   }
   @media (max-width:380px){
@@ -418,6 +442,7 @@
   <div class="tab" data-page="boss">👑 주간 결정석</div>
   <div class="tab" data-page="monthlyboss">🌑 월간 결정석</div>
   <div class="tab" data-page="dailyboss">☀️ 일간 결정석</div>
+  <div class="tab" data-page="profit">💸 손익 계산기</div>
   <div class="tab" data-page="stats">📊 통계</div>
 </div>
 
@@ -510,7 +535,17 @@
   </div>
 
   <div class="card">
-    <h2>7. 백업과 공유</h2>
+    <h2>7. 손익 계산기</h2>
+    <ul class="guide-list">
+      <li>스타포스, 잠재능력, 주문서, 어빌, 원더베리, 로얄스타일, 골드애플, 플래티넘애플, 추가옵션의 기대손익을 계산합니다.</li>
+      <li>스타포스는 장비 레벨, 현재 성, 목표 성, 이벤트를 넣으면 예상 강화 비용을 계산합니다.</li>
+      <li>그 외 항목은 1회 비용, 목표 확률, 결과 가치, 실패 시 남는 가치를 넣어 기대 이득과 손실을 비교합니다.</li>
+    </ul>
+    <div class="guide-note">확률형 시스템은 실제 결과가 기대값과 크게 다를 수 있습니다. 계산기는 계획용 참고값으로 사용해 주세요.</div>
+  </div>
+
+  <div class="card">
+    <h2>8. 백업과 공유</h2>
     <div class="guide-grid">
       <div class="guide-item"><b>공유</b><p>다른 사람에게 프로그램을 공유할 때는 GitHub Pages 주소를 알려주면 됩니다.</p></div>
       <div class="guide-item"><b>내 기록 이동</b><p>내 기록을 다른 기기로 옮기려면 백업(JSON)을 내려받은 뒤 새 기기에서 복원 기능을 사용합니다.</p></div>
@@ -744,20 +779,30 @@
   </div>
 </div>
 
+<!-- ══════════ 손익 계산기 ══════════ -->
+<div class="page" id="page-profit">
+  <div class="card">
+    <h2>💸 손익 계산기</h2>
+    <p class="muted">강화, 큐브, 뽑기처럼 손해를 볼 수 있는 항목을 기대값 기준으로 비교합니다. 입력값은 계산용으로만 사용되고 기존 수익 기록에는 저장되지 않습니다.</p>
+    <div class="profit-note">스타포스, 잠재능력, 추가옵션은 mesu.live의 기댓값 계산기/시뮬레이터처럼 확률과 비용을 분리해서 보는 흐름을 참고했습니다. 이 탭은 전체 시뮬레이터 복제가 아니라 빠른 손익 판단용 간이 계산기입니다.</div>
+  </div>
+  <div class="profit-layout">
+    <div class="card">
+      <h2>항목 선택</h2>
+      <div class="profit-menu" id="profit-type-list"></div>
+    </div>
+    <div class="card">
+      <div id="profit-calculator"></div>
+      <div id="profit-result" class="profit-result"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ 통계 ══════════ -->
 <div class="page" id="page-stats">
   <div class="card">
     <h2>📊 요약</h2>
     <div class="statgrid" id="stat-cards"></div>
-  </div>
-  <div class="card ledger-draft-card">
-    <div class="ledger-draft-head">
-      <div class="ledger-draft-copy">
-        <h2>🧾 메소 가계부 초안</h2>
-        <p class="muted">수익 기록과 섞이지 않도록 지출·손실만 별도 팝업에서 확인하는 형태로 잡았습니다. 아직 저장 기능은 붙이지 않은 디자인 초안입니다.</p>
-      </div>
-      <button class="ghost" id="btn-ledger-draft" type="button">초안 보기</button>
-    </div>
   </div>
   <div class="card">
     <h2>🎯 목표 금액</h2>
@@ -3931,6 +3976,234 @@ function renderErdaCalculator(){
     '<div class="pill">전체 '+fmt(total.e)+'개<b>'+korMeso(value(total.e))+'</b></div>';
 }
 
+/* ───────── 손익 계산기 ───────── */
+const PROFIT_CATEGORIES=[
+  {id:'starforce', icon:'⭐', title:'스타포스', tag:'강화', desc:'장비 레벨과 목표 성을 기준으로 목표까지 평균 강화 비용을 추정합니다.'},
+  {id:'potential', icon:'🧊', title:'잠재능력', tag:'큐브', desc:'큐브/재설정 비용과 목표 옵션 확률로 기대손익을 계산합니다.', rate:'1'},
+  {id:'scroll', icon:'📜', title:'주문서', tag:'주문서', desc:'주문서 성공 확률, 주문서 비용, 성공 후 가치로 기대손익을 계산합니다.', rate:'30'},
+  {id:'ability', icon:'✨', title:'어빌리티', tag:'어빌', desc:'어빌 재설정 비용과 목표 등급/옵션 확률을 넣어 계산합니다.', rate:'1'},
+  {id:'wonderberry', icon:'🧺', title:'원더베리', tag:'뽑기', desc:'1회 가격, 목표 펫/아이템 확률, 판매가를 기준으로 계산합니다.', rate:'5'},
+  {id:'royal', icon:'👗', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일 1회 비용과 목표 아이템 가치를 비교합니다.', rate:'5'},
+  {id:'goldapple', icon:'🍎', title:'골드애플', tag:'뽑기', desc:'골드애플 기대 회수 가치와 투입 비용을 비교합니다.', rate:'5'},
+  {id:'platinumapple', icon:'💎', title:'플래티넘애플', tag:'뽑기', desc:'플래티넘애플 기대 회수 가치와 투입 비용을 비교합니다.', rate:'5'},
+  {id:'bonus', icon:'🔥', title:'추가옵션', tag:'환불', desc:'환생의 불꽃 비용과 목표 추가옵션 확률로 기대손익을 계산합니다.', rate:'1'}
+];
+const profitState={active:'starforce', data:{}};
+function profitCategory(id){ return PROFIT_CATEGORIES.find(c=>c.id===id) || PROFIT_CATEGORIES[0]; }
+function profitDefaults(type){
+  const cat=profitCategory(type);
+  if(type==='starforce') return {level:'200', from:'17', to:'22', event:'none', spare:'0', reward:'0'};
+  return {attempts:'100', cost:'0', rate:cat.rate || '1', reward:'0', failReturn:'0'};
+}
+function profitData(type){
+  if(!profitState.data[type]) profitState.data[type]=profitDefaults(type);
+  return profitState.data[type];
+}
+function profitReadForm(){
+  const form=document.getElementById('profit-calculator');
+  if(!form) return;
+  const type=profitState.active;
+  const data=profitData(type);
+  form.querySelectorAll('[data-profit-field]').forEach(el=>{
+    data[el.dataset.profitField]=el.value;
+  });
+}
+function profitNum(value){
+  if(typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  const cleaned=String(value ?? '').replace(/[^\d.-]/g,'');
+  const n=Number(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+function profitMesoNum(value){
+  const digits=onlyDigits(value);
+  return digits ? Number(digits) : 0;
+}
+function profitPercent(value){
+  const n=profitNum(value);
+  return Math.max(0,Math.min(100,n));
+}
+function profitMesoText(value){
+  if(!Number.isFinite(Number(value))) return '계산 불가';
+  const n=Math.round(Math.abs(Number(value)||0));
+  const text=korMeso(BigInt(n));
+  return value < 0 ? '-'+text : text;
+}
+function profitInput(label, field, value, attrs=''){
+  return '<div><label>'+label+'</label><input data-profit-field="'+field+'" value="'+esc(value)+'" '+attrs+'></div>';
+}
+function profitSelect(label, field, value, options){
+  return '<div><label>'+label+'</label><select data-profit-field="'+field+'">'+options.map(o=>'<option value="'+esc(o[0])+'"'+(String(value)===String(o[0])?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select></div>';
+}
+function renderProfitMenu(){
+  const list=document.getElementById('profit-type-list');
+  if(!list) return;
+  list.innerHTML=PROFIT_CATEGORIES.map(c=>
+    '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'"><span>'+c.icon+' '+c.title+'</span><b>'+c.tag+'</b></button>'
+  ).join('');
+  list.querySelectorAll('[data-profit-type]').forEach(btn=>{
+    btn.onclick=()=>{
+      profitReadForm();
+      profitState.active=btn.dataset.profitType;
+      renderProfitCalculator();
+    };
+  });
+}
+function renderProfitCalculator(){
+  const box=document.getElementById('profit-calculator');
+  if(!box) return;
+  profitReadForm();
+  renderProfitMenu();
+  const type=profitState.active;
+  const cat=profitCategory(type);
+  const data=profitData(type);
+  if(type==='starforce'){
+    box.innerHTML=
+      '<div class="profit-head"><div><h2>'+cat.icon+' '+cat.title+'</h2><div class="muted">'+cat.desc+'</div></div></div>'+
+      '<div class="profit-star-grid">'+
+      profitInput('장비 레벨','level',data.level,'type="number" min="0" inputmode="numeric"')+
+      profitInput('현재 스타포스','from',data.from,'type="number" min="0" max="24" inputmode="numeric"')+
+      profitInput('목표 스타포스','to',data.to,'type="number" min="1" max="25" inputmode="numeric"')+
+      profitSelect('이벤트','event',data.event,[['none','없음'],['discount30','비용 30% 할인'],['fiveTenFifteen','5/10/15성 100%'],['destroy30','파괴 확률 30% 감소'],['plusOne','10성 이하 1+1'],['shining','샤이닝 스타포스']])+
+      profitInput('스페어 1개 비용','spare',formatDigits(data.spare),'inputmode="numeric" autocomplete="off" class="profit-money"')+
+      profitInput('목표 달성 후 가치','reward',formatDigits(data.reward),'inputmode="numeric" autocomplete="off" class="profit-money"')+
+      '<div class="wide muted">파괴 시 12성 복구 기준으로 계산하며, 스페어 비용을 입력하면 파괴 기대비용에 포함합니다.</div>'+
+      '</div>';
+  }else{
+    box.innerHTML=
+      '<div class="profit-head"><div><h2>'+cat.icon+' '+cat.title+'</h2><div class="muted">'+cat.desc+'</div></div></div>'+
+      '<div class="profit-form">'+
+      profitInput('시도 횟수','attempts',data.attempts,'type="number" min="0" inputmode="numeric"')+
+      profitInput('1회 비용','cost',formatDigits(data.cost),'inputmode="numeric" autocomplete="off" class="profit-money"')+
+      profitInput('목표 확률 (%)','rate',data.rate,'type="number" min="0" max="100" step="0.0001" inputmode="decimal"')+
+      profitInput('성공/획득 시 가치','reward',formatDigits(data.reward),'inputmode="numeric" autocomplete="off" class="profit-money"')+
+      profitInput('실패 시 회수 가치','failReturn',formatDigits(data.failReturn),'inputmode="numeric" autocomplete="off" class="profit-money"')+
+      '<div class="wide muted">성공/획득 시 가치는 판매 예상가 또는 강화 후 가치 증가분을 넣으면 됩니다. 실패 시 남는 조각, 부산물, 재판매 가치는 회수 가치에 넣어 주세요.</div>'+
+      '</div>';
+  }
+  box.querySelectorAll('[data-profit-field]').forEach(el=>{
+    el.addEventListener('input',()=>{
+      if(el.classList.contains('profit-money')){
+        const digits=onlyDigits(el.value);
+        el.value=digits ? formatDigits(digits) : '';
+      }
+      renderProfitResult();
+    });
+    el.addEventListener('change',renderProfitResult);
+  });
+  renderProfitResult();
+}
+function starforceBaseProb(star){
+  const table={
+    0:[.95,.05,0,0],1:[.90,.10,0,0],2:[.85,.15,0,0],3:[.85,.15,0,0],4:[.80,.20,0,0],
+    5:[.75,.25,0,0],6:[.70,.30,0,0],7:[.65,.35,0,0],8:[.60,.40,0,0],9:[.55,.45,0,0],
+    10:[.50,.50,0,0],11:[.45,.55,0,0],12:[.40,0,.594,.006],13:[.35,0,.637,.013],
+    14:[.30,0,.686,.014],15:[.30,.679,0,.021],16:[.30,0,.679,.021],17:[.30,0,.679,.021],
+    18:[.30,0,.672,.028],19:[.30,0,.672,.028],20:[.30,.63,0,.07],21:[.30,0,.63,.07],
+    22:[.03,0,.776,.194],23:[.02,0,.686,.294],24:[.01,0,.594,.396]
+  };
+  const p=table[Math.max(0,Math.min(24,Math.floor(Number(star)||0)))] || table[0];
+  return {success:p[0], stay:p[1], drop:p[2], destroy:p[3]};
+}
+function starforceProb(star,event){
+  let p=starforceBaseProb(star);
+  const noDestroyEvent=event==='destroy30' || event==='shining';
+  if((event==='fiveTenFifteen' || event==='shining') && [5,10,15].includes(Number(star))){
+    return {success:1, stay:0, drop:0, destroy:0};
+  }
+  if(noDestroyEvent && p.destroy){
+    const reduced=p.destroy*.7;
+    p={...p, stay:p.stay+(p.destroy-reduced), destroy:reduced};
+  }
+  return p;
+}
+function starforceAttemptCost(level, star, event){
+  level=Math.max(0,Math.floor(Number(level)||0));
+  star=Math.max(0,Math.floor(Number(star)||0));
+  let cost=0;
+  if(star < 10) cost=Math.pow(level,3)*(star+1)/2500+1000;
+  else if(star < 15) cost=Math.pow(level,3)*Math.pow(star+1,2.7)/40000+1000;
+  else cost=Math.pow(level,3)*Math.pow(star+1,2.7)/20000+1000;
+  if(event==='discount30' || event==='shining') cost*=.7;
+  return Math.max(0,cost);
+}
+function starforceExpectedCost(level, from, to, event, spare){
+  from=Math.max(0,Math.min(24,Math.floor(Number(from)||0)));
+  to=Math.max(1,Math.min(25,Math.floor(Number(to)||0)));
+  if(to<=from) return 0;
+  const spareCost=Math.max(0,Number(spare)||0);
+  const e=Array(to+1).fill(0);
+  for(let iter=0; iter<3000; iter++){
+    let diff=0;
+    const next=e.slice();
+    next[to]=0;
+    for(let s=to-1; s>=0; s--){
+      const p=starforceProb(s,event);
+      const successStep=(event==='plusOne' && s<=10) ? 2 : 1;
+      const successStar=Math.min(to,s+successStep);
+      const dropStar=Math.max(0,s-1);
+      const destroyStar=Math.min(12,s);
+      const cost=starforceAttemptCost(level,s,event);
+      const numerator=cost + p.success*e[successStar] + p.drop*e[dropStar] + p.destroy*(spareCost+e[destroyStar]);
+      const denom=Math.max(.000001,1-p.stay);
+      next[s]=numerator/denom;
+      diff=Math.max(diff,Math.abs(next[s]-e[s]));
+    }
+    for(let i=0;i<e.length;i++) e[i]=next[i];
+    if(diff<1) break;
+  }
+  return e[from] || 0;
+}
+function renderProfitResult(){
+  const out=document.getElementById('profit-result');
+  if(!out) return;
+  profitReadForm();
+  const type=profitState.active;
+  const data=profitData(type);
+  if(type==='starforce'){
+    const level=Math.max(0,Math.floor(profitNum(data.level)));
+    const from=Math.max(0,Math.floor(profitNum(data.from)));
+    const to=Math.max(1,Math.floor(profitNum(data.to)));
+    const spare=profitMesoNum(data.spare);
+    const reward=profitMesoNum(data.reward);
+    const expected=starforceExpectedCost(level,from,to,data.event,spare);
+    const net=reward-expected;
+    out.innerHTML=[
+      profitMetric('예상 강화 비용',profitMesoText(expected),'bad'),
+      profitMetric('목표 달성 후 가치',profitMesoText(reward),''),
+      profitMetric('기대 손익',profitMesoText(net),net>=0?'good':'bad'),
+      profitMetric('계산 구간',fmt(level)+'제 · '+from+'성 → '+to+'성',''),
+      profitMetric('스페어 비용 반영',profitMesoText(spare),''),
+      profitMetric('이벤트',profitCategoryLabel(data.event),'')
+    ].join('');
+    return;
+  }
+  const attempts=Math.max(0,profitNum(data.attempts));
+  const cost=profitMesoNum(data.cost);
+  const rate=profitPercent(data.rate)/100;
+  const reward=profitMesoNum(data.reward);
+  const failReturn=profitMesoNum(data.failReturn);
+  const totalCost=attempts*cost;
+  const expectedReturn=attempts*(rate*reward + (1-rate)*failReturn);
+  const net=expectedReturn-totalCost;
+  const atLeastOne=rate>0 ? (1-Math.pow(1-rate,attempts))*100 : 0;
+  const oneSuccessCost=rate>0 ? cost/rate : 0;
+  out.innerHTML=[
+    profitMetric('기대 손익',profitMesoText(net),net>=0?'good':'bad'),
+    profitMetric('총 투입 비용',profitMesoText(totalCost),'bad'),
+    profitMetric('기대 회수 가치',profitMesoText(expectedReturn),expectedReturn>=totalCost?'good':''),
+    profitMetric('1회 이상 목표 확률',atLeastOne.toFixed(atLeastOne>=10?1:2)+'%',''),
+    profitMetric('기대 성공 횟수',(attempts*rate).toFixed(2)+'회',''),
+    profitMetric('목표 1회 기대비용',rate>0?profitMesoText(oneSuccessCost):'확률 필요','')
+  ].join('');
+}
+function profitMetric(label,value,cls){
+  return '<div class="profit-metric '+(cls||'')+'"><span>'+label+'</span><b>'+value+'</b></div>';
+}
+function profitCategoryLabel(value){
+  const map={none:'없음',discount30:'비용 30% 할인',fiveTenFifteen:'5/10/15성 100%',destroy30:'파괴 확률 30% 감소',plusOne:'10성 이하 1+1',shining:'샤이닝 스타포스'};
+  return map[value] || value || '없음';
+}
+
 /* ───────── 보스 결정석 ───────── */
 const openChars = new Set();
 const bossDrafts = new Map();
@@ -3992,16 +4265,21 @@ async function fetchNexonCharacterStatByOcid(ocid){
   return stat;
 }
 function combatPowerFromStat(statData){
-  const direct=onlyDigits(statData?.combat_power || statData?.combatPower || statData?.character_combat_power || '');
+  const direct=onlyDigits(statData?.boss_combat_power || statData?.bossCombatPower || statData?.combat_power_boss || '');
   if(direct) return direct;
   const rows=[
     ...(Array.isArray(statData?.final_stat) ? statData.final_stat : []),
     ...(Array.isArray(statData?.stat) ? statData.stat : []),
     ...(Array.isArray(statData?.stats) ? statData.stats : [])
   ];
+  const bossRow=rows.find(s=>{
+    const name=String(s?.stat_name || s?.statName || s?.name || '').replace(/\s/g,'');
+    return name.includes('보스전투력') || /bosscombatpower/i.test(name);
+  });
+  if(bossRow) return onlyDigits(bossRow.stat_value || bossRow.statValue || bossRow.value || '');
   const row=rows.find(s=>{
     const name=String(s?.stat_name || s?.statName || s?.name || '').replace(/\s/g,'');
-    return name.includes('전투력') || /combatpower/i.test(name);
+    return (name.includes('전투력') && !name.includes('사냥')) || /combatpower/i.test(name);
   });
   return row ? onlyDigits(row.stat_value || row.statValue || row.value || '') : '';
 }
@@ -4983,7 +5261,7 @@ document.getElementById('file-import').onchange=(e)=>{
 };
 
 /* ───────── 렌더 ───────── */
-function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderRegisteredCharacters(); renderBoss(); renderMonthlyBoss(); renderDailyBoss(); }
+function renderAll(){ normalizeAllBosses(); renderRecords(); renderStats(); renderRegisteredCharacters(); renderBoss(); renderMonthlyBoss(); renderDailyBoss(); renderProfitCalculator(); }
 renderAll();
 </script>
 <div class="watermark">크로아/얀보 제작</div>
