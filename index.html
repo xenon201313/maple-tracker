@@ -67,6 +67,10 @@
   .card{background:linear-gradient(180deg,rgba(20,25,39,.94),rgba(14,18,30,.9)); border:1px solid rgba(220,230,255,.2); border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px) saturate(118%); -webkit-backdrop-filter:blur(12px) saturate(118%);}
   .card h2{font-size:17px; margin-bottom:12px; display:flex; align-items:center; gap:8px; color:var(--gold); text-shadow:0 2px 10px rgba(0,0,0,.58);}
   .card h2 img{height:24px; image-rendering:pixelated;}
+  .period-card{display:flex; flex-direction:column; gap:8px;}
+  .period-card h2{margin-bottom:2px;}
+  .period-note{display:inline-flex; align-items:center; align-self:flex-start; min-height:36px; padding:7px 12px; border:1px solid rgba(255,210,77,.34); border-radius:9px; background:rgba(255,210,77,.09); color:#ffe59a; font-size:15px; font-weight:700; line-height:1.35; text-shadow:0 2px 10px rgba(0,0,0,.55);}
+  .period-sub{color:var(--sub); font-size:13px; line-height:1.6; word-break:keep-all; overflow-wrap:anywhere;}
   .row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
   .row>div{min-width:0; max-width:100%;}
   #page-daily>.card:first-child .row{display:grid; grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr); gap:16px; align-items:start;}
@@ -393,6 +397,7 @@
     .tab[data-page="profit"],.tab[data-page="stats"]{grid-column:1 / -1;}
     .card{padding:12px; border-radius:10px; margin-bottom:12px; overflow-x:visible;}
     .card h2{font-size:15px; line-height:1.25;}
+    .period-note{width:100%; font-size:14px; justify-content:flex-start;}
     .row,.daily-date-row,.calc-card .row{display:grid; grid-template-columns:1fr; gap:10px; align-items:stretch;}
     input[type=date],input[type=number],input[type=text],input[type=password],select{width:100%; font-size:16px;}
     #page-daily>.card:first-child .row{grid-template-columns:1fr; gap:10px;}
@@ -794,6 +799,12 @@
 
 <!-- ══════════ 주간 결정석 ══════════ -->
 <div class="page" id="page-boss">
+  <div class="card period-card">
+    <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</h2>
+    <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
+    <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 이번 주 기준으로 기록합니다.</div>
+  </div>
+
   <div id="charlist"></div>
 
   <div class="card">
@@ -809,8 +820,10 @@
 
 <!-- ══════════ 월간 결정석 ══════════ -->
 <div class="page" id="page-monthlyboss">
-  <div class="card">
+  <div class="card period-card">
     <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</h2>
+    <div class="period-note" id="monthlyboss-period-note">월간 결정석</div>
+    <div class="period-sub">검은 마법사 월간 결정석과 드랍 아이템 수익을 현재 월 기준으로 기록합니다.</div>
   </div>
 
   <div id="monthlyboss-list"></div>
@@ -3469,6 +3482,7 @@ function normalizeDateInput(value){
 }
 function fmtShort(dateStr){ const p=dateStr.split('-'); return p[1]+'-'+p[2]; }
 function fmtWeekRange(w){ return fmtShort(w)+'~'+fmtShort(addDays(w,6)); }
+function fmtMonthLabel(dateStr=todayStr()){ const p=dateStr.split('-'); return p[0]+'년 '+Number(p[1])+'월'; }
 function currentWeekKey(){ return mapleWeekStart(todayStr()); }
 function ensureObj(o){ return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
 function bossStore(c, week=currentWeekKey()){
@@ -5076,6 +5090,8 @@ function renderBoss(){
   const list=document.getElementById('charlist');
   if(!list) return;
   const wk=currentWeekKey();
+  const periodNote=document.getElementById('weeklyboss-period-note');
+  if(periodNote) periodNote.textContent='주간 결정석 (이번 주 '+fmtWeekRange(wk)+')';
   list.innerHTML='';
   db.chars.forEach((c,idx)=>{
     const s=charSum(c,wk);
@@ -5122,6 +5138,9 @@ function renderMonthlyBoss(){
   if(!list || !total) return;
   normalizeAllBosses();
   const wk=currentWeekKey();
+  const monthLabel=fmtMonthLabel(todayStr());
+  const periodNote=document.getElementById('monthlyboss-period-note');
+  if(periodNote) periodNote.textContent=monthLabel+' 월간 결정석';
   list.innerHTML='';
   if(!db.chars.length){
     list.innerHTML='<div class="card muted">캐릭터 등록 탭에서 캐릭터를 먼저 추가하세요.</div>';
@@ -5134,7 +5153,7 @@ function renderMonthlyBoss(){
     head.innerHTML=charHeadHtml(c,'월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ monthlyOpenChars.has(c.name)?monthlyOpenChars.delete(c.name):monthlyOpenChars.add(c.name); bl.classList.toggle('open'); };
-    let html='<div class="bossgroup">'+crystalIcon('monthly')+'월간 결정석 (검은 마법사)</div><div class="bgrid">';
+    let html='<div class="bossgroup">'+crystalIcon('monthly')+'월간 결정석 ('+monthLabel+' · 검은 마법사)</div><div class="bgrid">';
     BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c); });
     html+='</div>';
     bl.innerHTML=html;
@@ -5143,8 +5162,8 @@ function renderMonthlyBoss(){
   });
   const t=bossTotals(wk);
   total.innerHTML=
-    crystalIcon('monthly')+'<b>월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
-    '<br>'+crystalIcon('monthly')+'<b>월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
+    crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
+    '<br>'+crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
 }
 function selectedBossForGroup(g,c){
   const bosses=bossStore(c);
