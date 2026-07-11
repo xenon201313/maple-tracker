@@ -56,8 +56,12 @@
   h1 img{height:48px; image-rendering:pixelated;}
   .subtitle{color:#d7deef; font-size:13px; margin-bottom:16px; line-height:1.6; text-shadow:0 2px 10px rgba(0,0,0,.85); word-break:keep-all; overflow-wrap:anywhere;}
   .tabs{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:6px; margin-bottom:16px; max-width:100%;}
-  .tab{font-family:var(--font-title); font-weight:700; min-width:0; padding:10px 12px; background:rgba(17,22,36,.84); border:1px solid rgba(220,230,255,.2); border-radius:10px 10px 0 0; cursor:pointer; font-size:15px; color:#d5dbee; text-align:center; box-shadow:0 10px 22px rgba(0,0,0,.22); backdrop-filter:blur(10px) saturate(116%); -webkit-backdrop-filter:blur(10px) saturate(116%);}
+  .tab{font-family:var(--font-title); font-weight:700; min-width:0; padding:10px 12px; background:rgba(17,22,36,.84); border:1px solid rgba(220,230,255,.2); border-radius:10px 10px 0 0; cursor:pointer; font-size:15px; color:#d5dbee; text-align:center; box-shadow:0 10px 22px rgba(0,0,0,.22); backdrop-filter:blur(10px) saturate(116%); -webkit-backdrop-filter:blur(10px) saturate(116%); display:flex; align-items:center; justify-content:center; gap:7px;}
   .tab.active{background:rgba(35,42,65,.96); color:var(--gold); border-color:rgba(255,210,77,.46); border-bottom:2px solid var(--gold);}
+  .crystal-icon{width:24px; height:24px; object-fit:contain; image-rendering:pixelated; flex:0 0 auto; vertical-align:middle;}
+  .tab .crystal-icon{width:22px; height:22px;}
+  .card h2 .crystal-icon{width:26px; height:26px;}
+  .bossgroup .crystal-icon,.totalbar .crystal-icon{width:22px; height:22px; margin-right:4px;}
   .page{display:none;}
   .page.active{display:block;}
   .card{background:linear-gradient(180deg,rgba(20,25,39,.94),rgba(14,18,30,.9)); border:1px solid rgba(220,230,255,.2); border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px) saturate(118%); -webkit-backdrop-filter:blur(12px) saturate(118%);}
@@ -306,11 +310,12 @@
   .profit-layout{display:grid; grid-template-columns:260px minmax(0,1fr); gap:14px; align-items:start;}
   .profit-menu{display:grid; gap:8px;}
   .profit-type-btn{width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid rgba(220,230,255,.16); border-radius:10px; background:rgba(18,23,38,.72); color:var(--text); cursor:pointer; text-align:left; font-weight:800;}
-  .profit-type-btn span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .profit-type-btn>span{min-width:0; overflow:hidden; white-space:nowrap; display:flex; align-items:center; gap:8px;}
+  .profit-type-label{min-width:0; overflow:hidden; text-overflow:ellipsis;}
   .profit-type-btn b{color:var(--sub); font-size:12px; font-weight:800;}
   .profit-type-btn.active{border-color:rgba(255,210,77,.78); background:rgba(255,204,51,.13); color:var(--gold);}
   .profit-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:14px;}
-  .profit-head h2{margin:0 0 5px;}
+  .profit-head h2{margin:0 0 5px; display:flex; align-items:center; gap:9px;}
   .profit-form{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:end;}
   .profit-form .wide{grid-column:1 / -1;}
   .profit-form input,.profit-form select{width:100%;}
@@ -347,6 +352,8 @@
   .profit-line small{display:block; color:var(--sub); font-weight:600; margin-top:2px;}
   .profit-symbol-icon{width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; background:rgba(255,204,51,.13); border:1px solid rgba(255,204,51,.24); font-size:17px;}
   .profit-img-icon{width:30px; height:30px; object-fit:contain; flex:0 0 auto; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); padding:3px;}
+  .profit-crop-icon{display:inline-block; overflow:hidden; background-repeat:no-repeat; padding:0;}
+  .platinum-apple-icon{background-image:url('assets/profit/platinum-apple-panel.png'); background-size:289px 168px; background-position:-55px -49px;}
   .profit-sprite-icon{width:30px; height:30px; flex:0 0 auto; display:inline-grid; place-items:center; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); overflow:hidden;}
   .profit-sprite-piece{width:24px; height:24px; display:block; background-image:url('https://www.boomback.com/equipments/sprite.png'); background-repeat:no-repeat; background-size:120px 168px; image-rendering:auto;}
   .profit-sprite-icon.multi{position:relative;}
@@ -492,9 +499,9 @@
   <div class="tab active" data-page="intro">📖 설명</div>
   <div class="tab" data-page="character">👤 캐릭터 등록</div>
   <div class="tab" data-page="daily">📋 재획 기록</div>
-  <div class="tab" data-page="boss">👑 주간 결정석</div>
-  <div class="tab" data-page="monthlyboss">🌑 월간 결정석</div>
-  <div class="tab" data-page="dailyboss">☀️ 일간 결정석</div>
+  <div class="tab" data-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</div>
+  <div class="tab" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</div>
+  <div class="tab" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석</div>
   <div class="tab" data-page="profit">💸 손익 계산기</div>
   <div class="tab" data-page="stats">📊 통계</div>
 </div>
@@ -510,6 +517,7 @@
       <span class="guide-pill">월간 보스 매월 1일</span>
       <span class="guide-pill">백업 JSON 권장</span>
     </div>
+    <div class="guide-note">캐릭터 추가와 서버 설정은 <b>캐릭터 등록</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
   </div>
 
   <div class="card">
@@ -784,7 +792,7 @@
   <div id="charlist"></div>
 
   <div class="card">
-    <h2>💰 주간 결정석 합계</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석 합계</h2>
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
@@ -797,14 +805,13 @@
 <!-- ══════════ 월간 결정석 ══════════ -->
 <div class="page" id="page-monthlyboss">
   <div class="card">
-    <h2>🌑 월간 결정석</h2>
-    <div class="muted">검은 마법사만 따로 기록합니다. 캐릭터 추가와 서버 설정은 <b>캐릭터 등록</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
+    <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</h2>
   </div>
 
   <div id="monthlyboss-list"></div>
 
   <div class="card">
-    <h2>💰 월간 결정석 합계</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석 합계</h2>
     <div class="totalbar" id="monthlyboss-total"></div>
     <div class="muted" style="margin-top:10px;">
       ※ 검은 마법사는 주간 보스 12개 제한과 월드당 주간 90개 결정석 한도 표시에서 제외됩니다.
@@ -815,7 +822,7 @@
 <!-- ══════════ 일간 결정석 ══════════ -->
 <div class="page" id="page-dailyboss">
   <div class="card">
-    <h2>☀️ 일간 결정석</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석</h2>
     <div class="daily-date-row">
       <div>
         <label>날짜</label>
@@ -826,7 +833,7 @@
   </div>
   <div id="dailyboss-list"></div>
   <div class="card">
-    <h2>💰 일간 결정석 합계</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석 합계</h2>
     <div class="totalbar" id="dailyboss-total"></div>
   </div>
 </div>
@@ -4113,15 +4120,16 @@ function renderErdaCalculator(){
 }
 
 /* ───────── 손익 계산기 ───────── */
+const PROFIT_ASSET_BASE='assets/profit/';
 const PROFIT_CATEGORIES=[
   {id:'starforce', icon:'⭐', title:'스타포스', tag:'강화', desc:'위 링크에서 확인한 기대값과 실제 사용 메소를 비교합니다.'},
   {id:'potential', icon:'🧊', title:'잠재능력', tag:'큐브', desc:'잠재능력 기대값은 외부 계산기에서 확인하고, 실제 지출과 판매 여부만 기록합니다.'},
   {id:'scroll', icon:'📜', title:'주문서', tag:'주문서', desc:'주문서와 주문의 흔적 사용량을 지출로 기록합니다.'},
   {id:'bonus', icon:'🔥', title:'추가옵션', tag:'환불', desc:'추가옵션 재설정 1회당 300만 메소로 손실을 기록합니다.'},
   {id:'ability', icon:'🏅', title:'어빌리티', tag:'어빌', desc:'대형 보스 명예의 훈장 가격과 사용 개수를 지출로 기록합니다.'},
-  {id:'wonderberry', icon:'🧺', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
-  {id:'royal', icon:'👗', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
-  {id:'platinumapple', icon:'💎', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'}
+  {id:'wonderberry', img:PROFIT_ASSET_BASE+'wonderberry.png', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
+  {id:'royal', img:PROFIT_ASSET_BASE+'royal-style.png', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
+  {id:'platinumapple', crop:'platinum-apple', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'}
 ];
 const PROFIT_EQUIP_ITEMS=[
   {id:'meister_ring', name:'마이스터링', note:'Lv.140', sprite:['-48px -120px']},
@@ -4153,7 +4161,6 @@ const PROFIT_GENESIS_ICON='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAA
 const PROFIT_POTENTIAL_EXTRA_ITEMS=[
   {id:'genesis_weapon', name:'제네시스 무기', note:'Lv.200', img:PROFIT_GENESIS_ICON}
 ];
-const PROFIT_ASSET_BASE='assets/profit/';
 const PROFIT_SCROLL_COSTS=[
   {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', img:PROFIT_ASSET_BASE+'scroll-chaos-positive.png'},
   {id:'magical_scroll', name:'매지컬 주문서', img:PROFIT_ASSET_BASE+'magical-scroll.png'},
@@ -4164,51 +4171,51 @@ const PROFIT_SCROLL_COSTS=[
 ];
 const PROFIT_ABILITY_COSTS=[{id:'large_boss_honor', name:'대형 보스 명예의 훈장', img:PROFIT_ASSET_BASE+'large-boss-honor.png'}];
 const PROFIT_WONDER_COSTS=[
-  {id:'wonderberry', name:'위습의 원더베리', icon:'🧺'},
-  {id:'luna_crystal', name:'루나 크리스탈', icon:'🔮'}
+  {id:'wonderberry', name:'위습의 원더베리', img:PROFIT_ASSET_BASE+'wonderberry.png'},
+  {id:'luna_crystal', name:'루나 크리스탈', img:PROFIT_ASSET_BASE+'luna-crystal.png'}
 ];
 const PROFIT_WONDER_OUTPUTS=[
-  {id:'wonder_black', name:'원더블랙 펫', icon:'🖤'},
-  {id:'luna_sweet', name:'루나 스윗 펫', icon:'🍬'},
-  {id:'luna_dream', name:'루나 드림 펫', icon:'🌙'},
-  {id:'luna_petite', name:'루나 쁘띠 펫', icon:'✨'},
-  {id:'luna_crystal_key', name:'루나 크리스탈 키', icon:'🗝'}
+  {id:'wonder_black', name:'원더블랙 펫', img:PROFIT_ASSET_BASE+'wonder-black-pet.png'},
+  {id:'luna_sweet', name:'루나 스윗 펫', img:PROFIT_ASSET_BASE+'luna-crystal.png'},
+  {id:'luna_dream', name:'루나 드림 펫', img:PROFIT_ASSET_BASE+'special-luna-crystal.png'},
+  {id:'luna_petite', name:'루나 쁘띠 펫', img:PROFIT_ASSET_BASE+'luna-petite-pet.png'},
+  {id:'luna_crystal_key', name:'루나 크리스탈 키', img:PROFIT_ASSET_BASE+'luna-crystal-key.png'}
 ];
 const PROFIT_ROYAL_COSTS=[
-  {id:'royal_style', name:'로얄스타일', icon:'👗'},
-  {id:'premium_masterpiece', name:'프리미엄 마스터피스', icon:'🧵'}
+  {id:'royal_style', name:'로얄스타일', img:PROFIT_ASSET_BASE+'royal-style.png'},
+  {id:'premium_masterpiece', name:'프리미엄 마스터피스', img:PROFIT_ASSET_BASE+'premium-masterpiece.png'}
 ];
 const PROFIT_ROYAL_OUTPUTS=[
-  {id:'special_label', name:'스페셜라벨', icon:'🌟'},
-  {id:'red_label', name:'레드라벨', icon:'🔴'},
-  {id:'black_label', name:'블랙라벨', icon:'⚫'},
-  {id:'master_label', name:'마스터라벨', icon:'👑'},
-  {id:'hair_coupon', name:'헤어쿠폰', icon:'💇'}
+  {id:'special_label', name:'스페셜라벨', img:PROFIT_ASSET_BASE+'special-label.png'},
+  {id:'red_label', name:'레드라벨', img:PROFIT_ASSET_BASE+'masterpiece.png'},
+  {id:'black_label', name:'블랙라벨', img:PROFIT_ASSET_BASE+'premium-masterpiece.png'},
+  {id:'master_label', name:'마스터라벨', img:PROFIT_ASSET_BASE+'master-label.png'},
+  {id:'hair_coupon', name:'헤어쿠폰', img:PROFIT_ASSET_BASE+'hair-coupon.png'}
 ];
 const PROFIT_PLATINUM_OUTPUTS=[
-  {id:'sf20_200', name:'카르마 스타포스 20성 강화권 (200제)', note:'0.03%', icon:'⭐'},
-  {id:'sf20_160', name:'카르마 스타포스 20성 강화권 (160제)', note:'0.06%', icon:'⭐'},
-  {id:'sf18_250', name:'카르마 스타포스 18성 강화권 (250제)', note:'0.09%', icon:'⭐'},
-  {id:'abyss_flame', name:'심연의 환생의 불꽃', note:'7%', icon:'🔥'},
-  {id:'pet_return_scroll', name:'펫장비 리턴 스크롤', note:'1.5%', icon:'↩'},
-  {id:'pet_innocent_scroll', name:'펫장비 이노센트 주문서 100%', note:'1.5%', icon:'📜'},
-  {id:'pet_purity_scroll', name:'펫장비 순백의 주문서 100%', note:'2%', icon:'📜'},
-  {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', note:'5.75%', icon:'📜'},
-  {id:'return_scroll', name:'리턴 스크롤', note:'7%', icon:'↩'},
-  {id:'magical_1h_att', name:'매지컬 한손무기 공격력 주문서 50%', note:'1.3%', icon:'⚔'},
-  {id:'magical_2h_att', name:'매지컬 두손무기 공격력 주문서 50%', note:'1.3%', icon:'⚔'},
-  {id:'magical_1h_magic', name:'매지컬 한손무기 마력 주문서 50%', note:'1.17%', icon:'🔮'},
-  {id:'premium_acc_att', name:'프리미엄 악세서리 공격력 주문서 50%', note:'1.95%', icon:'💍'},
-  {id:'premium_acc_magic', name:'프리미엄 악세서리 마력 주문서 50%', note:'0.65%', icon:'💍'},
-  {id:'premium_pet_att', name:'프리미엄 펫장비 공격력 주문서 50%', note:'3.9%', icon:'🐾'},
-  {id:'premium_pet_magic', name:'프리미엄 펫장비 마력 주문서 50%', note:'1.3%', icon:'🐾'},
-  {id:'exp_3x_30m', name:'경험치 3배 쿠폰 (30분)', note:'9%', icon:'📈'},
-  {id:'exp_4x_30m', name:'경험치 4배 쿠폰 (30분)', note:'5.5%', icon:'📈'},
-  {id:'arcane_symbol_10', name:'선택 아케인심볼 교환권 10개', note:'18%', icon:'💠'},
-  {id:'authentic_symbol_10', name:'선택 어센틱심볼 교환권 10개', note:'18%', icon:'💠'},
-  {id:'faint_sol_erda_10', name:'희미한 솔 에르다의 기운 10개', note:'9%', icon:'🌀'},
-  {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', icon:'🌀'},
-  {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', icon:'🌀'}
+  {id:'sf20_200', name:'카르마 스타포스 20성 강화권 (200제)', note:'0.03%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
+  {id:'sf20_160', name:'카르마 스타포스 20성 강화권 (160제)', note:'0.06%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
+  {id:'sf18_250', name:'카르마 스타포스 18성 강화권 (250제)', note:'0.09%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
+  {id:'abyss_flame', name:'심연의 환생의 불꽃', note:'7%', img:PROFIT_ASSET_BASE+'abyss-flame.png'},
+  {id:'pet_return_scroll', name:'펫장비 리턴 스크롤', note:'1.5%', img:PROFIT_ASSET_BASE+'pet-return-scroll.png'},
+  {id:'pet_innocent_scroll', name:'펫장비 이노센트 주문서 100%', note:'1.5%', img:PROFIT_ASSET_BASE+'pet-innocence-scroll.png'},
+  {id:'pet_purity_scroll', name:'펫장비 순백의 주문서 100%', note:'2%', img:PROFIT_ASSET_BASE+'pet-clean-slate-scroll.png'},
+  {id:'chaos_scroll_100', name:'놀라운 긍정의 혼돈 주문서 100%', note:'5.75%', img:PROFIT_ASSET_BASE+'scroll-chaos-positive.png'},
+  {id:'return_scroll', name:'리턴 스크롤', note:'7%', img:PROFIT_ASSET_BASE+'return-scroll.png'},
+  {id:'magical_1h_att', name:'매지컬 한손무기 공격력 주문서 50%', note:'1.3%', img:PROFIT_ASSET_BASE+'magical-scroll.png'},
+  {id:'magical_2h_att', name:'매지컬 두손무기 공격력 주문서 50%', note:'1.3%', img:PROFIT_ASSET_BASE+'magical-scroll.png'},
+  {id:'magical_1h_magic', name:'매지컬 한손무기 마력 주문서 50%', note:'1.17%', img:PROFIT_ASSET_BASE+'magical-scroll.png'},
+  {id:'premium_acc_att', name:'프리미엄 악세서리 공격력 주문서 50%', note:'1.95%', img:PROFIT_ASSET_BASE+'premium-accessory-att.png'},
+  {id:'premium_acc_magic', name:'프리미엄 악세서리 마력 주문서 50%', note:'0.65%', img:PROFIT_ASSET_BASE+'premium-accessory-magic.png'},
+  {id:'premium_pet_att', name:'프리미엄 펫장비 공격력 주문서 50%', note:'3.9%', img:PROFIT_ASSET_BASE+'premium-pet-scroll.png'},
+  {id:'premium_pet_magic', name:'프리미엄 펫장비 마력 주문서 50%', note:'1.3%', img:PROFIT_ASSET_BASE+'premium-pet-scroll.png'},
+  {id:'exp_3x_30m', name:'경험치 3배 쿠폰 (30분)', note:'9%', img:PROFIT_ASSET_BASE+'exp-3x-30m.png'},
+  {id:'exp_4x_30m', name:'경험치 4배 쿠폰 (30분)', note:'5.5%', img:PROFIT_ASSET_BASE+'exp-4x-30m.png'},
+  {id:'arcane_symbol_10', name:'선택 아케인심볼 교환권 10개', note:'18%', img:PROFIT_ASSET_BASE+'arcane-symbol-coupon.png'},
+  {id:'authentic_symbol_10', name:'선택 어센틱심볼 교환권 10개', note:'18%', img:PROFIT_ASSET_BASE+'authentic-symbol-coupon.png'},
+  {id:'faint_sol_erda_10', name:'희미한 솔 에르다의 기운 10개', note:'9%', img:PROFIT_ASSET_BASE+'faint-sol-erda-energy.png'},
+  {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', img:PROFIT_ASSET_BASE+'sol-erda-energy.png'},
+  {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png'}
 ];
 const profitState={active:'starforce'};
 function profitCategory(id){ return PROFIT_CATEGORIES.find(c=>c.id===id) || PROFIT_CATEGORIES[0]; }
@@ -4220,7 +4227,9 @@ function profitEquipById(id,type=profitState.active){
   return items.find(i=>i.id===id) || items[0];
 }
 function profitIconHtml(item){
-  if(item?.img) return '<img class="profit-img-icon" src="'+esc(item.img)+'" alt="'+esc(item.name||'아이템')+'">';
+  const label=item?.name || item?.title || '아이템';
+  if(item?.crop==='platinum-apple') return '<span class="profit-img-icon profit-crop-icon platinum-apple-icon" role="img" aria-label="'+esc(label)+'"></span>';
+  if(item?.img) return '<img class="profit-img-icon" src="'+esc(item.img)+'" alt="'+esc(label)+'">';
   const sprites=Array.isArray(item?.sprite) ? item.sprite.filter(Boolean) : [];
   if(sprites.length){
     const cls=sprites.length>1 ? 'profit-sprite-icon multi' : 'profit-sprite-icon';
@@ -4273,7 +4282,7 @@ function renderProfitMenu(){
   const list=document.getElementById('profit-type-list');
   if(!list) return;
   list.innerHTML=PROFIT_CATEGORIES.map(c=>
-    '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'"><span>'+c.icon+' '+c.title+'</span><b>'+c.tag+'</b></button>'
+    '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'"><span>'+profitIconHtml(c)+'<span class="profit-type-label">'+esc(c.title)+'</span></span><b>'+esc(c.tag)+'</b></button>'
   ).join('');
   list.querySelectorAll('[data-profit-type]').forEach(btn=>{
     btn.onclick=()=>{ profitState.active=btn.dataset.profitType; renderProfitCalculator(); };
@@ -4313,7 +4322,7 @@ function renderProfitCalculator(){
     body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
   box.innerHTML=
-    '<div class="profit-head"><div><h2>'+cat.icon+' '+cat.title+'</h2><div class="muted">'+cat.desc+'</div></div></div>'+
+    '<div class="profit-head"><div><h2>'+profitIconHtml(cat)+'<span>'+esc(cat.title)+'</span></h2><div class="muted">'+esc(cat.desc)+'</div></div></div>'+
     body+
     '<div class="profit-actions"><button type="button" id="profit-save">기록 저장</button></div>';
   bindProfitForm(box);
@@ -4407,7 +4416,7 @@ function buildProfitRecord(showErrors){
   }else if(type==='platinumapple'){
     const price=mesoValueFromDigits(profitInputValue('platinumPrice'));
     const count=Math.max(0,Math.floor(Number(profitInputValue('platinumCount'))||0));
-    base.costs=[{id:'platinum_apple', name:'플래티넘 애플', icon:'💎', price, count}];
+    base.costs=[{id:'platinum_apple', name:'플래티넘 애플', crop:'platinum-apple', price, count}];
     base.outputs=profitReadOutputLines(PROFIT_PLATINUM_OUTPUTS);
   }
   const normalized=normalizeProfitRecord(base);
@@ -4473,7 +4482,7 @@ function renderProfitRecords(){
     const sold=r.outputs.filter(o=>o.sold && o.count>0).map(o=>o.name+' '+o.count+'개').join(', ');
     const title=r.itemName || r.title || cat.title;
     return '<div class="profit-record">'+
-      '<div class="profit-record-title">'+profitIconHtml({icon:cat.icon})+'<b>'+esc(title)+'<small>'+esc(r.date)+' · '+esc(cat.title)+(sold?' · '+esc(sold):' · 판매 수익 없음')+'</small></b></div>'+
+      '<div class="profit-record-title">'+profitIconHtml(cat)+'<b>'+esc(title)+'<small>'+esc(r.date)+' · '+esc(cat.title)+(sold?' · '+esc(sold):' · 판매 수익 없음')+'</small></b></div>'+
       '<div class="profit-record-stat bad"><span>지출</span><b>'+korMeso(totals.cost)+'</b></div>'+
       '<div class="profit-record-stat good"><span>판매 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
       '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>'+
@@ -5056,7 +5065,7 @@ function renderBoss(){
     const bl=document.createElement('div'); bl.className='bosslist'+(openChars.has(c.name)?' open':'');
     head.onclick=()=>{ openChars.has(c.name)?openChars.delete(c.name):openChars.add(c.name); bl.classList.toggle('open'); };
 
-    let html='<div class="bossgroup">🗡 주간 결정석 (이번 주 '+fmtWeekRange(wk)+')</div><div class="bgrid">';
+    let html='<div class="bossgroup">'+crystalIcon('weekly')+'주간 결정석 (이번 주 '+fmtWeekRange(wk)+')</div><div class="bgrid">';
     BOSS_GROUPS.w.forEach(g=>{ html+=bossGroupCard(g,c); });
     html+='</div>';
     bl.innerHTML=html;
@@ -5067,9 +5076,9 @@ function renderBoss(){
   const t=bossTotals(wk);
   const over = t.weeklyCrystals>CRYSTAL_LIMIT;
   document.getElementById('boss-total').innerHTML=
-    '👑 <b>이번 주 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(wk)+')</span>'+
+    crystalIcon('weekly')+'<b>이번 주 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(wk)+')</span>'+
     (over?' <span class="warn">⚠ 주간 판매 한도 '+CRYSTAL_LIMIT+'개 초과!</span>':'')+
-    '<br>💎 <b>이번 주 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+    '<br>'+crystalIcon('weekly')+'<b>이번 주 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
 }
 function renderMonthlyBoss(){
   const list=document.getElementById('monthlyboss-list');
@@ -5089,7 +5098,7 @@ function renderMonthlyBoss(){
     head.innerHTML=charHeadHtml(c,'월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ monthlyOpenChars.has(c.name)?monthlyOpenChars.delete(c.name):monthlyOpenChars.add(c.name); bl.classList.toggle('open'); };
-    let html='<div class="bossgroup">🌑 월간 결정석 (검은 마법사)</div><div class="bgrid">';
+    let html='<div class="bossgroup">'+crystalIcon('monthly')+'월간 결정석 (검은 마법사)</div><div class="bgrid">';
     BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c); });
     html+='</div>';
     bl.innerHTML=html;
@@ -5098,8 +5107,8 @@ function renderMonthlyBoss(){
   });
   const t=bossTotals(wk);
   total.innerHTML=
-    '🌑 <b>월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
-    '<br>💎 <b>월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
+    crystalIcon('monthly')+'<b>월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
+    '<br>'+crystalIcon('monthly')+'<b>월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
 }
 function selectedBossForGroup(g,c){
   const bosses=bossStore(c);
@@ -5117,6 +5126,15 @@ function selectedDailyBossForGroup(g,c,date){
 }
 function esc(s){
   return String(s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+const CRYSTAL_ICON_PATHS={
+  weekly:'assets/crystal-weekly.png',
+  monthly:'assets/crystal-monthly.png',
+  daily:'assets/crystal-daily.png'
+};
+function crystalIcon(kind){
+  const src=CRYSTAL_ICON_PATHS[kind] || CRYSTAL_ICON_PATHS.weekly;
+  return '<img class="crystal-icon" src="'+src+'" alt="">';
 }
 function imageKeyClass(key){ return String(key||'').replace(/[^a-z0-9_-]/gi,'').toLowerCase(); }
 function dropKey(b,item){ return b[0]+'|'+item.id; }
@@ -5422,7 +5440,7 @@ function renderDailyBoss(){
     head.innerHTML=charHeadHtml(c,date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(dailyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ dailyOpenChars.has(c.name)?dailyOpenChars.delete(c.name):dailyOpenChars.add(c.name); bl.classList.toggle('open'); };
-    let html='<div class="bossgroup">☀️ 일간 결정석 ('+date+')</div><div class="bgrid">';
+    let html='<div class="bossgroup">'+crystalIcon('daily')+'일간 결정석 ('+date+')</div><div class="bgrid">';
     DAILY_BOSS_GROUPS.forEach(g=>{ html+=dailyBossGroupCard(g,c,date); });
     html+='</div>';
     bl.innerHTML=html;
@@ -5511,8 +5529,8 @@ function renderDailyBoss(){
   });
   const dayTotal=dailyBossSumForDate(date);
   const week=mapleWeekStart(date), weekTotal=dailyBossTotalsForWeek(week);
-  total.innerHTML='☀️ <b>'+date+' 일간 결정석 수익:</b> <span class="meso">'+korMeso(dayTotal.meso)+'</span> <span class="daily-total-detail">(결정석 '+korMeso(dayTotal.crystalMeso)+' + 아이템 '+korMeso(dayTotal.dropMeso)+' · 결정석 '+dayTotal.crystals+'개)</span>'+
-    '<br>🗓 <b>해당 주 일간 결정석 합계:</b> <span class="meso">'+korMeso(weekTotal.meso)+'</span> <span class="daily-total-detail">('+fmtWeekRange(week)+' · 결정석 '+korMeso(weekTotal.crystalMeso)+' + 아이템 '+korMeso(weekTotal.dropMeso)+' · 결정석 '+weekTotal.crystals+'개)</span>';
+  total.innerHTML=crystalIcon('daily')+'<b>'+date+' 일간 결정석 수익:</b> <span class="meso">'+korMeso(dayTotal.meso)+'</span> <span class="daily-total-detail">(결정석 '+korMeso(dayTotal.crystalMeso)+' + 아이템 '+korMeso(dayTotal.dropMeso)+' · 결정석 '+dayTotal.crystals+'개)</span>'+
+    '<br>'+crystalIcon('daily')+'<b>해당 주 일간 결정석 합계:</b> <span class="meso">'+korMeso(weekTotal.meso)+'</span> <span class="daily-total-detail">('+fmtWeekRange(week)+' · 결정석 '+korMeso(weekTotal.crystalMeso)+' + 아이템 '+korMeso(weekTotal.dropMeso)+' · 결정석 '+weekTotal.crystals+'개)</span>';
 }
 
 /* ───────── 백업/복원 ───────── */
