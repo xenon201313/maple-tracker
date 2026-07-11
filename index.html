@@ -347,6 +347,7 @@
   .profit-lines{display:grid; gap:9px; margin-top:12px;}
   .profit-line{display:grid; grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr); gap:8px; align-items:end; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
   .profit-line.output{grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr) minmax(96px,.42fr);}
+  .profit-line.output.unsellable{grid-template-columns:minmax(180px,1.35fr) minmax(92px,.42fr) minmax(130px,.55fr) minmax(96px,.42fr);}
   .profit-line-name{display:flex; align-items:center; gap:9px; min-width:0; color:var(--text); font-weight:800;}
   .profit-line-name span:last-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .profit-line small{display:block; color:var(--sub); font-weight:600; margin-top:2px;}
@@ -354,6 +355,9 @@
   .profit-img-icon{width:30px; height:30px; object-fit:contain; flex:0 0 auto; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); padding:3px;}
   .profit-crop-icon{display:inline-block; overflow:hidden; background-repeat:no-repeat; padding:0;}
   .platinum-apple-icon{background-image:url('assets/profit/platinum-apple-panel.png'); background-size:289px 168px; background-position:-55px -49px;}
+  .starforce-18-250-icon{background-image:url('assets/profit/starforce-18-250-tooltip.png'); background-size:118px 113px; background-position:-7px -21px; image-rendering:pixelated;}
+  .pet-grade-icon{background-size:75.11px 75.11px; background-position:-22.56px -22.56px; image-rendering:pixelated;}
+  .label-grade-icon{background-size:74.75px 74.75px; background-position:-22.92px -21.83px; image-rendering:pixelated;}
   .profit-sprite-icon{width:30px; height:30px; flex:0 0 auto; display:inline-grid; place-items:center; border-radius:8px; background:rgba(18,23,38,.76); border:1px solid rgba(220,230,255,.14); overflow:hidden;}
   .profit-sprite-piece{width:24px; height:24px; display:block; background-image:url('https://www.boomback.com/equipments/sprite.png'); background-repeat:no-repeat; background-size:120px 168px; image-rendering:auto;}
   .profit-sprite-icon.multi{position:relative;}
@@ -363,6 +367,7 @@
   .profit-check input{width:auto !important; accent-color:var(--gold);}
   .profit-sold-field .profit-check{height:42px; min-height:42px; margin:0; box-sizing:border-box;}
   .profit-sold-field .profit-check input{margin:0;}
+  .profit-unavailable{display:flex; align-items:center; min-height:42px; padding:8px 10px; border:1px solid rgba(255,204,51,.24); border-radius:10px; background:rgba(255,204,51,.09); color:#ffe28a; font-weight:900; box-sizing:border-box;}
   .profit-records{display:grid; gap:8px; margin-top:10px;}
   .profit-record{display:grid; grid-template-columns:minmax(160px,1fr) repeat(3,minmax(130px,.65fr)) auto; gap:10px; align-items:center; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
   .profit-record-title{display:flex; align-items:center; gap:8px; min-width:0; font-weight:900;}
@@ -405,7 +410,7 @@
     .profit-type-btn{min-height:48px;}
     .profit-entry-grid,.profit-form,.profit-star-grid{grid-template-columns:1fr;}
     .profit-result{grid-template-columns:1fr;}
-    .profit-line,.profit-line.output{grid-template-columns:1fr; align-items:stretch;}
+    .profit-line,.profit-line.output,.profit-line.output.unsellable{grid-template-columns:1fr; align-items:stretch;}
     .profit-check{justify-content:flex-start;}
     .profit-record{grid-template-columns:1fr; align-items:stretch;}
     .profit-actions button,.profit-record button{width:100%;}
@@ -1080,16 +1085,33 @@ function normalizeRecords(records){
 }
 function normalizeProfitLine(line){
   const o=ensureObj(line);
+  const id=String(o.id || o.name || '').trim();
+  const sellable=o.sellable !== false && !['faint_sol_erda_10','sol_erda','dense_sol_erda'].includes(id);
+  const imageOverride={
+    wonder_black:'assets/profit/pet-grade-wonder-black.png',
+    luna_sweet:'assets/profit/pet-grade-luna-sweet.png',
+    luna_dream:'assets/profit/pet-grade-luna-dream.png',
+    luna_petite:'assets/profit/pet-grade-luna-petite.png',
+    special_label:'assets/profit/label-special.png',
+    red_label:'assets/profit/label-red.png',
+    black_label:'assets/profit/label-black.png',
+    master_label:'assets/profit/label-master.png'
+  }[id];
+  const cropOverride=['wonder_black','luna_sweet','luna_dream','luna_petite'].includes(id) ? 'pet-grade' :
+    (['special_label','red_label','black_label','master_label'].includes(id) ? 'label-grade' :
+    (id==='sf18_250' ? 'starforce-18-250' : (id==='platinum_apple' ? 'platinum-apple' : '')));
   return {
-    id: String(o.id || o.name || '').trim(),
+    id,
     name: String(o.name || '').trim(),
     icon: String(o.icon || '').trim(),
-    img: String(o.img || '').trim(),
+    img: String(imageOverride || o.img || '').trim(),
+    crop: String(cropOverride || o.crop || '').trim(),
     sprite: Array.isArray(o.sprite) ? o.sprite.map(v=>String(v||'')).filter(Boolean) : (o.sprite ? [String(o.sprite)] : []),
     note: String(o.note || '').trim(),
     price: mesoValueFromDigits(o.price),
     count: Math.max(0, Math.floor(Number(o.count)||0)),
-    sold: !!o.sold
+    sellable,
+    sold: sellable && !!o.sold
   };
 }
 function normalizeProfitRecord(r){
@@ -4175,10 +4197,10 @@ const PROFIT_WONDER_COSTS=[
   {id:'luna_crystal', name:'루나 크리스탈', img:PROFIT_ASSET_BASE+'luna-crystal.png'}
 ];
 const PROFIT_WONDER_OUTPUTS=[
-  {id:'wonder_black', name:'원더블랙 펫', img:PROFIT_ASSET_BASE+'wonder-black-pet.png'},
-  {id:'luna_sweet', name:'루나 스윗 펫', img:PROFIT_ASSET_BASE+'luna-crystal.png'},
-  {id:'luna_dream', name:'루나 드림 펫', img:PROFIT_ASSET_BASE+'special-luna-crystal.png'},
-  {id:'luna_petite', name:'루나 쁘띠 펫', img:PROFIT_ASSET_BASE+'luna-petite-pet.png'},
+  {id:'wonder_black', name:'원더블랙 펫', img:PROFIT_ASSET_BASE+'pet-grade-wonder-black.png', crop:'pet-grade'},
+  {id:'luna_sweet', name:'루나 스윗 펫', img:PROFIT_ASSET_BASE+'pet-grade-luna-sweet.png', crop:'pet-grade'},
+  {id:'luna_dream', name:'루나 드림 펫', img:PROFIT_ASSET_BASE+'pet-grade-luna-dream.png', crop:'pet-grade'},
+  {id:'luna_petite', name:'루나 쁘띠 펫', img:PROFIT_ASSET_BASE+'pet-grade-luna-petite.png', crop:'pet-grade'},
   {id:'luna_crystal_key', name:'루나 크리스탈 키', img:PROFIT_ASSET_BASE+'luna-crystal-key.png'}
 ];
 const PROFIT_ROYAL_COSTS=[
@@ -4186,16 +4208,16 @@ const PROFIT_ROYAL_COSTS=[
   {id:'premium_masterpiece', name:'프리미엄 마스터피스', img:PROFIT_ASSET_BASE+'premium-masterpiece.png'}
 ];
 const PROFIT_ROYAL_OUTPUTS=[
-  {id:'special_label', name:'스페셜라벨', img:PROFIT_ASSET_BASE+'special-label.png'},
-  {id:'red_label', name:'레드라벨', img:PROFIT_ASSET_BASE+'masterpiece.png'},
-  {id:'black_label', name:'블랙라벨', img:PROFIT_ASSET_BASE+'premium-masterpiece.png'},
-  {id:'master_label', name:'마스터라벨', img:PROFIT_ASSET_BASE+'master-label.png'},
+  {id:'special_label', name:'스페셜라벨', img:PROFIT_ASSET_BASE+'label-special.png', crop:'label-grade'},
+  {id:'red_label', name:'레드라벨', img:PROFIT_ASSET_BASE+'label-red.png', crop:'label-grade'},
+  {id:'black_label', name:'블랙라벨', img:PROFIT_ASSET_BASE+'label-black.png', crop:'label-grade'},
+  {id:'master_label', name:'마스터라벨', img:PROFIT_ASSET_BASE+'label-master.png', crop:'label-grade'},
   {id:'hair_coupon', name:'헤어쿠폰', img:PROFIT_ASSET_BASE+'hair-coupon.png'}
 ];
 const PROFIT_PLATINUM_OUTPUTS=[
   {id:'sf20_200', name:'카르마 스타포스 20성 강화권 (200제)', note:'0.03%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
   {id:'sf20_160', name:'카르마 스타포스 20성 강화권 (160제)', note:'0.06%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
-  {id:'sf18_250', name:'카르마 스타포스 18성 강화권 (250제)', note:'0.09%', img:PROFIT_ASSET_BASE+'starforce-scroll.png'},
+  {id:'sf18_250', name:'카르마 스타포스 18성 강화권 (250제)', note:'0.09%', crop:'starforce-18-250'},
   {id:'abyss_flame', name:'심연의 환생의 불꽃', note:'7%', img:PROFIT_ASSET_BASE+'abyss-flame.png'},
   {id:'pet_return_scroll', name:'펫장비 리턴 스크롤', note:'1.5%', img:PROFIT_ASSET_BASE+'pet-return-scroll.png'},
   {id:'pet_innocent_scroll', name:'펫장비 이노센트 주문서 100%', note:'1.5%', img:PROFIT_ASSET_BASE+'pet-innocence-scroll.png'},
@@ -4213,9 +4235,9 @@ const PROFIT_PLATINUM_OUTPUTS=[
   {id:'exp_4x_30m', name:'경험치 4배 쿠폰 (30분)', note:'5.5%', img:PROFIT_ASSET_BASE+'exp-4x-30m.png'},
   {id:'arcane_symbol_10', name:'선택 아케인심볼 교환권 10개', note:'18%', img:PROFIT_ASSET_BASE+'arcane-symbol-coupon.png'},
   {id:'authentic_symbol_10', name:'선택 어센틱심볼 교환권 10개', note:'18%', img:PROFIT_ASSET_BASE+'authentic-symbol-coupon.png'},
-  {id:'faint_sol_erda_10', name:'희미한 솔 에르다의 기운 10개', note:'9%', img:PROFIT_ASSET_BASE+'faint-sol-erda-energy.png'},
-  {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', img:PROFIT_ASSET_BASE+'sol-erda-energy.png'},
-  {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png'}
+  {id:'faint_sol_erda_10', name:'희미한 솔 에르다의 기운 10개', note:'9%', img:PROFIT_ASSET_BASE+'faint-sol-erda-energy.png', sellable:false},
+  {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', img:PROFIT_ASSET_BASE+'sol-erda-energy.png', sellable:false},
+  {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png', sellable:false}
 ];
 const profitState={active:'starforce'};
 function profitCategory(id){ return PROFIT_CATEGORIES.find(c=>c.id===id) || PROFIT_CATEGORIES[0]; }
@@ -4229,6 +4251,9 @@ function profitEquipById(id,type=profitState.active){
 function profitIconHtml(item){
   const label=item?.name || item?.title || '아이템';
   if(item?.crop==='platinum-apple') return '<span class="profit-img-icon profit-crop-icon platinum-apple-icon" role="img" aria-label="'+esc(label)+'"></span>';
+  if(item?.crop==='starforce-18-250') return '<span class="profit-img-icon profit-crop-icon starforce-18-250-icon" role="img" aria-label="'+esc(label)+'"></span>';
+  if(item?.crop==='pet-grade') return '<span class="profit-img-icon profit-crop-icon pet-grade-icon" style="background-image:url(&quot;'+esc(item.img)+'&quot;)" role="img" aria-label="'+esc(label)+'"></span>';
+  if(item?.crop==='label-grade') return '<span class="profit-img-icon profit-crop-icon label-grade-icon" style="background-image:url(&quot;'+esc(item.img)+'&quot;)" role="img" aria-label="'+esc(label)+'"></span>';
   if(item?.img) return '<img class="profit-img-icon" src="'+esc(item.img)+'" alt="'+esc(label)+'">';
   const sprites=Array.isArray(item?.sprite) ? item.sprite.filter(Boolean) : [];
   if(sprites.length){
@@ -4263,15 +4288,24 @@ function profitCostRowsHtml(items){
   ).join('')+'</div>';
 }
 function profitOutputRowsHtml(items){
-  return '<div class="profit-lines">'+items.map(item=>
-    '<div class="profit-line output" data-profit-line="'+esc(item.id)+'">'+
-      '<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>확률 '+esc(item.note)+'</small>':'')+'</span></div>'+
+  return '<div class="profit-lines">'+items.map(item=>{
+    const name='<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>확률 '+esc(item.note)+'</small>':'')+'</span></div>';
+    const count='<div><label>개수</label><input data-profit-out-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>';
+    if(item.sellable===false){
+      return '<div class="profit-line output unsellable" data-profit-line="'+esc(item.id)+'">'+
+        name+count+
+        '<div class="profit-field"><label>판매 여부</label><div class="profit-unavailable">판매 불가능</div></div>'+
+        '<div><label>수익 반영</label><div class="profit-record-stat"><b data-profit-out-subtotal="'+esc(item.id)+'">미반영</b></div></div>'+
+      '</div>';
+    }
+    return '<div class="profit-line output" data-profit-line="'+esc(item.id)+'">'+
+      name+
       '<div><label>개당 판매가</label><input data-profit-out-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
-      '<div><label>개수</label><input data-profit-out-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>'+
+      count+
       '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-out-sold="'+esc(item.id)+'" type="checkbox"> 판매</label></div>'+
       '<div><label>수익 반영</label><div class="profit-record-stat good"><b data-profit-out-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
-    '</div>'
-  ).join('')+'</div>';
+    '</div>';
+  }).join('')+'</div>';
 }
 function profitEquipmentGrid(type){
   return '<div class="profit-item-grid">'+profitEquipItemsForType(type).map(item=>
@@ -4377,7 +4411,8 @@ function profitReadOutputLines(items){
     const priceEl=document.querySelector('[data-profit-out-price="'+item.id+'"]');
     const countEl=document.querySelector('[data-profit-out-count="'+item.id+'"]');
     const soldEl=document.querySelector('[data-profit-out-sold="'+item.id+'"]');
-    return Object.assign({},item,{price:mesoValueFromDigits(priceEl?.value), count:Math.max(0,Math.floor(Number(countEl?.value)||0)), sold:!!soldEl?.checked});
+    const sellable=item.sellable!==false;
+    return Object.assign({},item,{price:sellable?mesoValueFromDigits(priceEl?.value):0, count:Math.max(0,Math.floor(Number(countEl?.value)||0)), sellable, sold:sellable && !!soldEl?.checked});
   }).filter(line=>line.price || line.count || line.sold);
 }
 function buildProfitRecord(showErrors){
@@ -4421,7 +4456,8 @@ function buildProfitRecord(showErrors){
   }
   const normalized=normalizeProfitRecord(base);
   const totals=profitRecordTotals(normalized);
-  if(showErrors && totals.cost===0n && totals.revenue===0n){
+  const hasRecordedCount=normalized.costs.some(line=>line.count>0) || normalized.outputs.some(line=>line.count>0);
+  if(showErrors && totals.cost===0n && totals.revenue===0n && !hasRecordedCount){
     alert('지출 또는 판매 수익을 하나 이상 입력해 주세요.');
     return null;
   }
@@ -4462,7 +4498,7 @@ function updateProfitSubtotals(record){
   });
   record.outputs.forEach(line=>{
     const el=document.querySelector('[data-profit-out-subtotal="'+line.id+'"]');
-    if(el) el.textContent=line.sold ? korMeso(profitLineValue(line)) : '미판매';
+    if(el) el.textContent=line.sellable===false ? '미반영' : (line.sold ? korMeso(profitLineValue(line)) : '미판매');
   });
 }
 function profitMetric(label,value,cls){
