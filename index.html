@@ -571,7 +571,7 @@
       <li><b>캐릭터</b>에는 재획한 캐릭터 이름을 적습니다.</li>
       <li><b>획득 메소</b>는 사냥으로 직접 얻은 메소입니다. 숫자를 입력하면 111,111,111처럼 쉼표가 자동 적용됩니다.</li>
       <li><b>추가 부수입</b>은 코어 젬스톤, 장비 판매, 기타 판매 수익처럼 재획과 함께 잡고 싶은 수익을 자유롭게 입력하는 칸입니다.</li>
-      <li><b>솔 에르다 조각</b>은 개수로 저장됩니다. 조각 계산기에서 단가와 판매 수수료를 입력하면 실수령 메소 가치로 환산할 수 있습니다.</li>
+      <li><b>솔 에르다 조각</b>은 개수로 저장됩니다. 기록을 저장한 날의 단가와 판매 수수료가 함께 고정되어, 이후 시세가 바뀌어도 과거 환산액은 변하지 않습니다.</li>
     </ul>
     <div class="guide-note">조각 가격을 재획 수익에 포함하고 싶으면 “환산한 조각 가격을 재획 메소 합계에 포함” 옵션을 켜면 됩니다.</div>
   </div>
@@ -1035,8 +1035,8 @@ try {
       db.chars=(o.chars||[]).map(c=>({name:c.name, bosses:migrateBosses(c.bosses)})); }
   }
 } catch(e){}
-db.records = normalizeRecords(db.records || {});
 db.settings = normalizeSettings(db.settings);
+db.records = normalizeRecords(db.records || {}, db.settings);
 db.chars = (db.chars || []).map(c=>normalizeChar(c));
 db.profits = normalizeProfitRecords(db.profits || []);
 function migrateBosses(b){
@@ -1106,23 +1106,36 @@ function save(){
   localStorage.setItem(LS_KEY, JSON.stringify(db));
   queueCloudSync();
 }
-function normalizeRecord(r){
+function normalizeRecord(r, fallbackSettings=db.settings){
+  const defaults=ensureObj(fallbackSettings);
   if(r && typeof r === 'object' && !Array.isArray(r)){
+    const hasErdaPrice=Object.prototype.hasOwnProperty.call(r,'erdaUnitPrice');
+    const hasErdaFee=Object.prototype.hasOwnProperty.call(r,'erdaFee');
     return {
       meso: mesoValueFromDigits(r.meso),
       erda: Math.max(0, Math.floor(Number(r.erda)||0)),
+      // Keep the price that was active when this date was saved.
+      erdaUnitPrice: mesoValueFromDigits(hasErdaPrice ? r.erdaUnitPrice : defaults.erdaPrice),
+      erdaFee: validDropFee(hasErdaFee ? r.erdaFee : defaults.erdaFee),
       extraIncome: mesoValueFromDigits(r.extraIncome || r.extra || r.sideIncome || 0),
       charName: String(r.charName || r.character || r.char || '').trim()
     };
   }
-  return {meso: mesoValueFromDigits(r), erda:0, extraIncome:0, charName:''};
+  return {
+    meso: mesoValueFromDigits(r),
+    erda:0,
+    erdaUnitPrice:mesoValueFromDigits(defaults.erdaPrice),
+    erdaFee:validDropFee(defaults.erdaFee),
+    extraIncome:0,
+    charName:''
+  };
 }
-function normalizeRecords(records){
+function normalizeRecords(records, fallbackSettings=db.settings){
   const out={};
   records=ensureObj(records);
   Object.keys(records).forEach(d=>{
     const nd=normalizeDateInput(d) || d;
-    out[nd]=normalizeRecord(records[d]);
+    out[nd]=normalizeRecord(records[d],fallbackSettings);
   });
   return out;
 }
@@ -3821,18 +3834,20 @@ const goalTargetInput=document.getElementById('goal-target');
 const goalResetBtn=document.getElementById('goal-reset');
 function erdaUnitPrice(){ return toMesoBig(db.settings.erdaPrice||0); }
 function erdaFee(){ return validDropFee(db.settings.erdaFee); }
-function erdaMesoForRecord(r){
-  if(!db.settings.includeErdaMeso) return 0n;
-  const price=erdaUnitPrice();
-  if(price<=0n) return 0n;
+function erdaMesoValueForRecord(r){
   const nr=normalizeRecord(r);
-  return feeNet(price * BigInt(Math.max(0,Math.floor(Number(nr.erda)||0))), erdaFee());
+  const price=toMesoBig(nr.erdaUnitPrice);
+  if(price<=0n) return 0n;
+  return feeNet(price * BigInt(Math.max(0,Math.floor(Number(nr.erda)||0))), validDropFee(nr.erdaFee));
+}
+function erdaMesoForRecord(r){
+  return db.settings.includeErdaMeso ? erdaMesoValueForRecord(r) : 0n;
 }
 function recordMesoTotal(r){
   const nr=normalizeRecord(r);
   return toMesoBig(nr.meso) + toMesoBig(nr.extraIncome) + erdaMesoForRecord(nr);
 }
-function erdaMesoModeLabel(){ return db.settings.includeErdaMeso && erdaUnitPrice()>0n ? '재획+부수입+조각 환산 메소' : '재획+부수입 메소'; }
+function erdaMesoModeLabel(){ return db.settings.includeErdaMeso ? '재획+부수입+조각 환산 메소' : '재획+부수입 메소'; }
 inDate.value = todayStr();
 inDate.addEventListener('blur',()=>{
   const d = normalizeDateInput(inDate.value);
@@ -3931,7 +3946,14 @@ document.getElementById('btn-save').onclick=()=>{
   const extraIncome = mesoValueFromDigits(extraDigits);
   const erda = Math.max(0, Math.floor(Number(inErda.value)||0));
   const charName = (inHuntChar ? inHuntChar.value : '').trim();
-  db.records[date]={meso, extraIncome, erda, charName};
+  db.records[date]={
+    meso,
+    extraIncome,
+    erda,
+    charName,
+    erdaUnitPrice:mesoValueFromDigits(db.settings.erdaPrice||0),
+    erdaFee:erdaFee()
+  };
   save();
   inMeso.value=''; if(inExtra) inExtra.value=''; inErda.value='';
   document.getElementById('meso-hint').textContent='';
@@ -3954,12 +3976,13 @@ function renderRecords(){
   sortedDates(false).forEach(d=>{
     const r=normalizeRecord(db.records[d]);
     const erdaMeso=erdaMesoForRecord(r);
+    const erdaPrice=toMesoBig(r.erdaUnitPrice);
     const extraMeso=toMesoBig(r.extraIncome);
     const tr=document.createElement('tr');
     tr.innerHTML =
       '<td>'+d+' ('+'일월화수목금토'[new Date(d+'T12:00:00').getDay()]+')</td>'+
       '<td>'+(r.charName?esc(r.charName):'<span class="muted">-</span>')+'</td>'+
-      '<td class="meso">'+fmt(r.meso)+(erdaMeso?'<div class="cum">조각 환산 +'+korMeso(erdaMeso)+'</div>':'')+'</td>'+
+      '<td class="meso">'+fmt(r.meso)+(erdaMeso?'<div class="cum">조각 '+fmt(erdaPrice)+' 메소 · 환산 +'+korMeso(erdaMeso)+'</div>':'')+'</td>'+
       '<td class="meso">'+(extraMeso>0n?korMeso(extraMeso):'<span class="muted">-</span>')+'</td>'+
       '<td class="cum">'+korMeso(rows[d].cm)+'</td>'+
       '<td class="erda">'+fmt(Number(r.erda)||0)+'개</td>'+
@@ -4240,21 +4263,28 @@ function renderErdaCalculator(){
   const today=todayStr(), wkStart=mapleWeekStart(today), mon=today.slice(0,7);
   const price=toMesoBig(db.settings.erdaPrice||0);
   const fee=erdaFee();
-  const total=sumRange(()=>true), week=sumRange(d=>mapleWeekStart(d)===wkStart), month=sumRange(d=>d.slice(0,7)===mon);
-  const rawValue=count=>price*BigInt(count||0);
-  const value=count=>feeNet(rawValue(count), fee);
+  const valueRange=predicate=>{
+    let count=0, meso=0n;
+    for(const d in db.records){
+      if(!predicate(d)) continue;
+      const record=normalizeRecord(db.records[d]);
+      count+=Number(record.erda)||0;
+      meso+=erdaMesoValueForRecord(record);
+    }
+    return {count,meso};
+  };
+  const total=valueRange(()=>true), week=valueRange(d=>mapleWeekStart(d)===wkStart), month=valueRange(d=>d.slice(0,7)===mon);
   const includeText=db.settings.includeErdaMeso ? '재획 메소 합계에 포함 중' : '재획 메소 합계에서 제외 중';
-  if(!price){
-    el.innerHTML='<div class="pill">조각 단가를 입력하면 환산값이 표시됩니다.</div><div class="pill">판매 수수료<b>'+fee+'%</b></div><div class="pill">합계 반영 상태<b>'+includeText+'</b></div>';
-    return;
-  }
+  const currentPricePills=price>0n
+    ? '<div class="pill">조각 1개 가격<b>'+fmt(price)+' 메소</b></div><div class="pill">조각 1개 실수령<b>'+fmt(feeNet(price,fee))+' 메소 ('+fee+'% 수수료 후)</b></div>'
+    : '<div class="pill">현재 조각 단가를 입력하면 새 재획 기록에 적용됩니다.</div>';
   el.innerHTML=
-    '<div class="pill">조각 1개 가격<b>'+fmt(price)+' 메소</b></div>'+
-    '<div class="pill">조각 1개 실수령<b>'+fmt(feeNet(price,fee))+' 메소 ('+fee+'% 수수료 후)</b></div>'+
+    currentPricePills+
     '<div class="pill">합계 반영 상태<b>'+includeText+'</b></div>'+
-    '<div class="pill">이번 주 '+fmt(week.e)+'개<b>'+korMeso(value(week.e))+'</b></div>'+
-    '<div class="pill">이번 달 '+fmt(month.e)+'개<b>'+korMeso(value(month.e))+'</b></div>'+
-    '<div class="pill">전체 '+fmt(total.e)+'개<b>'+korMeso(value(total.e))+'</b></div>';
+    '<div class="pill">이번 주 '+fmt(week.count)+'개<b>'+korMeso(week.meso)+'</b></div>'+
+    '<div class="pill">이번 달 '+fmt(month.count)+'개<b>'+korMeso(month.meso)+'</b></div>'+
+    '<div class="pill">전체 '+fmt(total.count)+'개<b>'+korMeso(total.meso)+'</b></div>'+
+    '<div class="muted">기간별 환산값은 각 재획 기록을 저장한 날의 조각 단가와 수수료로 고정됩니다.</div>';
 }
 
 /* ───────── 손익 계산기 ───────── */
@@ -4733,7 +4763,7 @@ function applyCloudSnapshot(snapshot){
   const settings=normalizeSettings(source.settings);
   settings.nexonApiKey=currentApiKey;
   db={
-    records:normalizeRecords(source.records||{}),
+    records:normalizeRecords(source.records||{},settings),
     settings,
     chars:(source.chars||[]).map(c=>normalizeChar(c)),
     profits:normalizeProfitRecords(source.profits||[]),
@@ -5929,7 +5959,7 @@ document.getElementById('file-import').onchange=(e)=>{
       const currentApiKey=nexonApiKey();
       const importedSettings=normalizeSettings(data.settings);
       if(currentApiKey && !importedSettings.nexonApiKey) importedSettings.nexonApiKey=currentApiKey;
-      db={records:normalizeRecords(data.records||{}), settings:importedSettings, chars:(data.chars||[]).map(c=>normalizeChar(c)), profits:normalizeProfitRecords(data.profits||[])};
+      db={records:normalizeRecords(data.records||{},importedSettings), settings:importedSettings, chars:(data.chars||[]).map(c=>normalizeChar(c)), profits:normalizeProfitRecords(data.profits||[])};
       save(); initNexonApiControls(); renderAll(); alert('복원 완료!');
     }catch(err){ alert('복원 실패: 올바른 백업 파일이 아닙니다.'); }
   };
