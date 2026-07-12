@@ -187,6 +187,14 @@
   .api-status{display:inline-flex; align-items:center; justify-content:center; min-height:28px; padding:4px 9px; border-radius:999px; border:1px solid rgba(220,230,255,.2); color:var(--sub); background:rgba(8,12,21,.66); font-size:13px; white-space:nowrap;}
   .api-status.ok{border-color:rgba(58,232,160,.5); color:var(--green); background:rgba(58,232,160,.08);}
   .api-status.err{border-color:rgba(255,107,122,.55); color:var(--red); background:rgba(255,107,122,.08);}
+  .cloud-sync{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:12px; padding:11px 12px; border:1px solid rgba(117,201,255,.24); border-radius:10px; background:rgba(8,17,29,.45); position:relative;}
+  .cloud-sync-copy{display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .cloud-sync-copy b{color:#dff3ff; font-size:14px;}
+  .cloud-sync-copy span{color:var(--sub); font-size:12px; line-height:1.4;}
+  .cloud-sync-copy span.ok{color:var(--green);}
+  .cloud-sync-copy span.err{color:var(--red);}
+  .cloud-sync-actions{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; flex:0 0 auto;}
+  .cloud-sync-actions button{min-height:34px; padding:7px 10px; font-size:12px; white-space:nowrap;}
   .server-choice{display:flex; gap:8px; flex-wrap:wrap; align-items:center; min-height:38px;}
   .server-choice label{display:flex; align-items:center; gap:5px; margin:0; padding:8px 10px; border:1px solid rgba(220,230,255,.18); border-radius:8px; background:rgba(22,28,44,.9); color:var(--text); font-size:13px; cursor:pointer;}
   .server-choice input{accent-color:var(--gold);}
@@ -442,6 +450,9 @@
     .api-head{flex-direction:column; align-items:stretch;}
     .api-row{grid-template-columns:1fr; align-items:stretch;}
     .api-row button{width:100%; min-width:0;}
+    .cloud-sync{flex-direction:column; align-items:stretch;}
+    .cloud-sync-actions{justify-content:stretch;}
+    .cloud-sync-actions button{flex:1 1 0;}
     .char-avatar{width:72px; height:72px; flex-basis:72px; border-radius:18px;}
     .charhead{align-items:flex-start;}
     .char-profile,.charhead .sum{width:100%; flex-basis:100%;}
@@ -649,9 +660,19 @@
         <button class="danger" id="btn-clear-api-key" type="button">키 삭제</button>
       </div>
       <div class="api-help">
-        <span>이 브라우저에만 저장</span>
+        <span>로컬 저장 + 암호화 클라우드 동기화</span>
         <span>백업 JSON에는 미포함</span>
         <span>캐릭터명 입력 시 자동 조회</span>
+      </div>
+      <div class="cloud-sync">
+        <div class="cloud-sync-copy">
+          <b>클라우드 동기화</b>
+          <span id="cloud-sync-status">API 키를 등록하면 다른 기기에서도 기록을 불러올 수 있습니다.</span>
+        </div>
+        <div class="cloud-sync-actions">
+          <button class="ghost" id="btn-cloud-pull" type="button">클라우드 불러오기</button>
+          <button class="ghost" id="btn-cloud-push" type="button">지금 저장</button>
+        </div>
       </div>
     </div>
     <div class="row">
@@ -1001,6 +1022,9 @@ Object.assign(IMG, {
 });
 const LS_KEY = 'mapleTracker.v2';
 const LS_OLD = 'mapleTracker.v1';
+const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
+const CLOUD_SYNC_VERSION = 1;
+let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let db = { records:{}, chars:[], settings:{}, profits:[] };
 try {
   const raw = localStorage.getItem(LS_KEY);
@@ -1077,7 +1101,11 @@ function normalizeChar(c){
   c.dailyDropPrices = c.dailyDropPriceDays[today];
   return c;
 }
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+function save(){
+  db.updatedAt=Date.now();
+  localStorage.setItem(LS_KEY, JSON.stringify(db));
+  queueCloudSync();
+}
 function normalizeRecord(r){
   if(r && typeof r === 'object' && !Array.isArray(r)){
     return {
@@ -4631,6 +4659,201 @@ const dailyOpenChars = new Set();
 const dailyBossDrafts = new Map();
 const NEXON_API_BASE = 'https://open.api.nexon.com/maplestory/v1';
 function nexonApiKey(){ return String(db.settings.nexonApiKey || '').trim(); }
+function cloudSyncStatus(text, kind=''){
+  const el=document.getElementById('cloud-sync-status');
+  if(!el) return;
+  el.textContent=text;
+  el.className=kind ? kind : '';
+}
+function refreshCloudSyncControls(){
+  const enabled=!!nexonApiKey() && cloudSync.ready && !cloudSync.initializing;
+  const pull=document.getElementById('btn-cloud-pull');
+  const push=document.getElementById('btn-cloud-push');
+  if(pull) pull.disabled=!enabled || cloudSync.syncing;
+  if(push) push.disabled=!enabled || cloudSync.syncing;
+}
+function bytesToBase64(bytes){
+  let out='';
+  for(let i=0;i<bytes.length;i+=0x8000) out+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  return btoa(out);
+}
+function base64ToBytes(value){
+  const raw=atob(String(value||''));
+  const out=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++) out[i]=raw.charCodeAt(i);
+  return out;
+}
+function bytesToHex(bytes){ return Array.from(bytes).map(v=>v.toString(16).padStart(2,'0')).join(''); }
+async function cloudCredentials(apiKey){
+  if(!window.crypto?.subtle) throw new Error('이 브라우저는 안전한 클라우드 동기화를 지원하지 않습니다.');
+  const encoder=new TextEncoder();
+  const idBytes=new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode('maple-tracker-sync:id:'+apiKey)));
+  const keyBytes=await crypto.subtle.digest('SHA-256',encoder.encode('maple-tracker-sync:encryption:'+apiKey));
+  return {
+    syncId:bytesToHex(idBytes),
+    encryptionKey:await crypto.subtle.importKey('raw',keyBytes,{name:'AES-GCM'},false,['encrypt','decrypt'])
+  };
+}
+function cloudSnapshot(){
+  return {
+    version:CLOUD_SYNC_VERSION,
+    updatedAt:Number(db.updatedAt)||Date.now(),
+    data:exportDb()
+  };
+}
+async function encryptCloudSnapshot(){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const plain=new TextEncoder().encode(JSON.stringify(cloudSnapshot()));
+  const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},cloudSync.encryptionKey,plain);
+  return {
+    version:CLOUD_SYNC_VERSION,
+    updatedAt:Number(db.updatedAt)||Date.now(),
+    iv:bytesToBase64(iv),
+    ciphertext:bytesToBase64(new Uint8Array(cipher))
+  };
+}
+async function decryptCloudSnapshot(raw){
+  const payload=typeof raw==='string' ? JSON.parse(raw) : raw;
+  if(!payload || payload.version!==CLOUD_SYNC_VERSION || !payload.iv || !payload.ciphertext) throw new Error('클라우드 기록 형식이 올바르지 않습니다.');
+  const plain=await crypto.subtle.decrypt(
+    {name:'AES-GCM',iv:base64ToBytes(payload.iv)},
+    cloudSync.encryptionKey,
+    base64ToBytes(payload.ciphertext)
+  );
+  const snapshot=JSON.parse(new TextDecoder().decode(plain));
+  if(!snapshot || snapshot.version!==CLOUD_SYNC_VERSION || !snapshot.data || !snapshot.data.records) throw new Error('클라우드 기록을 해석하지 못했습니다.');
+  return snapshot;
+}
+function hasLocalTrackerData(){
+  return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0;
+}
+function applyCloudSnapshot(snapshot){
+  const currentApiKey=nexonApiKey();
+  const source=ensureObj(snapshot.data);
+  const settings=normalizeSettings(source.settings);
+  settings.nexonApiKey=currentApiKey;
+  db={
+    records:normalizeRecords(source.records||{}),
+    settings,
+    chars:(source.chars||[]).map(c=>normalizeChar(c)),
+    profits:normalizeProfitRecords(source.profits||[]),
+    updatedAt:Number(snapshot.updatedAt)||Date.now()
+  };
+  localStorage.setItem(LS_KEY,JSON.stringify(db));
+  initNexonApiControls();
+  renderAll();
+}
+function cloudUrl(){ return CLOUD_SYNC_ENDPOINT+'/v1/sync/'+cloudSync.syncId; }
+async function uploadCloudSnapshot(silent=true){
+  if(!cloudSync.ready || cloudSync.initializing || cloudSync.syncing || !cloudSync.syncId || !cloudSync.encryptionKey) return false;
+  cloudSync.syncing=true;
+  refreshCloudSyncControls();
+  if(!silent) cloudSyncStatus('클라우드에 저장하는 중...');
+  try{
+    if(!silent){
+      db.updatedAt=Date.now();
+      localStorage.setItem(LS_KEY,JSON.stringify(db));
+    }
+    const payload=await encryptCloudSnapshot();
+    const res=await fetch(cloudUrl(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error('저장 요청 실패 (HTTP '+res.status+')');
+    cloudSyncStatus('동기화됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
+    return true;
+  }catch(err){
+    cloudSyncStatus('동기화 실패: '+err.message,'err');
+    if(!silent) alert('클라우드 저장 실패: '+err.message);
+    return false;
+  }finally{
+    cloudSync.syncing=false;
+    refreshCloudSyncControls();
+  }
+}
+function queueCloudSync(){
+  if(!cloudSync.ready || cloudSync.initializing || !nexonApiKey()) return;
+  clearTimeout(cloudSync.timer);
+  cloudSync.timer=setTimeout(()=>{ uploadCloudSnapshot(true); },900);
+}
+async function pullCloudSnapshot(manual=false){
+  if(!cloudSync.ready || cloudSync.initializing || cloudSync.syncing || !cloudSync.syncId) return false;
+  cloudSync.syncing=true;
+  refreshCloudSyncControls();
+  cloudSyncStatus('클라우드 기록을 불러오는 중...');
+  try{
+    const res=await fetch(cloudUrl(),{headers:{Accept:'application/json'}});
+    if(res.status===204){ cloudSyncStatus('저장된 클라우드 기록이 아직 없습니다.'); return false; }
+    if(!res.ok) throw new Error('불러오기 요청 실패 (HTTP '+res.status+')');
+    const snapshot=await decryptCloudSnapshot(await res.text());
+    applyCloudSnapshot(snapshot);
+    cloudSyncStatus('클라우드 기록을 불러왔습니다.','ok');
+    if(manual) alert('클라우드 기록을 불러왔습니다.');
+    return true;
+  }catch(err){
+    cloudSyncStatus('불러오기 실패: '+err.message,'err');
+    if(manual) alert('클라우드 불러오기 실패: '+err.message);
+    return false;
+  }finally{
+    cloudSync.syncing=false;
+    refreshCloudSyncControls();
+  }
+}
+function resetCloudSync(){
+  clearTimeout(cloudSync.timer);
+  cloudSync={ready:false,initializing:false,syncing:false,runId:cloudSync.runId+1,timer:0,syncId:'',encryptionKey:null};
+  cloudSyncStatus('API 키를 등록하면 다른 기기에서도 기록을 불러올 수 있습니다.');
+  refreshCloudSyncControls();
+}
+async function initializeCloudSync(){
+  const apiKey=nexonApiKey();
+  if(!apiKey){ resetCloudSync(); return; }
+  const runId=cloudSync.runId+1;
+  clearTimeout(cloudSync.timer);
+  cloudSync={ready:false,initializing:true,syncing:false,runId,timer:0,syncId:'',encryptionKey:null};
+  cloudSyncStatus('암호화된 클라우드 기록을 확인하는 중...');
+  refreshCloudSyncControls();
+  try{
+    const credentials=await cloudCredentials(apiKey);
+    if(runId!==cloudSync.runId) return;
+    cloudSync.syncId=credentials.syncId;
+    cloudSync.encryptionKey=credentials.encryptionKey;
+    const res=await fetch(cloudUrl(),{headers:{Accept:'application/json'}});
+    if(runId!==cloudSync.runId) return;
+    if(res.status===204){
+      cloudSync.ready=true;
+      cloudSync.initializing=false;
+      await uploadCloudSnapshot(true);
+      cloudSyncStatus('새 클라우드 보관함을 만들었습니다.');
+    }else{
+      if(!res.ok) throw new Error('동기화 확인 실패 (HTTP '+res.status+')');
+      const snapshot=await decryptCloudSnapshot(await res.text());
+      if(runId!==cloudSync.runId) return;
+      const localUpdatedAt=Number(db.updatedAt)||0;
+      const remoteUpdatedAt=Number(snapshot.updatedAt)||0;
+      cloudSync.ready=true;
+      cloudSync.initializing=false;
+      if(hasLocalTrackerData() && localUpdatedAt>remoteUpdatedAt){
+        await uploadCloudSnapshot(true);
+        cloudSyncStatus('현재 기기의 더 최신 기록을 저장했습니다.');
+      }else{
+        applyCloudSnapshot(snapshot);
+        cloudSyncStatus('클라우드 기록을 자동으로 불러왔습니다.','ok');
+      }
+    }
+  }catch(err){
+    if(runId!==cloudSync.runId) return;
+    cloudSync.ready=false;
+    cloudSync.initializing=false;
+    cloudSyncStatus('클라우드 연결 실패: '+err.message,'err');
+  }finally{
+    if(runId===cloudSync.runId) refreshCloudSyncControls();
+  }
+}
+function initCloudSyncControls(){
+  const pull=document.getElementById('btn-cloud-pull');
+  const push=document.getElementById('btn-cloud-push');
+  if(pull) pull.onclick=()=>pullCloudSnapshot(true);
+  if(push) push.onclick=()=>uploadCloudSnapshot(false);
+  refreshCloudSyncControls();
+}
 function nexonApiErrorMessage(status, data){
   const err = data && (data.error || data);
   const msg = err && (err.message || err.error_message || err.name || err.code);
@@ -4901,18 +5124,20 @@ function initNexonApiControls(){
       updateNexonApiStatus('API 키 미등록','');
     }
   };
-  saveBtn.onclick=()=>{
+  saveBtn.onclick=async()=>{
     const key=input.value.trim();
     if(!key){ alert(nexonApiKey() ? '새 API 키를 입력하면 기존 키가 변경됩니다.' : 'API 키를 입력하세요.'); return; }
     db.settings.nexonApiKey=key;
-    save();
+    localStorage.setItem(LS_KEY,JSON.stringify(db));
     refresh();
+    await initializeCloudSync();
   };
   clearBtn.onclick=()=>{
     if(!nexonApiKey()){ refresh(); return; }
     if(confirm('저장된 넥슨 Open API 키를 삭제할까요?')){
       delete db.settings.nexonApiKey;
-      save();
+      resetCloudSync();
+      localStorage.setItem(LS_KEY,JSON.stringify(db));
       refresh();
     }
   };
@@ -4920,6 +5145,8 @@ function initNexonApiControls(){
   refresh();
 }
 initNexonApiControls();
+initCloudSyncControls();
+initializeCloudSync();
 function initCharacterGuideModal(){
   const modal=document.getElementById('character-guide-modal');
   const openBtn=document.getElementById('btn-character-guide');
