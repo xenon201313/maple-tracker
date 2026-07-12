@@ -802,7 +802,7 @@
   <div class="card period-card">
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
-    <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 이번 주 기준으로 기록합니다.</div>
+    <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 이번 주 기준으로 기록합니다. 완료 체크와 드랍은 매주 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div>
   </div>
 
   <div id="charlist"></div>
@@ -823,7 +823,7 @@
   <div class="card period-card">
     <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</h2>
     <div class="period-note" id="monthlyboss-period-note">월간 결정석</div>
-    <div class="period-sub">검은 마법사 월간 결정석과 드랍 아이템 수익을 현재 월 기준으로 기록합니다.</div>
+    <div class="period-sub">검은 마법사 월간 결정석과 드랍 아이템 수익을 현재 월 기준으로 기록합니다. 완료 체크와 드랍은 새 기록 기간에 맞춰 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div>
   </div>
 
   <div id="monthlyboss-list"></div>
@@ -847,7 +847,7 @@
         <input type="text" id="dailyboss-date" placeholder="예: 2026-07-06" inputmode="numeric" autocomplete="off">
       </div>
     </div>
-    <div class="muted daily-boss-note">일간 보스 결정석을 날짜별로 기록합니다. 일부 일간 보상은 같은 형식으로 체크하고 가격을 합산할 수 있습니다.</div>
+    <div class="muted daily-boss-note">일간 보스 결정석을 날짜별로 기록합니다. 일부 일간 보상은 같은 형식으로 체크하고 가격을 합산할 수 있습니다. 완료 체크와 드랍은 날짜별로 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div>
   </div>
   <div id="dailyboss-list"></div>
   <div class="card">
@@ -1058,6 +1058,8 @@ function normalizeChar(c){
   if(!hadDropShareWeeks && Object.keys(legacyDropShares).length) c.dropShareWeeks[wk] = Object.assign({}, legacyDropShares);
   if(!c.dropShareWeeks[wk] || typeof c.dropShareWeeks[wk] !== 'object' || Array.isArray(c.dropShareWeeks[wk])) c.dropShareWeeks[wk] = {};
   c.dropShares = c.dropShareWeeks[wk];
+  c.bossPreferences = ensureObj(c.bossPreferences);
+  c.dailyBossPreferences = ensureObj(c.dailyBossPreferences);
   c.dailyBossDays = ensureObj(c.dailyBossDays);
   const legacyDaily = ensureObj(c.dailyBosses);
   const today = todayStr();
@@ -3386,9 +3388,81 @@ function normalizeBossDifficulties(c){
   });
   return changed;
 }
+function groupPickedBoss(g, store){
+  const picked = g.bosses.filter(b=>b[0] in ensureObj(store));
+  return picked.length ? picked.sort((a,b)=>b[2]-a[2])[0] : null;
+}
+function normalizeBossPreferences(c){
+  let changed=false;
+  c.bossPreferences=ensureObj(c.bossPreferences);
+  c.dailyBossPreferences=ensureObj(c.dailyBossPreferences);
+  ALL_BOSS_GROUPS.forEach(g=>{
+    const saved=ensureObj(c.bossPreferences[g.key]);
+    let b=g.bosses.find(x=>x[0]===saved.bossId);
+    let party=saved.party;
+    if(!b){
+      b=groupPickedBoss(g,c.bosses);
+      if(!b){
+        const weeks=ensureObj(c.bossWeeks);
+        for(const key of Object.keys(weeks).sort().reverse()){
+          b=groupPickedBoss(g,weeks[key]);
+          if(b){ party=ensureObj(weeks[key])[b[0]]; break; }
+        }
+      }
+      b=b || g.bosses[0];
+    }
+    party=clampPartyForBoss(b,party || ensureObj(c.bosses)[b[0]] || 1);
+    if(saved.bossId!==b[0] || Number(saved.party)!==party){
+      c.bossPreferences[g.key]={bossId:b[0],party};
+      changed=true;
+    }
+  });
+  DAILY_BOSS_GROUPS.forEach(g=>{
+    const saved=ensureObj(c.dailyBossPreferences[g.key]);
+    let b=g.bosses.find(x=>x[0]===saved.bossId);
+    let party=saved.party;
+    if(!b){
+      b=groupPickedBoss(g,c.dailyBosses);
+      if(!b){
+        const days=ensureObj(c.dailyBossDays);
+        for(const key of Object.keys(days).sort().reverse()){
+          b=groupPickedBoss(g,days[key]);
+          if(b){ party=ensureObj(days[key])[b[0]]; break; }
+        }
+      }
+      b=b || g.bosses[0];
+    }
+    party=Math.max(1,Math.min(MAX_PARTY,Number(party)||Number(ensureObj(c.dailyBosses)[b[0]])||1));
+    if(saved.bossId!==b[0] || Number(saved.party)!==party){
+      c.dailyBossPreferences[g.key]={bossId:b[0],party};
+      changed=true;
+    }
+  });
+  return changed;
+}
+function bossPreference(c,g){
+  const pref=ensureObj(ensureObj(c.bossPreferences)[g.key]);
+  const b=g.bosses.find(x=>x[0]===pref.bossId) || g.bosses[0];
+  return {bossId:b[0],party:clampPartyForBoss(b,pref.party||1)};
+}
+function setBossPreference(c,g,bossId,party){
+  const b=g.bosses.find(x=>x[0]===bossId) || g.bosses[0];
+  c.bossPreferences=ensureObj(c.bossPreferences);
+  c.bossPreferences[g.key]={bossId:b[0],party:clampPartyForBoss(b,party)};
+}
+function dailyBossPreference(c,g){
+  const pref=ensureObj(ensureObj(c.dailyBossPreferences)[g.key]);
+  const b=g.bosses.find(x=>x[0]===pref.bossId) || g.bosses[0];
+  return {bossId:b[0],party:Math.max(1,Math.min(MAX_PARTY,Number(pref.party)||1))};
+}
+function setDailyBossPreference(c,g,bossId,party){
+  const b=g.bosses.find(x=>x[0]===bossId) || g.bosses[0];
+  c.dailyBossPreferences=ensureObj(c.dailyBossPreferences);
+  c.dailyBossPreferences[g.key]={bossId:b[0],party:Math.max(1,Math.min(MAX_PARTY,Number(party)||1))};
+}
 function normalizeAllBosses(){
   let changed=false;
-  db.chars.forEach(c=>{ normalizeChar(c); if(normalizeBossDifficulties(c)) changed=true; });
+  db.chars.forEach(c=>{ normalizeChar(c); if(normalizeBossDifficulties(c)) changed=true; if(normalizeBossPreferences(c)) changed=true; });
   if(changed) save();
 }
 
@@ -4988,15 +5062,16 @@ function bindBossListHandlers(bl,c,wk){
       const newBoss=BOSS_MAP[newId];
       if(!canUseBoss(c,newBoss)){ alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.'); renderAll(); return; }
       bossDrafts.set(c.name+'|'+sel.dataset.group, newId);
+      const pref=bossPreference(c,group);
+      const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
+      setBossPreference(c,group,newId,party);
       if(oldId in bosses){
-        const party=clampPartyForBoss(newBoss,bosses[oldId]||1);
         if(group){ clearDropDataForBosses(group.bosses); group.bosses.forEach(b=>{ delete bosses[b[0]]; }); }
         else { clearDropDataForBosses([BOSS_MAP[oldId]]); delete bosses[oldId]; }
         bosses[newId]=party;
         c.bosses=bosses;
-        save();
       }
-      renderAll();
+      save(); renderAll();
     };
   });
   bl.querySelectorAll('input.boss-check').forEach(chk=>{
@@ -5018,7 +5093,10 @@ function bindBossListHandlers(bl,c,wk){
           return;
         }
         if(group){ clearDropDataForBosses(group.bosses); group.bosses.forEach(b=>{ if(b[0]!==id) delete bosses[b[0]]; }); }
-        bosses[id]=clampPartyForBoss(b,bosses[id]||1);
+        const pref=bossPreference(c,group);
+        const party=clampPartyForBoss(b,bosses[id]||pref.party);
+        bosses[id]=party;
+        setBossPreference(c,group,id,party);
       } else {
         if(group){ clearDropDataForBosses(group.bosses); group.bosses.forEach(b=>{ delete bosses[b[0]]; }); }
         else { clearDropDataForBosses([BOSS_MAP[id]]); delete bosses[id]; }
@@ -5030,8 +5108,11 @@ function bindBossListHandlers(bl,c,wk){
   bl.querySelectorAll('select.party').forEach(sel=>{
     sel.onchange=()=>{
       const id=sel.dataset.id;
+      const group=BOSS_GROUP_MAP[sel.dataset.group];
       const bosses=bossStore(c,wk);
-      bosses[id]=clampPartyForBoss(BOSS_MAP[id], Number(sel.value));
+      const party=clampPartyForBoss(BOSS_MAP[id], Number(sel.value));
+      bosses[id]=party;
+      if(group) setBossPreference(c,group,id,party);
       c.bosses=bosses;
       save(); renderAll();
     };
@@ -5167,17 +5248,17 @@ function renderMonthlyBoss(){
 }
 function selectedBossForGroup(g,c){
   const bosses=bossStore(c);
-  const picked = g.bosses.filter(b=>b[0] in bosses);
-  if(picked.length) return picked.sort((a,b)=>b[2]-a[2])[0];
-  const draft = bossDrafts.get(c.name+'|'+g.key);
-  return g.bosses.find(b=>b[0]===draft) || g.bosses[0];
+  const picked = groupPickedBoss(g,bosses);
+  if(picked) return picked;
+  const pref=bossPreference(c,g);
+  return g.bosses.find(b=>b[0]===pref.bossId) || g.bosses[0];
 }
 function selectedDailyBossForGroup(g,c,date){
   const store=ensureObj(ensureObj(c.dailyBossDays)[date]);
-  const picked = g.bosses.filter(b=>b[0] in store);
-  if(picked.length) return picked.sort((a,b)=>b[2]-a[2])[0];
-  const draft = dailyBossDrafts.get(c.name+'|'+date+'|'+g.key);
-  return g.bosses.find(b=>b[0]===draft) || g.bosses[0];
+  const picked = groupPickedBoss(g,store);
+  if(picked) return picked;
+  const pref=dailyBossPreference(c,g);
+  return g.bosses.find(b=>b[0]===pref.bossId) || g.bosses[0];
 }
 function esc(s){
   return String(s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -5415,11 +5496,12 @@ function bossGroupCard(g,c){
   const b=selectedBossForGroup(g,c);
   const id=b[0], price=b[2];
   const bosses=bossStore(c);
+  const pref=bossPreference(c,g);
   const img = IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
   const allowed = canUseBoss(c,b);
   const on = allowed && (id in bosses);
   const maxParty = bossPartyMax(b);
-  const party = clampPartyForBoss(b,bosses[id]||1);
+  const party = clampPartyForBoss(b,bosses[id]||pref.party);
   let diffOpts='';
   g.bosses.forEach(x=>{ diffOpts+='<option value="'+x[0]+'"'+(x[0]===id?' selected':'')+'>'+bossDiff(x)+'</option>'; });
   let partyOpts=''; for(let i=1;i<=maxParty;i++){ partyOpts+='<option value="'+i+'"'+(i===party?' selected':'')+'>'+i+'인</option>'; }
@@ -5434,7 +5516,7 @@ function bossGroupCard(g,c){
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
-    '<div class="bparty">파티 <select class="party" data-id="'+id+'"'+(on?'':' disabled')+'>'+partyOpts+'</select></div>'+
+    '<div class="bparty">파티 <select class="party" data-id="'+id+'" data-group="'+g.key+'"'+(on?'':' disabled')+'>'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
     '<label class="bcheck"><input class="boss-check" type="checkbox" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+disabled+'>'+(on?'다님':'체크')+'</label>'+
     dropHtml+
@@ -5453,9 +5535,10 @@ function dailyBossGroupCard(g,c,date){
   const b=selectedDailyBossForGroup(g,c,date);
   const id=b[0], price=b[2];
   const store=dailyBossStore(c,date);
+  const pref=dailyBossPreference(c,g);
   const img=IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
   const on=id in store;
-  const party=Math.max(1, Math.min(MAX_PARTY, Number(store[id])||1));
+  const party=Math.max(1, Math.min(MAX_PARTY, Number(store[id])||pref.party));
   let diffOpts='';
   g.bosses.forEach(x=>{ diffOpts+='<option value="'+x[0]+'"'+(x[0]===id?' selected':'')+'>'+bossDiff(x)+'</option>'; });
   let partyOpts=''; for(let i=1;i<=MAX_PARTY;i++){ partyOpts+='<option value="'+i+'"'+(i===party?' selected':'')+'>'+i+'인</option>'; }
@@ -5469,7 +5552,7 @@ function dailyBossGroupCard(g,c,date){
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
-    '<div class="bparty">파티 <select class="daily-party" data-date="'+esc(date)+'" data-id="'+id+'"'+(on?'':' disabled')+'>'+partyOpts+'</select></div>'+
+    '<div class="bparty">파티 <select class="daily-party" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'"'+(on?'':' disabled')+'>'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
     '<label class="bcheck"><input class="daily-boss-check" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+'>'+(on?'다님':'체크')+'</label>'+
     dropHtml+
@@ -5505,8 +5588,10 @@ function renderDailyBoss(){
         const oldId=sel.dataset.current, newId=sel.value;
         const store=dailyBossStore(c,date);
         dailyBossDrafts.set(c.name+'|'+date+'|'+sel.dataset.group,newId);
+        const pref=dailyBossPreference(c,group);
+        const party=Math.max(1,Math.min(MAX_PARTY,Number(oldId in store ? store[oldId] : pref.party)||1));
+        setDailyBossPreference(c,group,newId,party);
         if(oldId in store){
-          const party=store[oldId]||1;
           const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
           group.bosses.forEach(b=>{
             dailyDropItemsForBoss(b).forEach(item=>{
@@ -5517,9 +5602,8 @@ function renderDailyBoss(){
           });
           group.bosses.forEach(b=>{ delete store[b[0]]; });
           store[newId]=party;
-          save();
         }
-        renderAll();
+        save(); renderAll();
       };
     });
     bl.querySelectorAll('input.daily-boss-check').forEach(chk=>{
@@ -5529,7 +5613,10 @@ function renderDailyBoss(){
         const id=chk.dataset.id;
         if(chk.checked){
           group.bosses.forEach(b=>{ if(b[0]!==id) delete store[b[0]]; });
-          store[id]=Math.max(1,Number(store[id])||1);
+          const pref=dailyBossPreference(c,group);
+          const party=Math.max(1,Math.min(MAX_PARTY,Number(store[id])||pref.party||1));
+          store[id]=party;
+          setDailyBossPreference(c,group,id,party);
         } else {
           const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
           group.bosses.forEach(b=>{
@@ -5547,7 +5634,10 @@ function renderDailyBoss(){
     bl.querySelectorAll('select.daily-party').forEach(sel=>{
       sel.onchange=()=>{
         const store=dailyBossStore(c,date);
-        store[sel.dataset.id]=Math.max(1,Math.min(MAX_PARTY,Number(sel.value)||1));
+        const group=DAILY_BOSS_GROUP_MAP[sel.dataset.group];
+        const party=Math.max(1,Math.min(MAX_PARTY,Number(sel.value)||1));
+        store[sel.dataset.id]=party;
+        if(group) setDailyBossPreference(c,group,sel.dataset.id,party);
         save(); renderAll();
       };
     });
