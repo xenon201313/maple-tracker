@@ -8,6 +8,8 @@
 <meta name="theme-color" content="#14161f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="site.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon.png">
 <script>
   if(location.hostname==='localhost' && /Android/i.test(navigator.userAgent)) document.documentElement.classList.add('native-android');
 </script>
@@ -119,6 +121,18 @@
   .guide-list li{margin:4px 0;}
   .guide-note{margin-top:10px; padding:10px 12px; border-left:3px solid var(--gold); background:rgba(255,210,77,.1); color:#d9dfef; border-radius:8px; line-height:1.6; font-size:14px;}
   .guide-lead,.guide-list,.guide-item p,.guide-note,.muted,.api-copy,.api-help,.totalbar{word-break:keep-all; overflow-wrap:anywhere;}
+  .app-install-head{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px;}
+  .app-install-head h2{margin-bottom:5px;}
+  .app-install-head p{margin:0; color:var(--sub); font-size:14px; line-height:1.55;}
+  .app-download-link{display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; min-height:42px; padding:10px 14px; border-radius:8px; background:linear-gradient(180deg,#ffd65c,#f2bd34); color:#1f1b10; font-weight:900; text-decoration:none; box-shadow:0 8px 18px rgba(0,0,0,.2);}
+  .app-download-link:hover{filter:brightness(1.08);}
+  .app-install-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
+  .app-install-option{min-width:0; padding:12px; border:1px solid rgba(220,230,255,.18); border-radius:10px; background:rgba(6,10,18,.42);}
+  .app-install-option b{display:block; color:var(--gold); margin-bottom:5px;}
+  .app-install-option p{margin:0; color:var(--sub); font-size:13px; line-height:1.55;}
+  .app-install-tag{display:inline-flex; margin-top:9px; padding:4px 8px; border-radius:999px; background:rgba(154,198,255,.12); color:var(--blue); font-size:11px; font-weight:bold;}
+  .app-install-note{margin:10px 0 0; color:#d9dfef; font-size:12px; line-height:1.55;}
+  html.native-android .app-install-card{display:none;}
   .drop-price{grid-column:2 / -1; width:100%; min-width:0; padding:6px 8px !important; font-size:11px !important; border-radius:6px !important; color:var(--gold) !important; margin:0 0 2px;}
   .drop-price.child-price{grid-column:2 / -1; margin-left:0;}
   .drop-price::placeholder{color:rgba(245,197,66,.48);}
@@ -448,6 +462,9 @@
     .guide-pill{justify-content:center; text-align:center; white-space:normal; min-width:0; padding:7px 8px;}
     .guide-grid{grid-template-columns:1fr;}
     .guide-item{padding:10px;}
+    .app-install-head{display:grid; grid-template-columns:1fr; align-items:stretch;}
+    .app-download-link{width:100%;}
+    .app-install-grid{grid-template-columns:1fr;}
     .drop-split{grid-template-columns:1fr;}
     #in-erda{width:100% !important;}
     button{width:100%; white-space:normal;}
@@ -551,6 +568,29 @@
       <span class="guide-pill">백업 JSON 권장</span>
     </div>
     <div class="guide-note">캐릭터 추가와 서버 설정은 <b>캐릭터 등록</b> 탭에서 관리합니다. 드랍 아이템 가격도 파티장/파티원·수수료 분배를 적용할 수 있습니다.</div>
+  </div>
+
+  <div class="card app-install-card">
+    <div class="app-install-head">
+      <div>
+        <h2>📱 앱으로도 사용해 보세요</h2>
+        <p>정식 출시 전까지 Android는 테스트 APK로, iPhone/iPad는 홈 화면 추가로 이용할 수 있습니다.</p>
+      </div>
+      <a class="app-download-link" href="downloads/mesobook-android-beta.apk" download>Android APK 받기</a>
+    </div>
+    <div class="app-install-grid">
+      <div class="app-install-option">
+        <b>Android 테스트 앱</b>
+        <p>APK를 내려받아 설치하면 브라우저가 아닌 독립 앱 화면으로 사용할 수 있습니다.</p>
+        <span class="app-install-tag">테스트 버전 · 자동 업데이트 없음</span>
+      </div>
+      <div class="app-install-option">
+        <b>iPhone / iPad 웹 앱</b>
+        <p>Safari의 공유 버튼에서 “홈 화면에 추가”를 선택하면 앱처럼 실행할 수 있습니다.</p>
+        <span class="app-install-tag">App Store 출시 전 사용 방법</span>
+      </div>
+    </div>
+    <p class="app-install-note">Android 설치 시 보안 확인 화면이 나타날 수 있습니다. 이 사이트에서 받은 파일만 설치하세요.</p>
   </div>
 
   <div class="card">

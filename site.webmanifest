@@ -1,0 +1,17 @@
+{
+  "name": "나만의 메계부",
+  "short_name": "메계부",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c111b",
+  "theme_color": "#14161f",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "assets/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
