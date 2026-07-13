@@ -2,6 +2,7 @@ const ALLOWED_ORIGINS = new Set([
   'https://maple-trackers.com',
   'https://www.maple-trackers.com',
   'https://xenon201313.github.io',
+  'https://localhost',
   'http://localhost:4173',
   'http://127.0.0.1:4173'
 ]);

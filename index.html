@@ -2,10 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>나만의 메계부</title>
 <meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta name="theme-color" content="#14161f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="나만의 메계부">
 <meta property="og:title" content="나만의 메계부">
@@ -48,7 +50,7 @@
   }
   html{width:100%; min-height:100%; overflow-x:hidden; background:var(--bg);}
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{width:100%; min-height:100vh; background:transparent; color:var(--text); font-family:var(--font-body); font-size:16px; font-weight:400; line-height:1.48; padding:20px; max-width:1180px; margin:0 auto; overflow-x:hidden; position:relative; isolation:isolate;}
+  body{width:100%; min-height:100vh; background:transparent; color:var(--text); font-family:var(--font-body); font-size:16px; font-weight:400; line-height:1.48; padding:max(20px,calc(12px + var(--safe-area-inset-top, env(safe-area-inset-top)))) max(20px,calc(12px + var(--safe-area-inset-right, env(safe-area-inset-right)))) max(20px,calc(12px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom)))) max(20px,calc(12px + var(--safe-area-inset-left, env(safe-area-inset-left)))); max-width:1180px; margin:0 auto; overflow-x:hidden; position:relative; isolation:isolate;}
   body.modal-open{overflow:hidden;}
   body::before{content:""; position:fixed; inset:0; z-index:-2; background:linear-gradient(180deg,rgba(7,10,18,.34),rgba(7,10,18,.72)),url("assets/maple-village-bg.png") center center/cover no-repeat; transform:translateZ(0);}
   body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 34%),linear-gradient(90deg,rgba(4,7,12,.62),rgba(4,7,12,.24) 22%,rgba(4,7,12,.28) 78%,rgba(4,7,12,.66)),rgba(4,7,12,.18);}
@@ -4901,10 +4903,20 @@ async function nexonFetch(path, params={}){
     const v=params[k];
     if(v!==undefined && v!==null && String(v).trim()!=='') url.searchParams.set(k,String(v));
   });
-  const res=await fetch(url.toString(), {headers:{'x-nxopen-api-key':key}});
+  const nativeHttp=globalThis.Capacitor?.getPlatform?.()==='android' ? globalThis.Capacitor?.Plugins?.CapacitorHttp : null;
+  let status=0;
   let data={};
-  try{ data=await res.json(); }catch(e){}
-  if(!res.ok) throw new Error(nexonApiErrorMessage(res.status,data));
+  if(nativeHttp?.get){
+    // Android uses Capacitor's native HTTP bridge so Nexon's CORS policy cannot block profile lookups.
+    const res=await nativeHttp.get({url:url.toString(),headers:{'x-nxopen-api-key':key}});
+    status=Number(res.status)||0;
+    data=res.data || {};
+  }else{
+    const res=await fetch(url.toString(), {headers:{'x-nxopen-api-key':key}});
+    status=res.status;
+    try{ data=await res.json(); }catch(e){}
+  }
+  if(status<200 || status>=300) throw new Error(nexonApiErrorMessage(status,data));
   return data;
 }
 function serverFromNexonWorld(world, fallback='main'){

@@ -1,0 +1,16 @@
+{
+  "appId": "com.mapletrackers.mesobook",
+  "appName": "나만의 메계부",
+  "webDir": "www",
+  "server": {
+    "hostname": "localhost",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}

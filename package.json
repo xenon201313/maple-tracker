@@ -1,0 +1,24 @@
+{
+  "name": "maple-trackers-android",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare:android-web": "node scripts/prepare-android-web.mjs",
+    "sync:android": "npm run prepare:android-web && npx cap sync android",
+    "open:android": "npx cap open android",
+    "run:android": "npm run sync:android && npx cap run android",
+    "build:android:debug": "npm run sync:android && cd android && gradlew.bat assembleDebug",
+    "build:android:bundle": "npm run sync:android && cd android && gradlew.bat bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
