@@ -3637,7 +3637,6 @@ function normalizeErdaSettlementSources(value){
     return date && id && count ? {date,id,count} : null;
   }).filter(Boolean) : [];
 }
-const DAILY_HUNT_LIMIT=2.5;
 function normalizeHuntRunValue(value, fallback=1){
   const parsed=Number(value);
   const safe=Number.isFinite(parsed) && parsed>0 ? parsed : fallback;
@@ -4141,12 +4140,11 @@ if(inSessionLabel){
   const runsField=document.createElement('div');
   const runsLabel=document.createElement('label');
   runsLabel.textContent='재획 횟수 (0.5 단위)';
-  runsLabel.title='하루 최대 2.5재획까지 기록할 수 있습니다.';
+  runsLabel.title='0.5 단위로 자유롭게 기록할 수 있습니다.';
   inHuntRuns=document.createElement('input');
   inHuntRuns.type='number';
   inHuntRuns.id='in-hunt-runs';
   inHuntRuns.min='0.5';
-  inHuntRuns.max=String(DAILY_HUNT_LIMIT);
   inHuntRuns.step='0.5';
   inHuntRuns.value='1';
   inHuntRuns.inputMode='decimal';
@@ -4279,8 +4277,8 @@ function saveHuntEntry(){
   const extraIncome=mesoValueFromDigits(onlyDigits(inExtra ? inExtra.value : ''));
   const erda=Math.max(0,Math.floor(Number(inErda.value)||0));
   const rawRuns=Number(inHuntRuns ? inHuntRuns.value : 1);
-  if(!Number.isFinite(rawRuns) || rawRuns<0.5 || rawRuns>DAILY_HUNT_LIMIT || Math.abs(rawRuns*2-Math.round(rawRuns*2))>1e-9){
-    alert('재획 횟수는 0.5 단위로 입력하고, 하루 최대 2.5재획까지 기록할 수 있습니다.');
+  if(!Number.isFinite(rawRuns) || rawRuns<0.5 || Math.abs(rawRuns*2-Math.round(rawRuns*2))>1e-9){
+    alert('재획 횟수는 0.5 단위로 입력해 주세요.');
     return;
   }
   const runs=Math.round(rawRuns*2)/2;
@@ -4293,21 +4291,6 @@ function saveHuntEntry(){
     erda,
     charName:(inHuntChar ? inHuntChar.value : '').trim()
   };
-  const dateSessions=huntSessionsForDate(date).filter(session=>{
-    return !(huntEditTarget && huntEditTarget.date===date && String(session.id)===String(huntEditTarget.id));
-  });
-  const recordedRuns=dateSessions
-    .filter(session=>normalizeHuntSession(session).kind!=='erda-settlement')
-    .reduce((sum,session)=>sum+huntSessionRunCount(session),0);
-  if(recordedRuns+runs>DAILY_HUNT_LIMIT+1e-9){
-    if(recordedRuns>=DAILY_HUNT_LIMIT){
-      alert('이 날짜에는 이미 하루 재획 한도인 2.5재획이 기록되어 있습니다. 기존 기록을 수정하거나 삭제해 주세요.');
-    }else{
-      const available=Math.max(0,DAILY_HUNT_LIMIT-recordedRuns);
-      alert('하루 재획 한도는 2.5재획입니다. 이 날짜에는 '+formatHuntRuns(available)+'재획까지만 추가할 수 있습니다.');
-    }
-    return;
-  }
   if(huntEditTarget){
     const oldDate=huntEditTarget.date;
     const oldSessions=huntSessionsForDate(oldDate);
