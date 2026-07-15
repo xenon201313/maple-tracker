@@ -3480,12 +3480,14 @@ const BOSS_GROUPS = {w:makeBossGroups('w'), m:makeBossGroups('m')};
 const ALL_BOSS_GROUPS = BOSS_GROUPS.w.concat(BOSS_GROUPS.m);
 const BOSS_GROUP_MAP = Object.fromEntries(ALL_BOSS_GROUPS.map(g=>[g.key,g]));
 function normalizeBossDifficulties(c){
+  const bosses=ensureObj(c && c.bosses);
+  if(c && typeof c==='object') c.bosses=bosses;
   let changed=false;
   ALL_BOSS_GROUPS.forEach(g=>{
-    const picked = g.bosses.filter(b=>b[0] in c.bosses);
+    const picked = g.bosses.filter(b=>b[0] in bosses);
     if(picked.length<=1) return;
     picked.sort((a,b)=>b[2]-a[2]);
-    picked.slice(1).forEach(b=>{ delete c.bosses[b[0]]; changed=true; });
+    picked.slice(1).forEach(b=>{ delete bosses[b[0]]; changed=true; });
   });
   return changed;
 }
@@ -3577,7 +3579,8 @@ function migrateBosses(b){
   return o;
 }
 function normalizeChar(c){
-  c=c || {};
+  const legacyName=typeof c==='string' ? c : '';
+  c=(c && typeof c==='object' && !Array.isArray(c)) ? c : {name:legacyName};
   c.name=c.name || '';
   c.server=c.server==='challenger' ? 'challenger' : 'main';
   c.ocid=String(c.ocid || '').trim();
@@ -3593,14 +3596,14 @@ function normalizeChar(c){
   const hasBossWeeks=c.bossWeeks && typeof c.bossWeeks==='object' && !Array.isArray(c.bossWeeks);
   c.bossWeeks=hasBossWeeks ? c.bossWeeks : {};
   if(!hasBossWeeks && Object.keys(c.bosses).length) c.bossWeeks[week]=Object.assign({},c.bosses);
-  if(!ensureObj(c.bossWeeks[week]) || Array.isArray(c.bossWeeks[week])) c.bossWeeks[week]={};
+  if(!c.bossWeeks[week] || typeof c.bossWeeks[week]!=='object' || Array.isArray(c.bossWeeks[week])) c.bossWeeks[week]={};
   c.bosses=c.bossWeeks[week];
   const normalizeWeekStore=(legacyName, weeksName)=>{
     const legacy=ensureObj(c[legacyName]);
     const hasWeeks=c[weeksName] && typeof c[weeksName]==='object' && !Array.isArray(c[weeksName]);
     c[weeksName]=hasWeeks ? c[weeksName] : {};
     if(!hasWeeks && Object.keys(legacy).length) c[weeksName][week]=Object.assign({},legacy);
-    if(!ensureObj(c[weeksName][week]) || Array.isArray(c[weeksName][week])) c[weeksName][week]={};
+    if(!c[weeksName][week] || typeof c[weeksName][week]!=='object' || Array.isArray(c[weeksName][week])) c[weeksName][week]={};
     c[legacyName]=c[weeksName][week];
   };
   normalizeWeekStore('drops','dropWeeks');
@@ -3612,13 +3615,13 @@ function normalizeChar(c){
   c.dailyBossDays=ensureObj(c.dailyBossDays);
   const legacyDaily=ensureObj(c.dailyBosses);
   if(Object.keys(legacyDaily).length && !c.dailyBossDays[today]) c.dailyBossDays[today]=Object.assign({},legacyDaily);
-  if(!ensureObj(c.dailyBossDays[today]) || Array.isArray(c.dailyBossDays[today])) c.dailyBossDays[today]={};
+  if(!c.dailyBossDays[today] || typeof c.dailyBossDays[today]!=='object' || Array.isArray(c.dailyBossDays[today])) c.dailyBossDays[today]={};
   c.dailyBosses=c.dailyBossDays[today];
   const normalizeDailyStore=(legacyName, daysName)=>{
     const legacy=ensureObj(c[legacyName]);
     c[daysName]=ensureObj(c[daysName]);
     if(Object.keys(legacy).length && !c[daysName][today]) c[daysName][today]=Object.assign({},legacy);
-    if(!ensureObj(c[daysName][today]) || Array.isArray(c[daysName][today])) c[daysName][today]={};
+    if(!c[daysName][today] || typeof c[daysName][today]!=='object' || Array.isArray(c[daysName][today])) c[daysName][today]={};
     c[legacyName]=c[daysName][today];
   };
   normalizeDailyStore('dailyDrops','dailyDropDays');
@@ -3788,7 +3791,7 @@ try {
 } catch(error){}
 db.settings=normalizeSettings(db.settings);
 db.records=normalizeRecords(db.records || {},db.settings);
-db.chars=(db.chars || []).map(normalizeChar);
+db.chars=(Array.isArray(db.chars) ? db.chars : []).map(normalizeChar);
 db.profits=normalizeProfitRecords(db.profits || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
 
@@ -5112,7 +5115,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
   return {
     records:normalizeRecords(raw.records||{},settings),
     settings,
-    chars:(raw.chars||[]).map(c=>normalizeChar(c)),
+    chars:(Array.isArray(raw.chars) ? raw.chars : []).map(c=>normalizeChar(c)),
     profits:normalizeProfitRecords(raw.profits||[]),
     backupSnapshots:normalizeBackupSnapshots(snapshots),
     updatedAt:Number(raw.updatedAt)||Date.now()
