@@ -304,6 +304,11 @@
   .record-session-row .session-label{color:#dce7ff; font-weight:bold;}
   .record-session-row .settlement-label{color:var(--green);}
   .record-session-row .session-value{color:var(--gold);}
+  .record-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
+  button.record-edit{width:auto; background:rgba(115,208,255,.1); color:#aee6ff; border:1px solid rgba(115,208,255,.55); padding:4px 10px; font-size:13px;}
+  .hunt-edit-state{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px; border:1px solid rgba(115,208,255,.38); border-radius:8px; background:rgba(55,111,161,.14); color:#c7eaff; font-size:13px;}
+  .hunt-edit-state[hidden]{display:none;}
+  .hunt-edit-state button{width:auto; padding:6px 10px; font-size:12px;}
   .watermark{position:fixed; right:14px; bottom:10px; z-index:50; padding:6px 10px; border-radius:999px; background:rgba(7,11,20,.7); border:1px solid rgba(255,255,255,.16); color:rgba(241,245,255,.74); font-size:11px; pointer-events:none; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);}
   .drop-item.done{color:var(--sub); text-decoration:line-through;}
   .bcheck input{accent-color:var(--gold); width:16px; height:16px; cursor:pointer;}
@@ -3638,11 +3643,13 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
   const hasErdaPrice=Object.prototype.hasOwnProperty.call(o,'erdaUnitPrice');
   const hasErdaFee=Object.prototype.hasOwnProperty.call(o,'erdaFee');
   const kind=o.kind==='erda-settlement' ? 'erda-settlement' : 'hunt';
+  const runs=kind==='hunt' ? Math.max(1,Math.min(99,Math.floor(Number(o.runs ?? o.huntCount ?? o.runCount ?? 1)||1))) : 0;
   const erda=Math.max(0,Math.floor(Number(o.erda)||0));
   const erdaSettled=Math.max(0,Math.min(erda,Math.floor(Number(o.erdaSettled)||0)));
   return {
     id:String(o.id || createHuntSessionId(kind==='erda-settlement'?'settlement':'hunt')).trim() || createHuntSessionId(kind),
     kind,
+    runs,
     label:String(o.label || o.sessionLabel || (kind==='erda-settlement' ? '솔 에르다 조각 판매 정산' : (index+1)+'재획')).trim(),
     meso:mesoValueFromDigits(o.meso),
     erda,
@@ -3656,6 +3663,22 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
     settlementTo:normalizeDateInput(o.settlementTo) || '',
     settlementSources:normalizeErdaSettlementSources(o.settlementSources)
   };
+}
+function huntSessionRunCount(session){
+  const s=normalizeHuntSession(session);
+  return s.kind==='erda-settlement' ? 0 : Math.max(1,Math.floor(Number(s.runs)||1));
+}
+function huntSessionDisplayLabel(session,index=0){
+  const s=normalizeHuntSession(session,db.settings,index);
+  if(s.kind==='erda-settlement') return s.label || '솔 에르다 조각 판매 정산';
+  const memo=String(s.label || '').trim();
+  const genericLabel=/^\d+\s*재획$/.test(memo);
+  const runs=huntSessionRunCount(s);
+  return memo && !genericLabel ? runs+'재획 · '+memo : runs+'재획';
+}
+function huntSessionEditableMemo(session){
+  const memo=String(normalizeHuntSession(session).label || '').trim();
+  return /^\d+\s*재획$/.test(memo) ? '' : memo;
 }
 function recordFromSessions(sessions, fallbackSettings=db.settings){
   const normalized=(Array.isArray(sessions) ? sessions : []).map((session,index)=>normalizeHuntSession(session,fallbackSettings,index));
@@ -4096,6 +4119,36 @@ document.querySelectorAll('.tab').forEach(t=>{ t.onclick=()=>openPage(t.dataset.
 
 /* ───────── 재획 기록 ───────── */
 const inDate=document.getElementById('in-date'), inMeso=document.getElementById('in-meso'), inExtra=document.getElementById('in-extra'), inErda=document.getElementById('in-erda'), inHuntChar=document.getElementById('in-hunt-char'), inSessionLabel=document.getElementById('in-session-label');
+let inHuntRuns=null;
+let huntEditTarget=null;
+const huntEditState=document.createElement('div');
+huntEditState.id='hunt-edit-state';
+huntEditState.className='hunt-edit-state';
+huntEditState.hidden=true;
+if(inSessionLabel){
+  const sessionField=inSessionLabel.parentElement;
+  const runsField=document.createElement('div');
+  const runsLabel=document.createElement('label');
+  runsLabel.textContent='재획 횟수';
+  inHuntRuns=document.createElement('input');
+  inHuntRuns.type='number';
+  inHuntRuns.id='in-hunt-runs';
+  inHuntRuns.min='1';
+  inHuntRuns.max='99';
+  inHuntRuns.step='1';
+  inHuntRuns.value='1';
+  inHuntRuns.inputMode='numeric';
+  inHuntRuns.style.width='118px';
+  runsField.append(runsLabel,inHuntRuns);
+  sessionField.parentElement.insertBefore(runsField,sessionField);
+  const memoLabel=sessionField.querySelector('label');
+  if(memoLabel) memoLabel.textContent='메모 (선택)';
+  huntEditState.innerHTML='<span id="hunt-edit-state-text"></span><button type="button" class="ghost" id="btn-cancel-hunt-edit">새 기록으로</button>';
+  sessionField.closest('.row')?.after(huntEditState);
+}
+const recordsTable=document.getElementById('tbody-records')?.closest('table');
+const huntColumnHeader=recordsTable?.querySelector('thead th:nth-child(2)');
+if(huntColumnHeader) huntColumnHeader.textContent='재획 수 / 메모';
 const dailyBossDate=document.getElementById('dailyboss-date');
 const inErdaPrice=document.getElementById('in-erda-price');
 const erdaFeeSelect=document.getElementById('erda-fee');
@@ -4151,6 +4204,121 @@ function appendHuntSession(date,session){
   writeHuntSessions(date,sessions);
   return normalized;
 }
+function updateHuntEditState(){
+  const active=Boolean(huntEditTarget);
+  const saveButton=document.getElementById('btn-save');
+  if(saveButton) saveButton.textContent=active?'수정 저장':'기록 저장';
+  if(!huntEditState) return;
+  huntEditState.hidden=!active;
+  const text=document.getElementById('hunt-edit-state-text');
+  if(active && text){
+    const sessions=huntSessionsForDate(huntEditTarget.date);
+    const session=sessions.find(item=>item.id===huntEditTarget.id);
+    text.textContent=session ? '수정 중: '+huntEditTarget.date+' · '+huntSessionDisplayLabel(session) : '수정할 재획 기록을 찾을 수 없습니다.';
+  }
+}
+function setHuntMesoInput(input,hintId,value){
+  if(!input) return;
+  const digits=onlyDigits(value);
+  input.value=digits ? formatDigits(digits) : '';
+  const hint=document.getElementById(hintId);
+  if(hint){
+    const meso=toMesoBig(digits);
+    hint.textContent=meso>0n ? '= '+korMeso(meso) : '';
+  }
+}
+function resetHuntEntryForm(){
+  huntEditTarget=null;
+  if(inHuntRuns) inHuntRuns.value='1';
+  if(inSessionLabel) inSessionLabel.value='';
+  if(inMeso) inMeso.value='';
+  if(inExtra) inExtra.value='';
+  if(inErda) inErda.value='';
+  const mesoHint=document.getElementById('meso-hint');
+  const extraHint=document.getElementById('extra-hint');
+  if(mesoHint) mesoHint.textContent='';
+  if(extraHint) extraHint.textContent='';
+  updateHuntEditState();
+}
+function beginHuntSessionEdit(date,id){
+  const sessions=huntSessionsForDate(date);
+  const session=sessions.find(item=>item.id===id);
+  if(!session || session.kind==='erda-settlement') return;
+  const s=normalizeHuntSession(session);
+  huntEditTarget={date,id};
+  if(inDate) inDate.value=date;
+  if(inHuntChar) inHuntChar.value=s.charName || '';
+  if(inHuntRuns) inHuntRuns.value=String(huntSessionRunCount(s));
+  if(inSessionLabel) inSessionLabel.value=huntSessionEditableMemo(s);
+  setHuntMesoInput(inMeso,'meso-hint',s.meso);
+  setHuntMesoInput(inExtra,'extra-hint',s.extraIncome);
+  if(inErda) inErda.value=s.erda ? String(s.erda) : '';
+  updateHuntEditState();
+  inDate?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function saveHuntEntry(){
+  const rawDate=inDate.value.trim();
+  const date=normalizeDateInput(rawDate);
+  if(!rawDate){ alert('날짜를 입력해 주세요.'); return; }
+  if(!date){ alert('날짜는 2026-07-06 형식으로 입력해 주세요.'); return; }
+  inDate.value=date;
+  if(date>todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
+  const meso=mesoValueFromDigits(onlyDigits(inMeso.value));
+  const extraIncome=mesoValueFromDigits(onlyDigits(inExtra ? inExtra.value : ''));
+  const erda=Math.max(0,Math.floor(Number(inErda.value)||0));
+  const runs=Math.max(1,Math.min(99,Math.floor(Number(inHuntRuns ? inHuntRuns.value : 1)||1)));
+  if(inHuntRuns) inHuntRuns.value=String(runs);
+  const payload={
+    label:(inSessionLabel ? inSessionLabel.value : '').trim(),
+    runs,
+    meso,
+    extraIncome,
+    erda,
+    charName:(inHuntChar ? inHuntChar.value : '').trim()
+  };
+  if(huntEditTarget){
+    const oldDate=huntEditTarget.date;
+    const oldSessions=huntSessionsForDate(oldDate);
+    const oldIndex=oldSessions.findIndex(session=>session.id===huntEditTarget.id);
+    if(oldIndex<0){ alert('수정할 재획 기록을 찾을 수 없습니다.'); resetHuntEntryForm(); return; }
+    const previous=normalizeHuntSession(oldSessions[oldIndex]);
+    if(previous.erdaSettled>erda){
+      alert('이미 판매 정산된 솔 에르다 조각보다 적게 수정할 수 없습니다. 정산 기록을 먼저 삭제해 주세요.');
+      return;
+    }
+    if(oldDate!==date && previous.erdaSettled>0){
+      alert('판매 정산된 솔 에르다 조각이 있어 날짜는 변경할 수 없습니다. 날짜를 유지하거나 정산 기록을 먼저 삭제해 주세요.');
+      return;
+    }
+    const updated=normalizeHuntSession(Object.assign({},previous,payload,{
+      id:previous.id,
+      kind:'hunt',
+      createdAt:previous.createdAt,
+      erdaSettled:previous.erdaSettled,
+      erdaUnitPrice:previous.erdaUnitPrice,
+      erdaFee:previous.erdaFee
+    }),db.settings,oldIndex);
+    oldSessions.splice(oldIndex,1);
+    if(oldDate===date){
+      oldSessions.splice(oldIndex,0,updated);
+      writeHuntSessions(oldDate,oldSessions);
+    } else {
+      writeHuntSessions(oldDate,oldSessions);
+      const nextSessions=huntSessionsForDate(date);
+      nextSessions.push(updated);
+      writeHuntSessions(date,nextSessions);
+    }
+  } else {
+    appendHuntSession(date,Object.assign(payload,{
+      erdaUnitPrice:mesoValueFromDigits(db.settings.erdaPrice||0),
+      erdaFee:erdaFee()
+    }));
+  }
+  save();
+  resetHuntEntryForm();
+  renderAll();
+}
+document.getElementById('btn-cancel-hunt-edit')?.addEventListener('click',resetHuntEntryForm);
 function restoreErdaSettlement(session){
   const s=normalizeHuntSession(session);
   if(s.kind!=='erda-settlement') return;
@@ -4409,6 +4577,7 @@ function renderRecords(){
     const erdaMeso=erdaMesoForRecord(r);
     const extraMeso=toMesoBig(r.extraIncome);
     const huntCount=r.sessions.filter(session=>session.kind!=='erda-settlement').length;
+    const huntRuns=r.sessions.filter(session=>session.kind!=='erda-settlement').reduce((sum,session)=>sum+huntSessionRunCount(session),0);
     const settlementCount=r.sessions.length-huntCount;
     const dayTotal=recordMesoTotal(r);
     const dayRow=document.createElement('tr');
@@ -4421,6 +4590,10 @@ function renderRecords(){
       '<td class="erda">'+fmt(Number(r.erda)||0)+'개</td>'+
       '<td class="cum">'+korMeso(dayTotal)+'<div>누적 '+korMeso(rows[d].cm)+' · 조각 '+fmt(rows[d].ce)+'개</div></td>'+
       '<td><button class="danger delete-hunt-day" data-date="'+d+'">하루 삭제</button></td>';
+    const daySummary=dayRow.querySelector('.record-day-summary');
+    if(daySummary){
+      daySummary.textContent='일일 합계 · '+huntRuns+'재획'+(huntCount>1?' · '+huntCount+'회차':'')+(settlementCount?' · 조각 정산 '+settlementCount+'건':'');
+    }
     tb.appendChild(dayRow);
     r.sessions.forEach((session,index)=>{
       const s=normalizeHuntSession(session);
@@ -4440,6 +4613,25 @@ function renderRecords(){
         '<td class="erda">'+(s.erda?fmt(s.erda)+'개'+(s.erdaSettled?' <span class="cum">(정산 '+fmt(s.erdaSettled)+'개)</span>':''):(isSettlement?'정산 '+fmt(sourceCount)+'개':'<span class="muted">-</span>'))+'</td>'+
         '<td class="session-value">'+korMeso(sessionTotal)+'</td>'+
         '<td><button class="danger delete-hunt-session" data-date="'+d+'" data-id="'+esc(s.id)+'">삭제</button></td>';
+      const sessionLabelCell=sessionRow.querySelector('.session-label');
+      if(sessionLabelCell && !isSettlement) sessionLabelCell.textContent=huntSessionDisplayLabel(s,index);
+      const actionCell=sessionRow.lastElementChild;
+      const deleteButton=actionCell && actionCell.querySelector('button');
+      if(actionCell && deleteButton){
+        const actions=document.createElement('div');
+        actions.className='record-actions';
+        actionCell.textContent='';
+        if(!isSettlement){
+          const editButton=document.createElement('button');
+          editButton.type='button';
+          editButton.className='record-edit';
+          editButton.textContent='수정';
+          editButton.onclick=()=>beginHuntSessionEdit(d,s.id);
+          actions.appendChild(editButton);
+        }
+        actions.appendChild(deleteButton);
+        actionCell.appendChild(actions);
+      }
       tb.appendChild(sessionRow);
     });
   });
@@ -4452,6 +4644,8 @@ function renderRecords(){
 }
 
 /* ───────── 통계 ───────── */
+document.getElementById('btn-save').onclick=saveHuntEntry;
+updateHuntEditState();
 function sumRange(pred){
   let m=0n,e=0,days=0;
   for(const d in db.records){
