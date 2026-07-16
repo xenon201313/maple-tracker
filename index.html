@@ -3675,6 +3675,7 @@ const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev'
 const CLOUD_SYNC_VERSION = 1;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
+let monthlyBossMigrationPendingSave = false;
 
 function migrateBosses(b){
   const o={};
@@ -3713,6 +3714,20 @@ function normalizeChar(c){
   normalizeWeekStore('drops','dropWeeks');
   normalizeWeekStore('dropPrices','dropPriceWeeks');
   normalizeWeekStore('dropShares','dropShareWeeks');
+  const month=currentMonthKey();
+  const normalizeMonthStore=(legacyName, monthsName)=>{
+    c[monthsName]=ensureObj(c[monthsName]);
+    if(!c[monthsName][month] || typeof c[monthsName][month]!=='object' || Array.isArray(c[monthsName][month])) c[monthsName][month]={};
+    c[legacyName]=c[monthsName][month];
+  };
+  normalizeMonthStore('monthBosses','monthBossMonths');
+  normalizeMonthStore('monthDrops','monthDropMonths');
+  normalizeMonthStore('monthDropPrices','monthDropPriceMonths');
+  normalizeMonthStore('monthDropShares','monthDropShareMonths');
+  c.monthBossClearWeeks=ensureObj(c.monthBossClearWeeks);
+  if(!c.monthBossClearWeeks[month] || typeof c.monthBossClearWeeks[month]!=='object' || Array.isArray(c.monthBossClearWeeks[month])) c.monthBossClearWeeks[month]={};
+  c.monthBossMigrationMonths=ensureObj(c.monthBossMigrationMonths);
+  if(migrateLegacyMonthlyBossState(c,month)) monthlyBossMigrationPendingSave=true;
   c.bossPreferences=ensureObj(c.bossPreferences);
   c.dailyBossPreferences=ensureObj(c.dailyBossPreferences);
   const today=todayStr();
@@ -4027,30 +4042,87 @@ function fmtShort(dateStr){ const p=dateStr.split('-'); return p[1]+'-'+p[2]; }
 function fmtWeekRange(w){ return fmtShort(w)+'~'+fmtShort(addDays(w,6)); }
 function fmtMonthLabel(dateStr=todayStr()){ const p=dateStr.split('-'); return p[0]+'년 '+Number(p[1])+'월'; }
 function currentWeekKey(){ return mapleWeekStart(todayStr()); }
+function currentMonthKey(){ return todayStr().slice(0,7); }
+function weekOverlapsMonth(week,month){
+  const start=normalizeDateInput(week);
+  if(!start || !/^\d{4}-\d{2}$/.test(String(month||''))) return false;
+  return start.slice(0,7)===month || addDays(start,6).slice(0,7)===month;
+}
 function ensureObj(o){ return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
-function bossStore(c, week=currentWeekKey()){
+function bossStore(c, period=currentWeekKey(), scope='weekly'){
+  if(scope==='monthly'){
+    const month=String(period||currentMonthKey()).slice(0,7);
+    c.monthBossMonths=ensureObj(c.monthBossMonths);
+    if(!c.monthBossMonths[month] || typeof c.monthBossMonths[month]!=='object' || Array.isArray(c.monthBossMonths[month])) c.monthBossMonths[month]={};
+    if(month===currentMonthKey()) c.monthBosses=c.monthBossMonths[month];
+    return c.monthBossMonths[month];
+  }
+  const week=period;
   c.bossWeeks = ensureObj(c.bossWeeks);
   if(!c.bossWeeks[week] || typeof c.bossWeeks[week] !== 'object' || Array.isArray(c.bossWeeks[week])) c.bossWeeks[week] = {};
   if(week === currentWeekKey()) c.bosses = c.bossWeeks[week];
   return c.bossWeeks[week];
 }
-function dropStore(c, week=currentWeekKey()){
+function dropStore(c, period=currentWeekKey(), scope='weekly'){
+  if(scope==='monthly'){
+    const month=String(period||currentMonthKey()).slice(0,7);
+    c.monthDropMonths=ensureObj(c.monthDropMonths);
+    if(!c.monthDropMonths[month] || typeof c.monthDropMonths[month]!=='object' || Array.isArray(c.monthDropMonths[month])) c.monthDropMonths[month]={};
+    if(month===currentMonthKey()) c.monthDrops=c.monthDropMonths[month];
+    return c.monthDropMonths[month];
+  }
+  const week=period;
   c.dropWeeks = ensureObj(c.dropWeeks);
   if(!c.dropWeeks[week] || typeof c.dropWeeks[week] !== 'object' || Array.isArray(c.dropWeeks[week])) c.dropWeeks[week] = {};
   if(week === currentWeekKey()) c.drops = c.dropWeeks[week];
   return c.dropWeeks[week];
 }
-function dropPriceStore(c, week=currentWeekKey()){
+function dropPriceStore(c, period=currentWeekKey(), scope='weekly'){
+  if(scope==='monthly'){
+    const month=String(period||currentMonthKey()).slice(0,7);
+    c.monthDropPriceMonths=ensureObj(c.monthDropPriceMonths);
+    if(!c.monthDropPriceMonths[month] || typeof c.monthDropPriceMonths[month]!=='object' || Array.isArray(c.monthDropPriceMonths[month])) c.monthDropPriceMonths[month]={};
+    if(month===currentMonthKey()) c.monthDropPrices=c.monthDropPriceMonths[month];
+    return c.monthDropPriceMonths[month];
+  }
+  const week=period;
   c.dropPriceWeeks = ensureObj(c.dropPriceWeeks);
   if(!c.dropPriceWeeks[week] || typeof c.dropPriceWeeks[week] !== 'object' || Array.isArray(c.dropPriceWeeks[week])) c.dropPriceWeeks[week] = {};
   if(week === currentWeekKey()) c.dropPrices = c.dropPriceWeeks[week];
   return c.dropPriceWeeks[week];
 }
-function dropShareStore(c, week=currentWeekKey()){
+function dropShareStore(c, period=currentWeekKey(), scope='weekly'){
+  if(scope==='monthly'){
+    const month=String(period||currentMonthKey()).slice(0,7);
+    c.monthDropShareMonths=ensureObj(c.monthDropShareMonths);
+    if(!c.monthDropShareMonths[month] || typeof c.monthDropShareMonths[month]!=='object' || Array.isArray(c.monthDropShareMonths[month])) c.monthDropShareMonths[month]={};
+    if(month===currentMonthKey()) c.monthDropShares=c.monthDropShareMonths[month];
+    return c.monthDropShareMonths[month];
+  }
+  const week=period;
   c.dropShareWeeks = ensureObj(c.dropShareWeeks);
   if(!c.dropShareWeeks[week] || typeof c.dropShareWeeks[week] !== 'object' || Array.isArray(c.dropShareWeeks[week])) c.dropShareWeeks[week] = {};
   if(week === currentWeekKey()) c.dropShares = c.dropShareWeeks[week];
   return c.dropShareWeeks[week];
+}
+function syncBossScopeAliases(c,period,scope='weekly'){
+  bossStore(c,period,scope);
+  dropStore(c,period,scope);
+  dropPriceStore(c,period,scope);
+  dropShareStore(c,period,scope);
+}
+function monthBossClearWeekStore(c, month=currentMonthKey()){
+  c.monthBossClearWeeks=ensureObj(c.monthBossClearWeeks);
+  if(!c.monthBossClearWeeks[month] || typeof c.monthBossClearWeeks[month]!=='object' || Array.isArray(c.monthBossClearWeeks[month])) c.monthBossClearWeeks[month]={};
+  return c.monthBossClearWeeks[month];
+}
+function monthBossClearWeek(c, month, bossId){ return String(monthBossClearWeekStore(c,month)[bossId] || ''); }
+function setMonthBossClearWeek(c, month, bossId, week=currentWeekKey()){
+  monthBossClearWeekStore(c,month)[bossId]=week;
+}
+function clearMonthBossClearWeeks(c, month, bosses){
+  const clears=monthBossClearWeekStore(c,month);
+  (bosses||[]).forEach(b=>{ if(b) delete clears[b[0]]; });
 }
 function dailyBossStore(c, date=todayStr()){
   c.dailyBossDays = ensureObj(c.dailyBossDays);
@@ -4070,12 +4142,54 @@ function dailyDropPriceStore(c, date=todayStr()){
   if(date === todayStr()) c.dailyDropPrices = c.dailyDropPriceDays[date];
   return c.dailyDropPriceDays[date];
 }
-function bossPartyForDropKey(c, week, key){
+function bossPartyForDropKey(c, period, key, scope='weekly'){
   const bossId = String(key||'').split('|')[0];
   const b = BOSS_MAP[bossId];
   if(!b) return 1;
-  const bosses = ensureObj(ensureObj(c.bossWeeks)[week] || (week===currentWeekKey()?c.bosses:null));
+  const bosses = bossStore(c,period,scope);
   return clampPartyForBoss(b, bosses[bossId] || 1);
+}
+function migrateLegacyMonthlyBossState(c, month=currentMonthKey()){
+  c.monthBossMigrationMonths=ensureObj(c.monthBossMigrationMonths);
+  if(c.monthBossMigrationMonths[month]) return false;
+  const target=bossStore(c,month,'monthly');
+  const targetHasMonthly=Object.keys(target).some(id=>BOSS_MAP[id] && BOSS_MAP[id][3]==='m');
+  const sourceWeeks=Object.keys(ensureObj(c.bossWeeks)).filter(week=>weekOverlapsMonth(week,month)).sort().reverse();
+  const sourceWeek=sourceWeeks.find(week=>Object.keys(ensureObj(c.bossWeeks[week])).some(id=>BOSS_MAP[id] && BOSS_MAP[id][3]==='m'));
+  if(targetHasMonthly || !sourceWeek){
+    c.monthBossMigrationMonths[month]=true;
+    return false;
+  }
+  const sourceBosses=ensureObj(c.bossWeeks[sourceWeek]);
+  const sourceDrops=ensureObj(ensureObj(c.dropWeeks)[sourceWeek]);
+  const sourcePrices=ensureObj(ensureObj(c.dropPriceWeeks)[sourceWeek]);
+  const sourceShares=ensureObj(ensureObj(c.dropShareWeeks)[sourceWeek]);
+  const targetDrops=dropStore(c,month,'monthly');
+  const targetPrices=dropPriceStore(c,month,'monthly');
+  const targetShares=dropShareStore(c,month,'monthly');
+  const clears=monthBossClearWeekStore(c,month);
+  Object.keys(sourceBosses).forEach(id=>{
+    const boss=BOSS_MAP[id];
+    if(!boss || boss[3]!=='m') return;
+    target[id]=clampPartyForBoss(boss,sourceBosses[id]);
+    clears[id]=sourceWeek;
+  });
+  [sourceDrops,sourcePrices,sourceShares].forEach((source,index)=>{
+    const targetStore=[targetDrops,targetPrices,targetShares][index];
+    Object.keys(source).forEach(key=>{
+      if(bossKindFromDropKey(key)==='m') targetStore[key]=source[key];
+    });
+  });
+  sourceWeeks.forEach(week=>{
+    const bosses=ensureObj(c.bossWeeks[week]);
+    Object.keys(bosses).forEach(id=>{ if(BOSS_MAP[id] && BOSS_MAP[id][3]==='m') delete bosses[id]; });
+    [ensureObj(ensureObj(c.dropWeeks)[week]),ensureObj(ensureObj(c.dropPriceWeeks)[week]),ensureObj(ensureObj(c.dropShareWeeks)[week])].forEach(store=>{
+      Object.keys(store).forEach(key=>{ if(bossKindFromDropKey(key)==='m') delete store[key]; });
+    });
+  });
+  c.monthBossMigrationMonths[month]=true;
+  syncBossScopeAliases(c,month,'monthly');
+  return true;
 }
 function validDropFee(v){
   v = Number(v);
@@ -4089,8 +4203,8 @@ function parseDropRatio(value){
   if(leader===0n && member===0n) return fallback;
   return {leader,member,text:leader.toString()+':'+member.toString()};
 }
-function dropShareMeta(c, week, key){
-  const shares = ensureObj(ensureObj(c.dropShareWeeks)[week] || (week===currentWeekKey()?c.dropShares:null));
+function dropShareMeta(c, period, key, scope='weekly'){
+  const shares = dropShareStore(c,period,scope);
   const meta = ensureObj(shares[key]);
   return {
     role: meta.role === 'leader' ? 'leader' : 'member',
@@ -4106,11 +4220,11 @@ function floorHundred(amount){
   const n = toMesoBig(amount);
   return n - (n % 100n);
 }
-function dropSplitInfo(c, week, key){
-  const prices = ensureObj(ensureObj(c.dropPriceWeeks)[week] || (week===currentWeekKey()?c.dropPrices:null));
+function dropSplitInfo(c, period, key, scope='weekly'){
+  const prices = dropPriceStore(c,period,scope);
   const raw = toMesoBig(prices[key] || 0);
-  const party = Math.max(1,bossPartyForDropKey(c,week,key));
-  const meta = dropShareMeta(c,week,key);
+  const party = Math.max(1,bossPartyForDropKey(c,period,key,scope));
+  const meta = dropShareMeta(c,period,key,scope);
   const saleNet = feeNet(raw, meta.fee);
   if(raw<=0n || party<=1){
     return {raw, party, role:meta.role, fee:meta.fee, ratio:meta.ratio, mine:saleNet, saleNet, leaderNet:saleNet, memberNet:0n, transferGross:0n};
@@ -4124,11 +4238,11 @@ function dropSplitInfo(c, week, key){
   const leaderNet = saleNet - (transferGross * BigInt(party - 1));
   return {raw, party, role:meta.role, fee:meta.fee, ratio, mine:meta.role==='leader'?leaderNet:memberNet, saleNet, leaderNet, memberNet, transferGross};
 }
-function sharedDropPrice(c, week, key){
-  return dropSplitInfo(c,week,key).mine;
+function sharedDropPrice(c, period, key, scope='weekly'){
+  return dropSplitInfo(c,period,key,scope).mine;
 }
-function dropPriceText(c, week, key){
-  const info = dropSplitInfo(c,week,key);
+function dropPriceText(c, period, key, scope='weekly'){
+  const info = dropSplitInfo(c,period,key,scope);
   if(info.raw<=0n) return '';
   if(info.party<=1) return korMeso(info.mine)+' (수수료 '+info.fee+'% 후)';
   const role = info.role === 'leader' ? '파티장 잔여' : '파티원 실수령';
@@ -4138,12 +4252,12 @@ function effectiveDropKeyForParent(parentKey,item,drops){
   const child=selectedChildForDrop(parentKey,item,drops);
   return child ? parentKey+'|child|'+child.id : parentKey;
 }
-function dropPriceSumForBoss(c, b, week=currentWeekKey()){
-  const drops = ensureObj(ensureObj(c.dropWeeks)[week] || (week===currentWeekKey()?c.drops:null));
+function dropPriceSumForBoss(c, b, period=currentWeekKey(), scope=(b && b[3]==='m' ? 'monthly' : 'weekly')){
+  const drops = dropStore(c,period,scope);
   let total=0n;
   dropItemsForBoss(b).forEach(item=>{
     const key=dropKey(b,item);
-    if(drops[key]) total+=sharedDropPrice(c,week,effectiveDropKeyForParent(key,item,drops));
+    if(drops[key]) total+=sharedDropPrice(c,period,effectiveDropKeyForParent(key,item,drops),scope);
   });
   return total;
 }
@@ -4152,23 +4266,24 @@ function bossKindFromDropKey(key){
   const b = BOSS_MAP[bossId];
   return b ? b[3] : null;
 }
-function dropPriceSumForCharKind(c, kind, week=currentWeekKey()){
-  const drops = ensureObj(ensureObj(c.dropWeeks)[week] || (week===currentWeekKey()?c.drops:null));
+function dropPriceSumForCharKind(c, kind, period=(kind==='m'?currentMonthKey():currentWeekKey())){
+  const scope=kind==='m' ? 'monthly' : 'weekly';
+  const drops = dropStore(c,period,scope);
   let total=0n;
   for(const key in drops){
     if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!==kind) continue;
     const item=visibleDropItemById(dropKeyItemId(key));
-    if(item) total+=sharedDropPrice(c,week,effectiveDropKeyForParent(key,item,drops));
+    if(item) total+=sharedDropPrice(c,period,effectiveDropKeyForParent(key,item,drops),scope);
   }
   return total;
 }
 function dropPriceSumForCharWeek(c, week=currentWeekKey()){ return dropPriceSumForCharKind(c,'w',week); }
-function dropPriceSumForCharMonth(c, week=currentWeekKey()){ return dropPriceSumForCharKind(c,'m',week); }
+function dropPriceSumForCharMonth(c, month=currentMonthKey()){ return dropPriceSumForCharKind(c,'m',month); }
 function dropPriceSumForWeek(week=currentWeekKey()){
   return db.chars.reduce((sum,c)=>sum+dropPriceSumForCharWeek(c,week),0n);
 }
-function dropPriceSumForMonth(week=currentWeekKey()){
-  return db.chars.reduce((sum,c)=>sum+dropPriceSumForCharMonth(c,week),0n);
+function dropPriceSumForMonth(month=currentMonthKey()){
+  return db.chars.reduce((sum,c)=>sum+dropPriceSumForCharMonth(c,month),0n);
 }
 function dailyBossPartyForDropKey(c, date, key){
   const bossId = String(key||'').split('|')[0];
@@ -4246,6 +4361,14 @@ function trackedWeeks(){
     Object.keys(ensureObj(c.bossWeeks)).forEach(w=>set.add(w));
     Object.keys(ensureObj(c.dropWeeks)).forEach(w=>set.add(w));
     Object.keys(ensureObj(c.dropPriceWeeks)).forEach(w=>set.add(w));
+    Object.values(ensureObj(c.monthBossClearWeeks)).forEach(clears=>{
+      Object.values(ensureObj(clears)).forEach(week=>{
+        if(normalizeDateInput(week)) set.add(week);
+      });
+    });
+    Object.keys(ensureObj(c.monthBossMonths)).forEach(month=>{
+      if(/^\d{4}-\d{2}$/.test(month)) set.add(mapleWeekStart(month+'-01'));
+    });
     Object.keys(ensureObj(c.dailyBossDays)).forEach(d=>{
       const nd=normalizeDateInput(d);
       if(nd) set.add(mapleWeekStart(nd));
@@ -4259,7 +4382,7 @@ function trackedWeeks(){
   return Array.from(set).sort().reverse();
 }
 function dropCountForWeek(week){
-  return lootEntryCount(mergeLootEntries(resolvedDropEntriesForWeek(week), resolvedDailyDropEntriesForWeek(week)));
+  return lootEntryCount(mergeLootEntries(mergeLootEntries(resolvedDropEntriesForWeek(week), resolvedMonthlyDropEntriesForWeek(week)), resolvedDailyDropEntriesForWeek(week)));
 }
 
 /* ───────── 탭 ───────── */
@@ -5006,6 +5129,10 @@ function dashboardMonths(){
   Object.keys(ensureObj(db.records)).forEach(d=>{ const nd=normalizeDateInput(d); if(nd) months.add(nd.slice(0,7)); });
   (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
   (Array.isArray(db.expenses)?db.expenses:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
+  db.chars.forEach(c=>{
+    Object.keys(ensureObj(c.monthBossMonths)).forEach(month=>{ if(/^\d{4}-\d{2}$/.test(month)) months.add(month); });
+    Object.keys(ensureObj(c.monthDropMonths)).forEach(month=>{ if(/^\d{4}-\d{2}$/.test(month)) months.add(month); });
+  });
   trackedWeeks().forEach(w=>months.add(String(w).slice(0,7)));
   return Array.from(months).filter(m=>/^\d{4}-\d{2}$/.test(m)).sort().reverse();
 }
@@ -5015,7 +5142,7 @@ function selectedDashboardMonth(){
   return months.includes(saved) ? saved : months[0];
 }
 function weeksForDashboardMonth(month){
-  return trackedWeeks().filter(w=>String(w).slice(0,7)===month);
+  return trackedWeeks().filter(w=>weekOverlapsMonth(w,month));
 }
 function monthlyReportData(month=selectedDashboardMonth()){
   const hunt=sumRange(d=>String(d).slice(0,7)===month);
@@ -5024,7 +5151,7 @@ function monthlyReportData(month=selectedDashboardMonth()){
     const total=bossTotals(w);
     boss+=toMesoBig(total.week)+toMesoBig(total.month)+toMesoBig(total.daily);
     bossCrystals+=(total.weeklyCrystals||0)+(total.monthlyCrystals||0)+(total.dailyCrystals||0);
-    loot=mergeLootEntries(loot,mergeLootEntries(resolvedDropEntriesForWeek(w),resolvedDailyDropEntriesForWeek(w)));
+    loot=mergeLootEntries(loot,mergeLootEntries(mergeLootEntries(resolvedDropEntriesForWeek(w),resolvedMonthlyDropEntriesForWeek(w)),resolvedDailyDropEntriesForWeek(w)));
   });
   const profit=profitTotals(d=>String(d).slice(0,7)===month);
   const expenses=expenseTotals(d=>String(d).slice(0,7)===month);
@@ -5069,6 +5196,21 @@ function priceHistoryData(){
         const effectiveKey=effectiveDropKeyForParent(key,item,drops);
         const boss=BOSS_MAP[String(key).split('|')[0]];
         add({id:'boss:'+shown.id,name:shown.name,img:shown.img,date:week,amount:sharedDropPrice(c,week,effectiveKey),count:1,source:boss?boss[1]:'보스 드랍'});
+      });
+    });
+    const months=ensureObj(c.monthDropPriceMonths);
+    Object.keys(months).forEach(month=>{
+      const drops=ensureObj(ensureObj(c.monthDropMonths)[month]);
+      const clears=ensureObj(ensureObj(c.monthBossClearWeeks)[month]);
+      Object.keys(drops).forEach(key=>{
+        if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!=='m') return;
+        const item=visibleDropItemById(dropKeyItemId(key));
+        if(!item) return;
+        const shown=selectedChildForDrop(key,item,drops) || item;
+        const effectiveKey=effectiveDropKeyForParent(key,item,drops);
+        const boss=BOSS_MAP[String(key).split('|')[0]];
+        const date=clears[String(key).split('|')[0]] || (month+'-01');
+        add({id:'boss:'+shown.id,name:shown.name,img:shown.img,date,amount:sharedDropPrice(c,month,effectiveKey,'monthly'),count:1,source:boss?boss[1]:'월간 보스 드랍'});
       });
     });
     const days=ensureObj(c.dailyDropPriceDays);
@@ -5266,7 +5408,7 @@ function renderStats(){
   }
   trackedWeeks().forEach(w=>{
     const row=ensureWeek(w), b=bossTotals(w);
-    row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w));
+    row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedMonthlyDropEntriesForWeek(w)), resolvedDailyDropEntriesForWeek(w));
     row.profit=profitTotals(d=>mapleWeekStart(d)===w).net;
     row.expense=expenseTotals(d=>mapleWeekStart(d)===w).total;
   });
@@ -5286,7 +5428,12 @@ function renderStats(){
   }
   trackedWeeks().forEach(w=>{
     const m=w.slice(0,7), row=ensureMonth(m), b=bossTotals(w);
-    row.boss+=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(row.loot,mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w)));
+    row.boss+=toMesoBig(b.week)+toMesoBig(b.daily); row.loot=mergeLootEntries(row.loot,mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w)));
+  });
+  dashboardMonths().forEach(month=>{
+    const row=ensureMonth(month), monthly=monthlyBossTotals(month);
+    row.boss+=monthly.meso;
+    row.loot=mergeLootEntries(row.loot,resolvedMonthlyDropEntriesForMonth(month));
   });
   (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{
     const d=normalizeDateInput(r.date);
@@ -6564,39 +6711,82 @@ document.getElementById('in-char').addEventListener('keydown',event=>{
 });
 function share(price, party){ return Math.floor(price/(party||1)); }
 function charSum(c, week=currentWeekKey()){
-  let w=0, m=0, wc=0, mc=0, limitCount=0, freeCount=0;
-  const bosses = bossStore(c, week);
+  let w=0, wc=0, limitCount=0, freeCount=0;
+  const bosses = bossStore(c, week, 'weekly');
   for(const id in bosses){
     const b=BOSS_MAP[id]; if(!b || !canUseBoss(c,b)) continue;
+    if(b[3]!=='w') continue;
     const party=clampPartyForBoss(b,bosses[id]);
     const val=share(b[2], party);
-    if(b[3]==='w'){
-      w+=val; wc++;
-      if(isLimitFreeBoss(b)) freeCount++; else limitCount++;
-    } else {
-      m+=val; mc++; freeCount++;
-    }
+    w+=val; wc++;
+    if(isLimitFreeBoss(b)) freeCount++; else limitCount++;
   }
-  return {w,m,wc,mc,count:limitCount,limitCount,freeCount,totalCount:limitCount+freeCount};
+  return {w,m:0,wc,mc:0,count:limitCount,limitCount,freeCount,totalCount:limitCount+freeCount};
+}
+function monthlyCharSum(c, month=currentMonthKey()){
+  let m=0, mc=0;
+  const bosses=bossStore(c,month,'monthly');
+  for(const id in bosses){
+    const b=BOSS_MAP[id];
+    if(!b || b[3]!=='m' || !canUseBoss(c,b)) continue;
+    m+=share(b[2],clampPartyForBoss(b,bosses[id]));
+    mc++;
+  }
+  return {m,mc};
+}
+function monthlyBossTotals(month=currentMonthKey()){
+  let crystalMeso=0, crystals=0;
+  db.chars.forEach(c=>{
+    const s=monthlyCharSum(c,month);
+    crystalMeso+=s.m;
+    crystals+=s.mc;
+  });
+  const dropMeso=dropPriceSumForMonth(month);
+  return {meso:toMesoBig(crystalMeso)+dropMeso,crystalMeso,dropMeso,crystals};
+}
+function monthlyBossTotalsForWeek(week=currentWeekKey()){
+  let crystalMeso=0, dropMeso=0n, crystals=0;
+  db.chars.forEach(c=>{
+    const months=ensureObj(c.monthBossMonths);
+    Object.keys(months).forEach(month=>{
+      const bosses=ensureObj(months[month]);
+      const clears=ensureObj(ensureObj(c.monthBossClearWeeks)[month]);
+      Object.keys(bosses).forEach(id=>{
+        const b=BOSS_MAP[id];
+        if(!b || b[3]!=='m' || clears[id]!==week || !canUseBoss(c,b)) return;
+        crystalMeso+=share(b[2],clampPartyForBoss(b,bosses[id]));
+        crystals++;
+      });
+      const drops=ensureObj(ensureObj(c.monthDropMonths)[month]);
+      Object.keys(drops).forEach(key=>{
+        if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!=='m') return;
+        const bossId=String(key).split('|')[0];
+        if(clears[bossId]!==week) return;
+        const item=visibleDropItemById(dropKeyItemId(key));
+        if(item) dropMeso+=sharedDropPrice(c,month,effectiveDropKeyForParent(key,item,drops),'monthly');
+      });
+    });
+  });
+  return {meso:toMesoBig(crystalMeso)+dropMeso,crystalMeso,dropMeso,crystals};
 }
 function bossTotals(week=currentWeekKey()){
-  let crystalWeek=0, monthCrystal=0, weeklyCrystals=0, monthlyCrystals=0;
-  db.chars.forEach(c=>{ const s=charSum(c, week); crystalWeek+=s.w; monthCrystal+=s.m; weeklyCrystals+=s.wc; monthlyCrystals+=s.mc; });
+  let crystalWeek=0, weeklyCrystals=0;
+  db.chars.forEach(c=>{ const s=charSum(c, week); crystalWeek+=s.w; weeklyCrystals+=s.wc; });
   const dropMeso = dropPriceSumForWeek(week);
-  const monthDropMeso = dropPriceSumForMonth(week);
+  const monthly = monthlyBossTotalsForWeek(week);
   const daily = dailyBossTotalsForWeek(week);
   return {
     week: toMesoBig(crystalWeek)+dropMeso,
     crystalWeek,
     dropMeso,
-    month: toMesoBig(monthCrystal)+monthDropMeso,
-    monthCrystal,
-    monthDropMeso,
+    month: monthly.meso,
+    monthCrystal: monthly.crystalMeso,
+    monthDropMeso: monthly.dropMeso,
     daily: daily.meso,
     dailyCrystalMeso: daily.crystalMeso,
     dailyDropMeso: daily.dropMeso,
     weeklyCrystals,
-    monthlyCrystals,
+    monthlyCrystals: monthly.crystals,
     dailyCrystals: daily.crystals,
     weekCrystals: weeklyCrystals + daily.crystals
   };
@@ -6642,10 +6832,10 @@ function copyPreviousWeeklyBosses(c){
   c.bosses=current;
   return copied;
 }
-function bindBossListHandlers(bl,c,wk){
+function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
   bindDropPickerToggles(bl);
   const clearDropDataForBosses = bossesList => {
-    const drops=dropStore(c,wk), prices=dropPriceStore(c,wk), shares=dropShareStore(c,wk);
+    const drops=dropStore(c,period,scope), prices=dropPriceStore(c,period,scope), shares=dropShareStore(c,period,scope);
     bossesList.filter(Boolean).forEach(b=>{
       dropItemsForBoss(b).forEach(item=>{
         const key=dropKey(b,item);
@@ -6656,19 +6846,17 @@ function bindBossListHandlers(bl,c,wk){
         });
       });
     });
-    c.drops=dropStore(c,wk);
-    c.dropPrices=dropPriceStore(c,wk);
-    c.dropShares=dropShareStore(c,wk);
+    syncBossScopeAliases(c,period,scope);
   };
   bl.querySelectorAll('select.diff').forEach(sel=>{
     sel.onchange=()=>{
       const group=BOSS_GROUP_MAP[sel.dataset.group];
       const oldId=sel.dataset.current;
       const newId=sel.value;
-      const bosses=bossStore(c,wk);
+      const bosses=bossStore(c,period,scope);
       const newBoss=BOSS_MAP[newId];
       if(!canUseBoss(c,newBoss)){ alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.'); renderAll(); return; }
-      bossDrafts.set(c.name+'|'+sel.dataset.group, newId);
+      bossDrafts.set(c.name+'|'+scope+'|'+period+'|'+sel.dataset.group, newId);
       const pref=bossPreference(c,group);
       const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
       setBossPreference(c,group,newId,party);
@@ -6676,8 +6864,13 @@ function bindBossListHandlers(bl,c,wk){
         if(group){ clearDropDataForBosses(group.bosses); group.bosses.forEach(b=>{ delete bosses[b[0]]; }); }
         else { clearDropDataForBosses([BOSS_MAP[oldId]]); delete bosses[oldId]; }
         bosses[newId]=party;
-        c.bosses=bosses;
+        if(scope==='monthly'){
+          const oldWeek=monthBossClearWeek(c,period,oldId);
+          clearMonthBossClearWeeks(c,period,[BOSS_MAP[oldId]]);
+          setMonthBossClearWeek(c,period,newId,oldWeek || currentWeekKey());
+        }
       }
+      syncBossScopeAliases(c,period,scope);
       save(); renderAll();
     };
   });
@@ -6685,7 +6878,7 @@ function bindBossListHandlers(bl,c,wk){
     chk.onchange=()=>{
       const id=chk.dataset.id;
       const group=BOSS_GROUP_MAP[chk.dataset.group];
-      const bosses=bossStore(c,wk);
+      const bosses=bossStore(c,period,scope);
       const alreadyOn = group ? group.bosses.some(b=>b[0] in bosses) : (id in bosses);
       if(chk.checked){
         const b=BOSS_MAP[id];
@@ -6694,7 +6887,7 @@ function bindBossListHandlers(bl,c,wk){
           alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.');
           return;
         }
-        if(!alreadyOn && !isLimitFreeBoss(b) && charSum(c,wk).limitCount>=MAX_CHECK){
+        if(scope==='weekly' && !alreadyOn && !isLimitFreeBoss(b) && charSum(c,period).limitCount>=MAX_CHECK){
           chk.checked=false;
           alert('일반 주간 보스는 최대 '+MAX_CHECK+'개까지 체크할 수 있습니다. 챌린저스의 메이린은 별도로 기록됩니다.');
           return;
@@ -6704,11 +6897,13 @@ function bindBossListHandlers(bl,c,wk){
         const party=clampPartyForBoss(b,bosses[id]||pref.party);
         bosses[id]=party;
         setBossPreference(c,group,id,party);
+        if(scope==='monthly') setMonthBossClearWeek(c,period,id,currentWeekKey());
       } else {
         if(group){ clearDropDataForBosses(group.bosses); group.bosses.forEach(b=>{ delete bosses[b[0]]; }); }
         else { clearDropDataForBosses([BOSS_MAP[id]]); delete bosses[id]; }
+        if(scope==='monthly') clearMonthBossClearWeeks(c,period,group ? group.bosses : [BOSS_MAP[id]]);
       }
-      c.bosses=bosses;
+      syncBossScopeAliases(c,period,scope);
       save(); renderAll();
     };
   });
@@ -6716,20 +6911,21 @@ function bindBossListHandlers(bl,c,wk){
     sel.onchange=()=>{
       const id=sel.dataset.id;
       const group=BOSS_GROUP_MAP[sel.dataset.group];
-      const bosses=bossStore(c,wk);
+      const bosses=bossStore(c,period,scope);
       const party=clampPartyForBoss(BOSS_MAP[id], Number(sel.value));
       if(id in bosses) bosses[id]=party;
       if(group) setBossPreference(c,group,id,party);
-      c.bosses=bosses;
+      syncBossScopeAliases(c,period,scope);
       save(); renderAll();
     };
   });
   bl.querySelectorAll('input.drop-check').forEach(chk=>{
     chk.onchange=()=>{
-      const week=chk.dataset.week || wk;
-      const drops=dropStore(c,week);
-      const prices=dropPriceStore(c,week);
-      const shares=dropShareStore(c,week);
+      const recordPeriod=chk.dataset.period || period;
+      const recordScope=chk.dataset.scope==='monthly' ? 'monthly' : scope;
+      const drops=dropStore(c,recordPeriod,recordScope);
+      const prices=dropPriceStore(c,recordPeriod,recordScope);
+      const shares=dropShareStore(c,recordPeriod,recordScope);
       if(chk.checked){
         drops[chk.dataset.key]=true;
         if(chk.dataset.parentKey){
@@ -6750,9 +6946,7 @@ function bindBossListHandlers(bl,c,wk){
         if(chk.dataset.legacyKey) delete drops[chk.dataset.legacyKey];
         if(chk.dataset.childKeys) chk.dataset.childKeys.split(',').filter(Boolean).forEach(k=>{ delete drops[k]; delete prices[k]; delete shares[k]; });
       }
-      c.drops=dropStore(c,wk);
-      c.dropPrices=dropPriceStore(c,wk);
-      c.dropShares=dropShareStore(c,wk);
+      syncBossScopeAliases(c,recordPeriod,recordScope);
       save(); renderAll();
     };
   });
@@ -6762,13 +6956,14 @@ function bindBossListHandlers(bl,c,wk){
       inp.value=digits ? formatDigits(digits) : '';
     };
     inp.onchange=()=>{
-      const week=inp.dataset.week || wk;
-      const prices=dropPriceStore(c,week);
-      const drops=dropStore(c,week);
+      const recordPeriod=inp.dataset.period || period;
+      const recordScope=inp.dataset.scope==='monthly' ? 'monthly' : scope;
+      const prices=dropPriceStore(c,recordPeriod,recordScope);
+      const drops=dropStore(c,recordPeriod,recordScope);
       const digits=onlyDigits(inp.value);
       if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
       else delete prices[inp.dataset.key];
-      c.dropPrices=dropPriceStore(c,wk);
+      syncBossScopeAliases(c,recordPeriod,recordScope);
       save(); renderAll();
     };
   });
@@ -6780,8 +6975,9 @@ function bindBossListHandlers(bl,c,wk){
       };
     }
     sel.onchange=()=>{
-      const week=sel.dataset.week || wk;
-      const shares=dropShareStore(c,week);
+      const recordPeriod=sel.dataset.period || period;
+      const recordScope=sel.dataset.scope==='monthly' ? 'monthly' : scope;
+      const shares=dropShareStore(c,recordPeriod,recordScope);
       const cur=ensureObj(shares[sel.dataset.key]);
       if(sel.classList.contains('drop-role')) cur.role = sel.value === 'leader' ? 'leader' : 'member';
       else if(sel.classList.contains('drop-fee')) cur.fee = validDropFee(sel.value);
@@ -6790,7 +6986,7 @@ function bindBossListHandlers(bl,c,wk){
         cur.ratio=ratio.text;
       }
       shares[sel.dataset.key]=cur;
-      c.dropShares=dropShareStore(c,wk);
+      syncBossScopeAliases(c,recordPeriod,recordScope);
       save(); renderAll();
     };
   });
@@ -6838,8 +7034,8 @@ function renderMonthlyBoss(){
   const total=document.getElementById('monthlyboss-total');
   if(!list || !total) return;
   normalizeAllBosses();
-  const wk=currentWeekKey();
-  const monthLabel=fmtMonthLabel(todayStr());
+  const month=currentMonthKey();
+  const monthLabel=fmtMonthLabel(month+'-01');
   const periodNote=document.getElementById('monthlyboss-period-note');
   if(periodNote) periodNote.textContent=monthLabel+' 월간 결정석';
   list.innerHTML='';
@@ -6847,27 +7043,27 @@ function renderMonthlyBoss(){
     list.innerHTML='<div class="card muted">캐릭터 등록 탭에서 캐릭터를 먼저 추가하세요.</div>';
   }
   db.chars.forEach(c=>{
-    const s=charSum(c,wk);
-    const itemMeso=dropPriceSumForCharMonth(c,wk);
+    const s=monthlyCharSum(c,month);
+    const itemMeso=dropPriceSumForCharMonth(c,month);
     const box=document.createElement('div'); box.className='card';
     const head=document.createElement('div'); head.className='charhead';
     head.innerHTML=charHeadHtml(c,'월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
     head.onclick=()=>{ monthlyOpenChars.has(c.name)?monthlyOpenChars.delete(c.name):monthlyOpenChars.add(c.name); bl.classList.toggle('open'); };
     let html='<div class="bossgroup">'+crystalIcon('monthly')+'월간 결정석 ('+monthLabel+' · 검은 마법사)</div><div class="bgrid">';
-    BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c); });
+    BOSS_GROUPS.m.forEach(g=>{ html+=bossGroupCard(g,c,month,'monthly'); });
     html+='</div>';
     bl.innerHTML=html;
-    bindBossListHandlers(bl,c,wk);
+    bindBossListHandlers(bl,c,month,'monthly');
     box.appendChild(head); box.appendChild(bl); list.appendChild(box);
   });
-  const t=bossTotals(wk);
+  const t=monthlyBossTotals(month);
   total.innerHTML=
-    crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 수익:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(결정석 '+korMeso(t.monthCrystal)+' + 아이템 '+korMeso(t.monthDropMeso)+')</span>'+
-    '<br>'+crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 합계:</b> <span class="meso">'+korMeso(t.month)+'</span> <span class="muted">(검은 마법사 '+t.monthlyCrystals+'개)</span>';
+    crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 수익:</b> <span class="meso">'+korMeso(t.meso)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalMeso)+' + 아이템 '+korMeso(t.dropMeso)+')</span>'+
+    '<br>'+crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 합계:</b> <span class="meso">'+korMeso(t.meso)+'</span> <span class="muted">(검은 마법사 '+t.crystals+'개)</span>';
 }
-function selectedBossForGroup(g,c){
-  const bosses=bossStore(c);
+function selectedBossForGroup(g,c,period=currentWeekKey(),scope='weekly'){
+  const bosses=bossStore(c,period,scope);
   const picked = groupPickedBoss(g,bosses);
   if(picked) return picked;
   const pref=bossPreference(c,g);
@@ -6937,6 +7133,43 @@ function resolvedDropEntriesForWeek(week){
       prev.count++;
       map.set(shown.id, prev);
     }
+  });
+  return Array.from(map.values()).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ko'));
+}
+function resolvedMonthlyDropEntriesForMonth(month=currentMonthKey()){
+  const map=new Map();
+  db.chars.forEach(c=>{
+    const drops=ensureObj(ensureObj(c.monthDropMonths)[month]);
+    for(const key in drops){
+      if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!=='m') continue;
+      const item=visibleDropItemById(dropKeyItemId(key));
+      if(!item) continue;
+      const shown=selectedChildForDrop(key,item,drops) || item;
+      const prev=map.get(shown.id) || {id:shown.id,name:shown.name,img:shown.img,count:0};
+      prev.count++;
+      map.set(shown.id,prev);
+    }
+  });
+  return Array.from(map.values()).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ko'));
+}
+function resolvedMonthlyDropEntriesForWeek(week){
+  const map=new Map();
+  db.chars.forEach(c=>{
+    const months=ensureObj(c.monthDropMonths);
+    Object.keys(months).forEach(month=>{
+      const drops=ensureObj(months[month]);
+      const clears=ensureObj(ensureObj(c.monthBossClearWeeks)[month]);
+      for(const key in drops){
+        if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!=='m') continue;
+        if(clears[String(key).split('|')[0]]!==week) continue;
+        const item=visibleDropItemById(dropKeyItemId(key));
+        if(!item) continue;
+        const shown=selectedChildForDrop(key,item,drops) || item;
+        const prev=map.get(shown.id) || {id:shown.id,name:shown.name,img:shown.img,count:0};
+        prev.count++;
+        map.set(shown.id,prev);
+      }
+    });
   });
   return Array.from(map.values()).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name,'ko'));
 }
@@ -7027,20 +7260,22 @@ function bindDropPickerToggles(scope){
     };
   });
 }
-function dropChecklistHtml(g,b,c){
+function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
   const items=dropItemsForBoss(b);
   if(!items.length) return '';
-  const wk=currentWeekKey();
-  const drops=dropStore(c,wk);
-  const prices=dropPriceStore(c,wk);
+  const isMonthly=scope==='monthly';
+  const periodLabel=isMonthly ? '이번 달' : '이번 주';
+  const rangeLabel=isMonthly ? fmtMonthLabel(period+'-01') : fmtWeekRange(period);
+  const drops=dropStore(c,period,scope);
+  const prices=dropPriceStore(c,period,scope);
   const checkedFor=item=>{
     const keys=[dropKey(b,item)].concat(legacyDropKeys(g,item));
     return keys.find(key=>drops[key]);
   };
   const childKey=(item,child)=>dropKey(b,item)+'|child|'+child.id;
   const splitFields=key=>{
-    const meta=dropShareMeta(c,wk,key);
-    const info=dropSplitInfo(c,wk,key);
+    const meta=dropShareMeta(c,period,key,scope);
+    const info=dropSplitInfo(c,period,key,scope);
     const roleOpts=[['member','파티원'],['leader','파티장']].map(([value,label])=>'<option value="'+value+'" '+(meta.role===value?'selected':'')+'>'+label+'</option>').join('');
     const feeOpts=DROP_SPLIT_FEES.map(fee=>'<option value="'+fee+'" '+(meta.fee===fee?'selected':'')+'>'+fee+'%</option>').join('');
     const result=info.raw>0n
@@ -7050,11 +7285,11 @@ function dropChecklistHtml(g,b,c){
       : '판매가를 입력하면 실수령 금액을 계산합니다.';
     return '<div class="drop-settlement-fields">'+
       (info.party>1
-        ? '<label class="drop-settlement-field"><span>역할</span><select class="drop-role" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+roleOpts+'</select></label>'+
-          '<label class="drop-settlement-field" title="파티장:파티원 비율입니다. 예: 1:1, 7:3, 10:0"><span>분배율</span><input class="drop-ratio" type="text" inputmode="text" autocomplete="off" maxlength="9" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+esc(meta.ratio.text)+'" placeholder="예: 7:3"></label>'
+        ? '<label class="drop-settlement-field"><span>역할</span><select class="drop-role" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'">'+roleOpts+'</select></label>'+
+          '<label class="drop-settlement-field" title="파티장:파티원 비율입니다. 예: 1:1, 7:3, 10:0"><span>분배율</span><input class="drop-ratio" type="text" inputmode="text" autocomplete="off" maxlength="9" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'" value="'+esc(meta.ratio.text)+'" placeholder="예: 7:3"></label>'
         : '')+
-      '<label class="drop-settlement-field wide"><span>경매장 판매가</span><input class="drop-price" type="text" inputmode="numeric" autocomplete="off" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 53,000,000,000"></label>'+
-      '<label class="drop-settlement-field wide"><span>판매 수수료</span><select class="drop-fee" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+feeOpts+'</select></label>'+
+      '<label class="drop-settlement-field wide"><span>경매장 판매가</span><input class="drop-price" type="text" inputmode="numeric" autocomplete="off" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 53,000,000,000"></label>'+
+      '<label class="drop-settlement-field wide"><span>판매 수수료</span><select class="drop-fee" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'">'+feeOpts+'</select></label>'+
       '<div class="drop-split-result">'+result+'</div>'+
       '</div>';
   };
@@ -7063,18 +7298,18 @@ function dropChecklistHtml(g,b,c){
     const parentKey=dropKey(b,item);
     const child=selectedChildForDrop(parentKey,item,drops);
     const shown=child || item;
-    const price=dropPriceText(c,wk,effectiveDropKeyForParent(parentKey,item,drops));
+    const price=dropPriceText(c,period,effectiveDropKeyForParent(parentKey,item,drops),scope);
     const label=child ? item.name+' · '+child.name : item.name;
     return '<span class="drop-chip'+(child?' child':'')+'"><img src="'+esc(shown.img)+'" alt="'+esc(shown.name)+'"><span>'+esc(label)+(price?' · '+price:'')+'</span></span>';
   });
-  const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">이번 주 획득한 아이템 없음</span>';
-  const pickerKey=dropPickerStateKey('boss',c,b,wk);
+  const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">'+periodLabel+' 획득한 아이템 없음</span>';
+  const pickerKey=dropPickerStateKey(isMonthly?'monthlyboss':'boss',c,b,period);
   const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selectedTop.length+'개 선택</span></summary><div class="drop-picker-panel"><div class="drop-grid">'+
     items.map(item=>{
       const key=dropKey(b,item), legacy=checkedFor(item), checked=!!legacy;
       const childKeys=(item.children||[]).map(child=>childKey(item,child)).join(',');
       return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'">'+
-        '<input class="drop-check" type="checkbox" data-week="'+esc(wk)+'" data-kind="parent" data-key="'+esc(key)+'" data-legacy-key="'+esc(legacy && legacy!==key ? legacy : '')+'" data-child-keys="'+esc(childKeys)+'" '+(checked?'checked':'')+'>'+
+        '<input class="drop-check" type="checkbox" data-period="'+esc(period)+'" data-scope="'+scope+'" data-kind="parent" data-key="'+esc(key)+'" data-legacy-key="'+esc(legacy && legacy!==key ? legacy : '')+'" data-child-keys="'+esc(childKeys)+'" '+(checked?'checked':'')+'>'+
         '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+'</span></label>';
     }).join('')+'</div></div></details>';
   const settlement=selectedTop.length ? '<div class="drop-settlement"><div class="drop-settlement-title"><span>선택 아이템 정산</span><small>가격·분배 조건은 여기에서 입력</small></div>'+
@@ -7088,7 +7323,7 @@ function dropChecklistHtml(g,b,c){
       const siblingKeys=children.map(child=>childKey(item,child)).join(',');
       const choices='<div class="drop-child-choices"><div class="drop-child-title">'+esc(item.name)+' 결과물 선택</div>'+children.map(child=>{
         const key=childKey(item,child), on=!!drops[key];
-        return '<label class="drop-child-item'+(on?' done':'')+'" title="'+esc(child.name)+'"><input class="drop-check" type="checkbox" data-week="'+esc(wk)+'" data-kind="child" data-parent-key="'+esc(parentKey)+'" data-sibling-keys="'+esc(siblingKeys)+'" data-key="'+esc(key)+'" '+(on?'checked':'')+'><img src="'+esc(child.img)+'" alt="'+esc(child.name)+'"><span>'+esc(child.name)+'</span></label>';
+        return '<label class="drop-child-item'+(on?' done':'')+'" title="'+esc(child.name)+'"><input class="drop-check" type="checkbox" data-period="'+esc(period)+'" data-scope="'+scope+'" data-kind="child" data-parent-key="'+esc(parentKey)+'" data-sibling-keys="'+esc(siblingKeys)+'" data-key="'+esc(key)+'" '+(on?'checked':'')+'><img src="'+esc(child.img)+'" alt="'+esc(child.name)+'"><span>'+esc(child.name)+'</span></label>';
       }).join('')+'</div>';
       const selectedHtml=selectedChild
         ? '<div class="drop-settlement-head"><img src="'+esc(selectedChild.img)+'" alt="'+esc(selectedChild.name)+'"><div><b>'+esc(selectedChild.name)+'</b><span>선택한 결과물의 가격으로 계산합니다.</span></div></div>'+splitFields(childKey(item,selectedChild))
@@ -7097,7 +7332,7 @@ function dropChecklistHtml(g,b,c){
           : '<div class="drop-settlement-empty">실제로 얻은 결과물을 한 개 선택하면 판매가와 분배 조건을 입력할 수 있습니다.</div>');
       return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>상자는 결과물을 선택해 기록합니다.</span></div></div>'+choices+selectedHtml+'</article>';
     }).join('')+'</div>' : '';
-  return '<div class="drops"><div class="drop-title"><span>이번 주 획득 <b>'+selectedTop.length+'</b>개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,wk))+'</span><span class="drop-week">'+fmtWeekRange(wk)+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
+  return '<div class="drops"><div class="drop-title"><span>'+periodLabel+' 획득 <b>'+selectedTop.length+'</b>개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,period,scope))+'</span><span class="drop-week">'+rangeLabel+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
 function dailyDropChecklistHtml(g,b,c,date){
   const items=dailyDropItemsForBoss(b);
@@ -7121,10 +7356,10 @@ function dailyDropChecklistHtml(g,b,c,date){
   }).join('')+'</div>' : '';
   return '<div class="drops"><div class="drop-title"><span>오늘 획득 <b>'+selected.length+'</b>개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,b,date))+'</span><span class="drop-week">'+fmtShort(date)+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
-function bossGroupCard(g,c){
-  const b=selectedBossForGroup(g,c);
+function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
+  const b=selectedBossForGroup(g,c,period,scope);
   const id=b[0], price=b[2];
-  const bosses=bossStore(c);
+  const bosses=bossStore(c,period,scope);
   const pref=bossPreference(c,g);
   const img = IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
   const allowed = canUseBoss(c,b);
@@ -7139,7 +7374,7 @@ function bossGroupCard(g,c){
     ? '<div class="bdiff">난이도 <select class="diff" data-group="'+g.key+'" data-current="'+id+'"'+disabled+'>'+diffOpts+'</select></div>'
     : '<div class="bmeta">난이도 '+bossDiff(b)+'</div>';
   const shareTxt = !allowed ? '챌린저스 전용' : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
-  const dropHtml = allowed ? dropChecklistHtml(g,b,c) : '';
+  const dropHtml = allowed ? dropChecklistHtml(g,b,c,period,scope) : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'">'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
@@ -7337,7 +7572,13 @@ function activePageName(){
   const active=document.querySelector('.page.active');
   return active ? active.id.replace(/^page-/,'') : 'home';
 }
+function persistMonthlyBossMigration(){
+  if(!monthlyBossMigrationPendingSave) return;
+  monthlyBossMigrationPendingSave=false;
+  save();
+}
 function renderAll(){
+  persistMonthlyBossMigration();
   normalizeAllBosses();
   switch(activePageName()){
     case 'character': renderRegisteredCharacters(); break;
