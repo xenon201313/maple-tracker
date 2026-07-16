@@ -68,7 +68,7 @@
   h1{font-family:var(--font-title); font-weight:700; font-size:36px; display:flex; align-items:center; gap:12px; margin-bottom:4px; text-shadow:0 3px 12px rgba(0,0,0,.85); letter-spacing:0;}
   h1 img{height:48px; image-rendering:pixelated;}
   .subtitle{color:#d7deef; font-size:13px; margin-bottom:16px; line-height:1.6; text-shadow:0 2px 10px rgba(0,0,0,.85); word-break:keep-all; overflow-wrap:anywhere;}
-  .tabs{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:6px; margin-bottom:16px; max-width:100%;}
+  .tabs{display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:6px; margin-bottom:16px; max-width:100%;}
   .tab{font-family:var(--font-title); font-weight:700; min-width:0; padding:10px 12px; background:rgba(17,22,36,.84); border:1px solid rgba(220,230,255,.2); border-radius:10px 10px 0 0; cursor:pointer; font-size:15px; color:#d5dbee; text-align:center; box-shadow:0 10px 22px rgba(0,0,0,.22); backdrop-filter:blur(10px) saturate(116%); -webkit-backdrop-filter:blur(10px) saturate(116%); display:flex; align-items:center; justify-content:center; gap:7px;}
   .tab.active{background:rgba(35,42,65,.96); color:var(--gold); border-color:rgba(255,210,77,.46); border-bottom:2px solid var(--gold);}
   .crystal-icon{width:24px; height:24px; object-fit:contain; image-rendering:pixelated; flex:0 0 auto; vertical-align:middle;}
@@ -541,7 +541,9 @@
   .backup-row span{display:block; color:var(--sub); font-size:11px; margin-top:2px;}
   .backup-row button{flex:0 0 auto;}
   .empty-state{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.25); font-size:13px; line-height:1.55;}
+  @media (max-width:1320px) and (min-width:901px){ .tabs{grid-template-columns:repeat(5,minmax(0,1fr));} }
   @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
+  @media (max-width:900px) and (min-width:641px){ .tabs{grid-template-columns:repeat(4,minmax(0,1fr));} .tab{font-size:13px; padding:9px 7px;} }
   @media (max-width:900px){ #page-daily>.card:first-child .row{grid-template-columns:1fr;} #page-daily>.card:first-child .row>div:last-child{grid-column:auto;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:640px){
     :root{--page-pad:10px;}
@@ -1220,7 +1222,7 @@
     <div class="expense-form" style="margin-top:14px;">
       <div>
         <label>날짜</label>
-        <input id="expense-date" type="date">
+        <input id="expense-date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 2026-07-16">
       </div>
       <div>
         <label>캐릭터 (선택)</label>
@@ -5870,7 +5872,6 @@ function renderExpenses(){
   const recordsEl=document.getElementById('expense-records');
   if(!dateInput || !charInput || !categoryInput || !amountInput || !summary || !categories || !recordsEl) return;
   const today=todayStr();
-  dateInput.max=today;
   if(!normalizeDateInput(dateInput.value) || dateInput.value>today) dateInput.value=today;
   const selectedChar=charInput.value;
   charInput.innerHTML='<option value="">전체 / 미지정</option>'+db.chars.map(c=>'<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>').join('');
@@ -5950,12 +5951,13 @@ function initExpenseControls(){
   const amountInput=document.getElementById('expense-amount');
   const saveButton=document.getElementById('expense-save');
   if(!dateInput || !amountInput || !saveButton) return;
-  dateInput.max=todayStr();
   dateInput.value=todayStr();
-  dateInput.addEventListener('change',()=>{
+  const normalizeExpenseDate=()=>{
     const date=normalizeDateInput(dateInput.value);
     dateInput.value=!date || date>todayStr() ? todayStr() : date;
-  });
+  };
+  dateInput.addEventListener('blur',normalizeExpenseDate);
+  dateInput.addEventListener('change',normalizeExpenseDate);
   amountInput.addEventListener('input',()=>{
     const digits=onlyDigits(amountInput.value);
     amountInput.value=digits ? formatDigits(digits) : '';
