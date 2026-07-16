@@ -139,14 +139,13 @@
   .app-install-tag{display:inline-flex; margin-top:9px; padding:4px 8px; border-radius:999px; background:rgba(154,198,255,.12); color:var(--blue); font-size:11px; font-weight:bold;}
   .app-install-note{margin:10px 0 0; color:#d9dfef; font-size:12px; line-height:1.55;}
   html.native-android .app-install-card{display:none;}
-  .drop-price{grid-column:2 / -1; width:100%; min-width:0; padding:6px 8px !important; font-size:11px !important; border-radius:6px !important; color:var(--gold) !important; margin:0 0 2px;}
-  .drop-price.child-price{grid-column:2 / -1; margin-left:0;}
+  .drop-price{width:100%; min-width:0; padding:7px 8px !important; font-size:12px !important; border-radius:7px !important; color:var(--gold) !important; margin:0;}
   .drop-price::placeholder{color:rgba(245,197,66,.48);}
-  .drop-split{grid-column:2 / -1; display:grid; grid-template-columns:1fr; gap:5px; width:100%; margin:-3px 0 3px;}
+  .drop-split{display:grid; grid-template-columns:1fr; gap:6px; width:100%;}
   .drop-split label{display:grid; grid-template-columns:42px minmax(96px,1fr); align-items:center; gap:6px; margin:0; color:var(--sub); font-size:11px; min-width:0;}
   .drop-split select{width:100%; min-width:0; padding:5px 24px 5px 8px; font-size:12px; border-radius:6px;}
   .drop-split input.drop-ratio{width:100%; min-width:0; padding:5px 8px; font-size:12px; border-radius:6px; color:var(--text); font-variant-numeric:tabular-nums;}
-  .drop-split-result{grid-column:1 / -1; color:var(--green); font-size:10px; line-height:1.45; overflow-wrap:anywhere;}
+  .drop-split-result{color:var(--green); font-size:11px; line-height:1.5; overflow-wrap:anywhere;}
   .daily-date-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
   .daily-date-row input{width:180px;}
   .daily-boss-note{margin-top:8px;}
@@ -264,8 +263,18 @@
   .drops{width:100%; border-top:1px dashed var(--line); margin-top:4px; padding-top:7px; display:flex; flex-direction:column; gap:6px;}
   .drop-title{font-size:11px; color:var(--gold); font-weight:bold; display:flex; justify-content:space-between; align-items:center; gap:6px; width:100%;}
   .drop-week{font-size:10px; color:var(--sub); font-weight:normal; white-space:nowrap;}
-  .drop-grid{width:100%; display:grid; grid-template-columns:1fr; gap:4px;}
-  .drop-item{width:100%; display:grid; grid-template-columns:16px 20px minmax(0,1fr); align-items:center; column-gap:6px; min-height:24px; font-size:11px; color:var(--text); line-height:1.2; cursor:pointer;}
+  .drop-picker{width:100%; border:1px solid rgba(220,230,255,.15); border-radius:8px; background:rgba(6,10,18,.31); overflow:hidden;}
+  .drop-picker-summary{display:flex; align-items:center; justify-content:space-between; gap:7px; min-height:34px; padding:8px 9px; color:#eaf1ff; font-size:11px; font-weight:bold; cursor:pointer; list-style:none; user-select:none;}
+  .drop-picker-summary::-webkit-details-marker{display:none;}
+  .drop-picker-summary::after{content:'⌄'; color:var(--sub); font-size:15px; line-height:1; transition:transform .16s ease;}
+  .drop-picker[open] .drop-picker-summary::after{transform:rotate(180deg);}
+  .drop-picker-summary>span:first-child{display:flex; align-items:center; gap:5px; min-width:0;}
+  .drop-picker-count{flex:0 0 auto; padding:2px 6px; border-radius:999px; color:var(--gold); background:rgba(255,204,51,.12); font-size:10px;}
+  .drop-picker-panel{padding:0 6px 7px; border-top:1px solid rgba(220,230,255,.1);}
+  .drop-grid{width:100%; display:grid; grid-template-columns:1fr; gap:2px; padding-top:5px;}
+  .drop-item{width:100%; display:grid; grid-template-columns:16px 20px minmax(0,1fr); align-items:center; column-gap:6px; min-height:30px; padding:3px 4px; border-radius:6px; font-size:11px; color:var(--text); line-height:1.3; cursor:pointer; transition:background .12s ease, color .12s ease;}
+  .drop-item:hover{background:rgba(154,198,255,.09);}
+  .drop-item.done{color:#f4f7ff; text-decoration:none; background:rgba(255,204,51,.1);}
   .drop-item input{margin:0; width:14px; height:14px; justify-self:center;}
   .drop-item img{width:20px; height:20px; object-fit:contain; image-rendering:auto; flex:none;}
   .drop-item span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-break:keep-all; overflow-wrap:anywhere;}
@@ -274,6 +283,28 @@
   .drop-chip.child{background:rgba(115,208,255,.12); color:#d9f3ff;}
   .drop-chip img{width:18px; height:18px; object-fit:contain; flex:none;}
   .drop-chip span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-break:keep-all; overflow-wrap:anywhere;}
+  .drop-settlement{display:grid; gap:7px; width:100%;}
+  .drop-settlement-title{display:flex; align-items:center; justify-content:space-between; gap:7px; color:#dfe8fb; font-size:11px; font-weight:bold;}
+  .drop-settlement-title small{color:var(--sub); font-size:10px; font-weight:normal;}
+  .drop-settlement-empty{padding:8px; border:1px dashed rgba(220,230,255,.16); border-radius:7px; color:var(--sub); background:rgba(6,10,18,.24); font-size:10px; line-height:1.45;}
+  .drop-settlement-item{display:grid; gap:7px; padding:8px; border:1px solid rgba(220,230,255,.16); border-radius:8px; background:rgba(6,10,18,.34);}
+  .drop-settlement-head{display:flex; align-items:flex-start; gap:7px; min-width:0;}
+  .drop-settlement-head img{width:24px; height:24px; object-fit:contain; flex:0 0 auto;}
+  .drop-settlement-head b{display:block; min-width:0; color:#eef4ff; font-size:12px; line-height:1.35; overflow-wrap:anywhere;}
+  .drop-settlement-head span{display:block; color:var(--sub); font-size:10px; margin-top:2px; line-height:1.35;}
+  .drop-child-choices{display:grid; gap:4px; padding:7px; border-left:2px solid rgba(115,208,255,.5); border-radius:0 7px 7px 0; background:rgba(115,208,255,.06);}
+  .drop-child-title{font-size:10px; color:#bfeaff; font-weight:bold;}
+  .drop-child-item{display:grid; grid-template-columns:16px 20px minmax(0,1fr); align-items:center; column-gap:6px; min-height:27px; padding:3px 4px; border-radius:6px; font-size:11px; color:var(--text); cursor:pointer;}
+  .drop-child-item:hover,.drop-child-item.done{background:rgba(115,208,255,.12);}
+  .drop-child-item input{margin:0; width:13px; height:13px; justify-self:center;}
+  .drop-child-item img{width:20px; height:20px; object-fit:contain;}
+  .drop-child-item span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-break:keep-all; overflow-wrap:anywhere;}
+  .drop-child-item.done span{color:#e4f7ff; text-decoration:none;}
+  .drop-settlement-fields{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px;}
+  .drop-settlement-field{display:grid; gap:4px; min-width:0; margin:0; color:var(--sub); font-size:10px;}
+  .drop-settlement-field.wide{grid-column:1 / -1;}
+  .drop-settlement-field input,.drop-settlement-field select{width:100%; min-width:0; padding:6px 7px; font-size:12px; border-radius:7px;}
+  .drop-settlement-field input.drop-ratio{font-variant-numeric:tabular-nums;}
   .loot-cell{position:relative; display:inline-flex; align-items:center; justify-content:center; min-width:38px; color:var(--gold); font-weight:bold; cursor:help;}
   .loot-empty{color:var(--sub);}
   .loot-tooltip{display:none;}
@@ -291,13 +322,6 @@
   .chart-swatch{width:14px; height:14px; border-radius:3px; border:2px solid #7ee884; background:rgba(126,232,132,.18); box-shadow:0 0 0 1px rgba(0,0,0,.22) inset;}
   .chart-tip-sub{margin-top:6px; color:var(--sub); font-size:11px; line-height:1.35;}
   .drop-empty{font-size:10px; color:var(--sub); padding:3px 2px;}
-  .drop-child{grid-column:1 / -1; margin-left:22px; padding:5px 6px; border-left:2px solid rgba(115,208,255,.45); display:grid; gap:4px;}
-  .drop-child-title{font-size:10px; color:#aee6ff; font-weight:bold;}
-  .drop-child-item{display:grid; grid-template-columns:16px 20px minmax(0,1fr); align-items:center; column-gap:6px; min-height:22px; font-size:10px; color:var(--text); cursor:pointer;}
-  .drop-child-item input{margin:0; width:13px; height:13px; justify-self:center;}
-  .drop-child-item img{width:20px; height:20px; object-fit:contain;}
-  .drop-child-item span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; word-break:keep-all; overflow-wrap:anywhere;}
-  .drop-child-item.done span{text-decoration:line-through; color:var(--sub);}
   .record-day-row td{background:rgba(92,74,22,.18); border-top:1px solid rgba(255,210,77,.2);}
   .record-day-summary{font-weight:bold; color:#f2e7bd; text-align:left !important;}
   .record-session-row td{background:rgba(7,11,19,.22); color:var(--sub);}
@@ -310,7 +334,6 @@
   .hunt-edit-state[hidden]{display:none;}
   .hunt-edit-state button{width:auto; padding:6px 10px; font-size:12px;}
   .watermark{position:fixed; right:14px; bottom:10px; z-index:50; padding:6px 10px; border-radius:999px; background:rgba(7,11,20,.7); border:1px solid rgba(255,255,255,.16); color:rgba(241,245,255,.74); font-size:11px; pointer-events:none; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);}
-  .drop-item.done{color:var(--sub); text-decoration:line-through;}
   .bcheck input{accent-color:var(--gold); width:16px; height:16px; cursor:pointer;}
   .totalbar{background:linear-gradient(90deg,rgba(75,56,14,.92),rgba(18,23,38,.94)); border:1px solid rgba(255,210,77,.68); border-radius:10px; padding:14px; font-size:15px; line-height:1.9; overflow-wrap:anywhere; word-break:keep-all; box-shadow:0 12px 28px rgba(0,0,0,.24), inset 0 0 0 1px rgba(255,255,255,.03);}
   .warn{color:var(--red); font-size:13px;}
@@ -364,6 +387,27 @@
   .ledger-demo-value{color:var(--red); font-weight:bold; white-space:nowrap;}
   .ledger-principles{margin-top:12px; display:grid; gap:8px;}
   .ledger-principles .guide-note{margin-top:0;}
+  .expense-form{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) auto; gap:10px; align-items:end;}
+  .expense-form .wide{grid-column:span 2;}
+  .expense-form input,.expense-form select{width:100%;}
+  .expense-form button{min-height:42px;}
+  .expense-summary-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px;}
+  .expense-summary{min-width:0; padding:12px; border:1px solid rgba(220,230,255,.16); border-radius:10px; background:rgba(6,10,18,.34);}
+  .expense-summary span{display:block; color:var(--sub); font-size:12px; margin-bottom:5px;}
+  .expense-summary b{display:block; color:var(--red); font-size:17px; overflow-wrap:anywhere;}
+  .expense-summary small{display:block; color:var(--sub); font-size:11px; line-height:1.45; margin-top:4px;}
+  .expense-category-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; margin-top:10px;}
+  .expense-category{display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; padding:9px 10px; border:1px solid rgba(220,230,255,.14); border-radius:8px; background:rgba(6,10,18,.27);}
+  .expense-category span{display:grid; gap:2px; min-width:0; color:var(--sub); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .expense-category small{display:block; min-width:0; color:var(--sub); font-size:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .expense-category b{flex:0 0 auto; color:var(--red); font-size:13px; white-space:nowrap;}
+  .expense-records{display:grid; gap:8px; margin-top:10px;}
+  .expense-record{display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:12px; padding:11px 12px; border:1px solid rgba(220,230,255,.15); border-radius:10px; background:rgba(6,10,18,.31);}
+  .expense-record-title{min-width:0;}
+  .expense-record-title b{display:block; color:#edf3ff; font-size:14px; overflow-wrap:anywhere;}
+  .expense-record-title span{display:block; color:var(--sub); font-size:12px; line-height:1.45; margin-top:3px; overflow-wrap:anywhere;}
+  .expense-record-date{color:var(--sub); font-size:12px; white-space:nowrap;}
+  .expense-record-value{color:var(--red); font-weight:bold; white-space:nowrap;}
   .profit-layout{display:grid; grid-template-columns:260px minmax(0,1fr); gap:14px; align-items:start;}
   .profit-menu{display:grid; gap:8px;}
   .profit-type-btn{width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid rgba(220,230,255,.16); border-radius:10px; background:rgba(18,23,38,.72); color:var(--text); cursor:pointer; text-align:left; font-weight:800;}
@@ -510,7 +554,7 @@
     .subtitle{font-size:11px; line-height:1.5; margin-bottom:12px;}
     .tabs{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:12px;}
     .tab{display:flex; align-items:center; justify-content:center; min-width:0; min-height:42px; padding:9px 6px; border-radius:8px; text-align:center; font-size:13px; line-height:1.25; word-break:keep-all;}
-    .tab[data-page="profit"],.tab[data-page="stats"]{grid-column:1 / -1;}
+    .tab[data-page="profit"],.tab[data-page="expense"],.tab[data-page="stats"]{grid-column:1 / -1;}
     .card{padding:12px; border-radius:10px; margin-bottom:12px; overflow-x:visible;}
     .card h2{font-size:15px; line-height:1.25;}
     .period-note{width:100%; font-size:14px; justify-content:flex-start;}
@@ -536,6 +580,11 @@
     .profit-record{grid-template-columns:1fr; align-items:stretch;}
     .profit-actions button,.profit-record button{width:100%;}
     .profit-item-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .expense-form,.expense-summary-grid{grid-template-columns:1fr;}
+    .expense-form .wide{grid-column:auto;}
+    .expense-form button{width:100%;}
+    .expense-record{grid-template-columns:1fr; align-items:stretch; gap:6px;}
+    .expense-record-date,.expense-record-value{white-space:normal;}
     .calc-result{grid-template-columns:1fr;}
     .calc-result .pill b{overflow-wrap:anywhere;}
     .guide-hero h2{font-size:18px;}
@@ -610,7 +659,7 @@
     .drop-chip{align-items:flex-start; max-width:100%;}
     .drop-chip span,.loot-row .loot-name,.drop-item span,.drop-child-item span{white-space:normal; overflow:visible; text-overflow:clip; word-break:keep-all; overflow-wrap:anywhere; line-height:1.45;}
     .loot-row{align-items:start;}
-    .drop-child{margin-left:0;}
+    .drop-child-choices{margin-left:0;}
     .totalbar{padding:12px; font-size:13px; line-height:1.75;}
     .chart-box{min-width:0; grid-template-columns:46px minmax(0,1fr); column-gap:6px;}
     .chart-axis,.chart-plot{height:128px;}
@@ -656,6 +705,7 @@
   <div class="tab" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</div>
   <div class="tab" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석</div>
   <div class="tab" data-page="profit">💸 손익 계산기</div>
+  <div class="tab" data-page="expense">💳 지출 기록</div>
   <div class="tab" data-page="stats">📊 통계</div>
 </div>
 
@@ -816,7 +866,7 @@
     <h2>4. 보스 드랍 아이템과 가격</h2>
     <div class="guide-grid">
       <div class="guide-item"><b>난이도별 보상</b><p>보스 난이도에 따라 체크 가능한 드랍 아이템이 다르게 표시됩니다.</p></div>
-      <div class="guide-item"><b>아이템 가격</b><p>획득한 아이템을 체크하고 가격을 입력하면 보스 수익에 포함됩니다.</p></div>
+      <div class="guide-item"><b>아이템 가격</b><p>드랍 선택을 열어 획득 아이템을 체크한 뒤, 아래의 선택 아이템 정산에서 가격을 입력하면 보스 수익에 포함됩니다.</p></div>
       <div class="guide-item"><b>파티 분배</b><p>2인 이상 파티에서는 역할·수수료와 파티장:파티원 비율(예: 7:3)을 입력해 실제 내 몫을 계산합니다. 비율을 입력하지 않으면 1:1 정분배입니다.</p></div>
       <div class="guide-item"><b>선택 상자</b><p>칠흑 장신구 상자나 보스 반지 상자처럼 구성품이 있는 보상은 실제로 얻은 세부 아이템을 선택할 수 있습니다.</p></div>
     </div>
@@ -853,7 +903,16 @@
   </div>
 
   <div class="card">
-    <h2>8. 백업과 공유</h2>
+    <h2>8. 지출 기록</h2>
+    <ul class="guide-list">
+      <li>장비 구매, 소비, 거래 손실처럼 손익 계산기에 없는 직접 지출은 지출 기록 탭에 날짜와 유형을 남깁니다.</li>
+      <li>직접 지출은 홈, 주간·월간 통계, 월간 결산의 순수익에서 자동으로 차감됩니다.</li>
+      <li>손익 계산기에 이미 저장한 스타포스·잠재능력·주문서 등은 중복 입력하지 마세요.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>9. 백업과 공유</h2>
     <div class="guide-grid">
       <div class="guide-item"><b>공유</b><p>다른 사람에게 프로그램을 공유할 때는 GitHub Pages 주소를 알려주면 됩니다.</p></div>
       <div class="guide-item"><b>내 기록 이동</b><p>내 기록을 다른 기기로 옮기려면 API 키로 클라우드 동기화를 불러오거나, 백업(JSON)을 내려받은 뒤 새 기기에서 복원합니다.</p></div>
@@ -1152,6 +1211,49 @@
   </div>
 </div>
 
+<!-- ══════════ 지출 기록 ══════════ -->
+<div class="page" id="page-expense">
+  <div class="card">
+    <h2>💳 지출 기록</h2>
+    <p class="muted">장비 구매, 소비, 거래 손실처럼 어디에 메소를 썼는지 따로 기록합니다. 이 탭의 지출은 통계와 순수익에서 차감됩니다.</p>
+    <div class="guide-note">손익 계산기에 이미 저장한 스타포스·큐브·주문서 등의 사용 메소는 이곳에 다시 입력하지 마세요. 중복 차감을 막기 위해 두 기록은 분리해서 관리합니다.</div>
+    <div class="expense-form" style="margin-top:14px;">
+      <div>
+        <label>날짜</label>
+        <input id="expense-date" type="date">
+      </div>
+      <div>
+        <label>캐릭터 (선택)</label>
+        <select id="expense-character"></select>
+      </div>
+      <div>
+        <label>지출 유형</label>
+        <select id="expense-category"></select>
+      </div>
+      <div>
+        <label>지출 메소</label>
+        <input id="expense-amount" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 1,500,000,000">
+      </div>
+      <div class="wide">
+        <label>메모 (선택)</label>
+        <input id="expense-memo" type="text" autocomplete="off" placeholder="예: 무기 구매, 이벤트 소비">
+      </div>
+      <button id="expense-save" type="button">지출 저장</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📉 지출 요약</h2>
+    <div id="expense-summary" class="expense-summary-grid"></div>
+    <div class="muted" style="margin-top:12px;">유형별 합계에는 이 탭에서 직접 입력한 지출과 손익 계산기에 저장된 실제 사용 메소가 함께 표시됩니다.</div>
+    <div id="expense-categories" class="expense-category-grid"></div>
+  </div>
+  <div class="card">
+    <h2>🧾 저장된 직접 지출</h2>
+    <div class="muted">여기에서는 직접 입력한 지출만 삭제할 수 있습니다. 손익 계산기 기록은 손익 계산기 탭에서 관리하세요.</div>
+    <div id="expense-records" class="expense-records"></div>
+  </div>
+</div>
+
 <!-- ══════════ 통계 ══════════ -->
 <div class="page" id="page-stats">
   <div class="card">
@@ -1180,7 +1282,7 @@
     <h2>🗓 주간 합계 <span class="muted">(목요일 ~ 수요일)</span></h2>
     <div style="overflow-x:auto;">
     <table>
-      <thead><tr><th>주차</th><th>기간</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
+      <thead><tr><th>주차</th><th>기간</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>직접 지출</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
       <tbody id="tbody-weekly"></tbody>
     </table>
     </div>
@@ -1189,7 +1291,7 @@
     <h2>🗓 월간 합계</h2>
     <div style="overflow-x:auto;">
     <table>
-      <thead><tr><th>월</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
+      <thead><tr><th>월</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>직접 지출</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
       <tbody id="tbody-monthly"></tbody>
     </table>
     </div>
@@ -3570,7 +3672,7 @@ const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
-let db = { records:{}, chars:[], settings:{}, profits:[], backupSnapshots:[] };
+let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
 
 function migrateBosses(b){
   const o={};
@@ -3723,6 +3825,35 @@ function normalizeRecords(records, fallbackSettings=db.settings){
   });
   return out;
 }
+const EXPENSE_CATEGORIES=[
+  {id:'equipment', name:'장비 구매'},
+  {id:'starforce', name:'스타포스'},
+  {id:'potential', name:'잠재능력'},
+  {id:'scroll', name:'주문서'},
+  {id:'bonus', name:'추가옵션'},
+  {id:'ability', name:'어빌리티'},
+  {id:'wonderberry', name:'위습의 원더베리'},
+  {id:'royal', name:'로얄스타일'},
+  {id:'platinumapple', name:'플래티넘 애플'},
+  {id:'trade', name:'거래 손실'},
+  {id:'consumable', name:'소비'},
+  {id:'etc', name:'기타'}
+];
+function expenseCategoryById(id){ return EXPENSE_CATEGORIES.find(category=>category.id===id) || EXPENSE_CATEGORIES[EXPENSE_CATEGORIES.length-1]; }
+function normalizeExpenseRecord(record){
+  const o=ensureObj(record);
+  const category=expenseCategoryById(String(o.category || o.type || 'etc'));
+  return {
+    id:String(o.id || ('expense_'+Date.now()+'_'+Math.random().toString(36).slice(2))).trim(),
+    date:normalizeDateInput(o.date) || todayStr(),
+    category:category.id,
+    charName:String(o.charName || o.character || '').trim(),
+    memo:String(o.memo || o.note || '').trim().slice(0,200),
+    amount:mesoValueFromDigits(o.amount || o.meso || 0),
+    createdAt:String(o.createdAt || new Date().toISOString()).trim()
+  };
+}
+function normalizeExpenseRecords(records){ return Array.isArray(records) ? records.map(normalizeExpenseRecord).filter(record=>record.date && toMesoBig(record.amount)>0n) : []; }
 function normalizeProfitLine(line){
   const o=ensureObj(line);
   const id=String(o.id || o.name || '').trim();
@@ -3765,7 +3896,7 @@ function normalizeBackupSnapshots(snapshots){
 }
 function hasTrackerDataForBackup(source=db){
   const data=ensureObj(source);
-  return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0);
+  return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0);
 }
 function maybeCreateMonthlyBackup(){
   const month=todayStr().slice(0,7);
@@ -3793,6 +3924,7 @@ db.settings=normalizeSettings(db.settings);
 db.records=normalizeRecords(db.records || {},db.settings);
 db.chars=(Array.isArray(db.chars) ? db.chars : []).map(normalizeChar);
 db.profits=normalizeProfitRecords(db.profits || []);
+db.expenses=normalizeExpenseRecords(db.expenses || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
 
 function normalizeAllBosses(){
@@ -4000,14 +4132,17 @@ function dropPriceText(c, week, key){
   const role = info.role === 'leader' ? '파티장 잔여' : '파티원 실수령';
   return korMeso(info.mine)+' ('+role+' · '+info.ratio.text+' 분배 · 총 '+korMeso(info.raw)+' · '+info.party+'인 · 수수료 '+info.fee+'%)';
 }
+function effectiveDropKeyForParent(parentKey,item,drops){
+  const child=selectedChildForDrop(parentKey,item,drops);
+  return child ? parentKey+'|child|'+child.id : parentKey;
+}
 function dropPriceSumForBoss(c, b, week=currentWeekKey()){
   const drops = ensureObj(ensureObj(c.dropWeeks)[week] || (week===currentWeekKey()?c.drops:null));
-  const prices = ensureObj(ensureObj(c.dropPriceWeeks)[week] || (week===currentWeekKey()?c.dropPrices:null));
-  const prefix = b[0]+'|';
   let total=0n;
-  for(const key in prices){
-    if(key.startsWith(prefix) && drops[key]) total += sharedDropPrice(c,week,key);
-  }
+  dropItemsForBoss(b).forEach(item=>{
+    const key=dropKey(b,item);
+    if(drops[key]) total+=sharedDropPrice(c,week,effectiveDropKeyForParent(key,item,drops));
+  });
   return total;
 }
 function bossKindFromDropKey(key){
@@ -4017,9 +4152,12 @@ function bossKindFromDropKey(key){
 }
 function dropPriceSumForCharKind(c, kind, week=currentWeekKey()){
   const drops = ensureObj(ensureObj(c.dropWeeks)[week] || (week===currentWeekKey()?c.drops:null));
-  const prices = ensureObj(ensureObj(c.dropPriceWeeks)[week] || (week===currentWeekKey()?c.dropPrices:null));
   let total=0n;
-  for(const key in prices){ if(drops[key] && bossKindFromDropKey(key)===kind) total += sharedDropPrice(c,week,key); }
+  for(const key in drops){
+    if(!drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!==kind) continue;
+    const item=visibleDropItemById(dropKeyItemId(key));
+    if(item) total+=sharedDropPrice(c,week,effectiveDropKeyForParent(key,item,drops));
+  }
   return total;
 }
 function dropPriceSumForCharWeek(c, week=currentWeekKey()){ return dropPriceSumForCharKind(c,'w',week); }
@@ -4095,6 +4233,10 @@ function trackedWeeks(){
   const set = new Set();
   for(const d in db.records) set.add(mapleWeekStart(d));
   (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{
+    const d=normalizeDateInput(r.date);
+    if(d) set.add(mapleWeekStart(d));
+  });
+  (Array.isArray(db.expenses)?db.expenses:[]).forEach(r=>{
     const d=normalizeDateInput(r.date);
     if(d) set.add(mapleWeekStart(d));
   });
@@ -4704,6 +4846,43 @@ function profitTotals(pred){
   });
   return {cost,revenue,net,count};
 }
+function expenseTotals(pred){
+  let total=0n,count=0;
+  (Array.isArray(db.expenses)?db.expenses:[]).forEach(rec=>{
+    const r=normalizeExpenseRecord(rec);
+    if(!pred(r.date,r)) return;
+    total+=toMesoBig(r.amount);
+    count++;
+  });
+  return {total,count};
+}
+function spendingCategoryRows(pred){
+  const map=new Map();
+  const add=(id,name,amount,source)=>{
+    const value=toMesoBig(amount);
+    if(value<=0n) return;
+    const prev=map.get(id) || {id,name,total:0n,direct:0n,calculator:0n,count:0};
+    prev.total+=value;
+    prev[source]+=value;
+    prev.count++;
+    map.set(id,prev);
+  };
+  (Array.isArray(db.expenses)?db.expenses:[]).forEach(rec=>{
+    const r=normalizeExpenseRecord(rec);
+    if(pred(r.date,r)){
+      const category=expenseCategoryById(r.category);
+      add(category.id,category.name,r.amount,'direct');
+    }
+  });
+  (Array.isArray(db.profits)?db.profits:[]).forEach(rec=>{
+    const r=normalizeProfitRecord(rec);
+    if(pred(r.date,r)){
+      const category=profitCategory(r.type);
+      add(category.id,category.title,profitRecordTotals(r).cost,'calculator');
+    }
+  });
+  return Array.from(map.values()).sort((a,b)=>a.total===b.total ? a.name.localeCompare(b.name,'ko') : (a.total>b.total ? -1 : 1));
+}
 function goalTargetMeso(){ return toMesoBig(db.settings.goalTarget||0); }
 function goalProgressSince(start){
   let total=0n, days=0;
@@ -4824,6 +5003,7 @@ function dashboardMonths(){
   const months=new Set([todayStr().slice(0,7)]);
   Object.keys(ensureObj(db.records)).forEach(d=>{ const nd=normalizeDateInput(d); if(nd) months.add(nd.slice(0,7)); });
   (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
+  (Array.isArray(db.expenses)?db.expenses:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
   trackedWeeks().forEach(w=>months.add(String(w).slice(0,7)));
   return Array.from(months).filter(m=>/^\d{4}-\d{2}$/.test(m)).sort().reverse();
 }
@@ -4845,7 +5025,8 @@ function monthlyReportData(month=selectedDashboardMonth()){
     loot=mergeLootEntries(loot,mergeLootEntries(resolvedDropEntriesForWeek(w),resolvedDailyDropEntriesForWeek(w)));
   });
   const profit=profitTotals(d=>String(d).slice(0,7)===month);
-  return {month,hunt,boss,bossCrystals,profit,loot,net:hunt.m+boss+profit.net};
+  const expenses=expenseTotals(d=>String(d).slice(0,7)===month);
+  return {month,hunt,boss,bossCrystals,profit,expenses,loot,net:hunt.m+boss+profit.net-expenses.total};
 }
 function weeklyProgressForChar(c,week=currentWeekKey()){
   const store=bossStore(c,week);
@@ -4877,15 +5058,15 @@ function priceHistoryData(){
   db.chars.forEach(c=>{
     const weeks=ensureObj(c.dropPriceWeeks);
     Object.keys(weeks).forEach(week=>{
-      const prices=ensureObj(weeks[week]);
       const drops=ensureObj(ensureObj(c.dropWeeks)[week]);
-      Object.keys(prices).forEach(key=>{
+      Object.keys(drops).forEach(key=>{
         if(!drops[key] || !isCountedDropKey(key)) return;
         const item=visibleDropItemById(dropKeyItemId(key));
         if(!item) return;
         const shown=selectedChildForDrop(key,item,drops) || item;
+        const effectiveKey=effectiveDropKeyForParent(key,item,drops);
         const boss=BOSS_MAP[String(key).split('|')[0]];
-        add({id:'boss:'+shown.id,name:shown.name,img:shown.img,date:week,amount:sharedDropPrice(c,week,key),count:1,source:boss?boss[1]:'보스 드랍'});
+        add({id:'boss:'+shown.id,name:shown.name,img:shown.img,date:week,amount:sharedDropPrice(c,week,effectiveKey),count:1,source:boss?boss[1]:'보스 드랍'});
       });
     });
     const days=ensureObj(c.dailyDropPriceDays);
@@ -4932,7 +5113,8 @@ function personalRecordData(){
     const hunt=sumRange(d=>mapleWeekStart(d)===week).m;
     const boss=bossTotals(week);
     const profit=profitTotals(d=>mapleWeekStart(d)===week).net;
-    const total=hunt+toMesoBig(boss.week)+toMesoBig(boss.month)+toMesoBig(boss.daily)+profit;
+    const expense=expenseTotals(d=>mapleWeekStart(d)===week).total;
+    const total=hunt+toMesoBig(boss.week)+toMesoBig(boss.month)+toMesoBig(boss.daily)+profit-expense;
     if(!bestWeek || total>bestWeek.total) bestWeek={week,total};
   });
   let bossClears=0;
@@ -4948,7 +5130,8 @@ function monthlyReportText(report){
   return '[나만의 메계부 '+fmtMonthLabel(report.month+'-01')+' 결산]\n'+
     '재획 수익: '+korMeso(report.hunt.m)+'\n'+
     '보스 수익: '+korMeso(report.boss)+'\n'+
-    '손익: '+signedKorMeso(report.profit.net)+'\n'+
+    '손익 계산기: '+signedKorMeso(report.profit.net)+'\n'+
+    '직접 지출: -'+korMeso(report.expenses.total)+'\n'+
     '순수익: '+signedKorMeso(report.net)+'\n'+
     '재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개';
 }
@@ -4967,7 +5150,7 @@ function fitCanvasText(ctx,text,x,y,maxWidth,baseSize,weight='700'){
   ctx.fillText(text,x,y);
 }
 function downloadMonthlyReportImage(report){
-  const scale=2, width=900, height=760;
+  const scale=2, width=900, height=900;
   const canvas=document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
   const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
   const gradient=ctx.createLinearGradient(0,0,width,height); gradient.addColorStop(0,'#1d2945'); gradient.addColorStop(1,'#101625');
@@ -4976,22 +5159,22 @@ function downloadMonthlyReportImage(report){
   ctx.fillStyle='#ffd24d'; ctx.font='700 38px '+getComputedStyle(document.body).fontFamily; ctx.fillText('나만의 메계부',56,78);
   ctx.fillStyle='#eef3ff'; ctx.font='700 30px '+getComputedStyle(document.body).fontFamily; ctx.fillText(fmtMonthLabel(report.month+'-01')+' 결산 리포트',56,125);
   ctx.fillStyle='#c2c8dc'; ctx.font='400 18px '+getComputedStyle(document.body).fontFamily; ctx.fillText('실제 기록된 수입과 지출 기준',56,157);
-  const metrics=[['재획 수익',korMeso(report.hunt.m),'#ffd24d'],['보스 수익',korMeso(report.boss),'#ffd24d'],['손익',signedKorMeso(report.profit.net),report.profit.net>=0n?'#67e0a0':'#ff7b8b'],['순수익',signedKorMeso(report.net),report.net>=0n?'#67e0a0':'#ff7b8b']];
+  const metrics=[['재획 수익',korMeso(report.hunt.m),'#ffd24d'],['보스 수익',korMeso(report.boss),'#ffd24d'],['손익 계산기',signedKorMeso(report.profit.net),report.profit.net>=0n?'#67e0a0':'#ff7b8b'],['직접 지출','-'+korMeso(report.expenses.total),'#ff7b8b'],['순수익',signedKorMeso(report.net),report.net>=0n?'#67e0a0':'#ff7b8b']];
   metrics.forEach((metric,index)=>{
-    const x=56+(index%2)*402, y=205+Math.floor(index/2)*145;
+    const x=56+(index%2)*402, y=205+Math.floor(index/2)*135;
     ctx.fillStyle='rgba(5,9,17,.44)'; ctx.fillRect(x,y,370,115);
     ctx.strokeStyle='rgba(220,230,255,.24)'; ctx.strokeRect(x,y,370,115);
     ctx.fillStyle='#c2c8dc'; ctx.font='400 18px '+getComputedStyle(document.body).fontFamily; ctx.fillText(metric[0],x+20,y+31);
     ctx.fillStyle=metric[2]; fitCanvasText(ctx,metric[1],x+20,y+78,330,27);
   });
-  ctx.fillStyle='rgba(5,9,17,.42)'; ctx.fillRect(56,510,772,150);
-  ctx.strokeStyle='rgba(220,230,255,.22)'; ctx.strokeRect(56,510,772,150);
-  ctx.fillStyle='#ffd24d'; ctx.font='700 21px '+getComputedStyle(document.body).fontFamily; ctx.fillText('이번 달 기록',78,546);
+  ctx.fillStyle='rgba(5,9,17,.42)'; ctx.fillRect(56,630,772,150);
+  ctx.strokeStyle='rgba(220,230,255,.22)'; ctx.strokeRect(56,630,772,150);
+  ctx.fillStyle='#ffd24d'; ctx.font='700 21px '+getComputedStyle(document.body).fontFamily; ctx.fillText('이번 달 기록',78,666);
   ctx.fillStyle='#eaf0ff'; ctx.font='400 19px '+getComputedStyle(document.body).fontFamily;
-  ctx.fillText('재획 '+report.hunt.days+'일  ·  결정석 '+report.bossCrystals+'개  ·  획득 아이템 '+lootEntryCount(report.loot)+'개',78,582);
+  ctx.fillText('재획 '+report.hunt.days+'일  ·  결정석 '+report.bossCrystals+'개  ·  획득 아이템 '+lootEntryCount(report.loot)+'개',78,702);
   const itemText=report.loot.length ? report.loot.slice(0,4).map(item=>item.name+' x'+item.count).join(' · ') : '기록된 획득 아이템 없음';
-  ctx.fillStyle='#c2c8dc'; fitCanvasText(ctx,itemText,78,622,720,17,'400');
-  ctx.fillStyle='#8ea0c6'; ctx.font='400 15px '+getComputedStyle(document.body).fontFamily; ctx.fillText('maple-trackers.com',56,710);
+  ctx.fillStyle='#c2c8dc'; fitCanvasText(ctx,itemText,78,742,720,17,'400');
+  ctx.fillStyle='#8ea0c6'; ctx.font='400 15px '+getComputedStyle(document.body).fontFamily; ctx.fillText('maple-trackers.com',56,850);
   const download=()=>{
     const a=document.createElement('a'); a.download='maple_tracker_'+report.month+'_report.png'; a.href=canvas.toDataURL('image/png'); a.click();
   };
@@ -5008,6 +5191,12 @@ function renderStats(){
   const thisWeekProfit=profitTotals(d=>mapleWeekStart(d)===wkStart);
   const thisMonthProfit=profitTotals(d=>d.slice(0,7)===mon);
   const totalProfit=profitTotals(()=>true);
+  const thisWeekExpense=expenseTotals(d=>mapleWeekStart(d)===wkStart);
+  const thisMonthExpense=expenseTotals(d=>d.slice(0,7)===mon);
+  const totalExpense=expenseTotals(()=>true);
+  const thisWeekNetProfit=thisWeekProfit.net-thisWeekExpense.total;
+  const thisMonthNetProfit=thisMonthProfit.net-thisMonthExpense.total;
+  const totalNetProfit=totalProfit.net-totalExpense.total;
   const bt=bossTotals(wkStart);
   const bossNow=toMesoBig(bt.week)+toMesoBig(bt.month)+toMesoBig(bt.daily);
   const dropNow=dropCountForWeek(wkStart);
@@ -5018,10 +5207,11 @@ function renderStats(){
     {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획'},
     {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true},
     {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 월간 '+korMeso(bt.month)+' · 획득템 '+dropNow+'개'},
-    {t:'이번 주 손익', v:signedKorMeso(thisWeekProfit.net), s:'지출 '+korMeso(thisWeekProfit.cost)+' · 판매 '+korMeso(thisWeekProfit.revenue)+' · '+thisWeekProfit.count+'건'},
-    {t:'이번 달 손익', v:signedKorMeso(thisMonthProfit.net), s:'지출 '+korMeso(thisMonthProfit.cost)+' · 판매 '+korMeso(thisMonthProfit.revenue)+' · '+thisMonthProfit.count+'건'},
-    {t:'전체 손익', v:signedKorMeso(totalProfit.net), s:'지출 '+korMeso(totalProfit.cost)+' · 판매 '+korMeso(totalProfit.revenue)+' · '+totalProfit.count+'건'},
-    {t:'이번 주 합산 (재획+보스+손익)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekProfit.net), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(bt.dropMeso)},
+    {t:'이번 주 직접 지출', v:'-'+korMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건'},
+    {t:'이번 주 손익 (지출 반영)', v:signedKorMeso(thisWeekNetProfit), s:'계산기 '+signedKorMeso(thisWeekProfit.net)+' · 직접 지출 '+korMeso(thisWeekExpense.total)},
+    {t:'이번 달 손익 (지출 반영)', v:signedKorMeso(thisMonthNetProfit), s:'계산기 '+signedKorMeso(thisMonthProfit.net)+' · 직접 지출 '+korMeso(thisMonthExpense.total)},
+    {t:'전체 손익 (지출 반영)', v:signedKorMeso(totalNetProfit), s:'계산기 '+signedKorMeso(totalProfit.net)+' · 직접 지출 '+korMeso(totalExpense.total)},
+    {t:'이번 주 합산 (재획+보스+손익-지출)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekNetProfit), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(bt.dropMeso)},
   ];
   document.getElementById('stat-cards').innerHTML = cards.map(c=>
     '<div class="stat"><div class="t">'+c.t+'</div><div class="v'+(c.p?' p':'')+'">'+c.v+'</div><div class="s">'+(c.s||'')+'</div></div>'
@@ -5067,7 +5257,7 @@ function renderStats(){
   wrap.appendChild(axis); wrap.appendChild(plot); wrap.appendChild(labels);
 
   const weeks={};
-  const ensureWeek=w=>weeks[w]||(weeks[w]={m:0n,e:0,days:0,boss:0n,profit:0n,loot:[]});
+  const ensureWeek=w=>weeks[w]||(weeks[w]={m:0n,e:0,days:0,boss:0n,profit:0n,expense:0n,loot:[]});
   for(const d in db.records){ const w=mapleWeekStart(d), row=ensureWeek(w), r=normalizeRecord(db.records[d]);
     row.m+=recordMesoTotal(r); row.e+=Number(r.erda)||0;
     if(r.sessions.some(session=>session.kind!=='erda-settlement')) row.days++;
@@ -5076,17 +5266,18 @@ function renderStats(){
     const row=ensureWeek(w), b=bossTotals(w);
     row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w));
     row.profit=profitTotals(d=>mapleWeekStart(d)===w).net;
+    row.expense=expenseTotals(d=>mapleWeekStart(d)===w).total;
   });
   document.getElementById('tbody-weekly').innerHTML = Object.keys(weeks).sort().reverse().map(w=>{
     const cur = w===wkStart ? ' ← 이번 주' : '';
-    const totalM = weeks[w].m + weeks[w].boss + weeks[w].profit;
+    const totalM = weeks[w].m + weeks[w].boss + weeks[w].profit - weeks[w].expense;
     return '<tr><td>'+w+cur+'</td><td>'+fmtShort(w)+' ~ '+fmtShort(addDays(w,6))+'</td><td>'+weeks[w].days+'일</td>'+
-      '<td class="meso">'+korMeso(weeks[w].m)+'</td><td class="meso">'+korMeso(weeks[w].boss)+'</td><td class="meso">'+signedKorMeso(weeks[w].profit)+'</td><td class="meso">'+signedKorMeso(totalM)+'</td>'+
+      '<td class="meso">'+korMeso(weeks[w].m)+'</td><td class="meso">'+korMeso(weeks[w].boss)+'</td><td class="meso">'+signedKorMeso(weeks[w].profit)+'</td><td class="meso">-'+korMeso(weeks[w].expense)+'</td><td class="meso">'+signedKorMeso(totalM)+'</td>'+
       '<td>'+lootCellHtml(weeks[w].loot)+'</td><td class="erda">'+fmt(weeks[w].e)+'개</td></tr>';
-  }).join('') || '<tr><td colspan="9" class="muted">기록이 없습니다.</td></tr>';
+  }).join('') || '<tr><td colspan="10" class="muted">기록이 없습니다.</td></tr>';
 
   const months={};
-  const ensureMonth=m=>months[m]||(months[m]={m:0n,e:0,days:0,boss:0n,profit:0n,loot:[]});
+  const ensureMonth=m=>months[m]||(months[m]={m:0n,e:0,days:0,boss:0n,profit:0n,expense:0n,loot:[]});
   for(const d in db.records){ const m=d.slice(0,7), row=ensureMonth(m), r=normalizeRecord(db.records[d]);
     row.m+=recordMesoTotal(r); row.e+=Number(r.erda)||0;
     if(r.sessions.some(session=>session.kind!=='erda-settlement')) row.days++;
@@ -5100,11 +5291,16 @@ function renderStats(){
     if(!d) return;
     ensureMonth(d.slice(0,7)).profit+=profitRecordTotals(r).net;
   });
+  (Array.isArray(db.expenses)?db.expenses:[]).forEach(r=>{
+    const d=normalizeDateInput(r.date);
+    if(!d) return;
+    ensureMonth(d.slice(0,7)).expense+=toMesoBig(normalizeExpenseRecord(r).amount);
+  });
   document.getElementById('tbody-monthly').innerHTML = Object.keys(months).sort().reverse().map(m=>
     '<tr><td>'+m.replace('-','년 ')+'월</td><td>'+months[m].days+'일</td>'+
-    '<td class="meso">'+korMeso(months[m].m)+'</td><td class="meso">'+korMeso(months[m].boss)+'</td><td class="meso">'+signedKorMeso(months[m].profit)+'</td><td class="meso">'+signedKorMeso(months[m].m+months[m].boss+months[m].profit)+'</td>'+
+    '<td class="meso">'+korMeso(months[m].m)+'</td><td class="meso">'+korMeso(months[m].boss)+'</td><td class="meso">'+signedKorMeso(months[m].profit)+'</td><td class="meso">-'+korMeso(months[m].expense)+'</td><td class="meso">'+signedKorMeso(months[m].m+months[m].boss+months[m].profit-months[m].expense)+'</td>'+
     '<td>'+lootCellHtml(months[m].loot)+'</td><td class="erda">'+fmt(months[m].e)+'개</td></tr>'
-  ).join('') || '<tr><td colspan="8" class="muted">기록이 없습니다.</td></tr>';
+  ).join('') || '<tr><td colspan="9" class="muted">기록이 없습니다.</td></tr>';
   renderErdaCalculator();
 }
 
@@ -5117,6 +5313,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
     settings,
     chars:(Array.isArray(raw.chars) ? raw.chars : []).map(c=>normalizeChar(c)),
     profits:normalizeProfitRecords(raw.profits||[]),
+    expenses:normalizeExpenseRecords(raw.expenses||[]),
     backupSnapshots:normalizeBackupSnapshots(snapshots),
     updatedAt:Number(raw.updatedAt)||Date.now()
   };
@@ -5153,18 +5350,20 @@ function renderHome(){
   const huntToday=db.records[today] ? recordMesoTotal(normalizeRecord(db.records[today])) : 0n;
   const bossToday=dailyBossSumForDate(today).meso;
   const profitToday=profitTotals(d=>d===today).net;
-  const todayNet=huntToday+toMesoBig(bossToday)+profitToday;
+  const expenseToday=expenseTotals(d=>d===today).total;
+  const todayNet=huntToday+toMesoBig(bossToday)+profitToday-expenseToday;
   const huntWeek=sumRange(d=>mapleWeekStart(d)===week);
   const bossWeek=bossTotals(week);
   const profitWeek=profitTotals(d=>mapleWeekStart(d)===week).net;
-  const weekNet=huntWeek.m+toMesoBig(bossWeek.week)+toMesoBig(bossWeek.month)+toMesoBig(bossWeek.daily)+profitWeek;
+  const expenseWeek=expenseTotals(d=>mapleWeekStart(d)===week).total;
+  const weekNet=huntWeek.m+toMesoBig(bossWeek.week)+toMesoBig(bossWeek.month)+toMesoBig(bossWeek.daily)+profitWeek-expenseWeek;
   const currentMonthReport=monthlyReportData(month);
   const goal=resolveGoalState();
   const valueClass=value=>value<0n?'bad':(value>0n?'good':'');
   document.getElementById('home-period-label').textContent='오늘 '+today+' · 이번 주 '+fmtWeekRange(week)+' · '+fmtMonthLabel(today);
   summaryEl.innerHTML=[
-    ['오늘 순수익',signedKorMeso(todayNet),valueClass(todayNet),'재획 · 일간 보스 · 손익 반영'],
-    ['이번 주 순수익',signedKorMeso(weekNet),valueClass(weekNet),'재획 '+huntWeek.days+'일 · 결정석 '+bossWeek.weekCrystals+'개'],
+    ['오늘 순수익',signedKorMeso(todayNet),valueClass(todayNet),'재획 · 일간 보스 · 손익 · 지출 반영'],
+    ['이번 주 순수익',signedKorMeso(weekNet),valueClass(weekNet),'재획 '+huntWeek.days+'일 · 직접 지출 '+korMeso(expenseWeek)],
     ['이번 달 순수익',signedKorMeso(currentMonthReport.net),valueClass(currentMonthReport.net),'보스 · 판매 수익 · 지출 반영'],
     ['목표 진행',goal.empty?'목표 미설정':goal.pct.toFixed(goal.pct<10?2:0).replace(/\.00$/,'')+'%',goal.empty?'':'good',goal.empty?'통계 탭에서 목표 금액을 입력하세요.':korMeso(goal.progress)+' / '+korMeso(goal.target)]
   ].map(item=>'<div class="home-summary"><span>'+item[0]+'</span><b class="'+item[2]+'">'+item[1]+'</b><small>'+item[3]+'</small></div>').join('');
@@ -5193,7 +5392,8 @@ function renderHome(){
   reportEl.innerHTML='<div class="monthly-report-grid">'+
     '<div class="report-metric"><span>재획 수익</span><b>'+korMeso(report.hunt.m)+'</b></div>'+
     '<div class="report-metric"><span>보스 수익</span><b>'+korMeso(report.boss)+'</b></div>'+
-    '<div class="report-metric"><span>손익</span><b class="'+(report.profit.net<0n?'bad':'good')+'">'+signedKorMeso(report.profit.net)+'</b></div>'+
+    '<div class="report-metric"><span>손익 계산기</span><b class="'+(report.profit.net<0n?'bad':'good')+'">'+signedKorMeso(report.profit.net)+'</b></div>'+
+    '<div class="report-metric"><span>직접 지출</span><b class="bad">-'+korMeso(report.expenses.total)+'</b></div>'+
     '<div class="report-metric"><span>순수익</span><b class="'+(report.net<0n?'bad':'good')+'">'+signedKorMeso(report.net)+'</b></div>'+
     '</div><div class="monthly-report-note">재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개 · 조각 '+fmt(report.hunt.e)+'개</div>';
   document.getElementById('home-report-copy').onclick=()=>copyDashboardText(monthlyReportText(report));
@@ -5660,6 +5860,109 @@ function renderProfitRecords(){
   });
 }
 
+function renderExpenses(){
+  const dateInput=document.getElementById('expense-date');
+  const charInput=document.getElementById('expense-character');
+  const categoryInput=document.getElementById('expense-category');
+  const amountInput=document.getElementById('expense-amount');
+  const summary=document.getElementById('expense-summary');
+  const categories=document.getElementById('expense-categories');
+  const recordsEl=document.getElementById('expense-records');
+  if(!dateInput || !charInput || !categoryInput || !amountInput || !summary || !categories || !recordsEl) return;
+  const today=todayStr();
+  dateInput.max=today;
+  if(!normalizeDateInput(dateInput.value) || dateInput.value>today) dateInput.value=today;
+  const selectedChar=charInput.value;
+  charInput.innerHTML='<option value="">전체 / 미지정</option>'+db.chars.map(c=>'<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>').join('');
+  if(Array.from(charInput.options).some(option=>option.value===selectedChar)) charInput.value=selectedChar;
+  const selectedCategory=categoryInput.value;
+  categoryInput.innerHTML=EXPENSE_CATEGORIES.map(category=>'<option value="'+category.id+'">'+category.name+'</option>').join('');
+  categoryInput.value=EXPENSE_CATEGORIES.some(category=>category.id===selectedCategory) ? selectedCategory : 'equipment';
+
+  const week=currentWeekKey();
+  const month=today.slice(0,7);
+  const directWeek=expenseTotals(d=>mapleWeekStart(d)===week);
+  const directMonth=expenseTotals(d=>String(d).slice(0,7)===month);
+  const directTotal=expenseTotals(()=>true);
+  const calculatorWeek=profitTotals(d=>mapleWeekStart(d)===week);
+  const calculatorMonth=profitTotals(d=>String(d).slice(0,7)===month);
+  const calculatorTotal=profitTotals(()=>true);
+  const summaryRows=[
+    ['이번 주 직접 지출','-'+korMeso(directWeek.total),'직접 '+directWeek.count+'건'],
+    ['이번 달 직접 지출','-'+korMeso(directMonth.total),'직접 '+directMonth.count+'건'],
+    ['전체 직접 지출','-'+korMeso(directTotal.total),'직접 '+directTotal.count+'건'],
+    ['손익 계산기 사용 메소','-'+korMeso(calculatorTotal.cost),'이번 주 '+korMeso(calculatorWeek.cost)+' · 이번 달 '+korMeso(calculatorMonth.cost)]
+  ];
+  summary.innerHTML=summaryRows.map(row=>'<div class="expense-summary"><span>'+row[0]+'</span><b>'+row[1]+'</b><small>'+row[2]+'</small></div>').join('');
+
+  const categoryRows=spendingCategoryRows(()=>true);
+  categories.innerHTML=categoryRows.length ? categoryRows.map(row=>
+    '<div class="expense-category"><span>'+esc(row.name)+'<small>직접 '+korMeso(row.direct)+' · 계산기 '+korMeso(row.calculator)+'</small></span><b>-'+korMeso(row.total)+'</b></div>'
+  ).join('') : '<div class="muted">아직 지출 기록이 없습니다.</div>';
+
+  const records=(Array.isArray(db.expenses)?db.expenses:[]).map(normalizeExpenseRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  recordsEl.innerHTML=records.length ? records.map(record=>{
+    const category=expenseCategoryById(record.category);
+    const details=[record.charName,record.memo].filter(Boolean).map(esc).join(' · ') || '직접 입력 지출';
+    return '<div class="expense-record"><div class="expense-record-title"><b>'+esc(category.name)+'</b><span>'+esc(record.date)+' · '+details+'</span></div><b class="expense-record-value">-'+korMeso(record.amount)+'</b><button class="danger" type="button" data-expense-delete="'+esc(record.id)+'">삭제</button></div>';
+  }).join('') : '<div class="muted">아직 저장된 직접 지출이 없습니다.</div>';
+  recordsEl.querySelectorAll('[data-expense-delete]').forEach(button=>{
+    button.onclick=()=>{
+      if(!confirm('이 지출 기록을 삭제할까요?')) return;
+      db.expenses=(Array.isArray(db.expenses)?db.expenses:[]).filter(record=>String(record.id)!==String(button.dataset.expenseDelete));
+      save();
+      renderExpenses();
+    };
+  });
+}
+
+function saveExpenseRecord(){
+  const dateInput=document.getElementById('expense-date');
+  const charInput=document.getElementById('expense-character');
+  const categoryInput=document.getElementById('expense-category');
+  const amountInput=document.getElementById('expense-amount');
+  const memoInput=document.getElementById('expense-memo');
+  if(!dateInput || !charInput || !categoryInput || !amountInput || !memoInput) return;
+  const date=normalizeDateInput(dateInput.value);
+  if(!date){ alert('날짜를 입력하세요.'); return; }
+  if(date>todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
+  const amount=mesoValueFromDigits(amountInput.value);
+  if(toMesoBig(amount)<=0n){ alert('지출 메소를 입력하세요.'); return; }
+  db.expenses=Array.isArray(db.expenses) ? db.expenses : [];
+  db.expenses.unshift(normalizeExpenseRecord({
+    id:'expense_'+Date.now()+'_'+Math.random().toString(36).slice(2),
+    date,
+    category:categoryInput.value,
+    charName:charInput.value,
+    memo:memoInput.value,
+    amount,
+    createdAt:new Date().toISOString()
+  }));
+  db.expenses=normalizeExpenseRecords(db.expenses);
+  save();
+  amountInput.value='';
+  memoInput.value='';
+  renderExpenses();
+}
+
+function initExpenseControls(){
+  const dateInput=document.getElementById('expense-date');
+  const amountInput=document.getElementById('expense-amount');
+  const saveButton=document.getElementById('expense-save');
+  if(!dateInput || !amountInput || !saveButton) return;
+  dateInput.max=todayStr();
+  dateInput.value=todayStr();
+  dateInput.addEventListener('change',()=>{
+    const date=normalizeDateInput(dateInput.value);
+    dateInput.value=!date || date>todayStr() ? todayStr() : date;
+  });
+  amountInput.addEventListener('input',()=>{
+    const digits=onlyDigits(amountInput.value);
+    amountInput.value=digits ? formatDigits(digits) : '';
+  });
+  saveButton.addEventListener('click',saveExpenseRecord);
+}
+
 /* ───────── 보스 결정석 ───────── */
 const openChars = new Set();
 const bossDrafts = new Map();
@@ -5734,7 +6037,7 @@ async function decryptCloudSnapshot(raw){
   return snapshot;
 }
 function hasLocalTrackerData(){
-  return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0;
+  return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0 || db.expenses.length>0;
 }
 function applyCloudSnapshot(snapshot){
   const currentApiKey=nexonApiKey();
@@ -6173,6 +6476,7 @@ function initNexonApiControls(){
 initNexonApiControls();
 initCloudSyncControls();
 initializeCloudSync();
+initExpenseControls();
 function initCharacterGuideModal(){
   const modal=document.getElementById('character-guide-modal');
   const openBtn=document.getElementById('btn-character-guide');
@@ -6337,6 +6641,7 @@ function copyPreviousWeeklyBosses(c){
   return copied;
 }
 function bindBossListHandlers(bl,c,wk){
+  bindDropPickerToggles(bl);
   const clearDropDataForBosses = bossesList => {
     const drops=dropStore(c,wk), prices=dropPriceStore(c,wk), shares=dropShareStore(c,wk);
     bossesList.filter(Boolean).forEach(b=>{
@@ -6423,8 +6728,20 @@ function bindBossListHandlers(bl,c,wk){
       const drops=dropStore(c,week);
       const prices=dropPriceStore(c,week);
       const shares=dropShareStore(c,week);
-      if(chk.checked) drops[chk.dataset.key]=true;
-      else {
+      if(chk.checked){
+        drops[chk.dataset.key]=true;
+        if(chk.dataset.parentKey){
+          drops[chk.dataset.parentKey]=true;
+          if(prices[chk.dataset.parentKey] && !prices[chk.dataset.key]) prices[chk.dataset.key]=prices[chk.dataset.parentKey];
+          if(shares[chk.dataset.parentKey] && !shares[chk.dataset.key]) shares[chk.dataset.key]=Object.assign({},shares[chk.dataset.parentKey]);
+        }
+        if(chk.dataset.kind==='child' && chk.dataset.siblingKeys){
+          chk.dataset.siblingKeys.split(',').filter(Boolean).forEach(key=>{
+            if(key===chk.dataset.key) return;
+            delete drops[key]; delete prices[key]; delete shares[key];
+          });
+        }
+      }else {
         delete drops[chk.dataset.key];
         delete prices[chk.dataset.key];
         delete shares[chk.dataset.key];
@@ -6698,101 +7015,109 @@ function lootCellHtml(entries){
     entries.map(item=>'<span class="loot-row"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span class="loot-name">'+esc(item.name)+'</span><span class="loot-count">x'+item.count+'</span></span>').join('')+
     '</span></span>';
 }
+const dropPickerOpen=new Set();
+function dropPickerStateKey(scope,c,b,period){ return scope+'|'+(c.ocid || c.name || 'character')+'|'+period+'|'+b[0]; }
+function bindDropPickerToggles(scope){
+  scope.querySelectorAll('details[data-drop-picker-key]').forEach(picker=>{
+    picker.ontoggle=()=>{
+      const key=picker.dataset.dropPickerKey;
+      if(picker.open) dropPickerOpen.add(key); else dropPickerOpen.delete(key);
+    };
+  });
+}
 function dropChecklistHtml(g,b,c){
-  const items = dropItemsForBoss(b);
+  const items=dropItemsForBoss(b);
   if(!items.length) return '';
   const wk=currentWeekKey();
-  const drops = dropStore(c,wk);
-  const prices = dropPriceStore(c,wk);
-  const checkedFor = item => {
+  const drops=dropStore(c,wk);
+  const prices=dropPriceStore(c,wk);
+  const checkedFor=item=>{
     const keys=[dropKey(b,item)].concat(legacyDropKeys(g,item));
-    return keys.find(k=>drops[k]);
+    return keys.find(key=>drops[key]);
   };
-  const splitControls = (key, checked) => {
-    if(!checked) return '';
+  const childKey=(item,child)=>dropKey(b,item)+'|child|'+child.id;
+  const splitFields=key=>{
     const meta=dropShareMeta(c,wk,key);
     const info=dropSplitInfo(c,wk,key);
-    const roleOpts=[
-      ['member','파티원'],
-      ['leader','파티장']
-    ].map(([v,label])=>'<option value="'+v+'" '+(meta.role===v?'selected':'')+'>'+label+'</option>').join('');
-    const feeOpts=DROP_SPLIT_FEES.map(f=>'<option value="'+f+'" '+(meta.fee===f?'selected':'')+'>'+f+'%</option>').join('');
-    const result = info.raw>0n
+    const roleOpts=[['member','파티원'],['leader','파티장']].map(([value,label])=>'<option value="'+value+'" '+(meta.role===value?'selected':'')+'>'+label+'</option>').join('');
+    const feeOpts=DROP_SPLIT_FEES.map(fee=>'<option value="'+fee+'" '+(meta.fee===fee?'selected':'')+'>'+fee+'%</option>').join('');
+    const result=info.raw>0n
       ? (info.party>1
         ? '내 몫 '+korMeso(info.mine)+' · '+(info.role==='leader'?'파티장 잔여':'파티원 실수령')+' · '+info.ratio.text+' 분배'+(info.role==='member'?' · 전달액 '+korMeso(info.transferGross):'')
         : '실수령 '+korMeso(info.mine))
-      : '가격 입력 시 분배 계산';
-    return '<div class="drop-split">'+
-      (info.party>1 ? '<label>역할 <select class="drop-role" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+roleOpts+'</select></label>'+
-      '<label title="파티장:파티원 비율입니다. 예: 1:1, 7:3, 10:0">분배 <input class="drop-ratio" type="text" inputmode="text" autocomplete="off" maxlength="9" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+esc(meta.ratio.text)+'" placeholder="예: 7:3"></label>' : '')+
-      '<label>수수료 <select class="drop-fee" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+feeOpts+'</select></label>'+
+      : '판매가를 입력하면 실수령 금액을 계산합니다.';
+    return '<div class="drop-settlement-fields">'+
+      (info.party>1
+        ? '<label class="drop-settlement-field"><span>역할</span><select class="drop-role" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+roleOpts+'</select></label>'+
+          '<label class="drop-settlement-field" title="파티장:파티원 비율입니다. 예: 1:1, 7:3, 10:0"><span>분배율</span><input class="drop-ratio" type="text" inputmode="text" autocomplete="off" maxlength="9" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+esc(meta.ratio.text)+'" placeholder="예: 7:3"></label>'
+        : '')+
+      '<label class="drop-settlement-field wide"><span>경매장 판매가</span><input class="drop-price" type="text" inputmode="numeric" autocomplete="off" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 53,000,000,000"></label>'+
+      '<label class="drop-settlement-field wide"><span>판매 수수료</span><select class="drop-fee" data-week="'+esc(wk)+'" data-key="'+esc(key)+'">'+feeOpts+'</select></label>'+
       '<div class="drop-split-result">'+result+'</div>'+
       '</div>';
   };
-  const priceInput = (key, checked, child=false) => checked
-    ? '<input class="drop-price'+(child?' child-price':'')+'" type="text" inputmode="numeric" autocomplete="off" data-week="'+esc(wk)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="경매장 판매액">'+splitControls(key, checked)
-    : '';
-  const childKey = (item, child) => dropKey(b,item)+'|child|'+child.id;
-  const selectedTop = items.filter(item=>checkedFor(item));
-  const selectedChips = [];
-  selectedTop.forEach(item=>{
-    const key=dropKey(b,item), price=prices[key]&&drops[key] ? ' · '+dropPriceText(c,wk,key) : '';
-    selectedChips.push('<span class="drop-chip"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+price+'</span></span>');
-    (item.children||[]).forEach(child=>{
-      const ck=childKey(item, child);
-      if(drops[ck]){
-        const childPrice=prices[ck] ? ' · '+dropPriceText(c,wk,ck) : '';
-        selectedChips.push('<span class="drop-chip child"><img src="'+esc(child.img)+'" alt="'+esc(child.name)+'"><span>'+esc(child.name)+childPrice+'</span></span>');
-      }
-    });
+  const selectedTop=items.filter(item=>checkedFor(item));
+  const selectedChips=selectedTop.map(item=>{
+    const parentKey=dropKey(b,item);
+    const child=selectedChildForDrop(parentKey,item,drops);
+    const shown=child || item;
+    const price=dropPriceText(c,wk,effectiveDropKeyForParent(parentKey,item,drops));
+    const label=child ? item.name+' · '+child.name : item.name;
+    return '<span class="drop-chip'+(child?' child':'')+'"><img src="'+esc(shown.img)+'" alt="'+esc(shown.name)+'"><span>'+esc(label)+(price?' · '+price:'')+'</span></span>';
   });
-  const summary = selectedChips.length
-    ? selectedChips.join('')
-    : '<span class="drop-empty">이번 주 획득한 아이템 없음</span>';
-  return '<div class="drops"><div class="drop-title"><span>이번 주 획득 <b>'+selectedTop.length+'</b>개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,wk))+'</span><span class="drop-week">'+fmtWeekRange(wk)+'</span></div><div class="drop-selected">'+summary+'</div><div class="drop-grid">'+
+  const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">이번 주 획득한 아이템 없음</span>';
+  const pickerKey=dropPickerStateKey('boss',c,b,wk);
+  const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selectedTop.length+'개 선택</span></summary><div class="drop-picker-panel"><div class="drop-grid">'+
     items.map(item=>{
       const key=dropKey(b,item), legacy=checkedFor(item), checked=!!legacy;
-      const childKeys=(item.children||[]).map(child=>childKey(item, child)).join(',');
-      const children = checked && item.children && item.children.length
-        ? '<div class="drop-child"><div class="drop-child-title">'+esc(item.name)+' 결과 선택</div>'+
-          item.children.map(child=>{
-            const ck=childKey(item, child), childChecked=!!drops[ck];
-            return '<label class="drop-child-item'+(childChecked?' done':'')+'" title="'+esc(child.name)+'">'+
-              '<input class="drop-check" type="checkbox" data-week="'+esc(wk)+'" data-kind="child" data-key="'+esc(ck)+'" '+(childChecked?'checked':'')+'>'+
-              '<img src="'+esc(child.img)+'" alt="'+esc(child.name)+'">'+
-              '<span>'+esc(child.name)+'</span></label>'+priceInput(ck, childChecked, true);
-          }).join('')+'</div>'
-        : '';
+      const childKeys=(item.children||[]).map(child=>childKey(item,child)).join(',');
       return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'">'+
         '<input class="drop-check" type="checkbox" data-week="'+esc(wk)+'" data-kind="parent" data-key="'+esc(key)+'" data-legacy-key="'+esc(legacy && legacy!==key ? legacy : '')+'" data-child-keys="'+esc(childKeys)+'" '+(checked?'checked':'')+'>'+
-        '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'">'+
-        '<span>'+esc(item.name)+'</span></label>'+priceInput(key, checked)+children;
-    }).join('')+'</div></div>';
+        '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+'</span></label>';
+    }).join('')+'</div></div></details>';
+  const settlement=selectedTop.length ? '<div class="drop-settlement"><div class="drop-settlement-title"><span>선택 아이템 정산</span><small>가격·분배 조건은 여기에서 입력</small></div>'+
+    selectedTop.map(item=>{
+      const parentKey=dropKey(b,item);
+      const children=item.children||[];
+      if(!children.length){
+        return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>판매가와 수수료를 입력하세요.</span></div></div>'+splitFields(parentKey)+'</article>';
+      }
+      const selectedChild=selectedChildForDrop(parentKey,item,drops);
+      const siblingKeys=children.map(child=>childKey(item,child)).join(',');
+      const choices='<div class="drop-child-choices"><div class="drop-child-title">'+esc(item.name)+' 결과물 선택</div>'+children.map(child=>{
+        const key=childKey(item,child), on=!!drops[key];
+        return '<label class="drop-child-item'+(on?' done':'')+'" title="'+esc(child.name)+'"><input class="drop-check" type="checkbox" data-week="'+esc(wk)+'" data-kind="child" data-parent-key="'+esc(parentKey)+'" data-sibling-keys="'+esc(siblingKeys)+'" data-key="'+esc(key)+'" '+(on?'checked':'')+'><img src="'+esc(child.img)+'" alt="'+esc(child.name)+'"><span>'+esc(child.name)+'</span></label>';
+      }).join('')+'</div>';
+      const selectedHtml=selectedChild
+        ? '<div class="drop-settlement-head"><img src="'+esc(selectedChild.img)+'" alt="'+esc(selectedChild.name)+'"><div><b>'+esc(selectedChild.name)+'</b><span>선택한 결과물의 가격으로 계산합니다.</span></div></div>'+splitFields(childKey(item,selectedChild))
+        : (prices[parentKey]
+          ? '<div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>기존 상자 판매가</b><span>결과물을 선택하면 결과물 가격 기준으로 바뀝니다.</span></div></div>'+splitFields(parentKey)
+          : '<div class="drop-settlement-empty">실제로 얻은 결과물을 한 개 선택하면 판매가와 분배 조건을 입력할 수 있습니다.</div>');
+      return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>상자는 결과물을 선택해 기록합니다.</span></div></div>'+choices+selectedHtml+'</article>';
+    }).join('')+'</div>' : '';
+  return '<div class="drops"><div class="drop-title"><span>이번 주 획득 <b>'+selectedTop.length+'</b>개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,wk))+'</span><span class="drop-week">'+fmtWeekRange(wk)+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
 function dailyDropChecklistHtml(g,b,c,date){
-  const items = dailyDropItemsForBoss(b);
+  const items=dailyDropItemsForBoss(b);
   if(!items.length) return '';
-  const drops = dailyDropStore(c,date);
-  const prices = dailyDropPriceStore(c,date);
-  const priceInput = (key, checked) => checked
-    ? '<input class="drop-price daily-drop-price" type="text" inputmode="numeric" autocomplete="off" data-date="'+esc(date)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="아이템 가격">'
-    : '';
-  const selected = items.filter(item=>drops[dailyDropKey(b,item)]);
-  const summary = selected.length
-    ? selected.map(item=>{
-        const key=dailyDropKey(b,item);
-        const price=prices[key]&&drops[key] ? ' · '+dailyDropPriceText(c,date,key) : '';
-        return '<span class="drop-chip"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+price+'</span></span>';
-      }).join('')
-    : '<span class="drop-empty">오늘 획득한 아이템 없음</span>';
-  return '<div class="drops"><div class="drop-title"><span>오늘 획득 <b>'+selected.length+'</b>개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,b,date))+'</span><span class="drop-week">'+fmtShort(date)+'</span></div><div class="drop-selected">'+summary+'</div><div class="drop-grid">'+
+  const drops=dailyDropStore(c,date);
+  const prices=dailyDropPriceStore(c,date);
+  const selected=items.filter(item=>drops[dailyDropKey(b,item)]);
+  const summary=selected.length ? selected.map(item=>{
+    const key=dailyDropKey(b,item), price=dailyDropPriceText(c,date,key);
+    return '<span class="drop-chip"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+(price?' · '+price:'')+'</span></span>';
+  }).join('') : '<span class="drop-empty">오늘 획득한 아이템 없음</span>';
+  const pickerKey=dropPickerStateKey('daily',c,b,date);
+  const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selected.length+'개 선택</span></summary><div class="drop-picker-panel"><div class="drop-grid">'+
     items.map(item=>{
       const key=dailyDropKey(b,item), checked=!!drops[key];
-      return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'">'+
-        '<input class="daily-drop-check" type="checkbox" data-date="'+esc(date)+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'>'+
-        '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'">'+
-        '<span>'+esc(item.name)+'</span></label>'+priceInput(key, checked);
-    }).join('')+'</div></div>';
+      return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'"><input class="daily-drop-check" type="checkbox" data-date="'+esc(date)+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+'</span></label>';
+    }).join('')+'</div></div></details>';
+  const settlement=selected.length ? '<div class="drop-settlement"><div class="drop-settlement-title"><span>선택 아이템 정산</span><small>가격은 아래에서 입력</small></div>'+selected.map(item=>{
+    const key=dailyDropKey(b,item);
+    return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>'+((dailyBossPartyForDropKey(c,date,key)>1)?'파티 인원수로 자동 분배합니다.':'판매가를 입력하세요.')+'</span></div></div><div class="drop-settlement-fields"><label class="drop-settlement-field wide"><span>아이템 가격</span><input class="drop-price daily-drop-price" type="text" inputmode="numeric" autocomplete="off" data-date="'+esc(date)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 100,000,000"></label><div class="drop-split-result">'+(dailyDropPriceText(c,date,key)||'가격을 입력하면 내 몫을 계산합니다.')+'</div></div></article>';
+  }).join('')+'</div>' : '';
+  return '<div class="drops"><div class="drop-title"><span>오늘 획득 <b>'+selected.length+'</b>개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,b,date))+'</span><span class="drop-week">'+fmtShort(date)+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
 function bossGroupCard(g,c){
   const b=selectedBossForGroup(g,c);
@@ -6884,6 +7209,7 @@ function renderDailyBoss(){
     DAILY_BOSS_GROUPS.forEach(g=>{ html+=dailyBossGroupCard(g,c,date); });
     html+='</div>';
     bl.innerHTML=html;
+    bindDropPickerToggles(bl);
     bl.querySelectorAll('select.daily-diff').forEach(sel=>{
       sel.onchange=()=>{
         const group=DAILY_BOSS_GROUP_MAP[sel.dataset.group];
@@ -7022,6 +7348,7 @@ function renderAll(){
     case 'monthlyboss': renderMonthlyBoss(); break;
     case 'dailyboss': renderDailyBoss(); break;
     case 'profit': renderProfitCalculator(); break;
+    case 'expense': renderExpenses(); break;
     case 'stats': renderStats(); break;
     case 'home': renderHome(); break;
   }
