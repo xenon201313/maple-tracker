@@ -191,6 +191,14 @@
   .registered-actions{display:grid; grid-template-columns:1fr; gap:6px; align-items:stretch;}
   .registered-actions button{width:100%; padding:7px 10px; font-size:13px;}
   .registered-actions .muted{white-space:normal; word-break:keep-all; overflow-wrap:anywhere;}
+  .character-api-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+  .character-api-card{min-width:0; padding:10px 11px; border:1px solid rgba(154,198,255,.2); border-radius:10px; background:rgba(10,15,25,.5);}
+  .character-api-card b{display:block; color:#b9d7ff; font-size:12px; margin-bottom:4px;}
+  .character-api-card strong{display:block; color:#eef4ff; font-size:14px; line-height:1.35; overflow-wrap:anywhere;}
+  .character-api-card small{display:block; margin-top:4px; color:var(--sub); font-size:11px; line-height:1.45; overflow-wrap:anywhere;}
+  .character-api-card.exp strong{color:#d8b2ff;}
+  .character-api-card.boss strong{color:var(--gold);}
+  .character-api-card .api-error{color:var(--red);}
   .registered-empty{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.28);}
   .guide-modal{display:none; position:fixed; inset:0; z-index:10002; padding:22px; align-items:center; justify-content:center;}
   .guide-modal.open{display:flex;}
@@ -648,6 +656,7 @@
     .cloud-sync{flex-direction:column; align-items:stretch;}
     .cloud-sync-actions{justify-content:stretch;}
     .cloud-sync-actions button{flex:1 1 0;}
+    .character-api-grid{grid-template-columns:1fr;}
     .char-avatar{width:72px; height:72px; flex-basis:72px; border-radius:18px;}
     .charhead{align-items:flex-start;}
     .char-profile,.charhead .sum{width:100%; flex-basis:100%;}
@@ -851,7 +860,7 @@
       <li>서비스 이용약관에 동의하고, 게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택합니다.</li>
       <li><b>서비스 단계</b>는 현재 사이트 상태에 맞게 설정하고, 서비스명과 소개, URL 정보를 입력한 뒤 애플리케이션을 등록합니다.</li>
       <li><b>애플리케이션 목록 → 등록한 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
-      <li>이 사이트의 <b>캐릭터 등록</b> 탭에서 API Key를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지가 자동 등록됩니다.</li>
+      <li>이 사이트의 <b>캐릭터 등록</b> 탭에서 API Key를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지가 자동 등록됩니다. 페이지를 열어 둔 동안 보스 완료는 2분, 경험치는 15분 간격으로 갱신됩니다.</li>
     </ul>
     <div class="guide-note">API Key는 다른 사람에게 보여주면 안 됩니다. 노출된 경우 넥슨 Open API에서 재발급하는 것을 권장합니다.</div>
     <div class="muted" style="margin-top:8px;">참고: <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a></div>
@@ -948,7 +957,7 @@
           <span class="api-icon">🔑</span>
           <div class="api-copy">
             <b>넥슨 Open API 연동</b>
-            <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록합니다.</div>
+            <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록하고 보스 완료·경험치 변동을 갱신합니다.</div>
           </div>
         </div>
         <span class="api-status" id="nexon-api-status">API 키 미등록</span>
@@ -965,6 +974,7 @@
         <span>로컬 저장 + 암호화 클라우드 동기화</span>
         <span>백업 JSON에는 미포함</span>
         <span>캐릭터명 입력 시 자동 조회</span>
+        <span>보스 완료 2분 · 경험치 15분 자동 갱신</span>
       </div>
       <div class="cloud-sync">
         <div class="cloud-sync-copy">
@@ -998,7 +1008,7 @@
     <div class="registered-head">
       <div>
         <h2>🪪 등록된 캐릭터</h2>
-        <div class="muted">저장된 캐릭터 프로필입니다. 새로고침을 누르면 넥슨 Open API 기준 최신 레벨, 직업, 월드, 캐릭터 이미지를 다시 불러옵니다.</div>
+        <div class="muted">새로고침을 누르면 최신 프로필, 보스 완료 상태, 경험치를 가져옵니다. 페이지를 열어 둔 동안 보스는 2분, 경험치는 15분 간격으로 자동 갱신됩니다.</div>
       </div>
       <div class="registered-tools">
         <button class="ghost" id="btn-character-guide" type="button">등록방법</button>
@@ -1016,9 +1026,9 @@
       <h2 id="character-guide-title">👤 캐릭터 등록 방법</h2>
       <button class="ghost guide-modal-close" type="button" data-guide-close>닫기</button>
     </div>
-    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어옵니다.</p>
+    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어오고, 보스 완료와 경험치 변화도 갱신됩니다.</p>
     <div class="guide-grid">
-      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다.</p></div>
+      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다. 열린 페이지에서는 보스 완료 상태와 경험치도 주기적으로 반영됩니다.</p></div>
       <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
       <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
     </div>
@@ -1150,7 +1160,7 @@
   <div class="card period-card">
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
-    <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 이번 주 기준으로 기록합니다. 완료 체크와 드랍은 매주 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div>
+    <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 이번 주 기준으로 기록합니다. 완료 체크와 드랍은 매주 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div>
   </div>
 
   <div id="charlist"></div>
@@ -3688,7 +3698,10 @@ const LS_OLD = 'mapleTracker.v1';
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
+const NEXON_SCHEDULER_REFRESH_MS = 2 * 60 * 1000;
+const NEXON_PROFILE_REFRESH_MS = 15 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
+let nexonAutoRefresh = { timer:0, timeout:0, running:false };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
 let monthlyBossMigrationPendingSave = false;
 
@@ -3697,6 +3710,39 @@ function migrateBosses(b){
   if(Array.isArray(b)) b.forEach(id=>o[id]=1);
   else if(b && typeof b==='object') Object.assign(o,b);
   return o;
+}
+function normalizeApiTimestamp(value){
+  const n=Number(value);
+  return Number.isFinite(n) && n>0 ? Math.floor(n) : 0;
+}
+function normalizeCharacterExpRate(value){
+  const raw=String(value ?? '').trim().replace(/[,%\s]/g,'');
+  if(!raw) return '';
+  const n=Number(raw);
+  return Number.isFinite(n) && n>=0 ? String(Math.round(n*1000000)/1000000) : '';
+}
+function normalizeExpHistory(value){
+  const rows=Array.isArray(value) ? value : [];
+  return rows.map(row=>{
+    const o=ensureObj(row);
+    const level=Math.max(0,Math.floor(Number(o.level)||0));
+    const exp=onlyDigits(o.exp || o.characterExp || '');
+    const rate=normalizeCharacterExpRate(o.rate ?? o.characterExpRate);
+    const at=normalizeApiTimestamp(o.at || o.syncedAt);
+    return at && level>0 && (exp || rate!== '') ? {at,level,exp,rate} : null;
+  }).filter(Boolean).sort((a,b)=>a.at-b.at).slice(-120);
+}
+function normalizeSchedulerSync(value){
+  const o=ensureObj(value);
+  const date=normalizeDateInput(String(o.date || '').slice(0,10));
+  const count=Math.max(0,Math.floor(Number(o.weeklyClearCount ?? o.weekly_boss_clear_count)||0));
+  const limit=Math.max(0,Math.floor(Number(o.weeklyClearLimitCount ?? o.weekly_boss_clear_limit_count)||0));
+  const completed=Math.max(0,Math.floor(Number(o.completedBossCount)||0));
+  const matched=Math.max(0,Math.floor(Number(o.matchedBossCount)||0));
+  const conflicts=Array.isArray(o.conflicts) ? o.conflicts.map(v=>String(v||'').trim()).filter(Boolean).slice(0,6) : [];
+  return date || count || limit || completed || matched || conflicts.length
+    ? {date,updatedAt:normalizeApiTimestamp(o.updatedAt),weeklyClearCount:count,weeklyClearLimitCount:limit,completedBossCount:completed,matchedBossCount:matched,conflicts}
+    : {};
 }
 function normalizeChar(c){
   const legacyName=typeof c==='string' ? c : '';
@@ -3709,8 +3755,14 @@ function normalizeChar(c){
   c.characterImage=String(c.characterImage || c.character_image || c.image || '').trim();
   const level=Number(c.characterLevel || c.character_level || c.level || 0);
   c.characterLevel=Number.isFinite(level) && level>0 ? Math.floor(level) : 0;
+  c.characterExp=onlyDigits(c.characterExp || c.character_exp || c.exp || '');
+  c.characterExpRate=normalizeCharacterExpRate(c.characterExpRate ?? c.character_exp_rate ?? c.expRate);
+  c.expHistory=normalizeExpHistory(c.expHistory);
   c.combatPower=onlyDigits(c.combatPower || c.combat_power || c.statCombatPower || c.bossCombatPower || '');
   c.lastApiSync=String(c.lastApiSync || '').trim();
+  c.lastApiSyncAt=normalizeApiTimestamp(c.lastApiSyncAt);
+  c.schedulerSync=normalizeSchedulerSync(c.schedulerSync);
+  c.schedulerError=String(c.schedulerError || '').trim().slice(0,180);
   c.bosses=migrateBosses(c.bosses);
   const week=currentWeekKey();
   const hasBossWeeks=c.bossWeeks && typeof c.bossWeeks==='object' && !Array.isArray(c.bossWeeks);
@@ -6233,6 +6285,7 @@ function applyCloudSnapshot(snapshot){
   db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
   localStorage.setItem(LS_KEY,JSON.stringify(db));
   initNexonApiControls();
+  scheduleNexonAutoRefresh();
   renderAll();
 }
 function cloudUrl(){ return CLOUD_SYNC_ENDPOINT+'/v1/sync/'+cloudSync.syncId; }
@@ -6336,7 +6389,10 @@ async function initializeCloudSync(){
     cloudSync.initializing=false;
     cloudSyncStatus('클라우드 연결 실패: '+err.message,'err');
   }finally{
-    if(runId===cloudSync.runId) refreshCloudSyncControls();
+    if(runId===cloudSync.runId){
+      refreshCloudSyncControls();
+      scheduleNexonAutoRefresh();
+    }
   }
 }
 function initCloudSyncControls(){
@@ -6408,6 +6464,9 @@ async function fetchNexonCharacterStatByOcid(ocid){
   }
   return stat;
 }
+async function fetchNexonCharacterSchedulerByOcid(ocid){
+  return nexonFetch('/scheduler/character-state',{ocid});
+}
 function combatPowerFromStat(statData){
   const direct=onlyDigits(statData?.boss_combat_power || statData?.bossCombatPower || statData?.combat_power_boss || '');
   if(direct) return direct;
@@ -6437,7 +6496,13 @@ async function fetchNexonCombatPowerByOcid(ocid){
 async function fetchNexonCharacterProfileByOcid(ocid, name, fallbackServer){
   const basic=await fetchNexonCharacterBasicByOcid(ocid);
   const profile=profileFromNexonBasic(basic,name,ocid,fallbackServer);
-  profile.combatPower=await fetchNexonCombatPowerByOcid(ocid);
+  const [combatPower,schedulerResult]=await Promise.all([
+    fetchNexonCombatPowerByOcid(ocid),
+    fetchNexonCharacterSchedulerByOcid(ocid).then(data=>({data})).catch(error=>({error}))
+  ]);
+  profile.combatPower=combatPower;
+  if(schedulerResult.data) profile.schedulerData=schedulerResult.data;
+  else if(schedulerResult.error) profile.schedulerError=schedulerResult.error.message || '스케줄러 정보를 불러오지 못했습니다.';
   return profile;
 }
 function profileFromNexonBasic(basic, name, ocid, fallbackServer){
@@ -6448,10 +6513,156 @@ function profileFromNexonBasic(basic, name, ocid, fallbackServer){
     worldName: world,
     characterClass: String(basic.character_class || '').trim(),
     characterLevel: Math.max(0, Math.floor(Number(basic.character_level)||0)),
+    characterExp: onlyDigits(basic.character_exp || ''),
+    characterExpRate: normalizeCharacterExpRate(basic.character_exp_rate),
     characterImage: String(basic.character_image || '').trim(),
     server: serverFromNexonWorld(world, fallbackServer),
-    lastApiSync: todayStr()
+    lastApiSync: todayStr(),
+    lastApiSyncAt: Date.now()
   };
+}
+function apiFlagTrue(value){
+  return value===true || value===1 || /^(true|1|y|yes)$/i.test(String(value ?? '').trim());
+}
+function schedulerScopeFromCycle(value){
+  const cycle=String(value || '').replace(/\s/g,'').toLowerCase();
+  if(/월간|monthly|month/.test(cycle)) return 'monthly';
+  if(/주간|weekly|week/.test(cycle)) return 'weekly';
+  if(/일간|daily|day/.test(cycle)) return 'daily';
+  return '';
+}
+function schedulerDifficulty(value){
+  const text=String(value || '').replace(/\s/g,'').toLowerCase();
+  if(/익스트림|extreme/.test(text)) return '익스트림';
+  if(/카오스|chaos/.test(text)) return '카오스';
+  if(/하드|hard/.test(text)) return '하드';
+  if(/노멀|normal/.test(text)) return '노멀';
+  if(/이지|easy/.test(text)) return '이지';
+  return '';
+}
+function schedulerBossName(value){
+  return String(value || '')
+    .replace(/\([^)]*\)/g,'')
+    .replace(/(익스트림|카오스|하드|노멀|이지|extreme|chaos|hard|normal|easy)/gi,'')
+    .replace(/[^0-9a-z가-힣]/gi,'')
+    .toLowerCase();
+}
+function localBossIdentity(boss){
+  const match=String(boss?.[1] || '').match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  return {
+    name:schedulerBossName(match ? match[1] : boss?.[1]),
+    difficulty:schedulerDifficulty(match ? match[2] : boss?.[1])
+  };
+}
+function schedulerBossCandidate(item, scope){
+  const candidates=scope==='daily'
+    ? DAILY_BOSSES
+    : BOSSES.filter(b=>scope==='monthly' ? b[3]==='m' : b[3]==='w');
+  const name=schedulerBossName(item?.content_name);
+  const difficulty=schedulerDifficulty(item?.difficulty) || schedulerDifficulty(item?.content_name);
+  const sameName=candidates.filter(b=>localBossIdentity(b).name===name);
+  if(!sameName.length) return null;
+  if(difficulty) return sameName.find(b=>localBossIdentity(b).difficulty===difficulty) || null;
+  return sameName.length===1 ? sameName[0] : null;
+}
+function schedulerBossGroup(scope, bossId){
+  const groups=scope==='daily' ? DAILY_BOSS_GROUPS : (scope==='monthly' ? BOSS_GROUPS.m : BOSS_GROUPS.w);
+  return groups.find(group=>group.bosses.some(b=>b[0]===bossId)) || null;
+}
+function schedulerStoreForDate(c, scope, date){
+  if(scope==='daily') return {store:dailyBossStore(c,date),period:date};
+  const period=scope==='monthly' ? date.slice(0,7) : mapleWeekStart(date);
+  return {store:bossStore(c,period,scope),period};
+}
+function applySchedulerBossCompletion(c, boss, scope, date){
+  const group=schedulerBossGroup(scope,boss[0]);
+  const target=schedulerStoreForDate(c,scope,date);
+  const selected=group ? groupPickedBoss(group,target.store) : null;
+  if(selected && selected[0]!==boss[0]){
+    return {added:false,conflict:boss[1]+' (현재 '+selected[1]+' 선택)'};
+  }
+  if(scope==='weekly' && !canUseBoss(c,boss)) return {added:false,conflict:boss[1]+' (현재 서버에서 사용 불가)'};
+  if(scope==='weekly' && !(boss[0] in target.store) && !isLimitFreeBoss(boss)){
+    const regularCount=Object.keys(target.store).filter(id=>{
+      const picked=BOSS_MAP[id];
+      return picked && picked[3]==='w' && canUseBoss(c,picked) && !isLimitFreeBoss(picked);
+    }).length;
+    if(regularCount>=MAX_CHECK) return {added:false,conflict:boss[1]+' (주간 12개 한도)'};
+  }
+  let party=1;
+  if(scope==='daily'){
+    const pref=group ? dailyBossPreference(c,group) : {party:1};
+    party=Math.max(1,Math.min(MAX_PARTY,Number(target.store[boss[0]] || pref.party)||1));
+    if(group) setDailyBossPreference(c,group,boss[0],party);
+  }else{
+    const pref=group ? bossPreference(c,group) : {party:1};
+    party=clampPartyForBoss(boss,target.store[boss[0]] || pref.party);
+    if(group) setBossPreference(c,group,boss[0],party);
+  }
+  const added=!(boss[0] in target.store);
+  target.store[boss[0]]=party;
+  if(scope==='monthly') setMonthBossClearWeek(c,target.period,boss[0],mapleWeekStart(date));
+  if(scope!=='daily') syncBossScopeAliases(c,target.period,scope);
+  return {added,conflict:''};
+}
+function schedulerDate(value){
+  const date=normalizeDateInput(String(value || '').slice(0,10));
+  return date && date<=todayStr() ? date : todayStr();
+}
+function schedulerSyncChanged(a,b){
+  const left=ensureObj(a), right=ensureObj(b);
+  return left.date!==right.date ||
+    (Number(left.weeklyClearCount)||0) !== (Number(right.weeklyClearCount)||0) ||
+    (Number(left.weeklyClearLimitCount)||0) !== (Number(right.weeklyClearLimitCount)||0) ||
+    (Number(left.completedBossCount)||0) !== (Number(right.completedBossCount)||0) ||
+    (Number(left.matchedBossCount)||0) !== (Number(right.matchedBossCount)||0) ||
+    JSON.stringify(Array.isArray(left.conflicts)?left.conflicts:[])!==JSON.stringify(Array.isArray(right.conflicts)?right.conflicts:[]);
+}
+function applySchedulerData(c, data){
+  const source=ensureObj(data);
+  const date=schedulerDate(source.date);
+  const result={completed:0,matched:0,added:0,conflicts:[]};
+  (Array.isArray(source.boss_contents) ? source.boss_contents : []).forEach(item=>{
+    if(!apiFlagTrue(item?.complete_flag)) return;
+    result.completed++;
+    const scope=schedulerScopeFromCycle(item?.cycle);
+    if(!scope) return;
+    const boss=schedulerBossCandidate(item,scope);
+    if(!boss) return;
+    result.matched++;
+    const applied=applySchedulerBossCompletion(c,boss,scope,date);
+    if(applied.added) result.added++;
+    if(applied.conflict) result.conflicts.push(applied.conflict);
+  });
+  const next={
+    date,
+    updatedAt:Date.now(),
+    weeklyClearCount:Math.max(0,Math.floor(Number(source.weekly_boss_clear_count)||0)),
+    weeklyClearLimitCount:Math.max(0,Math.floor(Number(source.weekly_boss_clear_limit_count)||0)),
+    completedBossCount:result.completed,
+    matchedBossCount:result.matched,
+    conflicts:result.conflicts.slice(0,6)
+  };
+  const changed=schedulerSyncChanged(c.schedulerSync,next) || result.added>0 || !!c.schedulerError;
+  if(changed) c.schedulerSync=next;
+  c.schedulerError='';
+  return Object.assign(result,{changed,summary:ensureObj(c.schedulerSync)});
+}
+function recordCharacterExpSnapshot(c, profile){
+  const level=Math.max(0,Math.floor(Number(profile.characterLevel)||0));
+  const exp=onlyDigits(profile.characterExp || '');
+  const rate=normalizeCharacterExpRate(profile.characterExpRate);
+  const at=normalizeApiTimestamp(profile.lastApiSyncAt) || Date.now();
+  c.lastApiSyncAt=at;
+  if(!level || (!exp && rate==='')) return false;
+  c.characterExp=exp;
+  c.characterExpRate=rate;
+  c.expHistory=normalizeExpHistory(c.expHistory);
+  const last=c.expHistory[c.expHistory.length-1];
+  if(last && last.level===level && last.exp===exp && last.rate===rate) return false;
+  c.expHistory.push({at,level,exp,rate});
+  c.expHistory=c.expHistory.slice(-120);
+  return true;
 }
 async function refreshStoredCharacterProfile(c){
   if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
@@ -6463,6 +6674,62 @@ async function refreshStoredCharacterProfile(c){
   applyCharacterProfile(c,profile,fallbackServer);
   return c;
 }
+async function refreshStoredCharacterScheduler(c){
+  if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
+  if(!String(c.ocid || '').trim()) throw new Error('캐릭터 식별자(ocid)가 없습니다. 전체 API 갱신을 먼저 실행하세요.');
+  try{
+    return applySchedulerData(c,await fetchNexonCharacterSchedulerByOcid(c.ocid));
+  }catch(error){
+    const message=String(error?.message || '스케줄러 정보를 불러오지 못했습니다.');
+    const changed=c.schedulerError!==message;
+    c.schedulerError=message;
+    return {changed,error};
+  }
+}
+function scheduleNexonAutoRefresh(){
+  clearInterval(nexonAutoRefresh.timer);
+  clearTimeout(nexonAutoRefresh.timeout);
+  nexonAutoRefresh.timer=0;
+  nexonAutoRefresh.timeout=0;
+  if(!nexonApiKey() || !db.chars.length) return;
+  nexonAutoRefresh.timer=window.setInterval(runNexonAutoRefresh,NEXON_SCHEDULER_REFRESH_MS);
+  nexonAutoRefresh.timeout=window.setTimeout(runNexonAutoRefresh,1800);
+}
+async function runNexonAutoRefresh(){
+  if(nexonAutoRefresh.running || cloudSync.initializing || cloudSync.syncing || document.hidden || !nexonApiKey() || !db.chars.length) return;
+  nexonAutoRefresh.running=true;
+  let changed=false;
+  const now=Date.now();
+  try{
+    for(const c of db.chars){
+      try{
+        const profileDue=!Number(c.lastApiSyncAt) || now-Number(c.lastApiSyncAt)>=NEXON_PROFILE_REFRESH_MS;
+        if(profileDue){
+          await refreshStoredCharacterProfile(c);
+          changed=true;
+        }else{
+          const result=await refreshStoredCharacterScheduler(c);
+          changed=changed || !!result.changed;
+        }
+      }catch(error){
+        const message=String(error?.message || '자동 API 갱신에 실패했습니다.');
+        if(c.schedulerError!==message){
+          c.schedulerError=message;
+          changed=true;
+        }
+      }
+    }
+    if(changed){
+      save();
+      if(['character','boss','monthlyboss','dailyboss'].includes(activePageName())) renderAll();
+    }
+  }finally{
+    nexonAutoRefresh.running=false;
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) runNexonAutoRefresh();
+});
 function createEmptyChar(name, server){
   return normalizeChar({name, server, bosses:{}, bossWeeks:{}, drops:{}, dropWeeks:{}, dropPrices:{}, dropPriceWeeks:{}, dropShares:{}, dropShareWeeks:{}, dailyBossDays:{}, dailyDropDays:{}, dailyDropPriceDays:{}});
 }
@@ -6493,6 +6760,12 @@ function applyCharacterProfile(c, profile, fallbackServer){
     c.characterImage=profile.characterImage || c.characterImage || '';
     if(Object.prototype.hasOwnProperty.call(profile,'combatPower')) c.combatPower=onlyDigits(profile.combatPower);
     c.lastApiSync=profile.lastApiSync || todayStr();
+    if(Object.prototype.hasOwnProperty.call(profile,'lastApiSyncAt')) c.lastApiSyncAt=normalizeApiTimestamp(profile.lastApiSyncAt);
+    if(Object.prototype.hasOwnProperty.call(profile,'characterExp') || Object.prototype.hasOwnProperty.call(profile,'characterExpRate')){
+      recordCharacterExpSnapshot(c,profile);
+    }
+    if(Object.prototype.hasOwnProperty.call(profile,'schedulerData')) applySchedulerData(c,profile.schedulerData);
+    else if(Object.prototype.hasOwnProperty.call(profile,'schedulerError')) c.schedulerError=String(profile.schedulerError || '').trim().slice(0,180);
     remapCharNameState(oldName,c.name);
   }else{
     c.server=fallbackServer || c.server;
@@ -6531,6 +6804,60 @@ function charProfileHtml(c){
     : '<span class="char-avatar placeholder">?</span>';
   const meta=characterMetaText(c);
   return '<span class="char-profile">'+avatar+'<span class="char-info"><span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+(meta?'<span class="char-meta">'+esc(meta)+'</span>':'')+'</span></span>';
+}
+function expRateText(value){
+  const rate=normalizeCharacterExpRate(value);
+  if(rate==='') return '';
+  const n=Number(rate);
+  return Number.isFinite(n) ? n.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%' : '';
+}
+function apiTimeText(value){
+  const at=normalizeApiTimestamp(value);
+  if(!at) return '';
+  return new Date(at).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+}
+function characterExpTrackingHtml(c){
+  const history=normalizeExpHistory(c.expHistory);
+  const current=history[history.length-1] || {
+    level:Math.max(0,Math.floor(Number(c.characterLevel)||0)),
+    exp:onlyDigits(c.characterExp || ''),
+    rate:normalizeCharacterExpRate(c.characterExpRate)
+  };
+  const previous=history.length>1 ? history[history.length-2] : null;
+  const rate=expRateText(current.rate);
+  let title=current.level ? 'Lv.'+fmt(current.level)+(rate ? ' · '+rate : '') : '경험치 정보 대기';
+  let detail=current.exp ? '현재 EXP '+fmt(current.exp) : 'API 갱신 후 경험치 변화를 추적합니다.';
+  if(previous){
+    if(current.level>previous.level){
+      detail='최근 Lv.'+fmt(previous.level)+' → Lv.'+fmt(current.level)+' 레벨업';
+    }else if(current.level===previous.level && current.rate!=='' && previous.rate!==''){
+      const delta=Number(current.rate)-Number(previous.rate);
+      if(Number.isFinite(delta) && Math.abs(delta)>=0.000001){
+        detail='최근 '+(delta>0?'+':'')+delta.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p';
+      }
+    }
+  }
+  return '<div class="character-api-card exp"><b>경험치 추적</b><strong>'+esc(title)+'</strong><small>'+esc(detail)+'</small></div>';
+}
+function characterSchedulerTrackingHtml(c){
+  const sync=normalizeSchedulerSync(c.schedulerSync);
+  const hasWeeklyLimit=sync.weeklyClearLimitCount>0;
+  let title='보스 상태 대기';
+  let detail='API 갱신 시 주간·월간·일간 보스 완료 상태를 반영합니다.';
+  if(hasWeeklyLimit){
+    title='이번 주 '+fmt(sync.weeklyClearCount)+' / '+fmt(sync.weeklyClearLimitCount)+' 완료';
+    detail='넥슨 스케줄러 기준 · 완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
+  }else if(sync.matchedBossCount>0){
+    title='완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
+    detail='넥슨 스케줄러 기준으로 카드 체크를 동기화했습니다.';
+  }
+  const syncTime=apiTimeText(sync.updatedAt);
+  if(syncTime) detail+=' · '+syncTime+' 갱신';
+  if(c.schedulerError) detail=String(c.schedulerError);
+  return '<div class="character-api-card boss"><b>API 보스 진행</b><strong>'+esc(title)+'</strong><small'+(c.schedulerError?' class="api-error"':'')+'>'+esc(detail)+'</small></div>';
+}
+function characterApiTrackingHtml(c){
+  return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+characterExpTrackingHtml(c)+'</div>';
 }
 function charHeadHtml(c, summaryHtml){
   return charProfileHtml(c)+'<span class="sum">'+summaryHtml+'</span>';
@@ -6577,8 +6904,9 @@ function renderRegisteredCharacters(){
     const synced=c.lastApiSync ? '마지막 API 갱신: '+esc(c.lastApiSync) : 'API 정보 없음';
     card.innerHTML=
       charProfileHtml(c)+
+      characterApiTrackingHtml(c)+
       '<div class="registered-actions">'+
-        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">새로고침</button>'+
+        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">API 갱신</button>'+
         '<button class="danger char-delete-btn" type="button" data-idx="'+idx+'">캐릭터 삭제</button>'+
         '<span class="muted">'+synced+'</span>'+
       '</div>';
@@ -6613,7 +6941,7 @@ function renderRegisteredCharacters(){
       dailyOpenChars.delete(target.name);
       Array.from(bossDrafts.keys()).forEach(key=>{ if(key.startsWith(target.name+'|')) bossDrafts.delete(key); });
       Array.from(dailyBossDrafts.keys()).forEach(key=>{ if(key.startsWith(target.name+'|')) dailyBossDrafts.delete(key); });
-      save(); renderAll();
+      save(); scheduleNexonAutoRefresh(); renderAll();
     };
     list.appendChild(card);
   });
@@ -6647,6 +6975,7 @@ function initNexonApiControls(){
     localStorage.setItem(LS_KEY,JSON.stringify(db));
     refresh();
     await initializeCloudSync();
+    scheduleNexonAutoRefresh();
   };
   clearBtn.onclick=()=>{
     if(!nexonApiKey()){ refresh(); return; }
@@ -6655,6 +6984,7 @@ function initNexonApiControls(){
       resetCloudSync();
       localStorage.setItem(LS_KEY,JSON.stringify(db));
       refresh();
+      scheduleNexonAutoRefresh();
     }
   };
   input.addEventListener('keydown',e=>{ if(e.key==='Enter') saveBtn.click(); });
@@ -6663,6 +6993,7 @@ function initNexonApiControls(){
 initNexonApiControls();
 initCloudSyncControls();
 initializeCloudSync();
+scheduleNexonAutoRefresh();
 initExpenseControls();
 function initCharacterGuideModal(){
   const modal=document.getElementById('character-guide-modal');
@@ -6738,7 +7069,7 @@ const addCharacter=async()=>{
   monthlyOpenChars.add(result.char.name);
   dailyOpenChars.add(result.char.name);
   document.getElementById('in-char').value='';
-  save(); renderAll();
+  save(); scheduleNexonAutoRefresh(); renderAll();
   if(profile && result.updated) alert('기존 캐릭터의 API 정보를 갱신했습니다.');
 };
 document.getElementById('btn-addchar').onclick=addCharacter;
