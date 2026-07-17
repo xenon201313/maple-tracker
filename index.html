@@ -362,6 +362,8 @@
   .loot-row .loot-count{color:var(--gold); font-weight:bold;}
   .chart-float{position:fixed; z-index:10001; min-width:178px; max-width:260px; padding:9px 10px; border-radius:8px; border:1px solid rgba(255,210,77,.46); background:rgba(12,16,28,.97); box-shadow:0 12px 28px rgba(0,0,0,.46); color:var(--text); pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s ease, transform .14s ease, left .12s ease, top .12s ease; will-change:left,top,opacity,transform;}
   .chart-float.show{opacity:1; transform:translateY(0);}
+  .chart-float.exp{border-color:rgba(98,217,220,.62);}
+  .chart-float.exp .chart-swatch{border-color:#62d9dc; background:rgba(98,217,220,.19);}
   .chart-tip-title{font-size:13px; font-weight:800; color:#f2f4ff; margin-bottom:7px;}
   .chart-tip-row{display:grid; grid-template-columns:14px minmax(0,1fr); gap:7px; align-items:center; font-size:12px; color:#dfe4f2;}
   .chart-tip-row b{display:block; margin-top:3px; color:var(--gold); font-size:12px; line-height:1.25; overflow-wrap:anywhere;}
@@ -452,10 +454,17 @@
   .exp-bar-fill:hover{filter:brightness(1.14); transform:translateY(-1px);}
   .exp-chart-labels{grid-column:2; display:flex; gap:6px; margin-top:6px;}
   .exp-chart-labels span{flex:1 1 0; min-width:0; color:var(--sub); font-size:10px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .exp-level-chart{grid-template-columns:minmax(0,1fr);}
+  .exp-level-chart .exp-chart-plot{border-bottom:1px solid rgba(220,230,255,.22);}
+  .exp-level-chart .exp-chart-labels{grid-column:1;}
   .exp-chart-svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
   .exp-chart-line{fill:none; stroke:#62d9dc; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
   .exp-chart-point{fill:#d6ffff; stroke:#359ca6; stroke-width:2; cursor:help;}
   .exp-chart-point.level-up{fill:#ffe486; stroke:#d69b22;}
+  .exp-level-event-labels{position:absolute; inset:0; z-index:2; pointer-events:none;}
+  .exp-level-event-label{position:absolute; max-width:74px; color:#dfe9f7; font-family:Arial,sans-serif; font-size:12px; font-weight:800; line-height:1.1; letter-spacing:0; text-align:center; white-space:nowrap; text-shadow:0 2px 3px rgba(5,8,15,.85); transform:translate(-50%,-100%);}
+  .exp-level-event-label.start{transform:translate(0,-100%); text-align:left;}
+  .exp-level-event-label.end{transform:translate(-100%,-100%); text-align:right;}
   .exp-chart-empty{display:flex; align-items:center; justify-content:center; height:168px; color:var(--sub); font-size:12px; text-align:center; line-height:1.5;}
   .hunt-edit-state{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px; border:1px solid rgba(115,208,255,.38); border-radius:8px; background:rgba(55,111,161,.14); color:#c7eaff; font-size:13px;}
   .hunt-edit-state[hidden]{display:none;}
@@ -861,12 +870,14 @@
     .exp-history-head{margin-bottom:8px;}
     .exp-history-head span{max-width:52%;}
     .exp-bar-chart,.exp-level-chart{grid-template-columns:38px minmax(0,1fr); column-gap:5px;}
+    .exp-level-chart{grid-template-columns:minmax(0,1fr);}
     .exp-chart-axis,.exp-chart-plot{height:142px;}
     .exp-axis-tick{right:5px; font-size:9px;}
     .exp-bar-columns,.exp-chart-labels{gap:3px;}
     .exp-bar-columns{padding-left:1px; padding-right:1px;}
     .exp-bar-value{font-size:8px;}
     .exp-chart-labels span{font-size:9px;}
+    .exp-level-event-label{font-size:10px;}
     .goal-wrap{padding:13px;}
     .goal-percent{font-size:24px;}
     .goal-head{align-items:center;}
@@ -1509,6 +1520,7 @@
       </div>
     </div>
     <div class="stats-period-list" id="monthly-summary-list"></div>
+    <div class="stats-period-pagination" id="monthly-summary-pagination"></div>
   </div>
 </div>
 
@@ -3890,6 +3902,7 @@ const NEXON_PROFILE_REFRESH_MS = 15 * 60 * 1000;
 const DAILY_RECORDS_PER_PAGE = 10;
 const EXP_TRACKER_DAYS = 7;
 const WEEKLY_STATS_PER_PAGE = 5;
+const MONTHLY_STATS_PER_PAGE = 5;
 const EXP_HISTORY_RETRY_MS = 4 * 60 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
@@ -3900,6 +3913,7 @@ let collapsedDailyRecordDates = new Set();
 let dailyRecordCollapseInitialized = false;
 let expTrackerCharacterName = '';
 let weeklyStatsPage = 0;
+let monthlyStatsPage = 0;
 
 function migrateBosses(b){
   const o={};
@@ -5247,9 +5261,10 @@ function expBarHistoryHtml(days,latestLevel){
     const level=hasData ? Math.floor(Number(snapshot.level)||0) : 0;
     const levelChanged=hasData && level!==latestLevel;
     const label=hasData ? row.date+' · Lv.'+fmt(level)+' '+expRateLabel(rate) : row.date+' · 기록 없음';
+    const tooltipAttrs=' data-exp-tooltip data-exp-date="'+esc(row.date)+'" data-exp-level="'+level+'" data-exp-rate="'+esc(hasData?String(rate):'')+'" data-exp-source="경험치 기록" data-exp-empty="'+(hasData?'0':'1')+'" tabindex="0" aria-label="'+esc(label)+'"';
     return '<div class="exp-bar-column">'+
       '<span class="exp-bar-value'+(hasData?'':' empty')+'" style="bottom:calc('+valueBottom+'% + 3px)">'+(hasData?expRateLabel(rate):'-')+'</span>'+
-      '<span class="exp-bar-fill'+(levelChanged?' level-change':'')+(hasData?'':' empty')+'" style="height:'+height+'%" title="'+esc(label)+'" aria-label="'+esc(label)+'"></span>'+
+      '<span class="exp-bar-fill'+(levelChanged?' level-change':'')+(hasData?'':' empty')+'" style="height:'+height+'%"'+tooltipAttrs+'></span>'+
     '</div>';
   }).join('');
   const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
@@ -5262,9 +5277,22 @@ function expBarHistoryHtml(days,latestLevel){
     '</div>'+
   '</section>';
 }
-function expLevelHistoryHtml(days){
-  const series=days.filter(row=>row.snapshot).map(row=>({date:row.date,snapshot:row.snapshot,level:Math.max(0,Math.floor(Number(row.snapshot.level)||0)),rate:expSnapshotRate(row.snapshot)}));
-  if(!series.length) return '<section class="exp-history-panel"><div class="exp-history-head"><b>레벨업 히스토리</b><span>최근 7일</span></div><div class="exp-chart-empty">레벨 기록을 수집 중입니다.</div></section>';
+function expLevelMilestones(history){
+  const milestones=[];
+  let previousLevel=null;
+  normalizeExpHistory(history).forEach(snapshot=>{
+    const level=Math.max(0,Math.floor(Number(snapshot.level)||0));
+    const date=expTrackerDate(snapshot.at);
+    if(!level || !date || level===previousLevel) return;
+    milestones.push({date,level,rate:expSnapshotRate(snapshot),kind:previousLevel===null?'기록 시작':'레벨업 감지'});
+    previousLevel=level;
+  });
+  return milestones;
+}
+function expLevelHistoryHtml(history){
+  const allMilestones=expLevelMilestones(history);
+  const series=allMilestones.slice(-10);
+  if(!series.length) return '<section class="exp-history-panel"><div class="exp-history-head"><b>레벨업 히스토리</b><span>API 감지 시점</span></div><div class="exp-chart-empty">레벨 기록을 수집 중입니다.</div></section>';
   const values=series.map(row=>row.level);
   const low=Math.min(...values), high=Math.max(...values);
   const min=Math.max(0,low-(low===high?1:0));
@@ -5274,20 +5302,21 @@ function expLevelHistoryHtml(days){
   const points=series.map((row,index)=>{
     const x=series.length===1 ? svgWidth/2 : (svgWidth/(series.length-1))*index;
     const y=svgHeight-((row.level-min)/range)*svgHeight;
-    const previous=series[index-1];
-    const changed=!!previous && previous.level!==row.level;
     const label=row.date+' · Lv.'+fmt(row.level)+(row.rate===null?'':' · '+expRateLabel(row.rate));
-    return {x,y,changed,label};
+    return {x,y,level:row.level,rate:row.rate,kind:row.kind,label};
   });
   const path=points.map((point,index)=>(index?'L ':'M ')+point.x.toFixed(2)+' '+point.y.toFixed(2)).join(' ');
-  const dots=points.map(point=>'<circle class="exp-chart-point'+(point.changed?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5"><title>'+esc(point.label)+'</title></circle>').join('');
-  const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
-  const ticks=[0,0.5,1].map(position=>'<span class="exp-axis-tick" style="bottom:'+(position*100)+'%">Lv.'+fmt(Math.round(min+(range*position)))+'</span>').join('');
+  const dots=points.map((point,index)=>'<circle class="exp-chart-point'+(index?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5" data-exp-tooltip data-exp-date="'+esc(point.date)+'" data-exp-level="'+point.level+'" data-exp-rate="'+esc(point.rate===null?'':String(point.rate))+'" data-exp-source="'+esc(point.kind)+'" data-exp-empty="0" tabindex="0" role="img" aria-label="'+esc(point.label)+'"></circle>').join('');
+  const labels=points.map((point,index)=>{
+    const left=(point.x/svgWidth)*100;
+    const top=Math.max(12,Math.min(95,(point.y/svgHeight)*100-4));
+    const edge=index===0?' start':(index===points.length-1?' end':'');
+    return '<span class="exp-level-event-label'+edge+'" style="left:'+left.toFixed(3)+'%; top:'+top.toFixed(3)+'%">Lv.'+fmt(point.level)+'</span>';
+  }).join('');
   return '<section class="exp-history-panel">'+
-    '<div class="exp-history-head"><b>레벨업 히스토리</b><span>최근 7일 · 일별 마지막 API 기록</span></div>'+
+    '<div class="exp-history-head"><b>레벨업 히스토리</b><span>'+(allMilestones.length>series.length?'최근 '+series.length+'건 · ':'')+'API 감지 시점</span></div>'+
     '<div class="exp-level-chart">'+
-      '<div class="exp-chart-axis">'+ticks+'</div>'+
-      '<div class="exp-chart-plot">'+grid+'<svg class="exp-chart-svg" viewBox="0 0 '+svgWidth+' '+svgHeight+'" preserveAspectRatio="none" role="img" aria-label="최근 7일 레벨 히스토리 그래프"><path class="exp-chart-line" d="'+path+'"></path>'+dots+'</svg></div>'+
+      '<div class="exp-chart-plot"><i class="exp-grid-line" style="bottom:0"></i><svg class="exp-chart-svg" viewBox="0 0 '+svgWidth+' '+svgHeight+'" preserveAspectRatio="none" role="img" aria-label="API 기준 레벨업 히스토리 그래프"><path class="exp-chart-line" d="'+path+'"></path>'+dots+'</svg><div class="exp-level-event-labels">'+labels+'</div></div>'+
       '<div class="exp-chart-labels" style="grid-template-columns:repeat('+series.length+',minmax(0,1fr))">'+series.map(row=>'<span>'+esc(row.date.slice(5))+'</span>').join('')+'</div>'+
     '</div>'+
   '</section>';
@@ -5337,7 +5366,8 @@ function renderExpTracker(){
       '<div class="exp-summary predict"><span>다음 레벨업 예상</span><b>'+esc(forecastText)+'</b></div>'+
     '</div>'+
     '<div class="muted" style="margin-top:8px;">'+esc(forecastDetail+(latestDate?' · 마지막 기록 '+latestDate:'')+rawExp)+'</div>'+
-    '<div class="exp-history-grid">'+expBarHistoryHtml(days,currentLevel)+expLevelHistoryHtml(days)+'</div>';
+    '<div class="exp-history-grid">'+expBarHistoryHtml(days,currentLevel)+expLevelHistoryHtml(history)+'</div>';
+  bindExpTooltipEvents(el);
 }
 function renderRecords(){
   const list=document.getElementById('daily-record-list');
@@ -5616,6 +5646,7 @@ function positionMesoTooltip(anchor, evt){
 function showMesoTooltip(anchor, evt){
   const el=chartTooltipEl();
   if(!el || !anchor) return;
+  el.classList.remove('exp');
   const meso=anchor.dataset.meso || '0';
   const label=anchor.dataset.label || '재획 메소';
   el.innerHTML=
@@ -5625,9 +5656,35 @@ function showMesoTooltip(anchor, evt){
   el.classList.add('show');
   positionMesoTooltip(anchor, evt);
 }
+function showExpTooltip(anchor, evt){
+  const el=chartTooltipEl();
+  if(!el || !anchor) return;
+  const date=anchor.dataset.expDate || '';
+  const missing=anchor.dataset.expEmpty==='1';
+  const level=Math.max(0,Math.floor(Number(anchor.dataset.expLevel)||0));
+  const rate=normalizeCharacterExpRate(anchor.dataset.expRate);
+  const source=anchor.dataset.expSource || '경험치 기록';
+  const detail=missing ? 'API 기록 없음' : 'Lv.'+fmt(level)+(rate===''?'':' · '+expRateLabel(rate));
+  el.innerHTML=
+    '<div class="chart-tip-title">'+esc(chartDateLabel(date))+'</div>'+
+    '<div class="chart-tip-row"><span class="chart-swatch"></span><span>'+esc(source)+'<b>'+esc(detail)+'</b></span></div>'+
+    '<div class="chart-tip-sub">'+(missing?'해당 날짜에는 확인 가능한 경험치 기록이 없습니다.':'넥슨 Open API 마지막 기록 기준')+'</div>';
+  el.classList.add('show','exp');
+  positionMesoTooltip(anchor, evt);
+}
+function bindExpTooltipEvents(container){
+  if(!container) return;
+  container.querySelectorAll('[data-exp-tooltip]').forEach(anchor=>{
+    anchor.addEventListener('mouseenter',event=>showExpTooltip(anchor,event));
+    anchor.addEventListener('mousemove',event=>positionMesoTooltip(anchor,event));
+    anchor.addEventListener('mouseleave',hideMesoTooltip);
+    anchor.addEventListener('focus',event=>showExpTooltip(anchor,event));
+    anchor.addEventListener('blur',hideMesoTooltip);
+  });
+}
 function hideMesoTooltip(){
   const el=document.getElementById('chart-float');
-  if(el) el.classList.remove('show');
+  if(el) el.classList.remove('show','exp');
 }
 if(typeof window!=='undefined'){
   window.addEventListener('scroll', hideMesoTooltip, {passive:true});
@@ -5877,6 +5934,21 @@ function renderWeeklySummaryPagination(total,pageCount,start,visibleCount){
     };
   });
 }
+function renderMonthlySummaryPagination(total,pageCount,start,visibleCount){
+  const el=document.getElementById('monthly-summary-pagination');
+  if(!el) return;
+  if(total<=MONTHLY_STATS_PER_PAGE){ el.innerHTML=''; return; }
+  el.innerHTML=
+    '<button class="ghost" type="button" data-monthly-page="newer" '+(monthlyStatsPage===0?'disabled':'')+'>‹ 더 최근 5개월</button>'+
+    '<span class="stats-period-page-info">월 '+(start+1)+'–'+(start+visibleCount)+' / '+total+'</span>'+
+    '<button class="ghost" type="button" data-monthly-page="older" '+(monthlyStatsPage>=pageCount-1?'disabled':'')+'>이전 5개월 ›</button>';
+  el.querySelectorAll('[data-monthly-page]').forEach(button=>{
+    button.onclick=()=>{
+      monthlyStatsPage+=button.dataset.monthlyPage==='older' ? 1 : -1;
+      renderStats();
+    };
+  });
+}
 function renderStats(){
   const today=todayStr();
   const wkStart=mapleWeekStart(today), wkEnd=addDays(wkStart,6);
@@ -6000,10 +6072,16 @@ function renderStats(){
     if(!d) return;
     ensureMonth(d.slice(0,7)).expense+=toMesoBig(normalizeExpenseRecord(r).amount);
   });
+  const monthlyKeys=Object.keys(months).sort().reverse().filter(m=>m===mon || statsPeriodHasActivity(months[m]));
+  const monthlyPageCount=Math.max(1,Math.ceil(monthlyKeys.length/MONTHLY_STATS_PER_PAGE));
+  monthlyStatsPage=Math.max(0,Math.min(monthlyStatsPage,monthlyPageCount-1));
+  const monthlyStart=monthlyStatsPage*MONTHLY_STATS_PER_PAGE;
+  const visibleMonthlyKeys=monthlyKeys.slice(monthlyStart,monthlyStart+MONTHLY_STATS_PER_PAGE);
   const monthlyList=document.getElementById('monthly-summary-list');
-  if(monthlyList) monthlyList.innerHTML=Object.keys(months).sort().reverse().map(m=>
+  if(monthlyList) monthlyList.innerHTML=visibleMonthlyKeys.map(m=>
     statsPeriodCardHtml(m.replace('-','년 ')+'월',m.replace('-','년 ')+'월',months[m],m===mon,'월간')
   ).join('') || '<div class="stats-period-empty">아직 월간 기록이 없습니다.</div>';
+  renderMonthlySummaryPagination(monthlyKeys.length,monthlyPageCount,monthlyStart,visibleMonthlyKeys.length);
   renderErdaCalculator();
 }
 
@@ -6030,6 +6108,7 @@ function restoreBackupSnapshot(id){
   db=trackerDbFromData(snapshot.data,apiKey,snapshots);
   dailyRecordPage=0;
   weeklyStatsPage=0;
+  monthlyStatsPage=0;
   collapsedDailyRecordDates.clear();
   dailyRecordCollapseInitialized=false;
   save(); initNexonApiControls(); renderAll();
@@ -6764,6 +6843,7 @@ function applyCloudSnapshot(snapshot){
   db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
   dailyRecordPage=0;
   weeklyStatsPage=0;
+  monthlyStatsPage=0;
   collapsedDailyRecordDates.clear();
   dailyRecordCollapseInitialized=false;
   localStorage.setItem(LS_KEY,JSON.stringify(db));
@@ -8443,6 +8523,7 @@ document.getElementById('file-import').onchange=(e)=>{
       db=trackerDbFromData(data,currentApiKey,snapshots);
       dailyRecordPage=0;
       weeklyStatsPage=0;
+      monthlyStatsPage=0;
       collapsedDailyRecordDates.clear();
       dailyRecordCollapseInitialized=false;
       save(); initNexonApiControls(); renderAll(); alert('복원 완료!');
