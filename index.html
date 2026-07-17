@@ -179,6 +179,8 @@
   .stat .v.bad{color:var(--red);}
   .stat .s{font-size:12px; color:var(--sub); margin-top:5px; line-height:1.5; overflow-wrap:anywhere;}
   .stats-period-list{display:grid; gap:10px;}
+  .stats-period-pagination{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:13px; flex-wrap:wrap;}
+  .stats-period-page-info{min-width:126px; color:var(--sub); font-size:12px; text-align:center; line-height:1.4;}
   .stats-period-empty{padding:18px; text-align:center; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.24); font-size:13px;}
   .stats-period-card{min-width:0; padding:13px; border:1px solid rgba(220,230,255,.16); border-radius:11px; background:rgba(9,14,25,.5); box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);}
   .stats-period-card.is-current{border-color:rgba(255,210,77,.5); background:linear-gradient(105deg,rgba(92,72,21,.2),rgba(9,14,25,.62));}
@@ -454,7 +456,6 @@
   .exp-chart-line{fill:none; stroke:#62d9dc; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
   .exp-chart-point{fill:#d6ffff; stroke:#359ca6; stroke-width:2; cursor:help;}
   .exp-chart-point.level-up{fill:#ffe486; stroke:#d69b22;}
-  .exp-level-label{fill:#d9edf1; font-family:var(--font-body); font-size:20px; font-weight:800; paint-order:stroke; stroke:rgba(8,13,24,.78); stroke-width:5px; stroke-linejoin:round;}
   .exp-chart-empty{display:flex; align-items:center; justify-content:center; height:168px; color:var(--sub); font-size:12px; text-align:center; line-height:1.5;}
   .hunt-edit-state{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px; border:1px solid rgba(115,208,255,.38); border-radius:8px; background:rgba(55,111,161,.14); color:#c7eaff; font-size:13px;}
   .hunt-edit-state[hidden]{display:none;}
@@ -866,7 +867,6 @@
     .exp-bar-columns{padding-left:1px; padding-right:1px;}
     .exp-bar-value{font-size:8px;}
     .exp-chart-labels span{font-size:9px;}
-    .exp-level-label{font-size:17px;}
     .goal-wrap{padding:13px;}
     .goal-percent{font-size:24px;}
     .goal-head{align-items:center;}
@@ -1499,6 +1499,7 @@
       </div>
     </div>
     <div class="stats-period-list" id="weekly-summary-list"></div>
+    <div class="stats-period-pagination" id="weekly-summary-pagination"></div>
   </div>
   <div class="card">
     <div class="stats-section-head">
@@ -3888,6 +3889,8 @@ const NEXON_SCHEDULER_REFRESH_MS = 2 * 60 * 1000;
 const NEXON_PROFILE_REFRESH_MS = 15 * 60 * 1000;
 const DAILY_RECORDS_PER_PAGE = 10;
 const EXP_TRACKER_DAYS = 7;
+const WEEKLY_STATS_PER_PAGE = 5;
+const EXP_HISTORY_RETRY_MS = 4 * 60 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
@@ -3896,6 +3899,7 @@ let dailyRecordPage = 0;
 let collapsedDailyRecordDates = new Set();
 let dailyRecordCollapseInitialized = false;
 let expTrackerCharacterName = '';
+let weeklyStatsPage = 0;
 
 function migrateBosses(b){
   const o={};
@@ -3950,6 +3954,12 @@ function normalizeChar(c){
   c.characterExp=onlyDigits(c.characterExp || c.character_exp || c.exp || '');
   c.characterExpRate=normalizeCharacterExpRate(c.characterExpRate ?? c.character_exp_rate ?? c.expRate);
   c.expHistory=normalizeExpHistory(c.expHistory);
+  c.expHistoryFetchAttempts=ensureObj(c.expHistoryFetchAttempts);
+  Object.keys(c.expHistoryFetchAttempts).forEach(date=>{
+    const attemptedAt=normalizeApiTimestamp(c.expHistoryFetchAttempts[date]);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date) || !attemptedAt) delete c.expHistoryFetchAttempts[date];
+    else c.expHistoryFetchAttempts[date]=attemptedAt;
+  });
   c.combatPower=onlyDigits(c.combatPower || c.combat_power || c.statCombatPower || c.bossCombatPower || '');
   c.lastApiSync=String(c.lastApiSync || '').trim();
   c.lastApiSyncAt=normalizeApiTimestamp(c.lastApiSyncAt);
@@ -5266,12 +5276,11 @@ function expLevelHistoryHtml(days){
     const y=svgHeight-((row.level-min)/range)*svgHeight;
     const previous=series[index-1];
     const changed=!!previous && previous.level!==row.level;
-    const showLabel=index===0 || index===series.length-1 || changed;
     const label=row.date+' · Lv.'+fmt(row.level)+(row.rate===null?'':' · '+expRateLabel(row.rate));
-    return {x,y,changed,label,text:showLabel?'<text class="exp-level-label" x="'+x.toFixed(2)+'" y="'+Math.max(16,y-10).toFixed(2)+'" text-anchor="middle">Lv.'+fmt(row.level)+'</text>':''};
+    return {x,y,changed,label};
   });
   const path=points.map((point,index)=>(index?'L ':'M ')+point.x.toFixed(2)+' '+point.y.toFixed(2)).join(' ');
-  const dots=points.map(point=>'<circle class="exp-chart-point'+(point.changed?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5"><title>'+esc(point.label)+'</title></circle>'+point.text).join('');
+  const dots=points.map(point=>'<circle class="exp-chart-point'+(point.changed?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5"><title>'+esc(point.label)+'</title></circle>').join('');
   const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
   const ticks=[0,0.5,1].map(position=>'<span class="exp-axis-tick" style="bottom:'+(position*100)+'%">Lv.'+fmt(Math.round(min+(range*position)))+'</span>').join('');
   return '<section class="exp-history-panel">'+
@@ -5303,13 +5312,13 @@ function renderExpTracker(){
   const history=normalizeExpHistory(character.expHistory);
   const latest=history[history.length-1];
   if(!latest || expProgressUnit(latest)===null){
-    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 경험치 기록이 아직 없습니다. API 갱신 후부터 변화가 쌓이며, 수익 통계에는 포함되지 않습니다.</div>';
+    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 경험치 기록이 아직 없습니다. API 갱신 시 최근 7일 과거 기록도 함께 조회하며, 수익 통계에는 포함되지 않습니다.</div>';
     return;
   }
   const days=expWeekData(character);
   const snapshots=days.map(row=>row.snapshot).filter(Boolean);
   if(!snapshots.length){
-    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 최근 7일 경험치 기록이 없습니다. API 갱신 후부터 그래프와 레벨업 예상일을 계산합니다.</div>';
+    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 최근 7일 경험치 기록이 없습니다. API 갱신 시 그래프와 레벨업 예상일을 계산합니다.</div>';
     return;
   }
   const first=snapshots[0] || null;
@@ -5843,6 +5852,31 @@ function statsPeriodCardHtml(title,range,row,current,label){
     '<div class="stats-period-footer"><span>획득 아이템 '+lootCellHtml(row.loot)+'</span><span>솔 에르다 <b>'+fmt(row.e)+'개</b></span></div>'+
   '</article>';
 }
+function statsPeriodHasActivity(row){
+  const data=row || {};
+  return toMesoBig(data.m)!==0n ||
+    toMesoBig(data.boss)!==0n ||
+    toMesoBig(data.profit)!==0n ||
+    toMesoBig(data.expense)!==0n ||
+    Number(data.e)||0 ||
+    Number(data.days)||0 ||
+    (Array.isArray(data.loot) && data.loot.length>0);
+}
+function renderWeeklySummaryPagination(total,pageCount,start,visibleCount){
+  const el=document.getElementById('weekly-summary-pagination');
+  if(!el) return;
+  if(total<=WEEKLY_STATS_PER_PAGE){ el.innerHTML=''; return; }
+  el.innerHTML=
+    '<button class="ghost" type="button" data-weekly-page="newer" '+(weeklyStatsPage===0?'disabled':'')+'>‹ 더 최근 5주</button>'+
+    '<span class="stats-period-page-info">주차 '+(start+1)+'–'+(start+visibleCount)+' / '+total+'</span>'+
+    '<button class="ghost" type="button" data-weekly-page="older" '+(weeklyStatsPage>=pageCount-1?'disabled':'')+'>이전 5주 ›</button>';
+  el.querySelectorAll('[data-weekly-page]').forEach(button=>{
+    button.onclick=()=>{
+      weeklyStatsPage+=button.dataset.weeklyPage==='older' ? 1 : -1;
+      renderStats();
+    };
+  });
+}
 function renderStats(){
   const today=todayStr();
   const wkStart=mapleWeekStart(today), wkEnd=addDays(wkStart,6);
@@ -5930,10 +5964,16 @@ function renderStats(){
     row.profit=profitTotals(d=>mapleWeekStart(d)===w).net;
     row.expense=expenseTotals(d=>mapleWeekStart(d)===w).total;
   });
+  const weeklyKeys=Object.keys(weeks).sort().reverse().filter(w=>w===wkStart || statsPeriodHasActivity(weeks[w]));
+  const weeklyPageCount=Math.max(1,Math.ceil(weeklyKeys.length/WEEKLY_STATS_PER_PAGE));
+  weeklyStatsPage=Math.max(0,Math.min(weeklyStatsPage,weeklyPageCount-1));
+  const weeklyStart=weeklyStatsPage*WEEKLY_STATS_PER_PAGE;
+  const visibleWeeklyKeys=weeklyKeys.slice(weeklyStart,weeklyStart+WEEKLY_STATS_PER_PAGE);
   const weeklyList=document.getElementById('weekly-summary-list');
-  if(weeklyList) weeklyList.innerHTML=Object.keys(weeks).sort().reverse().map(w=>
+  if(weeklyList) weeklyList.innerHTML=visibleWeeklyKeys.map(w=>
     statsPeriodCardHtml(w,fmtShort(w)+' ~ '+fmtShort(addDays(w,6)),weeks[w],w===wkStart,'주간')
   ).join('') || '<div class="stats-period-empty">아직 주간 기록이 없습니다.</div>';
+  renderWeeklySummaryPagination(weeklyKeys.length,weeklyPageCount,weeklyStart,visibleWeeklyKeys.length);
 
   const months={};
   const ensureMonth=m=>months[m]||(months[m]={m:0n,e:0,days:0,boss:0n,profit:0n,expense:0n,loot:[]});
@@ -5989,6 +6029,7 @@ function restoreBackupSnapshot(id){
   const apiKey=nexonApiKey();
   db=trackerDbFromData(snapshot.data,apiKey,snapshots);
   dailyRecordPage=0;
+  weeklyStatsPage=0;
   collapsedDailyRecordDates.clear();
   dailyRecordCollapseInitialized=false;
   save(); initNexonApiControls(); renderAll();
@@ -6722,6 +6763,7 @@ function applyCloudSnapshot(snapshot){
   const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
   db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
   dailyRecordPage=0;
+  weeklyStatsPage=0;
   collapsedDailyRecordDates.clear();
   dailyRecordCollapseInitialized=false;
   localStorage.setItem(LS_KEY,JSON.stringify(db));
@@ -6895,6 +6937,9 @@ async function fetchNexonCharacterBasicByOcid(ocid){
     basic=await nexonFetch('/character/basic',{ocid,date:addDays(todayStr(),-1)});
   }
   return basic;
+}
+async function fetchNexonCharacterHistoricalBasicByOcid(ocid,date){
+  return nexonFetch('/character/basic',{ocid,date});
 }
 async function fetchNexonCharacterStatByOcid(ocid){
   let stat;
@@ -7105,6 +7150,54 @@ function recordCharacterExpSnapshot(c, profile){
   c.expHistory=c.expHistory.slice(-120);
   return true;
 }
+function expHistoryDateTimestamp(date){
+  const at=new Date(date+'T12:00:00').getTime();
+  return Number.isFinite(at) ? at : 0;
+}
+function recordHistoricalExpSnapshot(c,basic,date){
+  const level=Math.max(0,Math.floor(Number(basic?.character_level)||0));
+  const exp=onlyDigits(basic?.character_exp || '');
+  const rate=normalizeCharacterExpRate(basic?.character_exp_rate);
+  const at=expHistoryDateTimestamp(date);
+  if(!at || !level || (!exp && rate==='')) return false;
+  c.expHistory=normalizeExpHistory(c.expHistory);
+  if(c.expHistory.some(snapshot=>expTrackerDate(snapshot.at)===date)) return false;
+  c.expHistory.push({at,level,exp,rate});
+  c.expHistory=normalizeExpHistory(c.expHistory);
+  return true;
+}
+function historicalExpDatesToFetch(c){
+  const today=todayStr();
+  const start=addDays(today,-(EXP_TRACKER_DAYS-1));
+  const present=new Set(normalizeExpHistory(c.expHistory).map(snapshot=>expTrackerDate(snapshot.at)).filter(Boolean));
+  const attempts=ensureObj(c.expHistoryFetchAttempts);
+  c.expHistoryFetchAttempts=attempts;
+  const now=Date.now();
+  const dates=[];
+  for(let offset=0;offset<EXP_TRACKER_DAYS-1;offset++){
+    const date=addDays(start,offset);
+    if(!present.has(date) && now-(normalizeApiTimestamp(attempts[date])||0)>=EXP_HISTORY_RETRY_MS) dates.push(date);
+  }
+  return dates;
+}
+async function hydrateCharacterExpHistory(c){
+  const ocid=String(c?.ocid || '').trim();
+  if(!ocid || !nexonApiKey()) return false;
+  const dates=historicalExpDatesToFetch(c);
+  if(!dates.length) return false;
+  let changed=false;
+  for(const date of dates){
+    c.expHistoryFetchAttempts[date]=Date.now();
+    changed=true;
+    try{
+      const basic=await fetchNexonCharacterHistoricalBasicByOcid(ocid,date);
+      changed=recordHistoricalExpSnapshot(c,basic,date) || changed;
+    }catch(error){
+      // API 데이터가 없는 날짜는 그래프의 빈 구간으로 남깁니다.
+    }
+  }
+  return changed;
+}
 async function refreshStoredCharacterProfile(c){
   if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
   const fallbackServer=charServer(c);
@@ -7113,6 +7206,7 @@ async function refreshStoredCharacterProfile(c){
     ? await fetchNexonCharacterProfileByOcid(ocid,c.name,fallbackServer)
     : await fetchNexonCharacterProfile(c.name,fallbackServer);
   applyCharacterProfile(c,profile,fallbackServer);
+  await hydrateCharacterExpHistory(c);
   return c;
 }
 async function refreshStoredCharacterScheduler(c){
@@ -7480,6 +7574,11 @@ const addCharacter=async()=>{
   openChars.add(result.char.name);
   monthlyOpenChars.add(result.char.name);
   dailyOpenChars.add(result.char.name);
+  if(profile && result.char.ocid){
+    updateNexonApiStatus('최근 7일 경험치 기록 확인 중...','');
+    await hydrateCharacterExpHistory(result.char);
+    updateNexonApiStatus('API 조회 성공','ok');
+  }
   document.getElementById('in-char').value='';
   save(); scheduleNexonAutoRefresh(); renderAll();
   if(profile && result.updated) alert('기존 캐릭터의 API 정보를 갱신했습니다.');
@@ -8343,6 +8442,7 @@ document.getElementById('file-import').onchange=(e)=>{
       const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
       db=trackerDbFromData(data,currentApiKey,snapshots);
       dailyRecordPage=0;
+      weeklyStatsPage=0;
       collapsedDailyRecordDates.clear();
       dailyRecordCollapseInitialized=false;
       save(); initNexonApiControls(); renderAll(); alert('복원 완료!');
