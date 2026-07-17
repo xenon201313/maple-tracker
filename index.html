@@ -387,7 +387,7 @@
   .ledger-demo-value{color:var(--red); font-weight:bold; white-space:nowrap;}
   .ledger-principles{margin-top:12px; display:grid; gap:8px;}
   .ledger-principles .guide-note{margin-top:0;}
-  .expense-form{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) auto; gap:10px; align-items:end;}
+  .expense-form{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(120px,auto); gap:10px; align-items:end;}
   .expense-form .wide{grid-column:span 2;}
   .expense-form input,.expense-form select{width:100%;}
   .expense-form button{min-height:42px;}
@@ -447,7 +447,7 @@
   .profit-item-chip small{display:block; margin-top:2px; color:var(--sub); font-size:11px; font-weight:800;}
   .profit-lines{display:grid; gap:9px; margin-top:12px;}
   .profit-line{display:grid; grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr); gap:8px; align-items:end; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
-  .profit-line.output{grid-template-columns:minmax(180px,1.35fr) minmax(130px,.7fr) minmax(92px,.42fr) minmax(116px,.55fr) minmax(96px,.42fr);}
+  .profit-line.output{grid-template-columns:minmax(170px,1.35fr) minmax(116px,.68fr) minmax(80px,.4fr) minmax(86px,.42fr) minmax(108px,.54fr) minmax(100px,.48fr);}
   .profit-line.output.unsellable{grid-template-columns:minmax(180px,1.35fr) minmax(92px,.42fr) minmax(130px,.55fr) minmax(96px,.42fr);}
   .profit-line-name{display:flex; align-items:center; gap:9px; min-width:0; color:var(--text); font-weight:800;}
   .profit-line-name span:last-child{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -468,6 +468,7 @@
   .profit-check input{width:auto !important; accent-color:var(--gold);}
   .profit-sold-field .profit-check{height:42px; min-height:42px; margin:0; box-sizing:border-box;}
   .profit-sold-field .profit-check input{margin:0;}
+  .profit-fee-field select{height:42px;}
   .profit-unavailable{display:flex; align-items:center; min-height:42px; padding:8px 10px; border:1px solid rgba(255,204,51,.24); border-radius:10px; background:rgba(255,204,51,.09); color:#ffe28a; font-weight:900; box-sizing:border-box;}
   .profit-records{display:grid; gap:8px; margin-top:10px;}
   .profit-record{display:grid; grid-template-columns:minmax(160px,1fr) repeat(3,minmax(130px,.65fr)) auto; gap:10px; align-items:center; padding:10px; border:1px solid rgba(220,230,255,.13); border-radius:10px; background:rgba(6,10,18,.34);}
@@ -542,6 +543,15 @@
   .backup-row button{flex:0 0 auto;}
   .empty-state{padding:12px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.25); font-size:13px; line-height:1.55;}
   @media (max-width:1320px) and (min-width:901px){ .tabs{grid-template-columns:repeat(5,minmax(0,1fr));} }
+  @media (max-width:1180px) and (min-width:641px){
+    .profit-layout{grid-template-columns:1fr;}
+    .profit-menu{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .profit-line.output,.profit-line.output.unsellable{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .profit-line.output .profit-line-name,.profit-line.output.unsellable .profit-line-name{grid-column:1 / -1;}
+    .expense-form{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .expense-form .wide{grid-column:1 / -1;}
+    .expense-form button{width:100%;}
+  }
   @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:900px) and (min-width:641px){ .tabs{grid-template-columns:repeat(4,minmax(0,1fr));} .tab{font-size:13px; padding:9px 7px;} }
   @media (max-width:900px){ #page-daily>.card:first-child .row{grid-template-columns:1fr;} #page-daily>.card:first-child .row>div:last-child{grid-column:auto;} #page-daily>.card:first-child .row button{margin-top:0;} }
@@ -587,6 +597,11 @@
     .expense-form button{width:100%;}
     .expense-record{grid-template-columns:1fr; align-items:stretch; gap:6px;}
     .expense-record-date,.expense-record-value{white-space:normal;}
+    .expense-category{align-items:flex-start; flex-wrap:wrap;}
+    .expense-category span{flex:1 1 150px; white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere;}
+    .expense-category b{margin-left:auto;}
+    .profit-line label,.profit-line input,.profit-line select{min-width:0;}
+    .profit-line-name span:last-child{white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; line-height:1.4;}
     .calc-result{grid-template-columns:1fr;}
     .calc-result .pill b{overflow-wrap:anywhere;}
     .guide-hero h2{font-size:18px;}
@@ -901,15 +916,15 @@
       <li>기대값 대비 이득은 참고로만 표시되며 통계에는 들어가지 않습니다. 통계에는 사용 메소와 판매 체크된 아이템 수익만 반영됩니다.</li>
       <li>주문서, 추가옵션, 어빌리티, 원더베리, 로얄스타일, 플래티넘 애플은 실제 지출과 판매 수익을 기록하는 방식으로 관리합니다.</li>
     </ul>
-    <div class="guide-note">아이템을 아직 판매하지 않았다면 순수 손실만 표시됩니다. 판매 여부를 체크하고 판매가를 입력했을 때만 수익으로 잡힙니다.</div>
+    <div class="guide-note">아이템을 아직 판매하지 않았다면 순수 손실만 표시됩니다. 판매 여부를 체크하고 판매가와 수수료 3% 또는 5%를 선택하면 실수령액이 수익으로 잡힙니다.</div>
   </div>
 
   <div class="card">
     <h2>8. 지출 기록</h2>
     <ul class="guide-list">
-      <li>장비 구매, 소비, 거래 손실처럼 손익 계산기에 없는 직접 지출은 지출 기록 탭에 날짜와 유형을 남깁니다.</li>
+      <li>장비 구매, 솔 에르다 조각 구매, 펫 구매, 코디템 구매, 도핑 구매, 메포 구매는 지출 기록 탭에 날짜와 유형을 남깁니다.</li>
       <li>직접 지출은 홈, 주간·월간 통계, 월간 결산의 순수익에서 자동으로 차감됩니다.</li>
-      <li>손익 계산기에 이미 저장한 스타포스·잠재능력·주문서 등은 중복 입력하지 마세요.</li>
+      <li>강화, 큐브, 주문서, 추가옵션, 어빌리티, 뽑기 사용 메소는 손익 계산기에서 자동 합산되므로 이 탭은 별도 구매 기록을 관리합니다.</li>
     </ul>
   </div>
 
@@ -1193,8 +1208,8 @@
 <div class="page" id="page-profit">
   <div class="card">
     <h2>💸 손익 계산기</h2>
-    <p class="muted">강화, 큐브, 주문서, 뽑기에서 실제로 쓴 메소와 판매된 아이템 수익을 기록합니다. 기대값 비교는 참고용이며 통계에는 실제 지출/판매만 들어갑니다.</p>
-    <div class="profit-note">스타포스와 잠재능력 기대값은 <a href="https://www.mesu.live/" target="_blank" rel="noopener">mesu.live에서 기대값을 검색</a>한 뒤 입력해 주세요. 이 탭은 기대값 대비 참고 차이와 실제 손익 기록을 분리해서 보여줍니다.</div>
+    <p class="muted">강화, 큐브, 주문서, 뽑기에서 실제로 쓴 메소와 판매된 아이템 수익을 기록합니다. 기대값 비교는 참고용이며 통계에는 실제 지출과 수수료 차감 후 판매 수익만 들어갑니다.</p>
+    <div class="profit-note">스타포스와 잠재능력 기대값은 <a href="https://www.mesu.live/" target="_blank" rel="noopener">mesu.live에서 기대값을 검색</a>한 뒤 입력해 주세요. 판매한 아이템은 수수료 3% 또는 5%를 선택하면 실수령 기준으로 반영됩니다.</div>
   </div>
   <div class="profit-layout">
     <div class="card">
@@ -1208,7 +1223,7 @@
   </div>
   <div class="card">
     <h2>손익 기록</h2>
-    <div class="muted">저장된 손익 기록입니다. 판매 체크가 꺼진 아이템은 수익 없이 지출만 통계에 반영됩니다.</div>
+    <div class="muted">저장된 손익 기록입니다. 판매 체크가 꺼진 아이템은 수익 없이 지출만 통계에 반영되며, 판매한 항목은 선택한 수수료를 뺀 실수령액으로 집계됩니다.</div>
     <div id="profit-records" class="profit-records"></div>
   </div>
 </div>
@@ -1217,8 +1232,8 @@
 <div class="page" id="page-expense">
   <div class="card">
     <h2>💳 지출 기록</h2>
-    <p class="muted">장비 구매, 소비, 거래 손실처럼 어디에 메소를 썼는지 따로 기록합니다. 이 탭의 지출은 통계와 순수익에서 차감됩니다.</p>
-    <div class="guide-note">손익 계산기에 이미 저장한 스타포스·큐브·주문서 등의 사용 메소는 이곳에 다시 입력하지 마세요. 중복 차감을 막기 위해 두 기록은 분리해서 관리합니다.</div>
+    <p class="muted">장비, 솔 에르다 조각, 펫, 코디템, 도핑, 메포 구매처럼 손익 계산기와 별도로 남길 지출을 기록합니다. 이 탭의 지출은 통계와 순수익에서 차감됩니다.</p>
+    <div class="guide-note">강화·큐브·주문서·추가옵션·어빌리티·뽑기 사용 메소는 손익 계산기에서 자동으로 합산됩니다. 이 탭에서는 별도 구매 지출을 기록해 내역을 깔끔하게 분리합니다.</div>
     <div class="expense-form" style="margin-top:14px;">
       <div>
         <label>날짜</label>
@@ -3844,22 +3859,28 @@ function normalizeRecords(records, fallbackSettings=db.settings){
 }
 const EXPENSE_CATEGORIES=[
   {id:'equipment', name:'장비 구매'},
-  {id:'starforce', name:'스타포스'},
-  {id:'potential', name:'잠재능력'},
-  {id:'scroll', name:'주문서'},
-  {id:'bonus', name:'추가옵션'},
-  {id:'ability', name:'어빌리티'},
-  {id:'wonderberry', name:'위습의 원더베리'},
-  {id:'royal', name:'로얄스타일'},
-  {id:'platinumapple', name:'플래티넘 애플'},
-  {id:'trade', name:'거래 손실'},
-  {id:'consumable', name:'소비'},
-  {id:'etc', name:'기타'}
+  {id:'erda', name:'솔 에르다 조각 구매'},
+  {id:'pet', name:'펫 구매'},
+  {id:'cosmetic', name:'코디템 구매'},
+  {id:'doping', name:'도핑 구매'},
+  {id:'maplepoint', name:'메포 구매'}
 ];
-function expenseCategoryById(id){ return EXPENSE_CATEGORIES.find(category=>category.id===id) || EXPENSE_CATEGORIES[EXPENSE_CATEGORIES.length-1]; }
+const LEGACY_EXPENSE_CATEGORY_MAP={
+  starforce:'equipment', potential:'equipment', scroll:'equipment', bonus:'equipment', ability:'equipment',
+  wonderberry:'pet', royal:'cosmetic', platinumapple:'maplepoint', trade:'equipment', consumable:'doping', etc:'equipment'
+};
+function normalizeExpenseCategoryId(id){
+  const raw=String(id || '').trim();
+  const mapped=LEGACY_EXPENSE_CATEGORY_MAP[raw] || raw;
+  return EXPENSE_CATEGORIES.some(category=>category.id===mapped) ? mapped : 'equipment';
+}
+function expenseCategoryById(id){
+  const normalized=normalizeExpenseCategoryId(id);
+  return EXPENSE_CATEGORIES.find(category=>category.id===normalized) || EXPENSE_CATEGORIES[0];
+}
 function normalizeExpenseRecord(record){
   const o=ensureObj(record);
-  const category=expenseCategoryById(String(o.category || o.type || 'etc'));
+  const category=expenseCategoryById(String(o.category || o.type || 'equipment'));
   return {
     id:String(o.id || ('expense_'+Date.now()+'_'+Math.random().toString(36).slice(2))).trim(),
     date:normalizeDateInput(o.date) || todayStr(),
@@ -3871,13 +3892,18 @@ function normalizeExpenseRecord(record){
   };
 }
 function normalizeExpenseRecords(records){ return Array.isArray(records) ? records.map(normalizeExpenseRecord).filter(record=>record.date && toMesoBig(record.amount)>0n) : []; }
+const PROFIT_SALE_FEES=[3,5];
+function normalizeProfitFee(value, fallback=0){
+  const fee=Number(value);
+  return PROFIT_SALE_FEES.includes(fee) ? fee : fallback;
+}
 function normalizeProfitLine(line){
   const o=ensureObj(line);
   const id=String(o.id || o.name || '').trim();
   const sellable=o.sellable!==false && !['faint_sol_erda_10','sol_erda','dense_sol_erda'].includes(id);
   const imageOverride={wonder_black:'assets/profit/pet-grade-wonder-black.png',luna_sweet:'assets/profit/pet-grade-luna-sweet.png',luna_dream:'assets/profit/pet-grade-luna-dream.png',luna_petite:'assets/profit/pet-grade-luna-petite.png',special_label:'assets/profit/label-special.png',red_label:'assets/profit/label-red.png',black_label:'assets/profit/label-black.png',master_label:'assets/profit/label-master.png'}[id];
   const cropOverride=['wonder_black','luna_sweet','luna_dream','luna_petite'].includes(id) ? 'pet-grade' : (['special_label','red_label','black_label','master_label'].includes(id) ? 'label-grade' : (id==='sf18_250' ? 'starforce-18-250' : (id==='platinum_apple' ? 'platinum-apple' : '')));
-  return {id,name:String(o.name || '').trim(),icon:String(o.icon || '').trim(),img:String(imageOverride || o.img || '').trim(),crop:String(cropOverride || o.crop || '').trim(),sprite:Array.isArray(o.sprite) ? o.sprite.map(value=>String(value||'')).filter(Boolean) : (o.sprite ? [String(o.sprite)] : []),note:String(o.note || '').trim(),price:mesoValueFromDigits(o.price),count:Math.max(0,Math.floor(Number(o.count)||0)),sellable,sold:sellable && !!o.sold};
+  return {id,name:String(o.name || '').trim(),icon:String(o.icon || '').trim(),img:String(imageOverride || o.img || '').trim(),crop:String(cropOverride || o.crop || '').trim(),sprite:Array.isArray(o.sprite) ? o.sprite.map(value=>String(value||'')).filter(Boolean) : (o.sprite ? [String(o.sprite)] : []),note:String(o.note || '').trim(),price:mesoValueFromDigits(o.price),count:Math.max(0,Math.floor(Number(o.count)||0)),fee:sellable?normalizeProfitFee(o.fee,0):0,sellable,sold:sellable && !!o.sold};
 }
 function normalizeProfitRecord(record){
   const o=ensureObj(record);
@@ -4948,7 +4974,8 @@ function signedKorMeso(value){
 }
 function profitLineValue(line){
   const l=normalizeProfitLine(line);
-  return toMesoBig(l.price) * BigInt(l.count || 0);
+  const gross=toMesoBig(l.price) * BigInt(l.count || 0);
+  return l.sellable && l.sold && l.fee>0 ? (gross * BigInt(100-l.fee)) / 100n : gross;
 }
 function profitRecordTotals(record){
   const r=normalizeProfitRecord(record);
@@ -5748,6 +5775,13 @@ function profitDateBlock(){
 function profitSelectBlock(label,key,value,options){
   return '<div class="profit-field"><label>'+label+'</label><select data-profit-input="'+key+'">'+options.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===value?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select></div>';
 }
+function profitFeeOptionsHtml(value=3){
+  const selected=normalizeProfitFee(value,3);
+  return PROFIT_SALE_FEES.map(fee=>'<option value="'+fee+'"'+(fee===selected?' selected':'')+'>'+fee+'%</option>').join('');
+}
+function profitFeeBlock(label='판매 수수료',key='saleFee',value=3){
+  return '<div class="profit-field profit-fee-field"><label>'+label+'</label><select data-profit-input="'+key+'">'+profitFeeOptionsHtml(value)+'</select></div>';
+}
 function profitSoldBlock(){
   return '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label></div>';
 }
@@ -5776,8 +5810,9 @@ function profitOutputRowsHtml(items){
       name+
       '<div><label>개당 판매가</label><input data-profit-out-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
       count+
+      '<div class="profit-field profit-fee-field"><label>판매 수수료</label><select data-profit-out-fee="'+esc(item.id)+'">'+profitFeeOptionsHtml(3)+'</select></div>'+
       '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-out-sold="'+esc(item.id)+'" type="checkbox"> 판매</label></div>'+
-      '<div><label>수익 반영</label><div class="profit-record-stat good"><b data-profit-out-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
+      '<div><label>수수료 후 수익</label><div class="profit-record-stat good"><b data-profit-out-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
     '</div>';
   }).join('')+'</div>';
 }
@@ -5811,9 +5846,10 @@ function renderProfitCalculator(){
       profitSelectBlock('아이템', 'itemId', equipItems[0].id, equipItems)+
       profitMoneyBlock('사용 메소', 'used')+
       profitMoneyBlock('외부 계산 기대값', 'expected')+
-      profitSoldBlock()+
       profitMoneyBlock('실제 판매가', 'sale')+
-      '<div class="wide profit-note">기대값 대비 이득/손실은 참고용입니다. 통계에는 사용 메소와 판매 완료한 아이템의 판매가만 반영됩니다.</div>'+
+      profitFeeBlock()+
+      profitSoldBlock()+
+      '<div class="wide profit-note">기대값 대비 이득/손실은 참고용입니다. 통계에는 사용 메소와 판매 완료한 아이템의 수수료 차감 후 실수령액만 반영됩니다.</div>'+
       '<div class="wide">'+profitEquipmentGrid(type)+'</div>'+
       '</div>';
   }else if(type==='scroll'){
@@ -5823,11 +5859,11 @@ function renderProfitCalculator(){
   }else if(type==='ability'){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">대형 보스 명예의 훈장 가격과 사용 개수를 입력하면 지출로 반영됩니다.</div></div>'+profitCostRowsHtml(PROFIT_ABILITY_COSTS);
   }else if(type==='wonderberry'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">원더베리와 루나 크리스탈은 지출입니다. 결과물은 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">원더베리와 루나 크리스탈은 지출입니다. 결과물은 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
   }else if(type==='royal'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">로얄스타일과 프리미엄 마스터피스는 지출입니다. 결과물은 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">로얄스타일과 프리미엄 마스터피스는 지출입니다. 결과물은 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
   }else{
-    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크된 항목만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+profitIconHtml(cat)+'<span>'+esc(cat.title)+'</span></h2><div class="muted">'+esc(cat.desc)+'</div></div></div>'+
@@ -5884,9 +5920,10 @@ function profitReadOutputLines(items){
   return items.map(item=>{
     const priceEl=document.querySelector('[data-profit-out-price="'+item.id+'"]');
     const countEl=document.querySelector('[data-profit-out-count="'+item.id+'"]');
+    const feeEl=document.querySelector('[data-profit-out-fee="'+item.id+'"]');
     const soldEl=document.querySelector('[data-profit-out-sold="'+item.id+'"]');
     const sellable=item.sellable!==false;
-    return Object.assign({},item,{price:sellable?mesoValueFromDigits(priceEl?.value):0, count:Math.max(0,Math.floor(Number(countEl?.value)||0)), sellable, sold:sellable && !!soldEl?.checked});
+    return Object.assign({},item,{price:sellable?mesoValueFromDigits(priceEl?.value):0, count:Math.max(0,Math.floor(Number(countEl?.value)||0)), fee:sellable?normalizeProfitFee(feeEl?.value,3):0, sellable, sold:sellable && !!soldEl?.checked});
   }).filter(line=>line.price || line.count || line.sold);
 }
 function buildProfitRecord(showErrors){
@@ -5906,9 +5943,10 @@ function buildProfitRecord(showErrors){
     const item=profitEquipById(profitInputValue('itemId'), type);
     const used=mesoValueFromDigits(profitInputValue('used'));
     const sale=mesoValueFromDigits(profitInputValue('sale'));
+    const saleFee=normalizeProfitFee(profitInputValue('saleFee'),3);
     base.itemId=item.id; base.itemName=item.name; base.expected=mesoValueFromDigits(profitInputValue('expected'));
     base.costs=[{id:'used', name:'사용 메소', icon:cat.icon, price:used, count:used?1:0}];
-    base.outputs=[Object.assign({},item,{price:sale, count:sale?1:0, sold:!!profitInputValue('sold')})];
+    base.outputs=[Object.assign({},item,{price:sale, count:sale?1:0, fee:saleFee, sold:!!profitInputValue('sold')})];
   }else if(type==='scroll'){
     base.costs=profitReadCostLines(PROFIT_SCROLL_COSTS);
   }else if(type==='bonus'){
@@ -5955,14 +5993,14 @@ function renderProfitResult(){
   updateProfitSubtotals(record);
   const metrics=[
     profitMetric('총 지출', korMeso(totals.cost), 'bad'),
-    profitMetric('판매 반영 수익', korMeso(totals.revenue), totals.revenue>0n?'good':''),
+    profitMetric('수수료 후 판매 수익', korMeso(totals.revenue), totals.revenue>0n?'good':''),
     profitMetric('실제 손익', signedKorMeso(totals.net), totals.net>=0n?'good':'bad')
   ];
   if(toMesoBig(record.expected)>0n){
     metrics.push(profitMetric('기대값 대비', signedKorMeso(totals.expectedDiff), totals.expectedDiff>=0n?'good':'bad'));
   }
   metrics.push(profitMetric('통계 반영', '실제 손익만 반영', ''));
-  metrics.push(profitMetric('판매 기준', '체크한 항목만 수익', ''));
+  metrics.push(profitMetric('판매 기준', '판매 체크 + 수수료 차감', ''));
   out.innerHTML=metrics.join('');
 }
 function updateProfitSubtotals(record){
@@ -5989,12 +6027,12 @@ function renderProfitRecords(){
   el.innerHTML=records.map(r=>{
     const cat=profitCategory(r.type);
     const totals=profitRecordTotals(r);
-    const sold=r.outputs.filter(o=>o.sold && o.count>0).map(o=>o.name+' '+o.count+'개').join(', ');
+    const sold=r.outputs.filter(o=>o.sold && o.count>0).map(o=>o.name+' '+o.count+'개'+(o.fee ? ' (수수료 '+o.fee+'%)' : '')).join(', ');
     const title=r.itemName || r.title || cat.title;
     return '<div class="profit-record">'+
       '<div class="profit-record-title">'+profitIconHtml(cat)+'<b>'+esc(title)+'<small>'+esc(r.date)+' · '+esc(cat.title)+(sold?' · '+esc(sold):' · 판매 수익 없음')+'</small></b></div>'+
       '<div class="profit-record-stat bad"><span>지출</span><b>'+korMeso(totals.cost)+'</b></div>'+
-      '<div class="profit-record-stat good"><span>판매 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
+      '<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
       '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>'+
       '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>'+
     '</div>';
