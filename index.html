@@ -7830,7 +7830,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
         }
       }
       syncBossScopeAliases(c,period,scope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
   bl.querySelectorAll('input.boss-check').forEach(chk=>{
@@ -7863,7 +7863,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
         if(scope==='monthly') clearMonthBossClearWeeks(c,period,group ? group.bosses : [BOSS_MAP[id]]);
       }
       syncBossScopeAliases(c,period,scope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
   bl.querySelectorAll('select.party').forEach(sel=>{
@@ -7875,7 +7875,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       if(id in bosses) bosses[id]=party;
       if(group) setBossPreference(c,group,id,party);
       syncBossScopeAliases(c,period,scope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
   bl.querySelectorAll('input.drop-check').forEach(chk=>{
@@ -7906,7 +7906,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
         if(chk.dataset.childKeys) chk.dataset.childKeys.split(',').filter(Boolean).forEach(k=>{ delete drops[k]; delete prices[k]; delete shares[k]; });
       }
       syncBossScopeAliases(c,recordPeriod,recordScope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
   bl.querySelectorAll('input.drop-price').forEach(inp=>{
@@ -7923,7 +7923,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
       else delete prices[inp.dataset.key];
       syncBossScopeAliases(c,recordPeriod,recordScope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
   bl.querySelectorAll('select.drop-role, select.drop-fee, input.drop-ratio').forEach(sel=>{
@@ -7946,7 +7946,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       }
       shares[sel.dataset.key]=cur;
       syncBossScopeAliases(c,recordPeriod,recordScope);
-      save(); renderAll();
+      save(); renderAllPreservingViewport();
     };
   });
 }
@@ -7970,7 +7970,7 @@ function renderBoss(){
     head.onclick=event=>{ if(event.target.closest('button')) return; openChars.has(c.name)?openChars.delete(c.name):openChars.add(c.name); bl.classList.toggle('open'); };
     head.querySelector('.copy-weekly-bosses').onclick=event=>{
       event.stopPropagation();
-      if(copyPreviousWeeklyBosses(c)){ save(); renderAll(); }
+    if(copyPreviousWeeklyBosses(c)){ save(); renderAllPreservingViewport(); }
     };
 
     let html='<div class="bossgroup">'+crystalIcon('weekly')+'주간 결정석 (이번 주 '+fmtWeekRange(wk)+')</div><div class="bgrid">';
@@ -8427,7 +8427,7 @@ function renderDailyBoss(){
           group.bosses.forEach(b=>{ delete store[b[0]]; });
           store[newId]=party;
         }
-        save(); renderAll();
+        save(); renderAllPreservingViewport();
       };
     });
     bl.querySelectorAll('input.daily-boss-check').forEach(chk=>{
@@ -8452,7 +8452,7 @@ function renderDailyBoss(){
           });
           group.bosses.forEach(b=>{ delete store[b[0]]; });
         }
-        save(); renderAll();
+        save(); renderAllPreservingViewport();
       };
     });
     bl.querySelectorAll('select.daily-party').forEach(sel=>{
@@ -8462,7 +8462,7 @@ function renderDailyBoss(){
         const party=Math.max(1,Math.min(MAX_PARTY,Number(sel.value)||1));
         if(sel.dataset.id in store) store[sel.dataset.id]=party;
         if(group) setDailyBossPreference(c,group,sel.dataset.id,party);
-        save(); renderAll();
+        save(); renderAllPreservingViewport();
       };
     });
     bl.querySelectorAll('input.daily-drop-check').forEach(chk=>{
@@ -8476,7 +8476,7 @@ function renderDailyBoss(){
         }
         c.dailyDrops=dailyDropStore(c,todayStr());
         c.dailyDropPrices=dailyDropPriceStore(c,todayStr());
-        save(); renderAll();
+        save(); renderAllPreservingViewport();
       };
     });
     bl.querySelectorAll('input.daily-drop-price').forEach(inp=>{
@@ -8491,7 +8491,7 @@ function renderDailyBoss(){
         if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
         else delete prices[inp.dataset.key];
         c.dailyDropPrices=dailyDropPriceStore(c,todayStr());
-        save(); renderAll();
+        save(); renderAllPreservingViewport();
       };
     });
     box.appendChild(head); box.appendChild(bl); list.appendChild(box);
@@ -8560,6 +8560,11 @@ function renderAll(){
     case 'stats': renderStats(); break;
     case 'home': renderHome(); break;
   }
+}
+function renderAllPreservingViewport(){
+  const left=window.scrollX, top=window.scrollY;
+  renderAll();
+  requestAnimationFrame(()=>window.scrollTo({left,top,behavior:'auto'}));
 }
 renderAll();
 </script>
