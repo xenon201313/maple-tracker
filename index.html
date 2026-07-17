@@ -162,12 +162,48 @@
   .meso{color:var(--gold);}
   .erda{color:var(--purple);}
   .cum{color:var(--sub); font-size:13px;}
-  .statgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
-  .stat{background:rgba(22,28,44,.9); border:1px solid rgba(220,230,255,.18); border-radius:10px; padding:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);}
-  .stat .t{font-size:13px; color:var(--sub); margin-bottom:6px;}
-  .stat .v{font-size:21px; font-weight:bold; color:var(--gold);}
+  .stats-section-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:12px;}
+  .stats-section-head h2{margin:0;}
+  .stats-section-head p{margin:4px 0 0; color:var(--sub); font-size:12px; line-height:1.55;}
+  .statgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
+  .stat{position:relative; min-width:0; overflow:hidden; background:rgba(22,28,44,.92); border:1px solid rgba(220,230,255,.18); border-radius:10px; padding:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);}
+  .stat::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:rgba(220,230,255,.2);}
+  .stat.stat-income::before{background:var(--gold);}
+  .stat.stat-boss::before{background:#9f82ff;}
+  .stat.stat-expense::before{background:var(--red);}
+  .stat.stat-net::before{background:var(--green);}
+  .stat .t{font-size:12px; color:var(--sub); margin-bottom:6px; line-height:1.4;}
+  .stat .v{font-size:20px; font-weight:900; color:var(--gold); line-height:1.3; overflow-wrap:anywhere;}
   .stat .v.p{color:var(--purple);}
-  .stat .s{font-size:13px; color:var(--sub); margin-top:4px;}
+  .stat .v.good{color:var(--green);}
+  .stat .v.bad{color:var(--red);}
+  .stat .s{font-size:12px; color:var(--sub); margin-top:5px; line-height:1.5; overflow-wrap:anywhere;}
+  .stats-period-list{display:grid; gap:10px;}
+  .stats-period-empty{padding:18px; text-align:center; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.24); font-size:13px;}
+  .stats-period-card{min-width:0; padding:13px; border:1px solid rgba(220,230,255,.16); border-radius:11px; background:rgba(9,14,25,.5); box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);}
+  .stats-period-card.is-current{border-color:rgba(255,210,77,.5); background:linear-gradient(105deg,rgba(92,72,21,.2),rgba(9,14,25,.62));}
+  .stats-period-top{display:flex; align-items:flex-start; justify-content:space-between; gap:14px;}
+  .stats-period-copy{min-width:0;}
+  .stats-period-kicker{display:inline-flex; align-items:center; min-height:20px; padding:2px 7px; border-radius:999px; background:rgba(154,198,255,.11); color:#b6d8ff; font-size:10px; font-weight:800;}
+  .stats-period-card.is-current .stats-period-kicker{background:rgba(255,210,77,.15); color:var(--gold);}
+  .stats-period-copy h3{margin:5px 0 2px; color:#f2f5ff; font-size:15px; line-height:1.35;}
+  .stats-period-copy p{margin:0; color:var(--sub); font-size:12px; line-height:1.45;}
+  .stats-period-net{flex:0 1 auto; min-width:0; text-align:right;}
+  .stats-period-net span{display:block; color:var(--sub); font-size:11px;}
+  .stats-period-net b{display:block; margin-top:3px; color:var(--green); font-size:16px; line-height:1.32; overflow-wrap:anywhere;}
+  .stats-period-net b.bad{color:var(--red);}
+  .stats-period-metrics{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-top:11px; padding:9px 0; border-top:1px solid rgba(220,230,255,.11); border-bottom:1px solid rgba(220,230,255,.11);}
+  .stats-period-metric{min-width:0; padding:0 8px; border-left:1px solid rgba(220,230,255,.12);}
+  .stats-period-metric:first-child{padding-left:0; border-left:0;}
+  .stats-period-metric span{display:block; color:var(--sub); font-size:10px; line-height:1.3;}
+  .stats-period-metric b{display:block; margin-top:3px; color:#eaf0ff; font-size:12px; line-height:1.38; overflow-wrap:anywhere;}
+  .stats-period-metric.hunt b{color:var(--gold);}
+  .stats-period-metric.profit b{color:#d5b9ff;}
+  .stats-period-metric.profit b.bad{color:var(--red);}
+  .stats-period-metric.expense b{color:var(--red);}
+  .stats-period-footer{display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:9px; color:var(--sub); font-size:12px; line-height:1.45;}
+  .stats-period-footer>span{display:inline-flex; align-items:center; gap:5px; min-width:0;}
+  .stats-period-footer>span>b{color:var(--purple);}
   .icon-sm{height:18px; vertical-align:-3px; image-rendering:pixelated; margin-right:3px;}
   .charhead{display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:10px; flex-wrap:wrap;}
   .charhead-actions{display:flex; align-items:center; gap:7px; flex:0 0 auto;}
@@ -393,18 +429,33 @@
   .exp-summary.current b{color:#d9b5ff;}
   .exp-summary.gain b{color:var(--green);}
   .exp-summary.predict b{color:var(--gold);}
-  .exp-chart{display:grid; grid-template-columns:66px minmax(0,1fr); column-gap:8px; margin-top:13px;}
-  .exp-chart-axis,.exp-chart-plot{position:relative; height:166px;}
+  .exp-history-grid{display:grid; grid-template-columns:minmax(0,1.08fr) minmax(260px,.92fr); gap:10px; margin-top:13px;}
+  .exp-history-panel{min-width:0; padding:11px; border:1px solid rgba(154,198,255,.18); border-radius:10px; background:rgba(6,10,18,.28);}
+  .exp-history-head{display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:9px;}
+  .exp-history-head b{color:#eef4ff; font-size:13px; line-height:1.35;}
+  .exp-history-head span{color:var(--sub); font-size:10px; text-align:right; line-height:1.4;}
+  .exp-bar-chart,.exp-level-chart{display:grid; grid-template-columns:42px minmax(0,1fr); column-gap:7px;}
+  .exp-chart-axis,.exp-chart-plot{position:relative; height:168px;}
   .exp-chart-axis{border-right:1px solid rgba(220,230,255,.2);}
-  .exp-axis-tick{position:absolute; right:8px; transform:translateY(50%); color:var(--sub); font-size:10px; line-height:1.1; text-align:right; white-space:nowrap;}
-  .exp-chart-plot{min-width:0; overflow:hidden;}
-  .exp-grid-line{position:absolute; left:0; right:0; border-top:1px solid rgba(220,230,255,.16);}
+  .exp-axis-tick{position:absolute; right:6px; transform:translateY(50%); color:var(--sub); font-size:9px; line-height:1.1; text-align:right; white-space:nowrap;}
+  .exp-chart-plot{min-width:0; overflow:hidden; border-bottom:1px solid rgba(220,230,255,.2);}
+  .exp-grid-line{position:absolute; left:0; right:0; border-top:1px solid rgba(220,230,255,.13);}
+  .exp-bar-columns{position:absolute; inset:0; display:flex; align-items:stretch; gap:6px; padding:8px 3px 0;}
+  .exp-bar-column{position:relative; flex:1 1 0; min-width:0; height:100%;}
+  .exp-bar-value{position:absolute; left:50%; z-index:1; min-width:0; max-width:100%; color:#8fe5e8; font-size:10px; line-height:1.25; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transform:translateX(-50%);}
+  .exp-bar-value.empty{color:rgba(180,193,221,.45);}
+  .exp-bar-fill{position:absolute; left:0; right:0; bottom:0; display:block; min-height:2px; max-height:100%; border-radius:6px 6px 0 0; background:linear-gradient(180deg,#79e1e2,#3fa8bd); box-shadow:0 -4px 12px rgba(92,214,221,.14); cursor:help; transition:filter .15s ease,transform .15s ease;}
+  .exp-bar-fill.level-change{background:linear-gradient(180deg,#d4b5ff,#8c72d5);}
+  .exp-bar-fill.empty{background:rgba(83,96,126,.58); box-shadow:none;}
+  .exp-bar-fill:hover{filter:brightness(1.14); transform:translateY(-1px);}
+  .exp-chart-labels{grid-column:2; display:flex; gap:6px; margin-top:6px;}
+  .exp-chart-labels span{flex:1 1 0; min-width:0; color:var(--sub); font-size:10px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .exp-chart-svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
-  .exp-chart-line{fill:none; stroke:#c29aff; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
-  .exp-chart-point{fill:#e7dcff; stroke:#7f5fb6; stroke-width:2; cursor:help;}
-  .exp-chart-point:hover{fill:#ffe26b; stroke:#d29f22;}
-  .exp-chart-labels{grid-column:2; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; margin-top:6px;}
-  .exp-chart-labels span{min-width:0; color:var(--sub); font-size:10px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .exp-chart-line{fill:none; stroke:#62d9dc; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
+  .exp-chart-point{fill:#d6ffff; stroke:#359ca6; stroke-width:2; cursor:help;}
+  .exp-chart-point.level-up{fill:#ffe486; stroke:#d69b22;}
+  .exp-level-label{fill:#d9edf1; font-family:var(--font-body); font-size:20px; font-weight:800; paint-order:stroke; stroke:rgba(8,13,24,.78); stroke-width:5px; stroke-linejoin:round;}
+  .exp-chart-empty{display:flex; align-items:center; justify-content:center; height:168px; color:var(--sub); font-size:12px; text-align:center; line-height:1.5;}
   .hunt-edit-state{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px; border:1px solid rgba(115,208,255,.38); border-radius:8px; background:rgba(55,111,161,.14); color:#c7eaff; font-size:13px;}
   .hunt-edit-state[hidden]{display:none;}
   .hunt-edit-state button{width:auto; padding:6px 10px; font-size:12px;}
@@ -638,6 +689,9 @@
     .daily-session{grid-template-columns:repeat(3,minmax(0,1fr)) auto;}
     .daily-session-field:nth-child(1){grid-column:1 / 3;}
     .daily-session-actions{grid-column:4; grid-row:1 / span 2;}
+    .stats-period-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .stats-period-metric:nth-child(odd){padding-left:0; border-left:0;}
+    .stats-period-metric:nth-child(n+3){padding-top:8px; border-top:1px solid rgba(220,230,255,.12);}
   }
   @media (max-width:640px){
     :root{--page-pad:10px;}
@@ -708,6 +762,15 @@
     .statgrid{grid-template-columns:1fr;}
     .stat{padding:12px;}
     .stat .v{font-size:18px; overflow-wrap:anywhere;}
+    .stats-section-head{display:grid; grid-template-columns:1fr; gap:4px; margin-bottom:10px;}
+    .stats-period-card{padding:11px;}
+    .stats-period-top{display:grid; grid-template-columns:1fr; gap:9px;}
+    .stats-period-net{text-align:left;}
+    .stats-period-net b{font-size:15px;}
+    .stats-period-metrics{gap:0; margin-top:10px; padding:7px 0;}
+    .stats-period-metric{padding:7px 8px;}
+    .stats-period-metric:nth-child(n+3){padding-top:9px;}
+    .stats-period-footer{display:grid; grid-template-columns:1fr; gap:5px; margin-top:8px;}
     .home-head{display:grid; grid-template-columns:1fr;}
     .home-head button{width:100%;}
     .home-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -792,10 +855,18 @@
     .daily-session-actions button{flex:1 1 0; width:auto;}
     .exp-tracker-select{grid-template-columns:1fr; align-items:stretch; width:100%; white-space:normal;}
     .exp-summary-grid{grid-template-columns:1fr;}
-    .exp-chart{grid-template-columns:50px minmax(0,1fr); column-gap:6px;}
+    .exp-history-grid{grid-template-columns:1fr; gap:9px;}
+    .exp-history-panel{padding:10px;}
+    .exp-history-head{margin-bottom:8px;}
+    .exp-history-head span{max-width:52%;}
+    .exp-bar-chart,.exp-level-chart{grid-template-columns:38px minmax(0,1fr); column-gap:5px;}
     .exp-chart-axis,.exp-chart-plot{height:142px;}
     .exp-axis-tick{right:5px; font-size:9px;}
+    .exp-bar-columns,.exp-chart-labels{gap:3px;}
+    .exp-bar-columns{padding-left:1px; padding-right:1px;}
+    .exp-bar-value{font-size:8px;}
     .exp-chart-labels span{font-size:9px;}
+    .exp-level-label{font-size:17px;}
     .goal-wrap{padding:13px;}
     .goal-percent{font-size:24px;}
     .goal-head{align-items:center;}
@@ -1394,7 +1465,12 @@
 <!-- ══════════ 통계 ══════════ -->
 <div class="page" id="page-stats">
   <div class="card">
-    <h2>📊 요약</h2>
+    <div class="stats-section-head">
+      <div>
+        <h2>📊 수익 요약</h2>
+        <p>재획, 보스, 손익 계산기, 직접 지출을 기간별로 나누어 확인합니다.</p>
+      </div>
+    </div>
     <div class="statgrid" id="stat-cards"></div>
   </div>
   <div class="card">
@@ -1416,22 +1492,22 @@
     <div class="chart-box" id="chart14"></div>
   </div>
   <div class="card">
-    <h2>🗓 주간 합계 <span class="muted">(목요일 ~ 수요일)</span></h2>
-    <div style="overflow-x:auto;">
-    <table>
-      <thead><tr><th>주차</th><th>기간</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>직접 지출</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
-      <tbody id="tbody-weekly"></tbody>
-    </table>
+    <div class="stats-section-head">
+      <div>
+        <h2>🗓 주간 합계</h2>
+        <p>목요일부터 수요일까지의 실제 수입과 지출입니다.</p>
+      </div>
     </div>
+    <div class="stats-period-list" id="weekly-summary-list"></div>
   </div>
   <div class="card">
-    <h2>🗓 월간 합계</h2>
-    <div style="overflow-x:auto;">
-    <table>
-      <thead><tr><th>월</th><th>재획 일수</th><th>재획 메소</th><th>보스 수익</th><th>손익</th><th>직접 지출</th><th>합산</th><th>획득 아이템</th><th>솔 에르다 조각</th></tr></thead>
-      <tbody id="tbody-monthly"></tbody>
-    </table>
+    <div class="stats-section-head">
+      <div>
+        <h2>🗓 월간 합계</h2>
+        <p>해당 월에 기록한 재획, 보스, 손익, 지출 내역을 결산합니다.</p>
+      </div>
     </div>
+    <div class="stats-period-list" id="monthly-summary-list"></div>
   </div>
 </div>
 
@@ -5147,6 +5223,66 @@ function expLevelUpForecast(history,current){
   if(!Number.isFinite(days) || days>730) return null;
   return {date:addDays(expTrackerDate(last.at) || todayStr(),days),dailyRate,days};
 }
+function expRateLabel(value){
+  const rate=Number(value);
+  return Number.isFinite(rate) ? rate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%' : '확인 중';
+}
+function expBarHistoryHtml(days,latestLevel){
+  const columns=days.map(row=>{
+    const snapshot=row.snapshot;
+    const rate=expSnapshotRate(snapshot);
+    const hasData=!!snapshot && rate!==null;
+    const height=hasData ? Math.max(rate>0?4:2,Math.min(100,rate)) : 2;
+    const valueBottom=Math.min(91,Math.max(4,height));
+    const level=hasData ? Math.floor(Number(snapshot.level)||0) : 0;
+    const levelChanged=hasData && level!==latestLevel;
+    const label=hasData ? row.date+' · Lv.'+fmt(level)+' '+expRateLabel(rate) : row.date+' · 기록 없음';
+    return '<div class="exp-bar-column">'+
+      '<span class="exp-bar-value'+(hasData?'':' empty')+'" style="bottom:calc('+valueBottom+'% + 3px)">'+(hasData?expRateLabel(rate):'-')+'</span>'+
+      '<span class="exp-bar-fill'+(levelChanged?' level-change':'')+(hasData?'':' empty')+'" style="height:'+height+'%" title="'+esc(label)+'" aria-label="'+esc(label)+'"></span>'+
+    '</div>';
+  }).join('');
+  const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
+  return '<section class="exp-history-panel">'+
+    '<div class="exp-history-head"><b>경험치 히스토리</b><span>최근 7일 · 현재 레벨 기준</span></div>'+
+    '<div class="exp-bar-chart">'+
+      '<div class="exp-chart-axis"><span class="exp-axis-tick" style="bottom:100%">100%</span><span class="exp-axis-tick" style="bottom:50%">50%</span><span class="exp-axis-tick" style="bottom:0">0%</span></div>'+
+      '<div class="exp-chart-plot">'+grid+'<div class="exp-bar-columns">'+columns+'</div></div>'+
+      '<div class="exp-chart-labels">'+days.map(row=>'<span>'+esc(row.date.slice(5))+'</span>').join('')+'</div>'+
+    '</div>'+
+  '</section>';
+}
+function expLevelHistoryHtml(days){
+  const series=days.filter(row=>row.snapshot).map(row=>({date:row.date,snapshot:row.snapshot,level:Math.max(0,Math.floor(Number(row.snapshot.level)||0)),rate:expSnapshotRate(row.snapshot)}));
+  if(!series.length) return '<section class="exp-history-panel"><div class="exp-history-head"><b>레벨업 히스토리</b><span>최근 7일</span></div><div class="exp-chart-empty">레벨 기록을 수집 중입니다.</div></section>';
+  const values=series.map(row=>row.level);
+  const low=Math.min(...values), high=Math.max(...values);
+  const min=Math.max(0,low-(low===high?1:0));
+  const max=high+(low===high?1:0);
+  const range=Math.max(1,max-min);
+  const svgWidth=600, svgHeight=160;
+  const points=series.map((row,index)=>{
+    const x=series.length===1 ? svgWidth/2 : (svgWidth/(series.length-1))*index;
+    const y=svgHeight-((row.level-min)/range)*svgHeight;
+    const previous=series[index-1];
+    const changed=!!previous && previous.level!==row.level;
+    const showLabel=index===0 || index===series.length-1 || changed;
+    const label=row.date+' · Lv.'+fmt(row.level)+(row.rate===null?'':' · '+expRateLabel(row.rate));
+    return {x,y,changed,label,text:showLabel?'<text class="exp-level-label" x="'+x.toFixed(2)+'" y="'+Math.max(16,y-10).toFixed(2)+'" text-anchor="middle">Lv.'+fmt(row.level)+'</text>':''};
+  });
+  const path=points.map((point,index)=>(index?'L ':'M ')+point.x.toFixed(2)+' '+point.y.toFixed(2)).join(' ');
+  const dots=points.map(point=>'<circle class="exp-chart-point'+(point.changed?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5"><title>'+esc(point.label)+'</title></circle>'+point.text).join('');
+  const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
+  const ticks=[0,0.5,1].map(position=>'<span class="exp-axis-tick" style="bottom:'+(position*100)+'%">Lv.'+fmt(Math.round(min+(range*position)))+'</span>').join('');
+  return '<section class="exp-history-panel">'+
+    '<div class="exp-history-head"><b>레벨업 히스토리</b><span>최근 7일 · 일별 마지막 API 기록</span></div>'+
+    '<div class="exp-level-chart">'+
+      '<div class="exp-chart-axis">'+ticks+'</div>'+
+      '<div class="exp-chart-plot">'+grid+'<svg class="exp-chart-svg" viewBox="0 0 '+svgWidth+' '+svgHeight+'" preserveAspectRatio="none" role="img" aria-label="최근 7일 레벨 히스토리 그래프"><path class="exp-chart-line" d="'+path+'"></path>'+dots+'</svg></div>'+
+      '<div class="exp-chart-labels" style="grid-template-columns:repeat('+series.length+',minmax(0,1fr))">'+series.map(row=>'<span>'+esc(row.date.slice(5))+'</span>').join('')+'</div>'+
+    '</div>'+
+  '</section>';
+}
 function renderExpTracker(){
   const select=document.getElementById('exp-tracker-character');
   const el=document.getElementById('exp-tracker');
@@ -5179,46 +5315,20 @@ function renderExpTracker(){
   const first=snapshots[0] || null;
   const last=snapshots[snapshots.length-1] || latest;
   const forecast=expLevelUpForecast(history,latest);
-  const units=snapshots.map(expProgressUnit).filter(value=>value!==null);
-  let min=Math.min(...units), max=Math.max(...units);
-  const padding=Math.max(2,(max-min)*0.18);
-  min-=padding; max+=padding;
-  if(max-min<4){ min-=2; max+=2; }
-  const range=max-min || 1;
-  const svgWidth=600, svgHeight=160;
-  let path='';
-  let started=false;
-  const points=days.map((row,index)=>{
-    if(!row.snapshot){ started=false; return ''; }
-    const unit=expProgressUnit(row.snapshot);
-    const x=(svgWidth/(EXP_TRACKER_DAYS-1))*index;
-    const y=svgHeight-((unit-min)/range)*svgHeight;
-    path+=(started?' L ':'M ')+x.toFixed(2)+' '+y.toFixed(2);
-    started=true;
-    const label=row.date+' · '+expUnitLabel(unit);
-    return '<circle class="exp-chart-point" cx="'+x.toFixed(2)+'" cy="'+y.toFixed(2)+'" r="5"><title>'+esc(label)+'</title></circle>';
-  }).join('');
-  const ticks=[0,0.5,1].map(position=>{
-    const unit=min+(range*position);
-    return '<span class="exp-axis-tick" style="bottom:'+(position*100)+'%">'+esc(expUnitLabel(unit))+'</span>';
-  }).join('');
-  const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
   const currentRate=expSnapshotRate(latest);
+  const currentLevel=Math.floor(Number(latest.level)||0);
   const rawExp=latest.exp ? ' · EXP '+fmt(latest.exp) : '';
+  const latestDate=expTrackerDate(latest.at);
   const forecastText=forecast ? forecast.date+' 예상' : '데이터 수집 중';
-  const forecastDetail=forecast ? '평균 +'+forecast.dailyRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p/일' : '현재 레벨에서 변화 기록이 더 필요합니다.';
+  const forecastDetail=forecast ? '최근 기록 기준 평균 +'+forecast.dailyRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p/일' : '현재 레벨에서 변화 기록이 더 필요합니다.';
   el.innerHTML=
     '<div class="exp-summary-grid">'+
-      '<div class="exp-summary current"><span>현재 경험치</span><b>Lv.'+fmt(latest.level)+' · '+(currentRate===null?'확인 중':currentRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%')+'</b></div>'+
+      '<div class="exp-summary current"><span>현재 경험치</span><b>Lv.'+fmt(currentLevel)+' · '+expRateLabel(currentRate)+'</b></div>'+
       '<div class="exp-summary gain"><span>최근 7일 상승</span><b>'+esc(expWeekGainText(first,last))+'</b></div>'+
       '<div class="exp-summary predict"><span>다음 레벨업 예상</span><b>'+esc(forecastText)+'</b></div>'+
     '</div>'+
-    '<div class="muted" style="margin-top:8px;">'+esc(forecastDetail+rawExp)+'</div>'+
-    '<div class="exp-chart">'+
-      '<div class="exp-chart-axis">'+ticks+'</div>'+
-      '<div class="exp-chart-plot">'+grid+'<svg class="exp-chart-svg" viewBox="0 0 '+svgWidth+' '+svgHeight+'" preserveAspectRatio="none" role="img" aria-label="최근 7일 경험치 진행 그래프">'+(path?'<path class="exp-chart-line" d="'+path+'"></path>':'')+points+'</svg></div>'+
-      '<div class="exp-chart-labels">'+days.map(row=>'<span>'+esc(row.date.slice(5))+'</span>').join('')+'</div>'+
-    '</div>';
+    '<div class="muted" style="margin-top:8px;">'+esc(forecastDetail+(latestDate?' · 마지막 기록 '+latestDate:'')+rawExp)+'</div>'+
+    '<div class="exp-history-grid">'+expBarHistoryHtml(days,currentLevel)+expLevelHistoryHtml(days)+'</div>';
 }
 function renderRecords(){
   const list=document.getElementById('daily-record-list');
@@ -5715,6 +5825,24 @@ function downloadMonthlyReportImage(report){
   if(canvas.toBlob) canvas.toBlob(blob=>{ if(!blob){ download(); return; } const a=document.createElement('a'); a.download='maple_tracker_'+report.month+'_report.png'; a.href=URL.createObjectURL(blob); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),500); },'image/png');
   else download();
 }
+function statsPeriodCardHtml(title,range,row,current,label){
+  const total=row.m+row.boss+row.profit-row.expense;
+  const totalClass=total<0n ? 'bad' : '';
+  const profitClass=row.profit<0n ? 'bad' : '';
+  return '<article class="stats-period-card'+(current?' is-current':'')+'">'+
+    '<div class="stats-period-top">'+
+      '<div class="stats-period-copy"><span class="stats-period-kicker">'+esc(current?'현재 '+label:label+' 결산')+'</span><h3>'+esc(title)+'</h3><p>'+esc(range)+' · 재획 '+fmt(row.days)+'일</p></div>'+
+      '<div class="stats-period-net"><span>순수익</span><b class="'+totalClass+'">'+signedKorMeso(total)+'</b></div>'+
+    '</div>'+
+    '<div class="stats-period-metrics">'+
+      '<div class="stats-period-metric hunt"><span>재획 메소</span><b>'+korMeso(row.m)+'</b></div>'+
+      '<div class="stats-period-metric"><span>보스 수익</span><b>'+korMeso(row.boss)+'</b></div>'+
+      '<div class="stats-period-metric profit"><span>손익 계산기</span><b class="'+profitClass+'">'+signedKorMeso(row.profit)+'</b></div>'+
+      '<div class="stats-period-metric expense"><span>직접 지출</span><b>-'+korMeso(row.expense)+'</b></div>'+
+    '</div>'+
+    '<div class="stats-period-footer"><span>획득 아이템 '+lootCellHtml(row.loot)+'</span><span>솔 에르다 <b>'+fmt(row.e)+'개</b></span></div>'+
+  '</article>';
+}
 function renderStats(){
   const today=todayStr();
   const wkStart=mapleWeekStart(today), wkEnd=addDays(wkStart,6);
@@ -5736,19 +5864,19 @@ function renderStats(){
   const dropNow=dropCountForWeek(wkStart);
   const mesoLabel=erdaMesoModeLabel();
   const cards=[
-    {t:'이번 주 '+mesoLabel+' ('+fmtShort(wkStart)+'~'+fmtShort(wkEnd)+')', v:korMeso(thisWeek.m), s:thisWeek.days+'일 재획 · 조각 '+fmt(thisWeek.e)+'개'},
-    {t:'이번 달 '+mesoLabel+' ('+mon.replace('-','년 ')+'월)', v:korMeso(thisMonth.m), s:thisMonth.days+'일 재획 · 조각 '+fmt(thisMonth.e)+'개'},
-    {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획'},
-    {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true},
-    {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 월간 '+korMeso(bt.month)+' · 획득템 '+dropNow+'개'},
-    {t:'이번 주 직접 지출', v:'-'+korMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건'},
-    {t:'이번 주 손익 (지출 반영)', v:signedKorMeso(thisWeekNetProfit), s:'계산기 '+signedKorMeso(thisWeekProfit.net)+' · 직접 지출 '+korMeso(thisWeekExpense.total)},
-    {t:'이번 달 손익 (지출 반영)', v:signedKorMeso(thisMonthNetProfit), s:'계산기 '+signedKorMeso(thisMonthProfit.net)+' · 직접 지출 '+korMeso(thisMonthExpense.total)},
-    {t:'전체 손익 (지출 반영)', v:signedKorMeso(totalNetProfit), s:'계산기 '+signedKorMeso(totalProfit.net)+' · 직접 지출 '+korMeso(totalExpense.total)},
-    {t:'이번 주 합산 (재획+보스+손익-지출)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekNetProfit), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(bt.dropMeso)},
+    {t:'이번 주 '+mesoLabel+' ('+fmtShort(wkStart)+'~'+fmtShort(wkEnd)+')', v:korMeso(thisWeek.m), s:thisWeek.days+'일 재획 · 조각 '+fmt(thisWeek.e)+'개', tone:'income'},
+    {t:'이번 달 '+mesoLabel+' ('+mon.replace('-','년 ')+'월)', v:korMeso(thisMonth.m), s:thisMonth.days+'일 재획 · 조각 '+fmt(thisMonth.e)+'개', tone:'income'},
+    {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획', tone:'income'},
+    {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true, tone:'boss'},
+    {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 월간 '+korMeso(bt.month)+' · 획득템 '+dropNow+'개', tone:'boss'},
+    {t:'이번 주 직접 지출', v:'-'+korMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건', tone:'expense', valueClass:'bad'},
+    {t:'이번 주 손익 (지출 반영)', v:signedKorMeso(thisWeekNetProfit), s:'계산기 '+signedKorMeso(thisWeekProfit.net)+' · 직접 지출 '+korMeso(thisWeekExpense.total), tone:'net', valueClass:thisWeekNetProfit<0n?'bad':'good'},
+    {t:'이번 달 손익 (지출 반영)', v:signedKorMeso(thisMonthNetProfit), s:'계산기 '+signedKorMeso(thisMonthProfit.net)+' · 직접 지출 '+korMeso(thisMonthExpense.total), tone:'net', valueClass:thisMonthNetProfit<0n?'bad':'good'},
+    {t:'전체 손익 (지출 반영)', v:signedKorMeso(totalNetProfit), s:'계산기 '+signedKorMeso(totalProfit.net)+' · 직접 지출 '+korMeso(totalExpense.total), tone:'net', valueClass:totalNetProfit<0n?'bad':'good'},
+    {t:'이번 주 합산 (재획+보스+손익-지출)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekNetProfit), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(bt.dropMeso), tone:'net', valueClass:(thisWeek.m+bossNow+thisWeekNetProfit)<0n?'bad':'good'},
   ];
   document.getElementById('stat-cards').innerHTML = cards.map(c=>
-    '<div class="stat"><div class="t">'+c.t+'</div><div class="v'+(c.p?' p':'')+'">'+c.v+'</div><div class="s">'+(c.s||'')+'</div></div>'
+    '<div class="stat'+(c.tone?' stat-'+c.tone:'')+'"><div class="t">'+c.t+'</div><div class="v'+(c.p?' p':'')+(c.valueClass?' '+c.valueClass:'')+'">'+c.v+'</div><div class="s">'+(c.s||'')+'</div></div>'
   ).join('');
   renderGoalProgress();
 
@@ -5802,13 +5930,10 @@ function renderStats(){
     row.profit=profitTotals(d=>mapleWeekStart(d)===w).net;
     row.expense=expenseTotals(d=>mapleWeekStart(d)===w).total;
   });
-  document.getElementById('tbody-weekly').innerHTML = Object.keys(weeks).sort().reverse().map(w=>{
-    const cur = w===wkStart ? ' ← 이번 주' : '';
-    const totalM = weeks[w].m + weeks[w].boss + weeks[w].profit - weeks[w].expense;
-    return '<tr><td>'+w+cur+'</td><td>'+fmtShort(w)+' ~ '+fmtShort(addDays(w,6))+'</td><td>'+weeks[w].days+'일</td>'+
-      '<td class="meso">'+korMeso(weeks[w].m)+'</td><td class="meso">'+korMeso(weeks[w].boss)+'</td><td class="meso">'+signedKorMeso(weeks[w].profit)+'</td><td class="meso">-'+korMeso(weeks[w].expense)+'</td><td class="meso">'+signedKorMeso(totalM)+'</td>'+
-      '<td>'+lootCellHtml(weeks[w].loot)+'</td><td class="erda">'+fmt(weeks[w].e)+'개</td></tr>';
-  }).join('') || '<tr><td colspan="10" class="muted">기록이 없습니다.</td></tr>';
+  const weeklyList=document.getElementById('weekly-summary-list');
+  if(weeklyList) weeklyList.innerHTML=Object.keys(weeks).sort().reverse().map(w=>
+    statsPeriodCardHtml(w,fmtShort(w)+' ~ '+fmtShort(addDays(w,6)),weeks[w],w===wkStart,'주간')
+  ).join('') || '<div class="stats-period-empty">아직 주간 기록이 없습니다.</div>';
 
   const months={};
   const ensureMonth=m=>months[m]||(months[m]={m:0n,e:0,days:0,boss:0n,profit:0n,expense:0n,loot:[]});
@@ -5835,11 +5960,10 @@ function renderStats(){
     if(!d) return;
     ensureMonth(d.slice(0,7)).expense+=toMesoBig(normalizeExpenseRecord(r).amount);
   });
-  document.getElementById('tbody-monthly').innerHTML = Object.keys(months).sort().reverse().map(m=>
-    '<tr><td>'+m.replace('-','년 ')+'월</td><td>'+months[m].days+'일</td>'+
-    '<td class="meso">'+korMeso(months[m].m)+'</td><td class="meso">'+korMeso(months[m].boss)+'</td><td class="meso">'+signedKorMeso(months[m].profit)+'</td><td class="meso">-'+korMeso(months[m].expense)+'</td><td class="meso">'+signedKorMeso(months[m].m+months[m].boss+months[m].profit-months[m].expense)+'</td>'+
-    '<td>'+lootCellHtml(months[m].loot)+'</td><td class="erda">'+fmt(months[m].e)+'개</td></tr>'
-  ).join('') || '<tr><td colspan="9" class="muted">기록이 없습니다.</td></tr>';
+  const monthlyList=document.getElementById('monthly-summary-list');
+  if(monthlyList) monthlyList.innerHTML=Object.keys(months).sort().reverse().map(m=>
+    statsPeriodCardHtml(m.replace('-','년 ')+'월',m.replace('-','년 ')+'월',months[m],m===mon,'월간')
+  ).join('') || '<div class="stats-period-empty">아직 월간 기록이 없습니다.</div>';
   renderErdaCalculator();
 }
 
