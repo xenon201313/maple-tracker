@@ -338,6 +338,73 @@
   .record-session-row .session-value{color:var(--gold);}
   .record-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
   button.record-edit{width:auto; background:rgba(115,208,255,.1); color:#aee6ff; border:1px solid rgba(115,208,255,.55); padding:4px 10px; font-size:13px;}
+  .daily-record-head{display:flex; justify-content:space-between; align-items:flex-start; gap:14px;}
+  .daily-record-head h2{margin-bottom:5px;}
+  .daily-record-head .muted{max-width:680px;}
+  .daily-record-tools{display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; flex:0 0 auto;}
+  .daily-record-tools button{width:auto; white-space:nowrap;}
+  .daily-record-pagination{display:flex; justify-content:center; align-items:center; gap:8px; margin:13px 0 10px;}
+  .daily-record-pagination button{width:auto; min-width:112px; padding:7px 10px; font-size:12px;}
+  .daily-record-pagination button:disabled{opacity:.42; cursor:not-allowed;}
+  .daily-record-page-info{min-width:124px; color:var(--sub); font-size:12px; text-align:center; white-space:nowrap;}
+  .daily-record-list{display:grid; gap:10px; min-width:0;}
+  .daily-record-empty{padding:18px; border:1px dashed rgba(220,230,255,.2); border-radius:10px; color:var(--sub); background:rgba(6,10,18,.25); text-align:center; font-size:13px;}
+  .daily-record-day{min-width:0; overflow:hidden; border:1px solid rgba(220,230,255,.14); border-radius:11px; background:rgba(12,18,30,.78); box-shadow:0 8px 20px rgba(0,0,0,.15);}
+  .daily-day-header{display:grid; grid-template-columns:minmax(122px,.55fr) minmax(0,1.15fr) minmax(156px,.75fr) auto; gap:10px; align-items:center; padding:12px; background:linear-gradient(90deg,rgba(92,74,22,.28),rgba(27,34,51,.6)); border-bottom:1px solid rgba(255,210,77,.18);}
+  .daily-day-date{color:#f3f6ff; font-size:15px; font-weight:900; font-variant-numeric:tabular-nums;}
+  .daily-day-copy{min-width:0;}
+  .daily-day-copy b{display:block; color:#f2e7bd; font-size:14px; line-height:1.35; overflow-wrap:anywhere;}
+  .daily-day-copy span{display:block; margin-top:3px; color:var(--sub); font-size:11px; line-height:1.4;}
+  .daily-day-total{min-width:0; text-align:right;}
+  .daily-day-total span{display:block; color:var(--sub); font-size:10px; margin-bottom:2px;}
+  .daily-day-total b{display:block; color:var(--gold); font-size:15px; line-height:1.3; overflow-wrap:anywhere;}
+  .daily-day-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
+  .daily-day-actions button{width:auto; padding:6px 9px; font-size:12px; white-space:nowrap;}
+  .daily-day-toggle{background:rgba(115,208,255,.1); color:#b7eaff; border:1px solid rgba(115,208,255,.48);}
+  .daily-day-metrics{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; padding:10px 12px; border-bottom:1px solid rgba(220,230,255,.1); background:rgba(6,10,18,.22);}
+  .daily-day-metric{min-width:0; padding:6px 8px; border-left:2px solid rgba(220,230,255,.14);}
+  .daily-day-metric:first-child{border-left:0;}
+  .daily-day-metric span{display:block; color:var(--sub); font-size:10px; line-height:1.25;}
+  .daily-day-metric b{display:block; margin-top:3px; color:#edf2ff; font-size:12px; line-height:1.35; overflow-wrap:anywhere;}
+  .daily-day-metric small{display:block; margin-top:3px; color:var(--sub); font-size:10px; line-height:1.35; overflow-wrap:anywhere;}
+  .daily-day-metric.meso b{color:var(--gold);}
+  .daily-day-metric.erda b{color:var(--purple);}
+  .daily-sessions{display:grid; gap:7px; padding:10px 12px 12px;}
+  .daily-sessions[hidden]{display:none;}
+  .daily-session{display:grid; grid-template-columns:minmax(112px,.72fr) minmax(68px,.38fr) minmax(0,1fr) minmax(0,.78fr) minmax(0,.7fr) minmax(0,1fr) auto; gap:8px; align-items:stretch; min-width:0; padding:9px; border:1px solid rgba(220,230,255,.12); border-radius:8px; background:rgba(6,10,18,.3);}
+  .daily-session-field{min-width:0; display:flex; flex-direction:column; justify-content:center; gap:3px;}
+  .daily-session-field span{display:none; color:var(--sub); font-size:10px;}
+  .daily-session-field b{min-width:0; color:#dce7ff; font-size:12px; font-weight:700; line-height:1.38; overflow-wrap:anywhere;}
+  .daily-session-field.meso b,.daily-session-field.total b{color:var(--gold);}
+  .daily-session-field.erda b{color:var(--purple);}
+  .daily-session-field.extra b{color:#f3d77d;}
+  .daily-session-field.settlement b{color:var(--green);}
+  .daily-session-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
+  .daily-session-actions button{width:auto; padding:5px 9px; font-size:12px; white-space:nowrap;}
+  .exp-tracker-head{display:flex; justify-content:space-between; align-items:flex-start; gap:14px;}
+  .exp-tracker-head h2{margin-bottom:5px;}
+  .exp-tracker-select{display:grid; grid-template-columns:auto minmax(160px,250px); align-items:center; gap:8px; flex:0 0 auto; color:var(--sub); font-size:12px; white-space:nowrap;}
+  .exp-tracker-select select{min-width:0; padding:7px 9px; font-size:13px;}
+  .exp-tracker-empty{padding:16px; margin-top:12px; border:1px dashed rgba(220,230,255,.2); border-radius:9px; color:var(--sub); background:rgba(6,10,18,.25); font-size:13px; line-height:1.55;}
+  .exp-summary-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px;}
+  .exp-summary{min-width:0; padding:10px; border:1px solid rgba(154,198,255,.2); border-radius:9px; background:rgba(6,10,18,.3);}
+  .exp-summary span{display:block; color:var(--sub); font-size:11px; line-height:1.3;}
+  .exp-summary b{display:block; margin-top:4px; color:#eef4ff; font-size:14px; line-height:1.38; overflow-wrap:anywhere;}
+  .exp-summary.current b{color:#d9b5ff;}
+  .exp-summary.gain b{color:var(--green);}
+  .exp-summary.predict b{color:var(--gold);}
+  .exp-chart{display:grid; grid-template-columns:66px minmax(0,1fr); column-gap:8px; margin-top:13px;}
+  .exp-chart-axis,.exp-chart-plot{position:relative; height:166px;}
+  .exp-chart-axis{border-right:1px solid rgba(220,230,255,.2);}
+  .exp-axis-tick{position:absolute; right:8px; transform:translateY(50%); color:var(--sub); font-size:10px; line-height:1.1; text-align:right; white-space:nowrap;}
+  .exp-chart-plot{min-width:0; overflow:hidden;}
+  .exp-grid-line{position:absolute; left:0; right:0; border-top:1px solid rgba(220,230,255,.16);}
+  .exp-chart-svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible;}
+  .exp-chart-line{fill:none; stroke:#c29aff; stroke-width:3; stroke-linejoin:round; stroke-linecap:round; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
+  .exp-chart-point{fill:#e7dcff; stroke:#7f5fb6; stroke-width:2; cursor:help;}
+  .exp-chart-point:hover{fill:#ffe26b; stroke:#d29f22;}
+  .exp-chart-labels{grid-column:2; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:2px; margin-top:6px;}
+  .exp-chart-labels span{min-width:0; color:var(--sub); font-size:10px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .hunt-edit-state{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; padding:9px 10px; border:1px solid rgba(115,208,255,.38); border-radius:8px; background:rgba(55,111,161,.14); color:#c7eaff; font-size:13px;}
   .hunt-edit-state[hidden]{display:none;}
   .hunt-edit-state button{width:auto; padding:6px 10px; font-size:12px;}
@@ -562,7 +629,16 @@
   }
   @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:900px) and (min-width:641px){ .tabs{grid-template-columns:repeat(4,minmax(0,1fr));} .tab{font-size:13px; padding:9px 7px;} }
-  @media (max-width:900px){ #page-daily>.card:first-child .row{grid-template-columns:1fr;} #page-daily>.card:first-child .row>div:last-child{grid-column:auto;} #page-daily>.card:first-child .row button{margin-top:0;} }
+  @media (max-width:900px){
+    #page-daily>.card:first-child .row{grid-template-columns:1fr;}
+    #page-daily>.card:first-child .row>div:last-child{grid-column:auto;}
+    #page-daily>.card:first-child .row button{margin-top:0;}
+    .daily-day-header{grid-template-columns:minmax(130px,.72fr) minmax(0,1fr) auto;}
+    .daily-day-total{grid-column:1 / 3; text-align:left;}
+    .daily-session{grid-template-columns:repeat(3,minmax(0,1fr)) auto;}
+    .daily-session-field:nth-child(1){grid-column:1 / 3;}
+    .daily-session-actions{grid-column:4; grid-row:1 / span 2;}
+  }
   @media (max-width:640px){
     :root{--page-pad:10px;}
     html,body{overflow-x:hidden;}
@@ -693,6 +769,33 @@
     .chart-bars{gap:2px;}
     .chart-bars .bar-col,.chart-labels .bar-lbl{min-width:0;}
     .bar-lbl{font-size:9px;}
+    .daily-record-head,.exp-tracker-head{display:grid; grid-template-columns:1fr; gap:9px;}
+    .daily-record-tools{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); justify-content:stretch;}
+    .daily-record-tools button{width:100%; white-space:normal;}
+    .daily-record-pagination{display:grid; grid-template-columns:1fr auto 1fr; gap:5px;}
+    .daily-record-pagination button{min-width:0; width:100%; padding:7px 5px; white-space:normal;}
+    .daily-record-page-info{min-width:0; font-size:10px;}
+    .daily-day-header{grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:11px;}
+    .daily-day-copy{grid-column:1 / -1; grid-row:1; padding-right:0;}
+    .daily-day-date{grid-column:1; grid-row:2; font-size:14px;}
+    .daily-day-total{grid-column:1 / -1; grid-row:3; text-align:left;}
+    .daily-day-actions{grid-column:2; grid-row:2; align-self:center;}
+    .daily-day-actions button{padding:6px 7px; font-size:11px;}
+    .daily-day-metrics{grid-template-columns:repeat(2,minmax(0,1fr)); padding:9px 10px;}
+    .daily-day-metric:nth-child(odd){border-left:0;}
+    .daily-day-metric:nth-child(n+3){border-top:1px solid rgba(220,230,255,.12); padding-top:8px;}
+    .daily-sessions{padding:9px 10px 10px;}
+    .daily-session{grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; padding:9px;}
+    .daily-session-field:nth-child(1){grid-column:1 / -1;}
+    .daily-session-field span{display:block;}
+    .daily-session-actions{grid-column:1 / -1; grid-row:auto; justify-content:stretch;}
+    .daily-session-actions button{flex:1 1 0; width:auto;}
+    .exp-tracker-select{grid-template-columns:1fr; align-items:stretch; width:100%; white-space:normal;}
+    .exp-summary-grid{grid-template-columns:1fr;}
+    .exp-chart{grid-template-columns:50px minmax(0,1fr); column-gap:6px;}
+    .exp-chart-axis,.exp-chart-plot{height:142px;}
+    .exp-axis-tick{right:5px; font-size:9px;}
+    .exp-chart-labels span{font-size:9px;}
     .goal-wrap{padding:13px;}
     .goal-percent{font-size:24px;}
     .goal-head{align-items:center;}
@@ -860,7 +963,7 @@
       <li>서비스 이용약관에 동의하고, 게임은 <b>메이플스토리</b>, 개발 환경은 <b>WEB</b>으로 선택합니다.</li>
       <li><b>서비스 단계</b>는 현재 사이트 상태에 맞게 설정하고, 서비스명과 소개, URL 정보를 입력한 뒤 애플리케이션을 등록합니다.</li>
       <li><b>애플리케이션 목록 → 등록한 서비스명 → 기본 정보</b>에서 API Key를 확인합니다.</li>
-      <li>이 사이트의 <b>캐릭터 등록</b> 탭에서 API Key를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지가 자동 등록됩니다. 페이지를 열어 둔 동안 보스 완료는 2분, 경험치는 15분 간격으로 갱신됩니다.</li>
+      <li>이 사이트의 <b>캐릭터 등록</b> 탭에서 API Key를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지가 자동 등록됩니다. 페이지를 열어 둔 동안 보스 완료는 2분, 경험치는 15분 간격으로 갱신되며 경험치 그래프는 재획 기록 탭에서 확인합니다.</li>
     </ul>
     <div class="guide-note">API Key는 다른 사람에게 보여주면 안 됩니다. 노출된 경우 넥슨 Open API에서 재발급하는 것을 권장합니다.</div>
     <div class="muted" style="margin-top:8px;">참고: <a href="https://chuchu.gg/help/api" target="_blank" rel="noopener">츄츄지지 API Key 발급 가이드</a></div>
@@ -957,7 +1060,7 @@
           <span class="api-icon">🔑</span>
           <div class="api-copy">
             <b>넥슨 Open API 연동</b>
-            <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록하고 보스 완료·경험치 변동을 갱신합니다.</div>
+            <div class="muted">API 키를 저장하면 캐릭터명으로 월드, 직업, 레벨, 캐릭터 이미지를 자동 등록하고 보스 완료·경험치 데이터를 갱신합니다.</div>
           </div>
         </div>
         <span class="api-status" id="nexon-api-status">API 키 미등록</span>
@@ -1008,7 +1111,7 @@
     <div class="registered-head">
       <div>
         <h2>🪪 등록된 캐릭터</h2>
-        <div class="muted">새로고침을 누르면 최신 프로필, 보스 완료 상태, 경험치를 가져옵니다. 페이지를 열어 둔 동안 보스는 2분, 경험치는 15분 간격으로 자동 갱신됩니다.</div>
+        <div class="muted">새로고침을 누르면 최신 프로필과 보스 완료 상태를 가져옵니다. 경험치는 재획 기록 탭의 최근 7일 그래프에서 확인하며, 페이지를 열어 둔 동안 보스는 2분, 경험치는 15분 간격으로 갱신됩니다.</div>
       </div>
       <div class="registered-tools">
         <button class="ghost" id="btn-character-guide" type="button">등록방법</button>
@@ -1026,9 +1129,9 @@
       <h2 id="character-guide-title">👤 캐릭터 등록 방법</h2>
       <button class="ghost guide-modal-close" type="button" data-guide-close>닫기</button>
     </div>
-    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어오고, 보스 완료와 경험치 변화도 갱신됩니다.</p>
+    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어오고, 보스 완료와 경험치 변화도 갱신됩니다. 경험치 그래프는 재획 기록 탭에서 확인합니다.</p>
     <div class="guide-grid">
-      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다. 열린 페이지에서는 보스 완료 상태와 경험치도 주기적으로 반영됩니다.</p></div>
+      <div class="guide-item"><b>API 키가 있는 경우</b><p>넥슨 Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다. 열린 페이지에서는 보스 완료 상태와 경험치가 주기적으로 갱신되며, 경험치 변화는 재획 기록 탭에서 확인합니다.</p></div>
       <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
       <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
     </div>
@@ -1131,27 +1234,34 @@
   </div>
 
   <div class="card">
-    <h2>📅 일일 기록 (회차별 · 누적 합산)</h2>
-    <div class="toolbar">
-      <button class="ghost" id="btn-export">📤 백업 (JSON)</button>
-      <button class="ghost" id="btn-import">📥 복원</button>
+    <div class="exp-tracker-head">
+      <div>
+        <h2>📈 경험치 추적 <span class="muted">최근 7일</span></h2>
+        <div class="muted">넥슨 API 갱신으로 쌓인 경험치 변화입니다. 재획·보스·통계 수익에는 반영되지 않습니다.</div>
+      </div>
+      <label class="exp-tracker-select">캐릭터
+        <select id="exp-tracker-character" aria-label="경험치 추적 캐릭터"></select>
+      </label>
+    </div>
+    <div id="exp-tracker"></div>
+  </div>
+
+  <div class="card">
+    <div class="daily-record-head">
+      <div>
+        <h2>📅 일일 기록 <span class="muted">회차별 · 누적 합산</span></h2>
+        <div class="muted">날짜별 회차를 접어 두고 최근 10일씩 확인할 수 있습니다.</div>
+      </div>
+      <div class="daily-record-tools">
+        <button class="ghost" id="btn-collapse-daily-records" type="button">전체 접기</button>
+        <button class="ghost" id="btn-expand-daily-records" type="button">전체 펼치기</button>
+        <button class="ghost" id="btn-export">📤 백업 (JSON)</button>
+        <button class="ghost" id="btn-import">📥 복원</button>
+      </div>
       <input type="file" id="file-import" accept=".json" style="display:none;">
     </div>
-    <div style="overflow-x:auto;">
-    <table>
-      <thead><tr>
-        <th>날짜</th>
-        <th>회차</th>
-        <th>캐릭터</th>
-        <th><img class="icon-sm" id="i-meso2">획득 메소</th>
-        <th><img class="icon-sm" id="i-extra2">추가 부수입</th>
-        <th><img class="icon-sm" id="i-orb2">솔 에르다 조각</th>
-        <th>일일 / 누적 메소</th>
-        <th></th>
-      </tr></thead>
-      <tbody id="tbody-records"></tbody>
-    </table>
-    </div>
+    <div class="daily-record-pagination" id="daily-record-pagination"></div>
+    <div class="daily-record-list" id="daily-record-list"></div>
   </div>
 </div>
 
@@ -3700,10 +3810,16 @@ const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev'
 const CLOUD_SYNC_VERSION = 1;
 const NEXON_SCHEDULER_REFRESH_MS = 2 * 60 * 1000;
 const NEXON_PROFILE_REFRESH_MS = 15 * 60 * 1000;
+const DAILY_RECORDS_PER_PAGE = 10;
+const EXP_TRACKER_DAYS = 7;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
 let monthlyBossMigrationPendingSave = false;
+let dailyRecordPage = 0;
+let collapsedDailyRecordDates = new Set();
+let dailyRecordCollapseInitialized = false;
+let expTrackerCharacterName = '';
 
 function migrateBosses(b){
   const o={};
@@ -4504,9 +4620,6 @@ if(inSessionLabel){
   huntEditState.innerHTML='<span id="hunt-edit-state-text"></span><button type="button" class="ghost" id="btn-cancel-hunt-edit">새 기록으로</button>';
   sessionField.closest('.row')?.after(huntEditState);
 }
-const recordsTable=document.getElementById('tbody-records')?.closest('table');
-const huntColumnHeader=recordsTable?.querySelector('thead th:nth-child(2)');
-if(huntColumnHeader) huntColumnHeader.textContent='재획 수 / 메모';
 const dailyBossDate=document.getElementById('dailyboss-date');
 const inErdaPrice=document.getElementById('in-erda-price');
 const erdaFeeSelect=document.getElementById('erda-fee');
@@ -4678,6 +4791,8 @@ function saveHuntEntry(){
     }));
   }
   save();
+  dailyRecordPage=0;
+  collapsedDailyRecordDates.delete(date);
   resetHuntEntryForm();
   renderAll();
 }
@@ -4925,86 +5040,282 @@ function sortedDates(asc=true){
   const ks=Object.keys(db.records).sort();
   return asc?ks:ks.reverse();
 }
-function renderRecords(){
-  const tb=document.getElementById('tbody-records');
-  if(!tb) return;
-  const asc=sortedDates(true);
-  let cumM=0n, cumE=0; const rows={};
-  asc.forEach(d=>{
-    const r=normalizeRecord(db.records[d]);
-    cumM+=recordMesoTotal(r); cumE+=Number(r.erda)||0; rows[d]={cm:cumM, ce:cumE};
-  });
-  tb.innerHTML='';
-  sortedDates(false).forEach(d=>{
-    const r=normalizeRecord(db.records[d]);
-    const erdaMeso=erdaMesoForRecord(r);
-    const extraMeso=toMesoBig(r.extraIncome);
-    const huntCount=r.sessions.filter(session=>session.kind!=='erda-settlement').length;
-    const huntRuns=r.sessions.filter(session=>session.kind!=='erda-settlement').reduce((sum,session)=>sum+huntSessionRunCount(session),0);
-    const settlementCount=r.sessions.length-huntCount;
-    const dayTotal=recordMesoTotal(r);
-    const dayRow=document.createElement('tr');
-    dayRow.className='record-day-row';
-    dayRow.innerHTML=
-      '<td>'+d+'</td>'+
-      '<td class="record-day-summary" colspan="2">일일 합계 · '+huntCount+'회차'+(settlementCount?' · 조각 정산 '+settlementCount+'건':'')+'</td>'+
-      '<td class="meso">'+korMeso(r.meso)+(erdaMeso?'<div class="cum">보유 조각 환산 +'+korMeso(erdaMeso)+'</div>':'')+'</td>'+
-      '<td class="meso">'+(extraMeso>0n?korMeso(extraMeso):'<span class="muted">-</span>')+'</td>'+
-      '<td class="erda">'+fmt(Number(r.erda)||0)+'개</td>'+
-      '<td class="cum">'+korMeso(dayTotal)+'<div>누적 '+korMeso(rows[d].cm)+' · 조각 '+fmt(rows[d].ce)+'개</div></td>'+
-      '<td><button class="danger delete-hunt-day" data-date="'+d+'">하루 삭제</button></td>';
-    const daySummary=dayRow.querySelector('.record-day-summary');
-    if(daySummary){
-      daySummary.textContent='일일 합계 · '+formatHuntRuns(huntRuns)+'재획'+(huntCount>1?' · '+huntCount+'회차':'')+(settlementCount?' · 조각 정산 '+settlementCount+'건':'');
-    }
-    tb.appendChild(dayRow);
-    r.sessions.forEach((session,index)=>{
-      const s=normalizeHuntSession(session);
-      const isSettlement=s.kind==='erda-settlement';
-      const sessionErdaMeso=erdaMesoForSessionDisplay(s);
-      const sessionTotal=huntSessionMesoTotal(s);
-      const sessionRow=document.createElement('tr');
-      sessionRow.className='record-session-row';
-      const label=s.label || (isSettlement ? '솔 에르다 조각 판매 정산' : (index+1)+'재획');
-      const sourceCount=s.settlementSources.reduce((sum,source)=>sum+source.count,0);
-      sessionRow.innerHTML=
-        '<td>↳</td>'+
-        '<td class="session-label'+(isSettlement?' settlement-label':'')+'">'+esc(label)+'</td>'+
-        '<td>'+(s.charName?esc(s.charName):'<span class="muted">-</span>')+'</td>'+
-        '<td class="meso">'+(toMesoBig(s.meso)>0n?korMeso(s.meso):'<span class="muted">-</span>')+(sessionErdaMeso?'<div class="cum">조각 환산 +'+korMeso(sessionErdaMeso)+'</div>':'')+'</td>'+
-        '<td class="meso">'+(toMesoBig(s.extraIncome)>0n?korMeso(s.extraIncome):'<span class="muted">-</span>')+'</td>'+
-        '<td class="erda">'+(s.erda?fmt(s.erda)+'개'+(s.erdaSettled?' <span class="cum">(정산 '+fmt(s.erdaSettled)+'개)</span>':''):(isSettlement?'정산 '+fmt(sourceCount)+'개':'<span class="muted">-</span>'))+'</td>'+
-        '<td class="session-value">'+korMeso(sessionTotal)+'</td>'+
-        '<td><button class="danger delete-hunt-session" data-date="'+d+'" data-id="'+esc(s.id)+'">삭제</button></td>';
-      const sessionLabelCell=sessionRow.querySelector('.session-label');
-      if(sessionLabelCell && !isSettlement) sessionLabelCell.textContent=huntSessionDisplayLabel(s,index);
-      const actionCell=sessionRow.lastElementChild;
-      const deleteButton=actionCell && actionCell.querySelector('button');
-      if(actionCell && deleteButton){
-        const actions=document.createElement('div');
-        actions.className='record-actions';
-        actionCell.textContent='';
-        if(!isSettlement){
-          const editButton=document.createElement('button');
-          editButton.type='button';
-          editButton.className='record-edit';
-          editButton.textContent='수정';
-          editButton.onclick=()=>beginHuntSessionEdit(d,s.id);
-          actions.appendChild(editButton);
-        }
-        actions.appendChild(deleteButton);
-        actionCell.appendChild(actions);
-      }
-      tb.appendChild(sessionRow);
-    });
-  });
-  tb.querySelectorAll('.delete-hunt-day').forEach(b=>{
-    b.onclick=()=>{ if(confirm(b.dataset.date+'의 모든 재획 회차를 삭제할까요?')){ deleteHuntDate(b.dataset.date); save(); renderAll(); } };
-  });
-  tb.querySelectorAll('.delete-hunt-session').forEach(b=>{
-    b.onclick=()=>{ if(confirm('이 재획 회차를 삭제할까요?')){ deleteHuntSession(b.dataset.date,b.dataset.id); save(); renderAll(); } };
+function dailyRecordMetricHtml(label,value,kind='',detail=''){
+  return '<div class="daily-day-metric '+kind+'"><span>'+esc(label)+'</span><b>'+value+'</b>'+(detail?'<small>'+detail+'</small>':'')+'</div>';
+}
+function dailySessionFieldHtml(label,value,kind=''){
+  return '<div class="daily-session-field '+kind+'"><span>'+esc(label)+'</span><b>'+value+'</b></div>';
+}
+function dailySessionCardHtml(date,session,index){
+  const s=normalizeHuntSession(session);
+  const isSettlement=s.kind==='erda-settlement';
+  const label=isSettlement ? (s.label || '솔 에르다 조각 판매 정산') : huntSessionDisplayLabel(s,index);
+  const sessionErdaMeso=erdaMesoForSessionDisplay(s);
+  const sourceCount=s.settlementSources.reduce((sum,source)=>sum+source.count,0);
+  const meso=toMesoBig(s.meso)>0n ? korMeso(s.meso) : '<span class="muted">-</span>';
+  const extra=toMesoBig(s.extraIncome)>0n ? korMeso(s.extraIncome) : '<span class="muted">-</span>';
+  const erda=s.erda
+    ? fmt(s.erda)+'개'+(s.erdaSettled?' · 정산 '+fmt(s.erdaSettled)+'개':'')
+    : (isSettlement ? '정산 '+fmt(sourceCount)+'개' : '<span class="muted">-</span>');
+  const total=korMeso(huntSessionMesoTotal(s));
+  const actions=(isSettlement ? '' : '<button class="record-edit" type="button" data-session-edit="'+esc(s.id)+'" data-date="'+date+'">수정</button>')+
+    '<button class="danger" type="button" data-session-delete="'+esc(s.id)+'" data-date="'+date+'">삭제</button>';
+  return '<div class="daily-session">'+
+    dailySessionFieldHtml('회차 / 메모',esc(label),isSettlement?'settlement':'')+
+    dailySessionFieldHtml('캐릭터',s.charName?esc(s.charName):'<span class="muted">-</span>')+
+    dailySessionFieldHtml('획득 메소',meso+(sessionErdaMeso?'<br><small>조각 환산 +'+korMeso(sessionErdaMeso)+'</small>':''),'meso')+
+    dailySessionFieldHtml('추가 부수입',extra,'extra')+
+    dailySessionFieldHtml('솔 에르다 조각',erda,'erda')+
+    dailySessionFieldHtml('회차 합계',total,'total')+
+    '<div class="daily-session-actions">'+actions+'</div>'+
+  '</div>';
+}
+function renderDailyRecordPagination(total,pageCount,start,visibleCount){
+  const el=document.getElementById('daily-record-pagination');
+  if(!el) return;
+  if(!total){ el.innerHTML=''; return; }
+  el.innerHTML=
+    '<button class="ghost" type="button" data-daily-page="newer" '+(dailyRecordPage===0?'disabled':'')+'>‹ 더 최근</button>'+
+    '<span class="daily-record-page-info">기록 '+(start+1)+'–'+(start+visibleCount)+' / '+total+'일</span>'+
+    '<button class="ghost" type="button" data-daily-page="older" '+(dailyRecordPage>=pageCount-1?'disabled':'')+'>이전 10일 ›</button>';
+  el.querySelectorAll('[data-daily-page]').forEach(button=>{
+    button.onclick=()=>{
+      dailyRecordPage+=button.dataset.dailyPage==='older' ? 1 : -1;
+      renderRecords();
+    };
   });
 }
+function expTrackerDate(at){
+  const time=normalizeApiTimestamp(at);
+  if(!time) return '';
+  const d=new Date(time);
+  return Number.isNaN(d.getTime()) ? '' : d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function expSnapshotRate(snapshot){
+  const rate=Number(normalizeCharacterExpRate(snapshot?.rate));
+  return Number.isFinite(rate) ? rate : null;
+}
+function expProgressUnit(snapshot){
+  const rate=expSnapshotRate(snapshot);
+  const level=Math.max(0,Math.floor(Number(snapshot?.level)||0));
+  return level && rate!==null ? level*100+rate : null;
+}
+function expUnitLabel(unit){
+  const value=Number(unit);
+  const level=Math.floor(value/100);
+  const rate=value-level*100;
+  return 'Lv.'+fmt(level)+' '+rate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%';
+}
+function expWeekData(character){
+  const start=addDays(todayStr(),-(EXP_TRACKER_DAYS-1));
+  const byDate={};
+  normalizeExpHistory(character?.expHistory).forEach(snapshot=>{
+    const date=expTrackerDate(snapshot.at);
+    if(!date || date<start || date>todayStr() || expProgressUnit(snapshot)===null) return;
+    if(!byDate[date] || byDate[date].at<snapshot.at) byDate[date]=snapshot;
+  });
+  const days=[];
+  for(let i=0;i<EXP_TRACKER_DAYS;i++){
+    const date=addDays(start,i);
+    days.push({date,snapshot:byDate[date] || null});
+  }
+  return days;
+}
+function expWeekGainText(first,last){
+  if(!first || !last) return '기록 대기';
+  const firstUnit=expProgressUnit(first), lastUnit=expProgressUnit(last);
+  if(firstUnit===null || lastUnit===null || lastUnit<=firstUnit) return '변화 없음';
+  const levelGain=Math.max(0,Math.floor(Number(last.level)||0)-Math.floor(Number(first.level)||0));
+  if(levelGain>0) return '+'+fmt(levelGain)+'레벨 달성';
+  return '+'+(lastUnit-firstUnit).toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p';
+}
+function expLevelUpForecast(history,current){
+  const currentRate=expSnapshotRate(current);
+  if(currentRate===null) return null;
+  const cutoff=Date.now()-EXP_TRACKER_DAYS*24*60*60*1000;
+  const sameLevel=normalizeExpHistory(history).filter(snapshot=>
+    snapshot.at>=cutoff && snapshot.level===current.level && expSnapshotRate(snapshot)!==null
+  );
+  if(sameLevel.length<2) return null;
+  const first=sameLevel[0], last=sameLevel[sameLevel.length-1];
+  const elapsedDays=(last.at-first.at)/(24*60*60*1000);
+  const gained=(expSnapshotRate(last)??0)-(expSnapshotRate(first)??0);
+  if(elapsedDays<0.2 || gained<=0) return null;
+  const dailyRate=gained/elapsedDays;
+  const remaining=Math.max(0,100-currentRate);
+  const days=Math.max(1,Math.ceil(remaining/dailyRate));
+  if(!Number.isFinite(days) || days>730) return null;
+  return {date:addDays(expTrackerDate(last.at) || todayStr(),days),dailyRate,days};
+}
+function renderExpTracker(){
+  const select=document.getElementById('exp-tracker-character');
+  const el=document.getElementById('exp-tracker');
+  if(!select || !el) return;
+  const chars=db.chars.filter(c=>String(c.name||'').trim());
+  if(!chars.length){
+    select.innerHTML='<option>등록된 캐릭터 없음</option>';
+    select.disabled=true;
+    el.innerHTML='<div class="exp-tracker-empty">캐릭터 등록 탭에서 넥슨 API 캐릭터를 추가하면 최근 7일 경험치 변화와 레벨업 예상일을 확인할 수 있습니다.</div>';
+    return;
+  }
+  if(!chars.some(c=>c.name===expTrackerCharacterName)) expTrackerCharacterName=chars[0].name;
+  select.disabled=false;
+  select.innerHTML=chars.map(c=>'<option value="'+esc(c.name)+'">'+esc(c.name)+(c.characterLevel?' · Lv.'+fmt(c.characterLevel):'')+'</option>').join('');
+  select.value=expTrackerCharacterName;
+  select.onchange=()=>{ expTrackerCharacterName=select.value; renderExpTracker(); };
+  const character=chars.find(c=>c.name===expTrackerCharacterName) || chars[0];
+  const history=normalizeExpHistory(character.expHistory);
+  const latest=history[history.length-1];
+  if(!latest || expProgressUnit(latest)===null){
+    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 경험치 기록이 아직 없습니다. API 갱신 후부터 변화가 쌓이며, 수익 통계에는 포함되지 않습니다.</div>';
+    return;
+  }
+  const days=expWeekData(character);
+  const snapshots=days.map(row=>row.snapshot).filter(Boolean);
+  if(!snapshots.length){
+    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 최근 7일 경험치 기록이 없습니다. API 갱신 후부터 그래프와 레벨업 예상일을 계산합니다.</div>';
+    return;
+  }
+  const first=snapshots[0] || null;
+  const last=snapshots[snapshots.length-1] || latest;
+  const forecast=expLevelUpForecast(history,latest);
+  const units=snapshots.map(expProgressUnit).filter(value=>value!==null);
+  let min=Math.min(...units), max=Math.max(...units);
+  const padding=Math.max(2,(max-min)*0.18);
+  min-=padding; max+=padding;
+  if(max-min<4){ min-=2; max+=2; }
+  const range=max-min || 1;
+  const svgWidth=600, svgHeight=160;
+  let path='';
+  let started=false;
+  const points=days.map((row,index)=>{
+    if(!row.snapshot){ started=false; return ''; }
+    const unit=expProgressUnit(row.snapshot);
+    const x=(svgWidth/(EXP_TRACKER_DAYS-1))*index;
+    const y=svgHeight-((unit-min)/range)*svgHeight;
+    path+=(started?' L ':'M ')+x.toFixed(2)+' '+y.toFixed(2);
+    started=true;
+    const label=row.date+' · '+expUnitLabel(unit);
+    return '<circle class="exp-chart-point" cx="'+x.toFixed(2)+'" cy="'+y.toFixed(2)+'" r="5"><title>'+esc(label)+'</title></circle>';
+  }).join('');
+  const ticks=[0,0.5,1].map(position=>{
+    const unit=min+(range*position);
+    return '<span class="exp-axis-tick" style="bottom:'+(position*100)+'%">'+esc(expUnitLabel(unit))+'</span>';
+  }).join('');
+  const grid=[0,50,100].map(position=>'<i class="exp-grid-line" style="bottom:'+position+'%"></i>').join('');
+  const currentRate=expSnapshotRate(latest);
+  const rawExp=latest.exp ? ' · EXP '+fmt(latest.exp) : '';
+  const forecastText=forecast ? forecast.date+' 예상' : '데이터 수집 중';
+  const forecastDetail=forecast ? '평균 +'+forecast.dailyRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p/일' : '현재 레벨에서 변화 기록이 더 필요합니다.';
+  el.innerHTML=
+    '<div class="exp-summary-grid">'+
+      '<div class="exp-summary current"><span>현재 경험치</span><b>Lv.'+fmt(latest.level)+' · '+(currentRate===null?'확인 중':currentRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%')+'</b></div>'+
+      '<div class="exp-summary gain"><span>최근 7일 상승</span><b>'+esc(expWeekGainText(first,last))+'</b></div>'+
+      '<div class="exp-summary predict"><span>다음 레벨업 예상</span><b>'+esc(forecastText)+'</b></div>'+
+    '</div>'+
+    '<div class="muted" style="margin-top:8px;">'+esc(forecastDetail+rawExp)+'</div>'+
+    '<div class="exp-chart">'+
+      '<div class="exp-chart-axis">'+ticks+'</div>'+
+      '<div class="exp-chart-plot">'+grid+'<svg class="exp-chart-svg" viewBox="0 0 '+svgWidth+' '+svgHeight+'" preserveAspectRatio="none" role="img" aria-label="최근 7일 경험치 진행 그래프">'+(path?'<path class="exp-chart-line" d="'+path+'"></path>':'')+points+'</svg></div>'+
+      '<div class="exp-chart-labels">'+days.map(row=>'<span>'+esc(row.date.slice(5))+'</span>').join('')+'</div>'+
+    '</div>';
+}
+function renderRecords(){
+  const list=document.getElementById('daily-record-list');
+  if(!list) return;
+  const asc=sortedDates(true);
+  let cumM=0n, cumE=0;
+  const totals={};
+  asc.forEach(date=>{
+    const record=normalizeRecord(db.records[date]);
+    cumM+=recordMesoTotal(record);
+    cumE+=Number(record.erda)||0;
+    totals[date]={meso:cumM,erda:cumE};
+  });
+  const dates=sortedDates(false);
+  if(!dailyRecordCollapseInitialized){
+    dates.forEach(date=>collapsedDailyRecordDates.add(date));
+    dailyRecordCollapseInitialized=true;
+  }
+  collapsedDailyRecordDates=new Set([...collapsedDailyRecordDates].filter(date=>dates.includes(date)));
+  const pageCount=Math.max(1,Math.ceil(dates.length/DAILY_RECORDS_PER_PAGE));
+  dailyRecordPage=Math.max(0,Math.min(dailyRecordPage,pageCount-1));
+  const start=dailyRecordPage*DAILY_RECORDS_PER_PAGE;
+  const visibleDates=dates.slice(start,start+DAILY_RECORDS_PER_PAGE);
+  renderDailyRecordPagination(dates.length,pageCount,start,visibleDates.length);
+  if(!visibleDates.length){
+    list.innerHTML='<div class="daily-record-empty">아직 저장된 재획 기록이 없습니다.</div>';
+    return;
+  }
+  list.innerHTML=visibleDates.map(date=>{
+    const record=normalizeRecord(db.records[date]);
+    const erdaMeso=erdaMesoForRecord(record);
+    const extraMeso=toMesoBig(record.extraIncome);
+    const hunts=record.sessions.filter(session=>session.kind!=='erda-settlement');
+    const huntCount=hunts.length;
+    const huntRuns=hunts.reduce((sum,session)=>sum+huntSessionRunCount(session),0);
+    const settlementCount=record.sessions.length-huntCount;
+    const isCollapsed=collapsedDailyRecordDates.has(date);
+    const summary='일일 합계 · '+formatHuntRuns(huntRuns)+'재획'+(huntCount>1?' · '+huntCount+'회차':'')+(settlementCount?' · 조각 정산 '+settlementCount+'건':'');
+    const sessions=record.sessions.map((session,index)=>dailySessionCardHtml(date,session,index)).join('');
+    return '<section class="daily-record-day" data-record-day="'+date+'">'+
+      '<div class="daily-day-header">'+
+        '<div class="daily-day-date">'+date+'</div>'+
+        '<div class="daily-day-copy"><b>'+esc(summary)+'</b><span>'+record.sessions.length+'개 기록 · 회차를 '+(isCollapsed?'펼쳐':'접어')+'서 확인</span></div>'+
+        '<div class="daily-day-total"><span>일일 합계</span><b>'+korMeso(recordMesoTotal(record))+'</b></div>'+
+        '<div class="daily-day-actions"><button class="daily-day-toggle" type="button" data-day-toggle="'+date+'">'+(isCollapsed?'회차 펼치기':'회차 접기')+'</button><button class="danger" type="button" data-day-delete="'+date+'">하루 삭제</button></div>'+
+      '</div>'+
+      '<div class="daily-day-metrics">'+
+        dailyRecordMetricHtml('획득 메소',korMeso(record.meso),'meso',erdaMeso?'조각 환산 +'+korMeso(erdaMeso):'')+
+        dailyRecordMetricHtml('추가 부수입',extraMeso>0n?korMeso(extraMeso):'-','meso')+
+        dailyRecordMetricHtml('솔 에르다 조각',fmt(Number(record.erda)||0)+'개','erda')+
+        dailyRecordMetricHtml('누적 메소',korMeso(totals[date].meso),'', '조각 '+fmt(totals[date].erda)+'개')+
+      '</div>'+
+      '<div class="daily-sessions" '+(isCollapsed?'hidden':'')+'>'+sessions+'</div>'+
+    '</section>';
+  }).join('');
+  list.querySelectorAll('[data-day-toggle]').forEach(button=>{
+    button.onclick=()=>{
+      const date=button.dataset.dayToggle;
+      if(collapsedDailyRecordDates.has(date)) collapsedDailyRecordDates.delete(date);
+      else collapsedDailyRecordDates.add(date);
+      renderRecords();
+    };
+  });
+  list.querySelectorAll('[data-day-delete]').forEach(button=>{
+    button.onclick=()=>{
+      const date=button.dataset.dayDelete;
+      if(confirm(date+'의 모든 재획 회차를 삭제할까요?')){
+        deleteHuntDate(date);
+        collapsedDailyRecordDates.delete(date);
+        save();
+        renderAll();
+      }
+    };
+  });
+  list.querySelectorAll('[data-session-edit]').forEach(button=>{
+    button.onclick=()=>beginHuntSessionEdit(button.dataset.date,button.dataset.sessionEdit);
+  });
+  list.querySelectorAll('[data-session-delete]').forEach(button=>{
+    button.onclick=()=>{
+      if(confirm('이 재획 회차를 삭제할까요?')){
+        deleteHuntSession(button.dataset.date,button.dataset.sessionDelete);
+        save();
+        renderAll();
+      }
+    };
+  });
+}
+document.getElementById('btn-collapse-daily-records')?.addEventListener('click',()=>{
+  sortedDates(false).forEach(date=>collapsedDailyRecordDates.add(date));
+  dailyRecordCollapseInitialized=true;
+  renderRecords();
+});
+document.getElementById('btn-expand-daily-records')?.addEventListener('click',()=>{
+  collapsedDailyRecordDates.clear();
+  dailyRecordCollapseInitialized=true;
+  renderRecords();
+});
 
 /* ───────── 통계 ───────── */
 document.getElementById('btn-save').onclick=saveHuntEntry;
@@ -5553,6 +5864,9 @@ function restoreBackupSnapshot(id){
   if(!confirm(snapshot.month+' 자동 보관 기록으로 복원할까요? 현재 기록은 먼저 JSON으로 백업해 두는 것을 권장합니다.')) return;
   const apiKey=nexonApiKey();
   db=trackerDbFromData(snapshot.data,apiKey,snapshots);
+  dailyRecordPage=0;
+  collapsedDailyRecordDates.clear();
+  dailyRecordCollapseInitialized=false;
   save(); initNexonApiControls(); renderAll();
   alert(snapshot.month+' 자동 보관 기록으로 복원했습니다.');
 }
@@ -6283,6 +6597,9 @@ function applyCloudSnapshot(snapshot){
   const source=ensureObj(snapshot.data);
   const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
   db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
+  dailyRecordPage=0;
+  collapsedDailyRecordDates.clear();
+  dailyRecordCollapseInitialized=false;
   localStorage.setItem(LS_KEY,JSON.stringify(db));
   initNexonApiControls();
   scheduleNexonAutoRefresh();
@@ -6805,39 +7122,10 @@ function charProfileHtml(c){
   const meta=characterMetaText(c);
   return '<span class="char-profile">'+avatar+'<span class="char-info"><span class="nm">▸ '+esc(c.name)+' <span class="server-badge '+charServer(c)+'">'+serverLabel(c)+'</span></span>'+(meta?'<span class="char-meta">'+esc(meta)+'</span>':'')+'</span></span>';
 }
-function expRateText(value){
-  const rate=normalizeCharacterExpRate(value);
-  if(rate==='') return '';
-  const n=Number(rate);
-  return Number.isFinite(n) ? n.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%' : '';
-}
 function apiTimeText(value){
   const at=normalizeApiTimestamp(value);
   if(!at) return '';
   return new Date(at).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-}
-function characterExpTrackingHtml(c){
-  const history=normalizeExpHistory(c.expHistory);
-  const current=history[history.length-1] || {
-    level:Math.max(0,Math.floor(Number(c.characterLevel)||0)),
-    exp:onlyDigits(c.characterExp || ''),
-    rate:normalizeCharacterExpRate(c.characterExpRate)
-  };
-  const previous=history.length>1 ? history[history.length-2] : null;
-  const rate=expRateText(current.rate);
-  let title=current.level ? 'Lv.'+fmt(current.level)+(rate ? ' · '+rate : '') : '경험치 정보 대기';
-  let detail=current.exp ? '현재 EXP '+fmt(current.exp) : 'API 갱신 후 경험치 변화를 추적합니다.';
-  if(previous){
-    if(current.level>previous.level){
-      detail='최근 Lv.'+fmt(previous.level)+' → Lv.'+fmt(current.level)+' 레벨업';
-    }else if(current.level===previous.level && current.rate!=='' && previous.rate!==''){
-      const delta=Number(current.rate)-Number(previous.rate);
-      if(Number.isFinite(delta) && Math.abs(delta)>=0.000001){
-        detail='최근 '+(delta>0?'+':'')+delta.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p';
-      }
-    }
-  }
-  return '<div class="character-api-card exp"><b>경험치 추적</b><strong>'+esc(title)+'</strong><small>'+esc(detail)+'</small></div>';
 }
 function characterSchedulerTrackingHtml(c){
   const sync=normalizeSchedulerSync(c.schedulerSync);
@@ -6857,7 +7145,7 @@ function characterSchedulerTrackingHtml(c){
   return '<div class="character-api-card boss"><b>API 보스 진행</b><strong>'+esc(title)+'</strong><small'+(c.schedulerError?' class="api-error"':'')+'>'+esc(detail)+'</small></div>';
 }
 function characterApiTrackingHtml(c){
-  return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+characterExpTrackingHtml(c)+'</div>';
+  return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+'</div>';
 }
 function charHeadHtml(c, summaryHtml){
   return charProfileHtml(c)+'<span class="sum">'+summaryHtml+'</span>';
@@ -7930,6 +8218,9 @@ document.getElementById('file-import').onchange=(e)=>{
       const currentApiKey=nexonApiKey();
       const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
       db=trackerDbFromData(data,currentApiKey,snapshots);
+      dailyRecordPage=0;
+      collapsedDailyRecordDates.clear();
+      dailyRecordCollapseInitialized=false;
       save(); initNexonApiControls(); renderAll(); alert('복원 완료!');
     }catch(err){ alert('복원 실패: 올바른 백업 파일이 아닙니다.'); }
   };
@@ -7953,6 +8244,7 @@ function renderAll(){
     case 'character': renderRegisteredCharacters(); break;
     case 'daily':
       renderRecords();
+      renderExpTracker();
       renderErdaCalculator();
       renderErdaSettlement();
       break;
