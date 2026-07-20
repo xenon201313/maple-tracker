@@ -178,6 +178,22 @@
   .stat .v.good{color:var(--green);}
   .stat .v.bad{color:var(--red);}
   .stat .s{font-size:12px; color:var(--sub); margin-top:5px; line-height:1.5; overflow-wrap:anywhere;}
+  .community-stats-card{position:relative; overflow:hidden;}
+  .community-stats-card::before{content:""; position:absolute; inset:0 auto 0 0; width:3px; background:linear-gradient(var(--blue),var(--purple));}
+  .community-stats-lead{margin:0; color:var(--sub); font-size:13px; line-height:1.65;}
+  .community-stats-controls{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:13px; padding:10px 12px; border:1px solid rgba(120,206,255,.22); border-radius:9px; background:rgba(22,42,65,.42);}
+  .community-stats-toggle{display:flex; align-items:flex-start; gap:8px; min-width:0; color:#e6eefc; font-size:13px; line-height:1.5; cursor:pointer;}
+  .community-stats-toggle input{width:17px; height:17px; margin:1px 0 0; flex:0 0 auto; accent-color:var(--blue);}
+  .community-stats-toggle small{display:block; margin-top:2px; color:var(--sub); font-size:11px; line-height:1.45;}
+  .community-stats-refresh{flex:0 0 auto; white-space:nowrap;}
+  .community-stats-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:12px;}
+  .community-stat{min-width:0; padding:11px; border:1px solid rgba(220,230,255,.13); border-radius:8px; background:rgba(6,10,18,.25);}
+  .community-stat span{display:block; color:var(--sub); font-size:11px; line-height:1.35;}
+  .community-stat b{display:block; margin-top:4px; color:#eef4ff; font-size:15px; line-height:1.4; overflow-wrap:anywhere; font-variant-numeric:tabular-nums;}
+  .community-stat b.community-meso{color:var(--gold);}
+  .community-stat b.community-rank{color:var(--green);}
+  .community-stats-note{margin:10px 0 0; color:var(--sub); font-size:11px; line-height:1.55;}
+  .community-stats-empty{margin-top:12px; padding:11px 12px; border:1px dashed rgba(220,230,255,.18); border-radius:8px; color:var(--sub); font-size:12px; line-height:1.6; background:rgba(6,10,18,.2);}
   .stats-period-list{display:grid; gap:10px;}
   .stats-period-pagination{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:13px; flex-wrap:wrap;}
   .stats-period-page-info{min-width:126px; color:var(--sub); font-size:12px; text-align:center; line-height:1.4;}
@@ -771,6 +787,11 @@
     .statgrid{grid-template-columns:1fr;}
     .stat{padding:12px;}
     .stat .v{font-size:18px; overflow-wrap:anywhere;}
+    .community-stats-controls{display:grid; grid-template-columns:1fr; padding:10px;}
+    .community-stats-refresh{width:100%;}
+    .community-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px;}
+    .community-stat{padding:10px;}
+    .community-stat b{font-size:13px;}
     .stats-section-head{display:grid; grid-template-columns:1fr; gap:4px; margin-bottom:10px;}
     .stats-period-card{padding:11px;}
     .stats-period-top{display:grid; grid-template-columns:1fr; gap:9px;}
@@ -1482,6 +1503,23 @@
       </div>
     </div>
     <div class="statgrid" id="stat-cards"></div>
+  </div>
+  <div class="card community-stats-card">
+    <div class="stats-section-head">
+      <div>
+        <h2>🌐 익명 커뮤니티 통계</h2>
+        <p class="community-stats-lead">이번 주 재획 생산 메소를 익명 참여자 기준으로 비교합니다. 경쟁용 순위가 아니라 내 기록의 대략적인 위치를 확인하는 기능입니다.</p>
+      </div>
+    </div>
+    <div class="community-stats-controls">
+      <label class="community-stats-toggle" for="community-stats-enabled">
+        <input id="community-stats-enabled" type="checkbox">
+        <span><b>익명 통계 참여</b><small>이번 주 재획 생산 메소와 재획 기록 일수만 전송합니다. 캐릭터명, API 키, 보스·드랍 상세, 전체 장부는 전송하지 않습니다.</small></span>
+      </label>
+      <button class="ghost community-stats-refresh" id="community-stats-refresh" type="button">통계 새로고침</button>
+    </div>
+    <div id="community-stats-data" aria-live="polite"></div>
+    <p class="community-stats-note">참여자 5명 이상부터 상위 퍼센트를 표시합니다. 집계는 참여자가 직접 저장한 기록을 기준으로 하며, 실제 게임 순위와는 다를 수 있습니다.</p>
   </div>
   <div class="card">
     <h2>🎯 목표 금액</h2>
@@ -3896,6 +3934,8 @@ const LS_OLD = 'mapleTracker.v1';
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
+const COMMUNITY_STATS_VERSION = 1;
+const COMMUNITY_STATS_MIN_PARTICIPANTS = 5;
 const NEXON_SCHEDULER_REFRESH_MS = 2 * 60 * 1000;
 const NEXON_PROFILE_REFRESH_MS = 15 * 60 * 1000;
 const DAILY_RECORDS_PER_PAGE = 10;
@@ -3904,6 +3944,7 @@ const WEEKLY_STATS_PER_PAGE = 5;
 const MONTHLY_STATS_PER_PAGE = 5;
 const EXP_HISTORY_RETRY_MS = 4 * 60 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
+let communityStats = { sending:false, loading:false, timer:0, queuedFingerprint:'', sentFingerprint:'', loadedKey:'', summary:null, error:'' };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
 let monthlyBossMigrationPendingSave = false;
@@ -4188,6 +4229,9 @@ function normalizeSettings(settings){
   if(start) s.goalStart=start; else delete s.goalStart;
   const reportMonth=String(s.dashboardReportMonth || '');
   if(/^\d{4}-\d{2}$/.test(reportMonth)) s.dashboardReportMonth=reportMonth; else delete s.dashboardReportMonth;
+  s.communityStatsEnabled=!!s.communityStatsEnabled;
+  const communityId=String(s.communityStatsId || '').toLowerCase();
+  if(/^[a-f0-9]{64}$/.test(communityId)) s.communityStatsId=communityId; else delete s.communityStatsId;
   return s;
 }
 function backupDataPayload(source=db){
@@ -4221,6 +4265,7 @@ function save(){
   db.updatedAt=Date.now();
   localStorage.setItem(LS_KEY,JSON.stringify(db));
   queueCloudSync();
+  queueCommunityStats();
 }
 try {
   const raw=localStorage.getItem(LS_KEY);
@@ -4530,6 +4575,12 @@ function dropSplitInfo(c, period, key, scope='weekly'){
   const memberNet = feeNet(transferGross, meta.fee);
   const leaderNet = saleNet - (transferGross * BigInt(party - 1));
   return {raw, party, role:meta.role, fee:meta.fee, ratio, mine:meta.role==='leader'?leaderNet:memberNet, saleNet, leaderNet, memberNet, transferGross};
+}
+function dropSplitResultText(info){
+  if(info.raw<=0n) return '판매가를 입력하면 실수령 금액을 계산합니다.';
+  if(info.party<=1) return '혼자 전부 '+korMeso(info.mine);
+  const role=info.role==='leader' ? '파티장' : '파티원';
+  return '내 몫 '+korMeso(info.mine)+' · '+role+' · '+info.ratio.text+' 분배'+(info.role==='member' ? ' · 수수료 전 '+korMeso(info.transferGross) : '');
 }
 function sharedDropPrice(c, period, key, scope='weekly'){
   return dropSplitInfo(c,period,key,scope).mine;
@@ -5984,6 +6035,7 @@ function renderStats(){
     '<div class="stat'+(c.tone?' stat-'+c.tone:'')+'"><div class="t">'+c.t+'</div><div class="v'+(c.p?' p':'')+(c.valueClass?' '+c.valueClass:'')+'">'+c.v+'</div><div class="s">'+(c.s||'')+'</div></div>'
   ).join('');
   renderGoalProgress();
+  renderCommunityStats();
 
   const wrap=document.getElementById('chart14'); wrap.innerHTML='';
   const days=[]; for(let i=13;i>=0;i--) days.push(addDays(today,-i));
@@ -6879,6 +6931,159 @@ function queueCloudSync(){
   if(!cloudSync.ready || cloudSync.initializing || !nexonApiKey()) return;
   clearTimeout(cloudSync.timer);
   cloudSync.timer=setTimeout(()=>{ uploadCloudSnapshot(true); },900);
+}
+function createCommunityStatsId(){
+  const bytes=new Uint8Array(32);
+  if(window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+  else for(let i=0;i<bytes.length;i++) bytes[i]=Math.floor(Math.random()*256);
+  return Array.from(bytes,byte=>byte.toString(16).padStart(2,'0')).join('');
+}
+function ensureCommunityStatsId(){
+  const existing=String(db.settings.communityStatsId || '').toLowerCase();
+  if(/^[a-f0-9]{64}$/.test(existing)) return existing;
+  const id=createCommunityStatsId();
+  db.settings.communityStatsId=id;
+  return id;
+}
+function communityWeekMetrics(){
+  const week=currentWeekKey();
+  let production=0n, activeDays=0;
+  Object.keys(db.records).forEach(date=>{
+    if(mapleWeekStart(date)!==week) return;
+    const record=normalizeRecord(db.records[date]);
+    if(!record.sessions.some(session=>session.kind!=='erda-settlement')) return;
+    production+=recordMesoTotal(record);
+    activeDays++;
+  });
+  return {week,production,activeDays};
+}
+function communityStatsFingerprint(metric){
+  return metric.week+'|'+metric.production.toString()+'|'+metric.activeDays;
+}
+function communityStatsUrl(path=''){ return CLOUD_SYNC_ENDPOINT+'/v1/community'+path; }
+function communitySummaryFromPayload(payload){
+  const data=ensureObj(payload);
+  return {
+    week:String(data.week || ''),
+    participantCount:Math.max(0,Number(data.participantCount)||0),
+    averageWeekly:toMesoBig(data.averageWeekly),
+    averageDaily:toMesoBig(data.averageDaily),
+    topPercent:data.topPercent===null || data.topPercent===undefined ? null : Math.max(1,Math.min(100,Number(data.topPercent)||100)),
+    minimumParticipants:Math.max(1,Number(data.minimumParticipants)||COMMUNITY_STATS_MIN_PARTICIPANTS)
+  };
+}
+function renderCommunityStats(forceRefresh=false){
+  const enabled=!!db.settings.communityStatsEnabled;
+  const toggle=document.getElementById('community-stats-enabled');
+  const refresh=document.getElementById('community-stats-refresh');
+  const panel=document.getElementById('community-stats-data');
+  if(!toggle || !refresh || !panel) return;
+  toggle.checked=enabled;
+  toggle.onchange=()=>{
+    if(toggle.checked && !confirm('익명 통계에 참여할까요? 이번 주 재획 생산 메소와 재획 기록 일수만 전송하며, 캐릭터명·API 키·보스/드랍 내역·전체 장부는 전송하지 않습니다.')){
+      toggle.checked=false;
+      return;
+    }
+    db.settings.communityStatsEnabled=toggle.checked;
+    if(toggle.checked) ensureCommunityStatsId();
+    communityStats.summary=null;
+    communityStats.loadedKey='';
+    communityStats.error='';
+    save();
+    renderCommunityStats(true);
+  };
+  refresh.disabled=!enabled || communityStats.loading || communityStats.sending;
+  refresh.onclick=()=>refreshCommunityStats(true);
+  if(!enabled){
+    panel.innerHTML='<div class="community-stats-empty">익명 통계 참여를 켜면 이번 주 재획 생산 메소의 참여자 평균과 상위 퍼센트를 확인할 수 있습니다.</div>';
+    return;
+  }
+  const metric=communityWeekMetrics();
+  const summary=communityStats.summary && communityStats.summary.week===metric.week ? communityStats.summary : null;
+  if(forceRefresh) refreshCommunityStats(true);
+  else if(!summary && !communityStats.loading) refreshCommunityStats(false);
+  if(!metric.activeDays){
+    panel.innerHTML='<div class="community-stats-empty">이번 주 재획 기록을 한 건 이상 저장하면 익명 집계에 반영됩니다. 현재는 통계 조회만 가능합니다.</div>';
+    return;
+  }
+  if(!summary){
+    panel.innerHTML='<div class="community-stats-empty">'+(communityStats.error ? '통계를 불러오지 못했습니다: '+esc(communityStats.error) : '익명 통계를 불러오는 중입니다...')+'</div>';
+    return;
+  }
+  const rank=summary.participantCount>=summary.minimumParticipants && summary.topPercent!==null
+    ? '상위 '+summary.topPercent+'%'
+    : '참여자 '+summary.minimumParticipants+'명부터';
+  panel.innerHTML='<div class="community-stats-grid">'+
+    '<div class="community-stat"><span>내 이번 주 재획 생산 메소</span><b class="community-meso">'+korMeso(metric.production)+'</b></div>'+
+    '<div class="community-stat"><span>참여자 평균 주간 생산</span><b class="community-meso">'+korMeso(summary.averageWeekly)+'</b></div>'+
+    '<div class="community-stat"><span>참여자 일 평균 생산</span><b>'+korMeso(summary.averageDaily)+'</b></div>'+
+    '<div class="community-stat"><span>내 위치 · 참여자 '+fmt(summary.participantCount)+'명</span><b class="community-rank">'+rank+'</b></div>'+
+    '</div>';
+}
+async function refreshCommunityStats(force=false){
+  if(!db.settings.communityStatsEnabled || communityStats.loading || communityStats.sending) return false;
+  const metric=communityWeekMetrics();
+  const id=ensureCommunityStatsId();
+  const key=metric.week+'|'+id;
+  if(!force && communityStats.loadedKey===key && communityStats.summary) return true;
+  communityStats.loading=true;
+  communityStats.error='';
+  if(activePageName()==='stats') renderCommunityStats(false);
+  try{
+    const query='?week='+encodeURIComponent(metric.week)+'&id='+encodeURIComponent(id);
+    const res=await fetch(communityStatsUrl('/summary')+query,{headers:{Accept:'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    communityStats.summary=communitySummaryFromPayload(await res.json());
+    communityStats.loadedKey=key;
+    return true;
+  }catch(error){
+    communityStats.error=error && error.message ? error.message : '연결 오류';
+    return false;
+  }finally{
+    communityStats.loading=false;
+    if(activePageName()==='stats') renderCommunityStats(false);
+  }
+}
+async function publishCommunityStats(){
+  if(!db.settings.communityStatsEnabled || communityStats.sending) return false;
+  const metric=communityWeekMetrics();
+  if(!metric.activeDays) return false;
+  const fingerprint=communityStatsFingerprint(metric);
+  const id=ensureCommunityStatsId();
+  communityStats.sending=true;
+  communityStats.error='';
+  if(activePageName()==='stats') renderCommunityStats(false);
+  try{
+    const res=await fetch(communityStatsUrl('/metrics'),{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({version:COMMUNITY_STATS_VERSION,id,week:metric.week,production:metric.production.toString(),activeDays:metric.activeDays,updatedAt:Date.now()})
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    communityStats.summary=communitySummaryFromPayload(await res.json());
+    communityStats.sentFingerprint=fingerprint;
+    communityStats.loadedKey=metric.week+'|'+id;
+    return true;
+  }catch(error){
+    communityStats.error=error && error.message ? error.message : '연결 오류';
+    return false;
+  }finally{
+    communityStats.sending=false;
+    if(activePageName()==='stats') renderCommunityStats(false);
+  }
+}
+function queueCommunityStats(){
+  if(!db.settings.communityStatsEnabled) return;
+  const metric=communityWeekMetrics();
+  if(!metric.activeDays) return;
+  const fingerprint=communityStatsFingerprint(metric);
+  if(communityStats.sentFingerprint===fingerprint || communityStats.queuedFingerprint===fingerprint) return;
+  clearTimeout(communityStats.timer);
+  communityStats.queuedFingerprint=fingerprint;
+  communityStats.timer=setTimeout(()=>{
+    communityStats.queuedFingerprint='';
+    publishCommunityStats();
+  },1100);
 }
 async function pullCloudSnapshot(manual=false){
   if(!cloudSync.ready || cloudSync.initializing || cloudSync.syncing || !cloudSync.syncId) return false;
@@ -7910,21 +8115,20 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
     };
   });
   bl.querySelectorAll('input.drop-price').forEach(inp=>{
-    inp.oninput=()=>{
-      const digits=onlyDigits(inp.value);
-      inp.value=digits ? formatDigits(digits) : '';
-    };
-    inp.onchange=()=>{
+    const commit=()=>{
       const recordPeriod=inp.dataset.period || period;
       const recordScope=inp.dataset.scope==='monthly' ? 'monthly' : scope;
       const prices=dropPriceStore(c,recordPeriod,recordScope);
       const drops=dropStore(c,recordPeriod,recordScope);
       const digits=onlyDigits(inp.value);
+      inp.value=digits ? formatDigits(digits) : '';
       if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
       else delete prices[inp.dataset.key];
       syncBossScopeAliases(c,recordPeriod,recordScope);
-      save(); renderAllPreservingViewport();
+      save(); refreshBossDropPreview(bl,c,recordPeriod,recordScope,inp.dataset.key);
     };
+    inp.oninput=commit;
+    inp.onchange=commit;
   });
   bl.querySelectorAll('select.drop-role, select.drop-fee, input.drop-ratio').forEach(sel=>{
     if(sel.classList.contains('drop-ratio')){
@@ -7946,8 +8150,35 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       }
       shares[sel.dataset.key]=cur;
       syncBossScopeAliases(c,recordPeriod,recordScope);
-      save(); renderAllPreservingViewport();
+      save(); refreshBossDropPreview(bl,c,recordPeriod,recordScope,sel.dataset.key);
     };
+  });
+}
+function refreshBossDropPreview(bl,c,period,scope,key){
+  const info=dropSplitInfo(c,period,key,scope);
+  bl.querySelectorAll('[data-drop-result-key]').forEach(result=>{
+    if(result.dataset.dropResultKey===key && result.dataset.dropPeriod===period && result.dataset.dropScope===scope){
+      result.textContent=dropSplitResultText(info);
+    }
+  });
+  const bossId=String(key || '').split('|')[0];
+  const boss=BOSS_MAP[bossId];
+  if(!boss) return;
+  const periodLabel=scope==='monthly' ? '이번 달' : '이번 주';
+  const selected=dropItemsForBoss(boss).filter(item=>dropStore(c,period,scope)[dropKey(boss,item)]).length;
+  bl.querySelectorAll('[data-drop-title-boss]').forEach(title=>{
+    if(title.dataset.dropTitleBoss!==bossId || title.dataset.dropTitlePeriod!==period || title.dataset.dropTitleScope!==scope) return;
+    const copy=title.querySelector('[data-drop-title-copy]');
+    if(copy) copy.textContent=periodLabel+' 획득 '+selected+'개 · 가격 '+korMeso(dropPriceSumForBoss(c,boss,period,scope));
+  });
+  bl.querySelectorAll('[data-drop-chip-key]').forEach(chip=>{
+    if(chip.dataset.dropChipKey!==key) return;
+    const copy=chip.querySelector('[data-drop-chip-copy]');
+    if(copy){
+      const label=chip.dataset.dropChipLabel || '';
+      const price=dropPriceText(c,period,key,scope);
+      copy.textContent=label+(price ? ' · '+price : '');
+    }
   });
 }
 function renderBoss(){
@@ -8242,14 +8473,14 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
         ? '내 몫 '+korMeso(info.mine)+' · '+(info.role==='leader'?'파티장 잔여':'파티원 실수령')+' · '+info.ratio.text+' 분배'+(info.role==='member'?' · 전달액 '+korMeso(info.transferGross):'')
         : '실수령 '+korMeso(info.mine))
       : '판매가를 입력하면 실수령 금액을 계산합니다.';
-    return '<div class="drop-settlement-fields">'+
+    return '<div class="drop-settlement-fields" data-drop-period="'+esc(period)+'" data-drop-scope="'+scope+'" data-drop-key="'+esc(key)+'">'+
       (info.party>1
         ? '<label class="drop-settlement-field"><span>역할</span><select class="drop-role" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'">'+roleOpts+'</select></label>'+
           '<label class="drop-settlement-field" title="파티장:파티원 비율입니다. 예: 1:1, 7:3, 10:0"><span>분배율</span><input class="drop-ratio" type="text" inputmode="text" autocomplete="off" maxlength="9" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'" value="'+esc(meta.ratio.text)+'" placeholder="예: 7:3"></label>'
         : '')+
       '<label class="drop-settlement-field wide"><span>경매장 판매가</span><input class="drop-price" type="text" inputmode="numeric" autocomplete="off" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 53,000,000,000"></label>'+
       '<label class="drop-settlement-field wide"><span>판매 수수료</span><select class="drop-fee" data-period="'+esc(period)+'" data-scope="'+scope+'" data-key="'+esc(key)+'">'+feeOpts+'</select></label>'+
-      '<div class="drop-split-result">'+result+'</div>'+
+      '<div class="drop-split-result" data-drop-result-key="'+esc(key)+'" data-drop-period="'+esc(period)+'" data-drop-scope="'+scope+'">'+result+'</div>'+
       '</div>';
   };
   const selectedTop=items.filter(item=>checkedFor(item));
@@ -8257,9 +8488,10 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
     const parentKey=dropKey(b,item);
     const child=selectedChildForDrop(parentKey,item,drops);
     const shown=child || item;
-    const price=dropPriceText(c,period,effectiveDropKeyForParent(parentKey,item,drops),scope);
+    const activeKey=effectiveDropKeyForParent(parentKey,item,drops);
+    const price=dropPriceText(c,period,activeKey,scope);
     const label=child ? item.name+' · '+child.name : item.name;
-    return '<span class="drop-chip'+(child?' child':'')+'"><img src="'+esc(shown.img)+'" alt="'+esc(shown.name)+'"><span>'+esc(label)+(price?' · '+price:'')+'</span></span>';
+    return '<span class="drop-chip'+(child?' child':'')+'" data-drop-chip-key="'+esc(activeKey)+'" data-drop-chip-label="'+esc(label)+'"><img src="'+esc(shown.img)+'" alt="'+esc(shown.name)+'"><span data-drop-chip-copy>'+esc(label)+(price?' · '+price:'')+'</span></span>';
   });
   const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">'+periodLabel+' 획득한 아이템 없음</span>';
   const pickerKey=dropPickerStateKey(isMonthly?'monthlyboss':'boss',c,b,period);
@@ -8291,7 +8523,7 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
           : '<div class="drop-settlement-empty">실제로 얻은 결과물을 한 개 선택하면 판매가와 분배 조건을 입력할 수 있습니다.</div>');
       return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>상자는 결과물을 선택해 기록합니다.</span></div></div>'+choices+selectedHtml+'</article>';
     }).join('')+'</div>' : '';
-  return '<div class="drops"><div class="drop-title"><span>'+periodLabel+' 획득 <b>'+selectedTop.length+'</b>개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,period,scope))+'</span><span class="drop-week">'+rangeLabel+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
+  return '<div class="drops"><div class="drop-title" data-drop-title-boss="'+esc(b[0])+'" data-drop-title-period="'+esc(period)+'" data-drop-title-scope="'+scope+'"><span data-drop-title-copy>'+periodLabel+' 획득 '+selectedTop.length+'개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,period,scope))+'</span><span class="drop-week">'+rangeLabel+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
 function dailyDropChecklistHtml(g,b,c,date){
   const items=dailyDropItemsForBoss(b);
@@ -8380,6 +8612,18 @@ function dailyBossGroupCard(g,c,date){
     '<label class="bcheck"><input class="daily-boss-check" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+'>'+(on?'다님':'체크')+'</label>'+
     dropHtml+
     '</div>';
+}
+function refreshDailyDropPreview(input,c,date,key){
+  const fields=input.closest('.drop-settlement-fields');
+  const text=dailyDropPriceText(c,date,key) || '가격을 입력하면 내 몫을 계산합니다.';
+  const result=fields && fields.querySelector('.drop-split-result');
+  if(result) result.textContent=text;
+  const card=input.closest('.bcard');
+  const boss=DAILY_BOSS_MAP[String(key || '').split('|')[0]];
+  if(!card || !boss) return;
+  const selected=dailyDropItemsForBoss(boss).filter(item=>dailyDropStore(c,date)[dailyDropKey(boss,item)]).length;
+  const title=card.querySelector('.drop-title>span:first-child');
+  if(title) title.textContent='오늘 획득 '+selected+'개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,boss,date));
 }
 function renderDailyBoss(){
   const list=document.getElementById('dailyboss-list');
@@ -8480,19 +8724,19 @@ function renderDailyBoss(){
       };
     });
     bl.querySelectorAll('input.daily-drop-price').forEach(inp=>{
-      inp.oninput=()=>{
+      const commit=()=>{
         const digits=onlyDigits(inp.value);
         inp.value=digits ? formatDigits(digits) : '';
-      };
-      inp.onchange=()=>{
         const prices=dailyDropPriceStore(c,date);
         const drops=dailyDropStore(c,date);
-        const digits=onlyDigits(inp.value);
         if(digits){ prices[inp.dataset.key]=mesoValueFromDigits(digits); drops[inp.dataset.key]=true; }
         else delete prices[inp.dataset.key];
-        c.dailyDropPrices=dailyDropPriceStore(c,todayStr());
-        save(); renderAllPreservingViewport();
+        c.dailyDrops=dailyDropStore(c,date);
+        c.dailyDropPrices=dailyDropPriceStore(c,date);
+        save(); refreshDailyDropPreview(inp,c,date,inp.dataset.key);
       };
+      inp.oninput=commit;
+      inp.onchange=commit;
     });
     box.appendChild(head); box.appendChild(bl); list.appendChild(box);
   });
@@ -8562,9 +8806,18 @@ function renderAll(){
   }
 }
 function renderAllPreservingViewport(){
-  const left=window.scrollX, top=window.scrollY;
+  const left=window.pageXOffset || document.documentElement.scrollLeft || 0;
+  const top=window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
   renderAll();
-  requestAnimationFrame(()=>window.scrollTo({left,top,behavior:'auto'}));
+  const restore=()=>{
+    window.scrollTo(left,top);
+    document.documentElement.scrollTop=top;
+    document.body.scrollTop=top;
+  };
+  requestAnimationFrame(()=>{
+    restore();
+    requestAnimationFrame(restore);
+  });
 }
 renderAll();
 </script>
