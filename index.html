@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
+     crossorigin="anonymous"></script>
 <title>나만의 메계부</title>
 <meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta name="theme-color" content="#14161f">
@@ -9066,12 +9068,7 @@ function initSiteAd(){
   });
   statusObserver.observe(ad,{attributes:true,attributeFilter:['data-ad-status']});
 
-  const loader=document.createElement('script');
-  loader.id='adsense-loader';
-  loader.async=true;
-  loader.crossOrigin='anonymous';
-  loader.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);
-  loader.onload=()=>{
+  const requestAd=()=>{
     try{
       (window.adsbygoogle=window.adsbygoogle || []).push({});
     }catch(error){
@@ -9080,11 +9077,26 @@ function initSiteAd(){
       hideAd();
     }
   };
-  loader.onerror=()=>{
+  const handleLoadError=()=>{
     clearTimeout(settleTimer);
     statusObserver.disconnect();
     hideAd();
   };
+  const existingLoader=document.querySelector('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
+  if(existingLoader){
+    if(window.adsbygoogle) requestAd();
+    else existingLoader.addEventListener('load',requestAd,{once:true});
+    existingLoader.addEventListener('error',handleLoadError,{once:true});
+    return;
+  }
+
+  const loader=document.createElement('script');
+  loader.id='adsense-loader';
+  loader.async=true;
+  loader.crossOrigin='anonymous';
+  loader.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);
+  loader.onload=requestAd;
+  loader.onerror=handleLoadError;
   document.head.appendChild(loader);
 }
 renderAll();

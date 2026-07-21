@@ -2,6 +2,6 @@
 // API 키, 결제 정보, 로그인 정보는 이 파일에 넣지 마세요.
 window.MESOBOOK_ADS = {
   enabled: false,
-  client: '',
+  client: 'ca-pub-7107280230386162',
   slot: ''
 };
