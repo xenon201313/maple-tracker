@@ -650,6 +650,28 @@
   .home-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; align-items:start;}
   .home-grid>.card{margin-bottom:0;}
   .home-grid>.home-wide{grid-column:1 / -1;}
+  .home-automation{position:relative; overflow:hidden;}
+  .home-automation::before{content:""; position:absolute; inset:0 auto 0 0; width:3px; background:linear-gradient(var(--gold),var(--green));}
+  .automation-insight-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px;}
+  .automation-insight{min-width:0; padding:12px; border:1px solid rgba(220,230,255,.15); border-radius:10px; background:rgba(6,10,18,.34);}
+  .automation-insight>span{display:block; color:var(--sub); font-size:12px; line-height:1.4;}
+  .automation-insight>b{display:block; margin-top:5px; color:var(--gold); font-size:17px; line-height:1.35; overflow-wrap:anywhere;}
+  .automation-insight>b.good{color:var(--green);}
+  .automation-insight>b.bad{color:var(--red);}
+  .automation-insight>small{display:block; margin-top:5px; color:var(--sub); font-size:11px; line-height:1.5; word-break:keep-all; overflow-wrap:break-word;}
+  .automation-check{margin-top:11px; padding-top:11px; border-top:1px solid rgba(220,230,255,.12);}
+  .automation-check-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .automation-check-head b{color:#edf3ff; font-size:14px;}
+  .automation-check-head span{color:var(--sub); font-size:12px; text-align:right;}
+  .automation-task-list{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+  .automation-task{display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:9px; align-items:center; width:100%; min-width:0; padding:10px; border:1px solid rgba(255,210,77,.24); border-radius:9px; background:rgba(255,210,77,.07); color:inherit; text-align:left; cursor:pointer;}
+  .automation-task:hover{border-color:rgba(255,210,77,.52); background:rgba(255,210,77,.11); transform:none;}
+  .automation-task-mark{display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:rgba(255,210,77,.16); color:var(--gold); font-weight:900;}
+  .automation-task-copy{min-width:0;}
+  .automation-task-copy b{display:block; color:#f6f8ff; font-size:13px; line-height:1.4; word-break:keep-all; overflow-wrap:break-word;}
+  .automation-task-copy small{display:block; margin-top:2px; color:var(--sub); font-size:11px; line-height:1.45; word-break:keep-all; overflow-wrap:break-word;}
+  .automation-task-action{color:var(--gold); font-size:11px; font-weight:900; white-space:nowrap;}
+  .automation-clear{padding:11px 12px; border:1px solid rgba(103,224,160,.3); border-radius:9px; background:rgba(103,224,160,.08); color:#dfffee; font-size:12px; line-height:1.55;}
   .home-section-head{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
   .home-section-head h2{margin-bottom:0;}
   .home-section-head .muted{font-size:12px; text-align:right;}
@@ -810,6 +832,10 @@
     .home-summary b{font-size:16px;}
     .home-grid{grid-template-columns:1fr; gap:12px;}
     .home-grid>.home-wide{grid-column:auto;}
+    .automation-insight-grid,.automation-task-list{grid-template-columns:1fr;}
+    .automation-check-head{align-items:flex-start; flex-direction:column; gap:3px;}
+    .automation-check-head span{text-align:left;}
+    .automation-task{grid-template-columns:28px minmax(0,1fr) auto; padding:9px;}
     .home-section-head{display:grid; grid-template-columns:1fr;}
     .home-section-head .muted{text-align:left;}
     .weekly-progress-meta{display:grid; grid-template-columns:1fr; gap:3px;}
@@ -958,6 +984,14 @@
   </div>
 
   <div class="home-grid">
+    <div class="card home-wide home-automation">
+      <div class="home-section-head">
+        <div><h2>⚡ 기록 자동 분석</h2></div>
+        <span class="muted">새 입력 없이 저장된 기록을 기준으로 자동 갱신합니다.</span>
+      </div>
+      <div id="home-automation"></div>
+    </div>
+
     <div class="card">
       <div class="home-section-head">
         <div><h2>👑 이번 주 보스 진행</h2></div>
@@ -1056,6 +1090,7 @@
     <h2>홈 대시보드와 월간 결산</h2>
     <div class="guide-grid">
       <div class="guide-item"><b>한눈에 보기</b><p>홈에서 오늘·이번 주·이번 달 순수익, 목표 진행률, 캐릭터별 보스 진행을 바로 확인합니다.</p></div>
+      <div class="guide-item"><b>자동 분석</b><p>최근 7일 수익 페이스, 월말 예상 순수익, 목표 달성 예상일을 계산하고 드랍·판매 가격처럼 합계에서 빠질 수 있는 항목을 자동으로 알려줍니다.</p></div>
       <div class="guide-item"><b>월간 결산</b><p>재획, 보스, 손익을 합쳐 월간 순수익을 만들고 텍스트 복사 또는 이미지 저장으로 공유할 수 있습니다.</p></div>
       <div class="guide-item"><b>개인 시세</b><p>보스 드랍과 판매 완료 아이템의 내 실수령 금액을 모아 평균 시세와 최근 가격을 보여줍니다.</p></div>
     </div>
@@ -6177,6 +6212,162 @@ function downloadBackupFile(){
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),500);
 }
+function automationDayNet(date){
+  const hunt=db.records[date] ? recordMesoTotal(normalizeRecord(db.records[date])) : 0n;
+  const daily=toMesoBig(dailyBossSumForDate(date).meso);
+  const profit=profitTotals(d=>d===date);
+  const expense=expenseTotals(d=>d===date);
+  const active=!!db.records[date] || daily!==0n || profit.count>0 || expense.count>0;
+  return {net:hunt+daily+profit.net-expense.total,active};
+}
+function recentAutomationPace(today=todayStr()){
+  let current=0n, previous=0n, activeDays=0;
+  for(let offset=0;offset<14;offset++){
+    const day=automationDayNet(addDays(today,-offset));
+    if(offset<7){ current+=day.net; if(day.active) activeDays++; }
+    else previous+=day.net;
+  }
+  return {current,previous,average:current/7n,change:current-previous,activeDays};
+}
+function monthDayCount(month){
+  const parts=String(month||'').split('-');
+  const year=Number(parts[0]), value=Number(parts[1]);
+  if(!year || !value) return 30;
+  return new Date(Date.UTC(year,value,0)).getUTCDate();
+}
+function monthlyAutomationForecast(report,today=todayStr()){
+  const elapsed=Math.max(1,Number(today.slice(8,10))||1);
+  const totalDays=monthDayCount(report.month);
+  const hasActivity=report.hunt.days>0 || report.bossCrystals>0 || report.profit.count>0 || report.expenses.count>0 || lootEntryCount(report.loot)>0;
+  return {hasActivity,elapsed,totalDays,projected:hasActivity ? (report.net*BigInt(totalDays))/BigInt(elapsed) : 0n};
+}
+function goalAutomationForecast(goal,today=todayStr()){
+  if(goal.empty) return {state:'empty',value:'목표 미설정',note:'통계 탭에서 목표 금액을 설정할 수 있습니다.'};
+  const recordDates=Object.keys(ensureObj(db.records)).map(normalizeDateInput).filter(Boolean).filter(date=>date<=today).sort();
+  const windowStart=addDays(today,-13);
+  const sampleStart=recordDates.length && recordDates[0]>windowStart ? recordDates[0] : windowStart;
+  let production=0n, sampleDays=0;
+  for(let date=sampleStart;date<=today;date=addDays(date,1)){
+    if(db.records[date]) production+=recordMesoTotal(normalizeRecord(db.records[date]));
+    sampleDays++;
+  }
+  const average=sampleDays ? production/BigInt(sampleDays) : 0n;
+  const remaining=goal.target>goal.progress ? goal.target-goal.progress : 0n;
+  if(remaining<=0n) return {state:'good',value:'목표 달성',note:'새 목표 진행 상태를 준비하고 있습니다.'};
+  if(average<=0n) return {state:'waiting',value:'예측 대기',note:'재획 기록이 쌓이면 목표 달성일을 자동 계산합니다.'};
+  const daysBig=(remaining+average-1n)/average;
+  const days=daysBig>3650n ? 3651 : Number(daysBig);
+  if(days>3650) return {state:'waiting',value:'3,650일 이상',note:'최근 재획 일평균 '+korMeso(average)+' 기준'};
+  return {state:'good',value:addDays(today,days),note:fmt(days)+'일 후 예상 · 남은 금액 '+korMeso(remaining)};
+}
+function automationScopeStores(c,period,scope){
+  if(scope==='monthly') return {
+    drops:ensureObj(ensureObj(c.monthDropMonths)[period]),
+    prices:ensureObj(ensureObj(c.monthDropPriceMonths)[period])
+  };
+  return {
+    drops:ensureObj(ensureObj(c.dropWeeks)[period]),
+    prices:ensureObj(ensureObj(c.dropPriceWeeks)[period])
+  };
+}
+function missingBossDropPrices(period,scope){
+  const names=[];
+  const kind=scope==='monthly' ? 'm' : 'w';
+  db.chars.forEach(c=>{
+    const stores=automationScopeStores(c,period,scope);
+    Object.keys(stores.drops).forEach(key=>{
+      if(!stores.drops[key] || !isCountedDropKey(key) || bossKindFromDropKey(key)!==kind) return;
+      const item=visibleDropItemById(dropKeyItemId(key));
+      if(!item) return;
+      const shown=selectedChildForDrop(key,item,stores.drops) || item;
+      const effectiveKey=effectiveDropKeyForParent(key,item,stores.drops);
+      if(toMesoBig(stores.prices[effectiveKey])<=0n) names.push(c.name+' · '+shown.name);
+    });
+  });
+  return names;
+}
+function missingDailyDropPrices(date=todayStr()){
+  const names=[];
+  db.chars.forEach(c=>{
+    const drops=ensureObj(ensureObj(c.dailyDropDays)[date]);
+    const prices=ensureObj(ensureObj(c.dailyDropPriceDays)[date]);
+    Object.keys(drops).forEach(key=>{
+      if(!drops[key] || toMesoBig(prices[key])>0n) return;
+      const item=visibleDailyDropItemById(dropKeyItemId(key));
+      if(item) names.push(c.name+' · '+item.name);
+    });
+  });
+  return names;
+}
+function missingProfitPrices(){
+  const names=[];
+  (Array.isArray(db.profits)?db.profits:[]).forEach(record=>{
+    const r=normalizeProfitRecord(record);
+    r.costs.forEach(line=>{
+      const item=normalizeProfitLine(line);
+      if(item.count>0 && toMesoBig(item.price)<=0n) names.push(item.name || profitCategory(r.type).title+' 사용 비용');
+    });
+    r.outputs.forEach(line=>{
+      const item=normalizeProfitLine(line);
+      if(item.sold && item.count>0 && toMesoBig(item.price)<=0n) names.push(item.name || profitCategory(r.type).title+' 판매가');
+    });
+  });
+  return names;
+}
+function missingErdaPrices(){
+  if(!db.settings.includeErdaMeso) return [];
+  const dates=[];
+  Object.keys(ensureObj(db.records)).forEach(date=>{
+    const missing=normalizeRecord(db.records[date]).sessions.some(session=>{
+      const item=normalizeHuntSession(session);
+      return item.kind==='hunt' && unsettledErdaForSession(item)>0 && toMesoBig(item.erdaUnitPrice)<=0n;
+    });
+    if(missing) dates.push(date);
+  });
+  return dates;
+}
+function automationNameSummary(names){
+  const unique=Array.from(new Set(names.filter(Boolean)));
+  if(!unique.length) return '';
+  return unique.slice(0,2).join(', ')+(unique.length>2?' 외 '+fmt(unique.length-2)+'개':'');
+}
+function automationAttentionItems(){
+  const issues=[];
+  const add=(page,title,names)=>{
+    if(!names.length) return;
+    issues.push({page,title:title.replace('{count}',fmt(names.length)),detail:automationNameSummary(names)});
+  };
+  if(!db.chars.length) issues.push({page:'character',title:'등록된 캐릭터가 없습니다.',detail:'캐릭터를 등록하면 보스 진행과 누락 항목을 자동으로 확인합니다.'});
+  add('boss','이번 주 드랍 가격 {count}개 미입력',missingBossDropPrices(currentWeekKey(),'weekly'));
+  add('monthlyboss','이번 달 드랍 가격 {count}개 미입력',missingBossDropPrices(currentMonthKey(),'monthly'));
+  add('dailyboss','오늘 일간 드랍 가격 {count}개 미입력',missingDailyDropPrices());
+  add('profit','손익 계산기 금액 {count}개 미입력',missingProfitPrices());
+  add('daily','조각 환산 단가 {count}일 미입력',missingErdaPrices());
+  return issues;
+}
+function renderHomeAutomation(report,goal){
+  const el=document.getElementById('home-automation');
+  if(!el) return;
+  const pace=recentAutomationPace();
+  const month=monthlyAutomationForecast(report);
+  const goalForecast=goalAutomationForecast(goal);
+  const trend=pace.previous===0n
+    ? (pace.current===0n?'비교할 이전 기록이 없습니다.':'이전 7일 기록 없이 새로 집계 중입니다.')
+    : '이전 7일보다 '+(pace.change>=0n?'+':'')+signedKorMeso(pace.change);
+  const insights=[
+    {label:'최근 7일 일평균 순수익',value:signedKorMeso(pace.average),tone:pace.average<0n?'bad':(pace.average>0n?'good':''),note:'기록 '+fmt(pace.activeDays)+'일 · '+trend+' · 주간/월간 결정석 제외'},
+    {label:'이번 달 예상 순수익',value:month.hasActivity?signedKorMeso(month.projected):'예측 대기',tone:month.projected<0n?'bad':(month.projected>0n?'good':''),note:month.hasActivity?'현재 '+signedKorMeso(report.net)+' · '+month.elapsed+'/'+month.totalDays+'일 경과':'이번 달 기록을 저장하면 자동 계산합니다.'},
+    {label:'목표 달성 예상일',value:goalForecast.value,tone:goalForecast.state==='good'?'good':'',note:goalForecast.note}
+  ];
+  const issues=automationAttentionItems();
+  const insightHtml='<div class="automation-insight-grid">'+insights.map(item=>
+    '<div class="automation-insight"><span>'+esc(item.label)+'</span><b class="'+item.tone+'">'+esc(item.value)+'</b><small>'+esc(item.note)+'</small></div>'
+  ).join('')+'</div>';
+  const issueHtml=issues.length
+    ? '<div class="automation-task-list">'+issues.map(issue=>'<button class="automation-task" type="button" data-open-page="'+esc(issue.page)+'"><span class="automation-task-mark">!</span><span class="automation-task-copy"><b>'+esc(issue.title)+'</b><small>'+esc(issue.detail)+'</small></span><span class="automation-task-action">확인</span></button>').join('')+'</div>'
+    : '<div class="automation-clear">현재 합계에서 빠질 가능성이 있는 미입력 항목을 찾지 못했습니다. 새 기록을 저장하면 이곳도 함께 갱신됩니다.</div>';
+  el.innerHTML=insightHtml+'<div class="automation-check"><div class="automation-check-head"><b>자동 확인</b><span>'+(issues.length?fmt(issues.length)+'가지 확인이 필요합니다.':'누락 없이 정리되어 있습니다.')+'</span></div>'+issueHtml+'</div>';
+}
 function renderHome(){
   const summaryEl=document.getElementById('home-summary');
   if(!summaryEl) return;
@@ -6208,6 +6399,7 @@ function renderHome(){
     ['이번 달 순수익',signedKorMeso(currentMonthReport.net),valueClass(currentMonthReport.net),'보스 · 판매 수익 · 지출 반영'],
     ['목표 진행',goal.empty?'목표 미설정':goal.pct.toFixed(goal.pct<10?2:0).replace(/\.00$/,'')+'%',goal.empty?'':'good',goal.empty?'통계 탭에서 목표 금액을 입력하세요.':korMeso(goal.progress)+' / '+korMeso(goal.target)]
   ].map(item=>'<div class="home-summary"><span>'+item[0]+'</span><b class="'+item[2]+'">'+item[1]+'</b><small>'+item[3]+'</small></div>').join('');
+  renderHomeAutomation(currentMonthReport,goal);
 
   const progressEl=document.getElementById('home-weekly-progress');
   if(!db.chars.length){
