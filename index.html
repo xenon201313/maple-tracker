@@ -4569,7 +4569,7 @@ function rememberDropPartiesForBosses(c, period, bossesList, scope='weekly'){
     if(!ids.has(bossId)) return;
     const boss=BOSS_MAP[bossId];
     if(!boss) return;
-    const party=clampPartyForBoss(b,bosses[bossId] || Number(ensureObj(shares[key]).party) || 1);
+    const party=clampPartyForBoss(boss,bosses[bossId] || Number(ensureObj(shares[key]).party) || 1);
     shares[key]=Object.assign({},ensureObj(shares[key]),{party});
   });
 }
@@ -5633,6 +5633,11 @@ function signedKorMeso(value){
   const n = typeof value === 'bigint' ? value : toMesoBig(value);
   return n < 0n ? '-'+korMeso(-n) : korMeso(n);
 }
+function outflowKorMeso(value){
+  const n = typeof value === 'bigint' ? value : toMesoBig(value);
+  if(n===0n) return korMeso(0n);
+  return '-'+korMeso(n<0n ? -n : n);
+}
 function profitLineValue(line){
   const l=normalizeProfitLine(line);
   const gross=toMesoBig(l.price) * BigInt(l.count || 0);
@@ -5990,7 +5995,7 @@ function monthlyReportText(report){
     '재획 수익: '+korMeso(report.hunt.m)+'\n'+
     '보스 수익: '+korMeso(report.boss)+'\n'+
     '손익 계산기: '+signedKorMeso(report.profit.net)+'\n'+
-    '직접 지출: -'+korMeso(report.expenses.total)+'\n'+
+    '직접 지출: '+outflowKorMeso(report.expenses.total)+'\n'+
     '순수익: '+signedKorMeso(report.net)+'\n'+
     '재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개';
 }
@@ -6018,7 +6023,7 @@ function downloadMonthlyReportImage(report){
   ctx.fillStyle='#ffd24d'; ctx.font='700 38px '+getComputedStyle(document.body).fontFamily; ctx.fillText('나만의 메계부',56,78);
   ctx.fillStyle='#eef3ff'; ctx.font='700 30px '+getComputedStyle(document.body).fontFamily; ctx.fillText(fmtMonthLabel(report.month+'-01')+' 결산 리포트',56,125);
   ctx.fillStyle='#c2c8dc'; ctx.font='400 18px '+getComputedStyle(document.body).fontFamily; ctx.fillText('실제 기록된 수입과 지출 기준',56,157);
-  const metrics=[['재획 수익',korMeso(report.hunt.m),'#ffd24d'],['보스 수익',korMeso(report.boss),'#ffd24d'],['손익 계산기',signedKorMeso(report.profit.net),report.profit.net>=0n?'#67e0a0':'#ff7b8b'],['직접 지출','-'+korMeso(report.expenses.total),'#ff7b8b'],['순수익',signedKorMeso(report.net),report.net>=0n?'#67e0a0':'#ff7b8b']];
+  const metrics=[['재획 수익',korMeso(report.hunt.m),'#ffd24d'],['보스 수익',korMeso(report.boss),'#ffd24d'],['손익 계산기',signedKorMeso(report.profit.net),report.profit.net>=0n?'#67e0a0':'#ff7b8b'],['직접 지출',outflowKorMeso(report.expenses.total),'#ff7b8b'],['순수익',signedKorMeso(report.net),report.net>=0n?'#67e0a0':'#ff7b8b']];
   metrics.forEach((metric,index)=>{
     const x=56+(index%2)*402, y=205+Math.floor(index/2)*135;
     ctx.fillStyle='rgba(5,9,17,.44)'; ctx.fillRect(x,y,370,115);
@@ -6053,7 +6058,7 @@ function statsPeriodCardHtml(title,range,row,current,label){
       '<div class="stats-period-metric hunt"><span>재획 메소</span><b>'+korMeso(row.m)+'</b></div>'+
       '<div class="stats-period-metric"><span>보스 수익</span><b>'+korMeso(row.boss)+'</b></div>'+
       '<div class="stats-period-metric profit"><span>손익 계산기</span><b class="'+profitClass+'">'+signedKorMeso(row.profit)+'</b></div>'+
-      '<div class="stats-period-metric expense"><span>직접 지출</span><b>-'+korMeso(row.expense)+'</b></div>'+
+      '<div class="stats-period-metric expense"><span>직접 지출</span><b>'+outflowKorMeso(row.expense)+'</b></div>'+
     '</div>'+
     '<div class="stats-period-footer"><span>획득 아이템 '+lootCellHtml(row.loot)+'</span><span>솔 에르다 <b>'+fmt(row.e)+'개</b></span></div>'+
   '</article>';
@@ -6124,7 +6129,7 @@ function renderStats(){
     {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획', tone:'income'},
     {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true, tone:'boss'},
     {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 월간 '+korMeso(bt.month)+' · 획득템 '+dropNow+'개', tone:'boss'},
-    {t:'이번 주 직접 지출', v:'-'+korMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건', tone:'expense', valueClass:'bad'},
+    {t:'이번 주 직접 지출', v:outflowKorMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건', tone:'expense', valueClass:'bad'},
     {t:'이번 주 손익 (지출 반영)', v:signedKorMeso(thisWeekNetProfit), s:'계산기 '+signedKorMeso(thisWeekProfit.net)+' · 직접 지출 '+korMeso(thisWeekExpense.total), tone:'net', valueClass:thisWeekNetProfit<0n?'bad':'good'},
     {t:'이번 달 손익 (지출 반영)', v:signedKorMeso(thisMonthNetProfit), s:'계산기 '+signedKorMeso(thisMonthProfit.net)+' · 직접 지출 '+korMeso(thisMonthExpense.total), tone:'net', valueClass:thisMonthNetProfit<0n?'bad':'good'},
     {t:'전체 손익 (지출 반영)', v:signedKorMeso(totalNetProfit), s:'계산기 '+signedKorMeso(totalProfit.net)+' · 직접 지출 '+korMeso(totalExpense.total), tone:'net', valueClass:totalNetProfit<0n?'bad':'good'},
@@ -6486,7 +6491,7 @@ function renderHome(){
     '<div class="report-metric"><span>재획 수익</span><b>'+korMeso(report.hunt.m)+'</b></div>'+
     '<div class="report-metric"><span>보스 수익</span><b>'+korMeso(report.boss)+'</b></div>'+
     '<div class="report-metric"><span>손익 계산기</span><b class="'+(report.profit.net<0n?'bad':'good')+'">'+signedKorMeso(report.profit.net)+'</b></div>'+
-    '<div class="report-metric"><span>직접 지출</span><b class="bad">-'+korMeso(report.expenses.total)+'</b></div>'+
+    '<div class="report-metric"><span>직접 지출</span><b class="bad">'+outflowKorMeso(report.expenses.total)+'</b></div>'+
     '<div class="report-metric"><span>순수익</span><b class="'+(report.net<0n?'bad':'good')+'">'+signedKorMeso(report.net)+'</b></div>'+
     '</div><div class="monthly-report-note">재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개 · 조각 '+fmt(report.hunt.e)+'개</div>';
   document.getElementById('home-report-copy').onclick=()=>copyDashboardText(monthlyReportText(report));
@@ -6991,23 +6996,23 @@ function renderExpenses(){
   const calculatorMonth=profitTotals(d=>String(d).slice(0,7)===month);
   const calculatorTotal=profitTotals(()=>true);
   const summaryRows=[
-    ['이번 주 직접 지출','-'+korMeso(directWeek.total),'직접 '+directWeek.count+'건'],
-    ['이번 달 직접 지출','-'+korMeso(directMonth.total),'직접 '+directMonth.count+'건'],
-    ['전체 직접 지출','-'+korMeso(directTotal.total),'직접 '+directTotal.count+'건'],
-    ['손익 계산기 사용 메소','-'+korMeso(calculatorTotal.cost),'이번 주 '+korMeso(calculatorWeek.cost)+' · 이번 달 '+korMeso(calculatorMonth.cost)]
+    ['이번 주 직접 지출',outflowKorMeso(directWeek.total),'직접 '+directWeek.count+'건'],
+    ['이번 달 직접 지출',outflowKorMeso(directMonth.total),'직접 '+directMonth.count+'건'],
+    ['전체 직접 지출',outflowKorMeso(directTotal.total),'직접 '+directTotal.count+'건'],
+    ['손익 계산기 사용 메소',outflowKorMeso(calculatorTotal.cost),'이번 주 '+korMeso(calculatorWeek.cost)+' · 이번 달 '+korMeso(calculatorMonth.cost)]
   ];
   summary.innerHTML=summaryRows.map(row=>'<div class="expense-summary"><span>'+row[0]+'</span><b>'+row[1]+'</b><small>'+row[2]+'</small></div>').join('');
 
   const categoryRows=spendingCategoryRows(()=>true);
   categories.innerHTML=categoryRows.length ? categoryRows.map(row=>
-    '<div class="expense-category"><span>'+esc(row.name)+'<small>직접 '+korMeso(row.direct)+' · 계산기 '+korMeso(row.calculator)+'</small></span><b>-'+korMeso(row.total)+'</b></div>'
+    '<div class="expense-category"><span>'+esc(row.name)+'<small>직접 '+korMeso(row.direct)+' · 계산기 '+korMeso(row.calculator)+'</small></span><b>'+outflowKorMeso(row.total)+'</b></div>'
   ).join('') : '<div class="muted">아직 지출 기록이 없습니다.</div>';
 
   const records=(Array.isArray(db.expenses)?db.expenses:[]).map(normalizeExpenseRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
   recordsEl.innerHTML=records.length ? records.map(record=>{
     const category=expenseCategoryById(record.category);
     const details=[record.charName,record.memo].filter(Boolean).map(esc).join(' · ') || '직접 입력 지출';
-    return '<div class="expense-record"><div class="expense-record-title"><b>'+esc(category.name)+'</b><span>'+esc(record.date)+' · '+details+'</span></div><b class="expense-record-value">-'+korMeso(record.amount)+'</b><button class="danger" type="button" data-expense-delete="'+esc(record.id)+'">삭제</button></div>';
+    return '<div class="expense-record"><div class="expense-record-title"><b>'+esc(category.name)+'</b><span>'+esc(record.date)+' · '+details+'</span></div><b class="expense-record-value">'+outflowKorMeso(record.amount)+'</b><button class="danger" type="button" data-expense-delete="'+esc(record.id)+'">삭제</button></div>';
   }).join('') : '<div class="muted">아직 저장된 직접 지출이 없습니다.</div>';
   recordsEl.querySelectorAll('[data-expense-delete]').forEach(button=>{
     button.onclick=()=>{
@@ -8428,6 +8433,47 @@ function refreshBossDropPreview(bl,c,period,scope,key){
       copy.textContent=label+(price ? ' · '+price : '');
     }
   });
+  refreshBossAggregateSummary(c,period,scope);
+}
+function renderedCharacterCard(list,c){
+  if(!list) return null;
+  return Array.from(list.children).find(card=>card.dataset && card.dataset.charName===c.name) || null;
+}
+function refreshBossAggregateSummary(c,period,scope='weekly'){
+  if(scope==='monthly'){
+    const list=document.getElementById('monthlyboss-list');
+    const total=document.getElementById('monthlyboss-total');
+    const card=renderedCharacterCard(list,c);
+    const sum=card && card.querySelector('.charhead .sum');
+    const s=monthlyCharSum(c,period);
+    const itemMeso=dropPriceSumForCharMonth(c,period);
+    if(sum) sum.innerHTML='월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>';
+    if(total){
+      const monthLabel=fmtMonthLabel(period+'-01');
+      const t=monthlyBossTotals(period);
+      total.innerHTML=
+        crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 수익:</b> <span class="meso">'+korMeso(t.meso)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalMeso)+' + 아이템 '+korMeso(t.dropMeso)+')</span>'+
+        '<br>'+crystalIcon('monthly')+'<b>'+monthLabel+' 월간 결정석 합계:</b> <span class="meso">'+korMeso(t.meso)+'</span> <span class="muted">(검은 마법사 '+t.crystals+'개)</span>';
+    }
+    return;
+  }
+  const list=document.getElementById('charlist');
+  const total=document.getElementById('boss-total');
+  const card=renderedCharacterCard(list,c);
+  const sum=card && card.querySelector('.charhead .sum');
+  const s=charSum(c,period);
+  const itemMeso=dropPriceSumForCharWeek(c,period);
+  const weekContext=period===currentWeekKey() ? '이번 주' : '과거 주차';
+  const weeklyTarget=weeklyBossDisplayLimit(c);
+  if(sum) sum.innerHTML=weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.wc>=weeklyTarget?' full':'')+'">('+s.wc+'/'+weeklyTarget+')</span>';
+  if(total){
+    const t=bossTotals(period);
+    const over=t.weeklyCrystals>CRYSTAL_LIMIT;
+    total.innerHTML=
+      crystalIcon('weekly')+'<b>'+weekContext+' 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(period)+')</span>'+
+      (over?' <span class="warn">⚠ 주간 판매 한도 '+CRYSTAL_LIMIT+'개 초과!</span>':'')+
+      '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+  }
 }
 function renderBoss(){
   normalizeAllBosses();
@@ -8459,7 +8505,7 @@ function renderBoss(){
   db.chars.forEach(c=>{
     const s=charSum(c,wk);
     const itemMeso=dropPriceSumForCharWeek(c,wk);
-    const box=document.createElement('div'); box.className='card';
+    const box=document.createElement('div'); box.className='card'; box.dataset.charName=c.name;
     const head=document.createElement('div'); head.className='charhead';
     const weeklyTarget=weeklyBossDisplayLimit(c);
     head.innerHTML=charHeadHtml(c,weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.wc>=weeklyTarget?' full':'')+'">('+s.wc+'/'+weeklyTarget+')</span>')+
@@ -8503,7 +8549,7 @@ function renderMonthlyBoss(){
   db.chars.forEach(c=>{
     const s=monthlyCharSum(c,month);
     const itemMeso=dropPriceSumForCharMonth(c,month);
-    const box=document.createElement('div'); box.className='card';
+    const box=document.createElement('div'); box.className='card'; box.dataset.charName=c.name;
     const head=document.createElement('div'); head.className='charhead';
     head.innerHTML=charHeadHtml(c,'월간 '+korMeso(toMesoBig(s.m)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.m)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+s.mc+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(monthlyOpenChars.has(c.name)?' open':'');
@@ -8892,6 +8938,30 @@ function refreshDailyDropPreview(input,c,date,key){
   const selected=dailyDropItemsForBoss(boss).filter(item=>dailyDropStore(c,date)[dailyDropKey(boss,item)]).length;
   const title=card.querySelector('.drop-title>span:first-child');
   if(title) title.textContent='오늘 획득 '+selected+'개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,boss,date));
+  refreshDailyBossAggregateSummary(c,date);
+}
+function refreshDailyBossAggregateSummary(c,date){
+  const list=document.getElementById('dailyboss-list');
+  const total=document.getElementById('dailyboss-total');
+  const card=renderedCharacterCard(list,c);
+  const sum=card && card.querySelector('.charhead .sum');
+  const store=ensureObj(ensureObj(c.dailyBossDays)[date]);
+  let crystalMeso=0, charCrystals=0;
+  for(const id in store){
+    const boss=DAILY_BOSS_MAP[id];
+    if(!boss) continue;
+    crystalMeso+=share(boss[2],Math.max(1,Number(store[id])||1));
+    charCrystals++;
+  }
+  const itemMeso=dailyDropPriceSumForCharDate(c,date);
+  const charMeso=toMesoBig(crystalMeso)+itemMeso;
+  if(sum) sum.innerHTML=date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span>';
+  if(total){
+    const dayTotal=dailyBossSumForDate(date);
+    const week=mapleWeekStart(date), weekTotal=dailyBossTotalsForWeek(week);
+    total.innerHTML=crystalIcon('daily')+'<b>'+date+' 일간 결정석 수익:</b> <span class="meso">'+korMeso(dayTotal.meso)+'</span> <span class="daily-total-detail">(결정석 '+korMeso(dayTotal.crystalMeso)+' + 아이템 '+korMeso(dayTotal.dropMeso)+' · 결정석 '+dayTotal.crystals+'개)</span>'+
+      '<br>'+crystalIcon('daily')+'<b>해당 주 일간 결정석 합계:</b> <span class="meso">'+korMeso(weekTotal.meso)+'</span> <span class="daily-total-detail">('+fmtWeekRange(week)+' · 결정석 '+korMeso(weekTotal.crystalMeso)+' + 아이템 '+korMeso(weekTotal.dropMeso)+' · 결정석 '+weekTotal.crystals+'개)</span>';
+  }
 }
 function renderDailyBoss(){
   const list=document.getElementById('dailyboss-list');
@@ -8908,7 +8978,7 @@ function renderDailyBoss(){
     for(const id in store){ const b=DAILY_BOSS_MAP[id]; if(b){ crystalMeso += share(b[2], Math.max(1,Number(store[id])||1)); charCrystals++; } }
     const itemMeso=dailyDropPriceSumForCharDate(c,date);
     const charMeso=toMesoBig(crystalMeso)+itemMeso;
-    const box=document.createElement('div'); box.className='card';
+    const box=document.createElement('div'); box.className='card'; box.dataset.charName=c.name;
     const head=document.createElement('div'); head.className='charhead';
     head.innerHTML=charHeadHtml(c,date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(dailyOpenChars.has(c.name)?' open':'');
