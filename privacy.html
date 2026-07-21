@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>개인정보·쿠키 안내 | 나만의 메계부</title>
+<meta name="description" content="나만의 메계부의 브라우저 저장, 클라우드 동기화, 이용 통계와 광고 관련 개인정보 안내">
+<meta name="theme-color" content="#14161f">
+<link rel="icon" type="image/png" href="thumbnail.png">
+<style>
+  @font-face{font-family:'MaplestoryTitle';src:url('assets/fonts/Maplestory-Bold.ttf') format('truetype');font-weight:700;font-display:swap;}
+  @font-face{font-family:'MaplestoryBody';src:url('assets/fonts/Maplestory-Light.ttf') format('truetype');font-weight:300 600;font-display:swap;}
+  :root{color-scheme:dark;--text:#eef2ff;--sub:#b8c3da;--gold:#ffd447;--line:rgba(220,230,255,.18);}
+  *{box-sizing:border-box;}
+  html{min-height:100%;background:#10141f;}
+  body{min-height:100vh;margin:0;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(32px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));color:var(--text);font-family:'MaplestoryBody','Malgun Gothic',sans-serif;font-size:16px;line-height:1.72;background:linear-gradient(180deg,rgba(7,10,18,.55),rgba(7,10,18,.86)),url('assets/maple-village-bg.png') center/cover fixed no-repeat;word-break:keep-all;overflow-wrap:break-word;}
+  main{width:min(860px,100%);margin:0 auto;padding:26px;border:1px solid var(--line);border-radius:12px;background:rgba(16,21,34,.94);box-shadow:0 16px 42px rgba(0,0,0,.34);}
+  h1,h2{font-family:'MaplestoryTitle','Malgun Gothic',sans-serif;letter-spacing:0;}
+  h1{margin:0;color:var(--gold);font-size:30px;line-height:1.25;}
+  h2{margin:28px 0 8px;color:#f6f8ff;font-size:19px;line-height:1.4;}
+  p,li{color:var(--sub);}
+  ul{margin:8px 0;padding-left:22px;}
+  .lead{margin:8px 0 20px;color:#d8e1f3;}
+  .date{display:inline-block;margin-top:4px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:#cbd6eb;font-size:12px;}
+  .note{margin-top:24px;padding:12px 14px;border-left:3px solid var(--gold);border-radius:8px;background:rgba(255,212,71,.08);color:#e8e1bd;}
+  a{color:#82c8ff;text-underline-offset:3px;}
+  .back{display:inline-flex;margin-top:26px;padding:9px 12px;border:1px solid rgba(130,200,255,.34);border-radius:8px;text-decoration:none;background:rgba(38,90,135,.2);}
+  @media(max-width:640px){body{font-size:15px;padding-left:10px;padding-right:10px;}main{padding:18px 15px;border-radius:10px;}h1{font-size:25px;}h2{font-size:18px;}}
+</style>
+</head>
+<body>
+<main>
+  <h1>개인정보·쿠키 안내</h1>
+  <p class="lead">나만의 메계부가 어떤 정보를 브라우저에 저장하고, 선택 기능을 사용할 때 어떤 정보가 외부 서비스로 전달될 수 있는지 안내합니다.</p>
+  <span class="date">최종 수정: 2026년 7월 21일</span>
+
+  <h2>1. 브라우저에 저장되는 정보</h2>
+  <p>재획, 보스, 드랍 아이템, 손익, 지출, 캐릭터 설정과 화면 설정은 기본적으로 이용 중인 브라우저의 로컬 저장소에 보관됩니다. 운영자는 이 로컬 기록을 직접 열람할 수 없습니다. 브라우저의 사이트 데이터를 삭제하면 로컬 기록도 함께 삭제될 수 있으므로 JSON 백업을 권장합니다.</p>
+
+  <h2>2. 넥슨 Open API</h2>
+  <p>이용자가 API 키를 직접 등록하면 캐릭터 프로필, 경험치, 스케줄러 정보를 조회하기 위해 넥슨 Open API로 요청을 보냅니다. API 키는 해당 브라우저에 저장되며 JSON 백업에는 포함하지 않습니다. 키가 노출된 경우 넥슨 Open API에서 재발급해 주세요.</p>
+
+  <h2>3. 암호화 클라우드 동기화</h2>
+  <p>API 키 등록 후 클라우드 동기화를 사용하면 기록은 브라우저에서 AES-GCM 방식으로 암호화된 뒤 Cloudflare Workers 저장소로 전송됩니다. 서버에는 암호문과 동기화 식별자가 저장되며, 복호화는 같은 API 키를 가진 브라우저에서 수행합니다. 이 기능은 기기 간 기록 이동을 위한 선택 기능입니다.</p>
+
+  <h2>4. 익명 커뮤니티 통계</h2>
+  <p>통계 탭에서 이용자가 직접 참여를 켠 경우에만 이번 주 재획 생산 메소, 재획 기록 일수, 주차와 익명 식별자가 전송됩니다. 캐릭터명, API 키, 보스·드랍 상세와 전체 장부는 익명 통계에 전송하지 않습니다.</p>
+
+  <h2>5. 방문 분석</h2>
+  <p>사이트 품질과 이용 현황을 파악하기 위해 Cloudflare Web Analytics를 사용합니다. 이 과정에서 방문 시각, 페이지 조회, 브라우저·기기와 관련된 집계 정보가 처리될 수 있습니다. 자세한 내용은 <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare 개인정보처리방침</a>에서 확인할 수 있습니다.</p>
+
+  <h2>6. 광고와 쿠키</h2>
+  <p>광고 기능이 활성화된 경우 Google AdSense가 광고 제공, 빈도 관리, 부정 클릭 방지와 성과 측정을 위해 쿠키 또는 기기 식별자를 사용할 수 있습니다. 지역과 동의 상태에 따라 개인 맞춤 광고 또는 개인 맞춤이 아닌 광고가 표시될 수 있습니다.</p>
+  <ul>
+    <li><a href="https://policies.google.com/technologies/ads?hl=ko" target="_blank" rel="noopener">Google의 광고 데이터 사용 안내</a></li>
+    <li><a href="https://myadcenter.google.com/" target="_blank" rel="noopener">Google 광고 설정 관리</a></li>
+  </ul>
+
+  <h2>7. 이용자가 관리할 수 있는 항목</h2>
+  <ul>
+    <li>브라우저 설정에서 이 사이트의 로컬 저장 데이터와 쿠키를 삭제할 수 있습니다.</li>
+    <li>통계 탭에서 익명 커뮤니티 통계 참여를 언제든 끌 수 있습니다.</li>
+    <li>캐릭터 등록 탭에서 저장된 넥슨 API 키를 삭제할 수 있습니다.</li>
+    <li>광고·쿠키 동의 메시지가 표시되는 지역에서는 해당 화면에서 선택을 변경할 수 있습니다.</li>
+  </ul>
+
+  <h2>8. 문의</h2>
+  <p>개인정보 또는 사이트 동작과 관련된 문의는 <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">GitHub 이슈</a>로 남길 수 있습니다.</p>
+
+  <p class="note">광고 승인 전이나 광고를 불러오지 못한 경우에는 광고 영역을 표시하지 않습니다. Android 앱과 로컬 실행 환경에서도 광고를 불러오지 않습니다.</p>
+  <a class="back" href="index.html">나만의 메계부로 돌아가기</a>
+</main>
+</body>
+</html>
