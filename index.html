@@ -90,6 +90,10 @@
   .period-history-nav button{width:auto; min-width:92px; padding:8px 12px;}
   .period-history-nav .period-history-current{min-width:112px;}
   .period-history-nav button:disabled{opacity:.42; cursor:not-allowed;}
+  .weekly-drop-recovery{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; padding:10px 12px; border:1px solid rgba(117,201,255,.28); border-radius:8px; background:rgba(8,17,29,.5); color:var(--sub); font-size:13px; line-height:1.5;}
+  .weekly-drop-recovery[hidden]{display:none;}
+  .weekly-drop-recovery strong{color:#eaf2ff;}
+  .weekly-drop-recovery button{flex:0 0 auto; width:auto; min-height:36px; padding:7px 12px; white-space:nowrap;}
   .period-sub{color:var(--sub); font-size:13px; line-height:1.6; word-break:keep-all; overflow-wrap:break-word;}
   .row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
   .row>div{min-width:0; max-width:100%;}
@@ -773,6 +777,8 @@
     .period-note{width:100%; font-size:14px; justify-content:flex-start;}
     .period-history-nav{display:grid; grid-template-columns:1fr 1.2fr 1fr; width:100%; gap:6px;}
     .period-history-nav button,.period-history-nav .period-history-current{min-width:0; width:100%; padding:8px 6px;}
+    .weekly-drop-recovery{align-items:stretch; flex-direction:column;}
+    .weekly-drop-recovery button{width:100%;}
     .row,.daily-date-row,.calc-card .row{display:grid; grid-template-columns:1fr; gap:10px; align-items:stretch;}
     input[type=date],input[type=number],input[type=text],input[type=password],select{width:100%; font-size:16px;}
     #page-daily>.card:first-child .row{grid-template-columns:1fr; gap:10px;}
@@ -1432,6 +1438,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
     <div class="period-history-nav" id="weeklyboss-period-nav" aria-label="주간 보스 기록 주차 선택"></div>
+    <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
     <div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div>
   </div>
 
@@ -3996,6 +4003,7 @@ function setDailyBossPreference(c,g,bossId,party){
 
 const LS_KEY = 'mapleTracker.v2';
 const LS_OLD = 'mapleTracker.v1';
+const DROP_RECOVERY_KEY = 'mapleTracker.weeklyDropRecovery.v1';
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
@@ -4314,6 +4322,202 @@ function normalizeBackupSnapshots(snapshots){
     return {id:String(o.id || ('backup_'+month)),month,createdAt:String(o.createdAt || ''),data:backupDataPayload(data)};
   }).filter(Boolean).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,3);
 }
+function recoveryDateString(value){
+  const raw=typeof value==='number' ? value : (String(value||'').match(/^\d+$/) ? Number(value) : value);
+  const date=new Date(raw);
+  if(Number.isNaN(date.getTime())) return '';
+  return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+}
+function recoveryCharacterKey(char){
+  const c=ensureObj(char);
+  const ocid=String(c.ocid||'').trim();
+  if(ocid) return 'ocid:'+ocid;
+  return 'name:'+(c.server==='challenger'?'challenger':'main')+':'+String(c.name||'').trim().toLowerCase();
+}
+function recoveryCharacterFor(sourceChar){
+  const source=ensureObj(sourceChar);
+  const sourceOcid=String(source.ocid||'').trim();
+  if(sourceOcid){
+    const byOcid=db.chars.find(char=>String(char.ocid||'').trim()===sourceOcid);
+    if(byOcid) return byOcid;
+  }
+  const name=String(source.name||'').trim().toLowerCase();
+  const server=source.server==='challenger'?'challenger':'main';
+  return db.chars.find(char=>String(char.name||'').trim().toLowerCase()===name && (char.server==='challenger'?'challenger':'main')===server) || null;
+}
+function weeklyDropPeriodBundles(char, fallbackWeek=''){
+  const c=ensureObj(char), bundles={};
+  const bundle=week=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(week)) return null;
+    if(!bundles[week]) bundles[week]={drops:{},prices:{},shares:{}};
+    return bundles[week];
+  };
+  [['dropWeeks','drops'],['dropPriceWeeks','prices'],['dropShareWeeks','shares']].forEach(([storeName,field])=>{
+    const store=ensureObj(c[storeName]);
+    Object.keys(store).forEach(week=>{
+      const target=bundle(week);
+      if(target) Object.assign(target[field],ensureObj(store[week]));
+    });
+  });
+  if(fallbackWeek){
+    const target=bundle(fallbackWeek);
+    if(target){
+      [['drops','drops'],['dropPrices','prices'],['dropShares','shares']].forEach(([legacyName,field])=>{
+        const legacy=ensureObj(c[legacyName]);
+        Object.keys(legacy).forEach(key=>{ if(target[field][key]===undefined) target[field][key]=legacy[key]; });
+      });
+    }
+  }
+  return bundles;
+}
+function compactWeeklyDropRecoveryData(source){
+  const raw=ensureObj(source);
+  return {
+    updatedAt:Number(raw.updatedAt)||Date.now(),
+    chars:(Array.isArray(raw.chars)?raw.chars:[]).map(char=>{
+      const c=ensureObj(char);
+      return {
+        name:String(c.name||''),server:c.server==='challenger'?'challenger':'main',ocid:String(c.ocid||''),
+        drops:ensureObj(c.drops),dropWeeks:ensureObj(c.dropWeeks),
+        dropPrices:ensureObj(c.dropPrices),dropPriceWeeks:ensureObj(c.dropPriceWeeks),
+        dropShares:ensureObj(c.dropShares),dropShareWeeks:ensureObj(c.dropShareWeeks)
+      };
+    })
+  };
+}
+function weeklyDropRecoveryHistory(){
+  try{
+    const history=JSON.parse(localStorage.getItem(DROP_RECOVERY_KEY)||'[]');
+    return Array.isArray(history) ? history.filter(item=>item && item.data && Array.isArray(item.data.chars)).slice(0,5) : [];
+  }catch(error){ return []; }
+}
+function mergeWeeklyDropRecoveryHistory(incoming){
+  try{
+    const merged=new Map();
+    weeklyDropRecoveryHistory().concat(Array.isArray(incoming)?incoming:[]).forEach(item=>{
+      if(!item || !item.data || !Array.isArray(item.data.chars)) return;
+      const id=String(item.id || ('drop_recovery_'+String(item.createdAt||'')));
+      if(!merged.has(id)) merged.set(id,item);
+    });
+    const next=Array.from(merged.values()).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,5);
+    localStorage.setItem(DROP_RECOVERY_KEY,JSON.stringify(next));
+    return next;
+  }catch(error){ return weeklyDropRecoveryHistory(); }
+}
+function weeklyDropEntryIds(source){
+  const raw=ensureObj(source), ids=new Set();
+  (Array.isArray(raw.chars)?raw.chars:[]).forEach(char=>{
+    const fallbackDate=recoveryDateString(raw.updatedAt);
+    const fallbackWeek=fallbackDate ? mapleWeekStart(fallbackDate) : '';
+    const charKey=recoveryCharacterKey(char);
+    const bundles=weeklyDropPeriodBundles(char,fallbackWeek);
+    Object.keys(bundles).forEach(week=>{
+      const data=bundles[week];
+      const keys=new Set(Object.keys(data.drops).concat(Object.keys(data.prices)));
+      keys.forEach(key=>{
+        if(bossKindFromDropKey(key)!=='w') return;
+        if(data.drops[key] || toMesoBig(data.prices[key])>0n) ids.add(charKey+'|'+week+'|'+key);
+      });
+    });
+  });
+  return ids;
+}
+function storeWeeklyDropRecoveryPoint(source,reason='드랍 기록 자동 보호'){
+  try{
+    const compact=compactWeeklyDropRecoveryData(source);
+    if(!weeklyDropEntryIds(compact).size) return false;
+    const history=weeklyDropRecoveryHistory();
+    const entry={id:'drop_recovery_'+Date.now(),createdAt:new Date().toISOString(),reason,data:compact};
+    const next=[entry].concat(history).slice(0,5);
+    try{ localStorage.setItem(DROP_RECOVERY_KEY,JSON.stringify(next)); }
+    catch(error){ localStorage.setItem(DROP_RECOVERY_KEY,JSON.stringify([entry])); }
+    return true;
+  }catch(error){ return false; }
+}
+function preserveWeeklyDropsBeforeWrite(nextDb){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const previous=JSON.parse(raw);
+    const before=weeklyDropEntryIds(previous), after=weeklyDropEntryIds(nextDb);
+    if(!Array.from(before).some(id=>!after.has(id))) return false;
+    return storeWeeklyDropRecoveryPoint(previous,'주간 드랍 감소 전 자동 보호');
+  }catch(error){ return false; }
+}
+function weeklyDropRecoverySources(){
+  const sources=weeklyDropRecoveryHistory().map(item=>({createdAt:item.createdAt||'',label:item.reason||'자동 보호본',data:item.data}));
+  normalizeBackupSnapshots(db.backupSnapshots||[]).forEach(snapshot=>sources.push({createdAt:snapshot.createdAt||'',label:snapshot.month+' 자동 보관',data:snapshot.data}));
+  return sources.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+function weeklyDropRecoveryCandidates(){
+  const candidates=[], seen=new Set();
+  weeklyDropRecoverySources().forEach(source=>{
+    const raw=ensureObj(source.data);
+    const fallbackDate=recoveryDateString(raw.updatedAt || source.createdAt);
+    const fallbackWeek=fallbackDate ? mapleWeekStart(fallbackDate) : '';
+    (Array.isArray(raw.chars)?raw.chars:[]).forEach(sourceChar=>{
+      const targetChar=recoveryCharacterFor(sourceChar);
+      if(!targetChar) return;
+      const targetKey=recoveryCharacterKey(targetChar);
+      const bundles=weeklyDropPeriodBundles(sourceChar,fallbackWeek);
+      Object.keys(bundles).forEach(week=>{
+        const sourceData=bundles[week];
+        const targetDrops=ensureObj(ensureObj(targetChar.dropWeeks)[week]);
+        const targetPrices=ensureObj(ensureObj(targetChar.dropPriceWeeks)[week]);
+        const targetShares=ensureObj(ensureObj(targetChar.dropShareWeeks)[week]);
+        const keys=new Set(Object.keys(sourceData.drops).concat(Object.keys(sourceData.prices),Object.keys(sourceData.shares)));
+        keys.forEach(key=>{
+          if(bossKindFromDropKey(key)!=='w') return;
+          const sourceChecked=!!sourceData.drops[key];
+          const sourcePrice=toMesoBig(sourceData.prices[key]);
+          if(!sourceChecked && sourcePrice<=0n) return;
+          const sourceShare=ensureObj(sourceData.shares[key]);
+          const targetShare=ensureObj(targetShares[key]);
+          const sharePatch={};
+          Object.keys(sourceShare).forEach(name=>{ if(targetShare[name]===undefined) sharePatch[name]=sourceShare[name]; });
+          const restoreDrop=sourceChecked && !targetDrops[key];
+          const restorePrice=sourcePrice>0n && toMesoBig(targetPrices[key])<=0n;
+          const restoreShare=Object.keys(sharePatch).length>0;
+          if(!restoreDrop && !restorePrice && !restoreShare) return;
+          const id=targetKey+'|'+week+'|'+key;
+          if(seen.has(id)) return;
+          seen.add(id);
+          candidates.push({char:targetChar,week,key,restoreDrop,restorePrice,restoreShare,price:mesoValueFromDigits(sourceData.prices[key]),sharePatch,source:source.label});
+        });
+      });
+    });
+  });
+  return candidates;
+}
+function weeklyDropRecoveryItemCount(candidates){
+  const items=new Set();
+  (candidates||[]).forEach(candidate=>{
+    const parent=String(candidate.key).split('|child|')[0];
+    if(isCountedDropKey(parent)) items.add(recoveryCharacterKey(candidate.char)+'|'+candidate.week+'|'+parent);
+  });
+  return items.size;
+}
+function restoreMissingWeeklyDrops(){
+  const candidates=weeklyDropRecoveryCandidates();
+  const itemCount=weeklyDropRecoveryItemCount(candidates);
+  if(!candidates.length || !itemCount){ alert('자동 보관본에서 현재 기록에 없는 주간 드랍을 찾지 못했습니다.'); return false; }
+  const weeks=Array.from(new Set(candidates.map(candidate=>candidate.week))).sort().reverse();
+  if(!confirm('자동 보관본에서 누락 가능성이 있는 주간 드랍 '+itemCount+'개를 찾았습니다. 현재 기록은 유지하고 비어 있는 드랍 체크·가격·분배 정보만 복구할까요?')) return false;
+  storeWeeklyDropRecoveryPoint(db,'드랍 복구 실행 전 보호본');
+  candidates.forEach(candidate=>{
+    const drops=dropStore(candidate.char,candidate.week,'weekly');
+    const prices=dropPriceStore(candidate.char,candidate.week,'weekly');
+    const shares=dropShareStore(candidate.char,candidate.week,'weekly');
+    if(candidate.restoreDrop) drops[candidate.key]=true;
+    if(candidate.restorePrice) prices[candidate.key]=candidate.price;
+    if(candidate.restoreShare) shares[candidate.key]=Object.assign({},candidate.sharePatch,ensureObj(shares[candidate.key]));
+  });
+  save();
+  weeklyBossViewWeek=weeks[0] || currentWeekKey();
+  renderBoss();
+  alert('주간 드랍 '+itemCount+'개를 복구했습니다. '+fmtWeekRange(weeklyBossViewWeek)+' 기록을 표시합니다.');
+  return true;
+}
 function hasTrackerDataForBackup(source=db){
   const data=ensureObj(source);
   return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0);
@@ -4327,6 +4531,7 @@ function maybeCreateMonthlyBackup(){
   return true;
 }
 function save(){
+  preserveWeeklyDropsBeforeWrite(db);
   maybeCreateMonthlyBackup();
   db.updatedAt=Date.now();
   localStorage.setItem(LS_KEY,JSON.stringify(db));
@@ -6437,6 +6642,7 @@ function renderHome(){
   const summaryEl=document.getElementById('home-summary');
   if(!summaryEl) return;
   if(maybeCreateMonthlyBackup()){
+    preserveWeeklyDropsBeforeWrite(db);
     db.updatedAt=Date.now();
     localStorage.setItem(LS_KEY,JSON.stringify(db));
   }
@@ -7119,6 +7325,7 @@ function cloudSnapshot(){
   return {
     version:CLOUD_SYNC_VERSION,
     updatedAt:Number(db.updatedAt)||Date.now(),
+    weeklyDropRecovery:weeklyDropRecoveryHistory(),
     data:exportDb()
   };
 }
@@ -7152,6 +7359,8 @@ function applyCloudSnapshot(snapshot){
   const currentApiKey=nexonApiKey();
   const source=ensureObj(snapshot.data);
   const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
+  preserveWeeklyDropsBeforeWrite(source);
+  mergeWeeklyDropRecoveryHistory(snapshot.weeklyDropRecovery);
   db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
   dailyRecordPage=0;
   weeklyStatsPage=0;
@@ -8475,6 +8684,41 @@ function refreshBossAggregateSummary(c,period,scope='weekly'){
       '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
   }
 }
+function weeklyDropItemCountForWeek(week){
+  const items=new Set();
+  db.chars.forEach(char=>{
+    const drops=ensureObj(ensureObj(char.dropWeeks)[week]);
+    Object.keys(drops).forEach(key=>{
+      if(!drops[key] || bossKindFromDropKey(key)!=='w') return;
+      const parent=String(key).split('|child|')[0];
+      if(isCountedDropKey(parent)) items.add(recoveryCharacterKey(char)+'|'+parent);
+    });
+  });
+  return items.size;
+}
+function renderWeeklyDropRecoveryPanel(viewWeek){
+  const panel=document.getElementById('weekly-drop-recovery');
+  if(!panel) return;
+  const candidates=weeklyDropRecoveryCandidates();
+  const recoverable=weeklyDropRecoveryItemCount(candidates);
+  if(recoverable){
+    const sourceCount=new Set(candidates.map(candidate=>candidate.source)).size;
+    panel.hidden=false;
+    panel.innerHTML='<span><strong>자동 보관본에서 누락 가능성이 있는 주간 드랍 '+recoverable+'개를 찾았습니다.</strong><br>현재 기록은 건드리지 않고 비어 있는 체크·가격·분배 정보만 합칩니다. 복구본 '+sourceCount+'개를 확인했습니다.</span><button class="ghost" type="button" data-recover-weekly-drops>누락 기록 복구</button>';
+    panel.querySelector('[data-recover-weekly-drops]').onclick=restoreMissingWeeklyDrops;
+    return;
+  }
+  const otherWeek=trackedWeeklyBossWeeks().find(week=>week!==viewWeek && weeklyDropItemCountForWeek(week)>0);
+  if(otherWeek){
+    const count=weeklyDropItemCountForWeek(otherWeek);
+    panel.hidden=false;
+    panel.innerHTML='<span><strong>'+fmtWeekRange(otherWeek)+' 드랍 기록 '+count+'개가 보존되어 있습니다.</strong><br>주차가 바뀌면 새 주차는 비어 보이지만 이전 기록은 해당 주차에서 확인할 수 있습니다.</span><button class="ghost" type="button" data-open-drop-week="'+esc(otherWeek)+'">해당 주차 보기</button>';
+    panel.querySelector('[data-open-drop-week]').onclick=()=>{ weeklyBossViewWeek=otherWeek; renderBoss(); };
+    return;
+  }
+  panel.hidden=true;
+  panel.innerHTML='';
+}
 function renderBoss(){
   normalizeAllBosses();
   const list=document.getElementById('charlist');
@@ -8501,6 +8745,7 @@ function renderBoss(){
     if(newerButton && newer) newerButton.onclick=()=>{ weeklyBossViewWeek=newer; renderBoss(); };
     if(currentButton && !isCurrentWeek) currentButton.onclick=()=>{ weeklyBossViewWeek=currentWeekKey(); renderBoss(); };
   }
+  renderWeeklyDropRecoveryPanel(wk);
   list.innerHTML='';
   db.chars.forEach(c=>{
     const s=charSum(c,wk);
