@@ -920,7 +920,6 @@
     .daily-record-head,.exp-tracker-head{display:grid; grid-template-columns:1fr; gap:9px;}
     .daily-record-tools{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); justify-content:stretch;}
     .daily-record-tools button{width:100%; white-space:normal;}
-    .daily-record-tools #btn-hunt-recovery-code{grid-column:1/-1;}
     .daily-record-pagination{display:grid; grid-template-columns:1fr auto 1fr; gap:5px;}
     .daily-record-pagination button{min-width:0; width:100%; padding:7px 5px; white-space:normal;}
     .daily-record-page-info{min-width:0; font-size:10px;}
@@ -1425,7 +1424,8 @@
       <div class="daily-record-tools">
         <button class="ghost" id="btn-collapse-daily-records" type="button">전체 접기</button>
         <button class="ghost" id="btn-expand-daily-records" type="button">전체 펼치기</button>
-        <button class="ghost" id="btn-hunt-recovery-code" type="button">기록 복구</button>
+        <button class="ghost" id="btn-hunt-recovery-scan" type="button">전체 복구 검사</button>
+        <button class="ghost" id="btn-hunt-recovery-code" type="button">복구 코드 입력</button>
         <button class="ghost" id="btn-export">📤 백업 (JSON)</button>
         <button class="ghost" id="btn-import">📥 복원</button>
       </div>
@@ -4010,7 +4010,9 @@ const LS_KEY = 'mapleTracker.v2';
 const LS_OLD = 'mapleTracker.v1';
 const DROP_RECOVERY_KEY = 'mapleTracker.weeklyDropRecovery.v1';
 const HUNT_RECOVERY_KEY = 'mapleTracker.huntRecovery.v1';
+const HUNT_JOURNAL_KEY = 'mapleTracker.huntJournal.v1';
 const HUNT_TOMBSTONE_LIMIT = 500;
+const HUNT_JOURNAL_LIMIT = 400;
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
@@ -4024,6 +4026,7 @@ const WEEKLY_STATS_PER_PAGE = 5;
 const MONTHLY_STATS_PER_PAGE = 5;
 const EXP_HISTORY_RETRY_MS = 4 * 60 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
+let cloudHuntRecoverySources = [];
 let communityStats = { sending:false, loading:false, timer:0, queuedFingerprint:'', sentFingerprint:'', loadedKey:'', summary:null, error:'' };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
 let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[], huntTombstones:[] };
@@ -4345,6 +4348,49 @@ function mergeHuntRecordStores(localSource,remoteSource,tombstones=[]){
   });
   return records;
 }
+function normalizeHuntJournal(value,fallbackSettings=db.settings){
+  const selected=new Map();
+  (Array.isArray(value)?value:[]).forEach((row,index)=>{
+    const o=ensureObj(row);
+    const date=normalizeDateInput(o.date) || '';
+    if(!date) return;
+    const session=normalizeHuntSession(o.session || o,fallbackSettings,index);
+    const updatedAt=normalizeHuntTimestamp(session.updatedAt,normalizeHuntTimestamp(session.createdAt));
+    const current=selected.get(session.id);
+    if(!current || updatedAt>=current.updatedAt) selected.set(session.id,{date,session,updatedAt});
+  });
+  return Array.from(selected.values())
+    .sort((a,b)=>a.updatedAt-b.updatedAt || a.date.localeCompare(b.date))
+    .slice(-HUNT_JOURNAL_LIMIT)
+    .map(entry=>({date:entry.date,session:entry.session}));
+}
+function huntJournalEntries(){
+  try{ return normalizeHuntJournal(JSON.parse(localStorage.getItem(HUNT_JOURNAL_KEY)||'[]')); }
+  catch(error){ return []; }
+}
+function mergeHuntJournal(incoming){
+  try{
+    let next=normalizeHuntJournal(huntJournalEntries().concat(Array.isArray(incoming)?incoming:[]));
+    try{ localStorage.setItem(HUNT_JOURNAL_KEY,JSON.stringify(next)); }
+    catch(error){
+      next=next.slice(-Math.max(80,Math.floor(HUNT_JOURNAL_LIMIT/2)));
+      localStorage.setItem(HUNT_JOURNAL_KEY,JSON.stringify(next));
+    }
+    return next;
+  }catch(error){ return huntJournalEntries(); }
+}
+function storeHuntJournalFromSource(source){
+  const entries=huntRecordEntries(source).map(entry=>({date:entry.date,session:entry.session}));
+  return entries.length ? mergeHuntJournal(entries) : huntJournalEntries();
+}
+function huntJournalRecoveryData(entries=huntJournalEntries()){
+  const records={};
+  normalizeHuntJournal(entries).forEach(entry=>{
+    if(!records[entry.date]) records[entry.date]={sessions:[]};
+    records[entry.date].sessions.push(entry.session);
+  });
+  return {updatedAt:Date.now(),settings:db.settings,records};
+}
 function compactHuntRecoveryData(source){
   const raw=ensureObj(source), settings=ensureObj(raw.settings);
   return {
@@ -4413,10 +4459,11 @@ function localHuntRecoverySources(){
   };
   add('페이지 시작 전 저장 원본',startupRawDbSnapshot);
   add('이전 형식 로컬 저장본',startupLegacyDbSnapshot);
+  add('재획 전표 보관함',huntJournalRecoveryData());
   try{
     for(let index=0;index<localStorage.length;index++){
       const key=localStorage.key(index);
-      if(!key || [LS_KEY,LS_OLD,DROP_RECOVERY_KEY,HUNT_RECOVERY_KEY].includes(key) || !/^mapleTracker/i.test(key)) continue;
+      if(!key || [LS_KEY,LS_OLD,DROP_RECOVERY_KEY,HUNT_RECOVERY_KEY,HUNT_JOURNAL_KEY].includes(key) || !/^mapleTracker/i.test(key)) continue;
       const parsed=JSON.parse(localStorage.getItem(key)||'null'), wrapped=ensureObj(parsed);
       add('이전 로컬 저장 '+key,wrapped.data && ensureObj(wrapped.data).records ? wrapped.data : parsed,wrapped.createdAt || wrapped.updatedAt);
     }
@@ -4429,7 +4476,7 @@ function huntRecoverySources(){
   normalizeBackupSnapshots(db.backupSnapshots||[]).forEach(snapshot=>sources.push({label:snapshot.month+' 자동 보관',createdAt:snapshot.createdAt||'',data:snapshot.data}));
   return sources.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
 }
-function huntRecoveryCandidates(extraSources=[]){
+function huntRecoveryCandidates(extraSources=cloudHuntRecoverySources){
   const candidates=[], seen=new Set();
   const currentEntries=huntRecordEntries(db);
   const currentIds=new Set(currentEntries.map(entry=>entry.id));
@@ -4501,6 +4548,42 @@ function processHuntRecoveryQuery(){
   url.searchParams.delete('hunt-recovery');
   history.replaceState(null,'',url.pathname+(url.search?'?'+url.searchParams.toString():'')+url.hash);
   restoreHuntRecoveryPackage(code);
+}
+function huntRecoveryDiagnosticPayload(){
+  return {
+    type:'maple-tracker-hunt-recovery-diagnostic',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    current:compactHuntRecoveryData(db),
+    journal:huntJournalEntries(),
+    sources:huntRecoverySources().concat(cloudHuntRecoverySources).map(source=>({
+      label:String(source.label||'복구본'),
+      createdAt:String(source.createdAt||''),
+      data:compactHuntRecoveryData(source.data)
+    }))
+  };
+}
+function downloadHuntRecoveryDiagnostic(){
+  const blob=new Blob([JSON.stringify(huntRecoveryDiagnosticPayload(),null,2)],{type:'application/json'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='maple_tracker_hunt_recovery_'+todayStr()+'.json';
+  link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href),500);
+}
+async function scanAllHuntRecoveryRecords(){
+  const button=document.getElementById('btn-hunt-recovery-scan');
+  const original=button ? button.textContent : '';
+  if(button){ button.disabled=true; button.textContent='복구본 검사 중...'; }
+  try{
+    await refreshCloudHuntRecoverySources(false);
+    const candidates=huntRecoveryCandidates();
+    if(candidates.length) return restoreHuntRecoveryEntries(candidates,'전체 보관본의 누락 가능 재획 기록');
+    if(confirm('현재 브라우저와 클라우드 보관본에서 추가로 복구할 회차를 찾지 못했습니다. 진단 파일을 내려받아 확인할까요?')) downloadHuntRecoveryDiagnostic();
+    return false;
+  }finally{
+    if(button){ button.disabled=false; button.textContent=original || '전체 복구 검사'; }
+  }
 }
 const EXPENSE_CATEGORIES=[
   {id:'equipment', name:'장비 구매'},
@@ -4907,6 +4990,7 @@ function maybeCreateMonthlyBackup(){
 function save(){
   preserveWeeklyDropsBeforeWrite(db);
   preserveHuntRecordsBeforeWrite(db);
+  storeHuntJournalFromSource(db);
   maybeCreateMonthlyBackup();
   db.huntTombstones=normalizeHuntTombstones(db.huntTombstones);
   db.updatedAt=Date.now();
@@ -4932,6 +5016,7 @@ db.profits=normalizeProfitRecords(db.profits || []);
 db.expenses=normalizeExpenseRecords(db.expenses || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
 db.huntTombstones=normalizeHuntTombstones(db.huntTombstones || []);
+storeHuntJournalFromSource(db);
 
 function normalizeAllBosses(){
   let changed=false;
@@ -6216,6 +6301,7 @@ document.getElementById('btn-expand-daily-records')?.addEventListener('click',()
   dailyRecordCollapseInitialized=true;
   renderRecords();
 });
+document.getElementById('btn-hunt-recovery-scan')?.addEventListener('click',scanAllHuntRecoveryRecords);
 document.getElementById('btn-hunt-recovery-code')?.addEventListener('click',()=>{
   const code=prompt('전달받은 재획 복구 코드를 붙여넣어 주세요. 기존 기록은 유지되고 코드에 있는 누락 회차만 합쳐집니다.');
   if(code) restoreHuntRecoveryPackage(code);
@@ -7730,6 +7816,7 @@ function cloudSnapshot(){
     updatedAt:Number(db.updatedAt)||Date.now(),
     weeklyDropRecovery:weeklyDropRecoveryHistory(),
     huntRecovery:huntRecoveryHistory().slice(0,3),
+    huntJournal:huntJournalEntries(),
     data:exportDb()
   };
 }
@@ -7756,6 +7843,32 @@ async function decryptCloudSnapshot(raw){
   if(!snapshot || snapshot.version!==CLOUD_SYNC_VERSION || !snapshot.data || !snapshot.data.records) throw new Error('클라우드 기록을 해석하지 못했습니다.');
   return snapshot;
 }
+function cloudHistoryUrl(){ return cloudUrl()+'/history?limit=20'; }
+async function refreshCloudHuntRecoverySources(showError=false){
+  if(!cloudSync.ready || cloudSync.initializing || !cloudSync.syncId || !cloudSync.encryptionKey) return cloudHuntRecoverySources;
+  try{
+    const res=await fetch(cloudHistoryUrl(),{headers:{Accept:'application/json'}});
+    if(res.status===404) return cloudHuntRecoverySources;
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const payload=ensureObj(await res.json());
+    const sources=[];
+    for(const row of (Array.isArray(payload.snapshots)?payload.snapshots:[])){
+      try{
+        const snapshot=await decryptCloudSnapshot(ensureObj(row).payload || row);
+        const savedAt=String(ensureObj(row).savedAt || snapshot.updatedAt || '');
+        sources.push({label:'클라우드 세대 보관본',createdAt:savedAt,data:snapshot.data});
+        mergeHuntRecoveryHistory(snapshot.huntRecovery);
+        mergeHuntJournal(snapshot.huntJournal);
+      }catch(error){}
+    }
+    cloudHuntRecoverySources=sources;
+    if(activePageName()==='daily') renderHuntRecoveryPanel();
+    return sources;
+  }catch(error){
+    if(showError) alert('클라우드 복구본 확인 실패: '+error.message);
+    return cloudHuntRecoverySources;
+  }
+}
 function hasLocalTrackerData(){
   return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0 || db.expenses.length>0;
 }
@@ -7772,6 +7885,9 @@ function applyCloudSnapshot(snapshot,options={}){
   preserveHuntRecordsBeforeWrite(remoteSource,'클라우드 불러오기 전 재획 보호');
   preserveCloudHuntRecords(snapshot,'클라우드 원격 재획 보호본');
   mergeHuntRecoveryHistory(snapshot.huntRecovery);
+  mergeHuntJournal(snapshot.huntJournal);
+  storeHuntJournalFromSource(localSource);
+  storeHuntJournalFromSource(remoteSource);
   const tombstones=mergeHuntTombstones(localSource.huntTombstones,remoteSource.huntTombstones);
   const mergedRecords=mergeHuntRecordStores(localSource,remoteSource,tombstones);
   const baseKeys=huntEntryLocationKeys({settings:source.settings,records:source.records});
@@ -7779,6 +7895,7 @@ function applyCloudSnapshot(snapshot,options={}){
   const needsUpload=baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key));
   const updatedAt=needsUpload ? Date.now() : (Math.max(Number(localSource.updatedAt)||0,Number(snapshot.updatedAt)||0) || Date.now());
   db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
+  storeHuntJournalFromSource(db);
   dailyRecordPage=0;
   weeklyStatsPage=0;
   monthlyStatsPage=0;
@@ -7985,6 +8102,7 @@ async function pullCloudSnapshot(manual=false){
     if(!res.ok) throw new Error('불러오기 요청 실패 (HTTP '+res.status+')');
     const snapshot=await decryptCloudSnapshot(await res.text());
     applyCloudSnapshot(snapshot);
+    await refreshCloudHuntRecoverySources(false);
     cloudSyncStatus('클라우드 기록을 불러왔습니다.','ok');
     if(manual) alert('클라우드 기록을 불러왔습니다.');
     return true;
@@ -8000,6 +8118,7 @@ async function pullCloudSnapshot(manual=false){
 function resetCloudSync(){
   clearTimeout(cloudSync.timer);
   cloudSync={ready:false,initializing:false,syncing:false,runId:cloudSync.runId+1,timer:0,syncId:'',encryptionKey:null};
+  cloudHuntRecoverySources=[];
   cloudSyncStatus('API 키를 등록하면 다른 기기에서도 기록을 불러올 수 있습니다.');
   refreshCloudSyncControls();
 }
@@ -8041,6 +8160,7 @@ async function initializeCloudSync(){
         if(result.needsUpload) await uploadCloudSnapshot(true);
         cloudSyncStatus(result.needsUpload?'클라우드와 현재 기기의 재획 기록을 안전하게 합쳤습니다.':'클라우드 기록을 자동으로 불러왔습니다.','ok');
       }
+      await refreshCloudHuntRecoverySources(false);
       if(protectedCloudDrops && activePageName()==='boss') renderWeeklyDropRecoveryPanel(weeklyBossViewWeek || currentWeekKey());
     }
   }catch(err){
@@ -9774,6 +9894,7 @@ function exportBackupBundle(){
   data.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
   data.weeklyDropRecovery=weeklyDropRecoveryHistory();
   data.huntRecovery=huntRecoveryHistory();
+  data.huntJournal=huntJournalEntries();
   return data;
 }
 document.getElementById('btn-export').onclick=()=>{
@@ -9792,6 +9913,7 @@ document.getElementById('file-import').onchange=(e)=>{
       preserveHuntRecordsBeforeWrite(data,'JSON 복원 전 재획 보호본');
       mergeWeeklyDropRecoveryHistory(data.weeklyDropRecovery);
       mergeHuntRecoveryHistory(data.huntRecovery);
+      mergeHuntJournal(data.huntJournal);
       db=trackerDbFromData(data,currentApiKey,snapshots);
       dailyRecordPage=0;
       weeklyStatsPage=0;

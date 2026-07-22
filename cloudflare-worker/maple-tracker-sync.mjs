@@ -13,6 +13,8 @@ const COMMUNITY_VERSION = 1;
 const COMMUNITY_MIN_PARTICIPANTS = 5;
 const COMMUNITY_MAX_ENTRIES = 5000;
 const COMMUNITY_MAX_PRODUCTION = 10n ** 30n;
+const SYNC_HISTORY_LIMIT = 20;
+const SYNC_HISTORY_TTL_SECONDS = 45 * 24 * 60 * 60;
 
 function corsHeaders(origin) {
   return {
@@ -33,6 +35,48 @@ function json(data, status, headers) {
 
 function validSyncId(id) {
   return /^[a-f0-9]{64}$/i.test(id);
+}
+
+function syncHistoryPrefix(id) {
+  return 'history:v1:' + id.toLowerCase() + ':';
+}
+
+function syncHistoryKey(id, savedAt) {
+  const suffix = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+  return syncHistoryPrefix(id) + String(savedAt).padStart(13, '0') + ':' + suffix;
+}
+
+function syncHistorySavedAt(key) {
+  const parts = String(key || '').split(':');
+  const value = Number(parts[3]);
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+async function storeSyncHistory(env, id, body) {
+  const savedAt = Date.now();
+  await env.DATA.put(syncHistoryKey(id, savedAt), body, { expirationTtl: SYNC_HISTORY_TTL_SECONDS });
+  const page = await env.DATA.list({ prefix: syncHistoryPrefix(id), limit: 1000 });
+  const oldKeys = page.keys
+    .slice()
+    .sort((a, b) => syncHistorySavedAt(b.name) - syncHistorySavedAt(a.name))
+    .slice(SYNC_HISTORY_LIMIT);
+  await Promise.all(oldKeys.map(key => env.DATA.delete(key.name)));
+}
+
+async function readSyncHistory(env, id, limit) {
+  const page = await env.DATA.list({ prefix: syncHistoryPrefix(id), limit: 1000 });
+  const keys = page.keys
+    .slice()
+    .sort((a, b) => syncHistorySavedAt(b.name) - syncHistorySavedAt(a.name))
+    .slice(0, limit);
+  const values = await Promise.all(keys.map(key => env.DATA.get(key.name)));
+  return keys.map((key, index) => {
+    try {
+      return values[index] ? { savedAt: syncHistorySavedAt(key.name), payload: JSON.parse(values[index]) } : null;
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
 }
 
 function validCommunityWeek(value) {
@@ -130,6 +174,14 @@ export default {
     if (url.pathname === '/health') return json({ ok: true }, 200, headers);
     if (!ALLOWED_ORIGINS.has(origin)) return json({ error: 'Origin not allowed' }, 403, headers);
 
+    const syncHistoryMatch = url.pathname.match(/^\/v1\/sync\/([a-f0-9]{64})\/history$/i);
+    if (syncHistoryMatch && validSyncId(syncHistoryMatch[1])) {
+      if (request.method !== 'GET') return json({ error: 'Method not allowed' }, 405, { ...headers, Allow: 'GET, OPTIONS' });
+      const limit = Math.max(1, Math.min(SYNC_HISTORY_LIMIT, Number(url.searchParams.get('limit')) || SYNC_HISTORY_LIMIT));
+      const snapshots = await readSyncHistory(env, syncHistoryMatch[1], limit);
+      return json({ version: 1, snapshots }, 200, headers);
+    }
+
     const syncMatch = url.pathname.match(/^\/v1\/sync\/([a-f0-9]{64})$/i);
     if (syncMatch && validSyncId(syncMatch[1])) {
       const key = 'v1:' + syncMatch[1].toLowerCase();
@@ -151,7 +203,10 @@ export default {
         if (!payload || payload.version !== 1 || typeof payload.iv !== 'string' || typeof payload.ciphertext !== 'string') {
           return json({ error: 'Invalid sync payload' }, 400, headers);
         }
-        await env.DATA.put(key, body);
+        await Promise.all([
+          env.DATA.put(key, body),
+          storeSyncHistory(env, syncMatch[1], body)
+        ]);
         return json({ ok: true, updatedAt: Date.now() }, 200, headers);
       }
       return json({ error: 'Method not allowed' }, 405, { ...headers, Allow: 'GET, PUT, OPTIONS' });
