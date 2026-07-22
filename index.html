@@ -920,6 +920,7 @@
     .daily-record-head,.exp-tracker-head{display:grid; grid-template-columns:1fr; gap:9px;}
     .daily-record-tools{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); justify-content:stretch;}
     .daily-record-tools button{width:100%; white-space:normal;}
+    .daily-record-tools #btn-hunt-recovery-code{grid-column:1/-1;}
     .daily-record-pagination{display:grid; grid-template-columns:1fr auto 1fr; gap:5px;}
     .daily-record-pagination button{min-width:0; width:100%; padding:7px 5px; white-space:normal;}
     .daily-record-page-info{min-width:0; font-size:10px;}
@@ -1424,11 +1425,13 @@
       <div class="daily-record-tools">
         <button class="ghost" id="btn-collapse-daily-records" type="button">전체 접기</button>
         <button class="ghost" id="btn-expand-daily-records" type="button">전체 펼치기</button>
+        <button class="ghost" id="btn-hunt-recovery-code" type="button">기록 복구</button>
         <button class="ghost" id="btn-export">📤 백업 (JSON)</button>
         <button class="ghost" id="btn-import">📥 복원</button>
       </div>
       <input type="file" id="file-import" accept=".json" style="display:none;">
     </div>
+    <div class="weekly-drop-recovery" id="hunt-record-recovery" hidden></div>
     <div class="daily-record-pagination" id="daily-record-pagination"></div>
     <div class="daily-record-list" id="daily-record-list"></div>
   </div>
@@ -4006,6 +4009,8 @@ function setDailyBossPreference(c,g,bossId,party){
 const LS_KEY = 'mapleTracker.v2';
 const LS_OLD = 'mapleTracker.v1';
 const DROP_RECOVERY_KEY = 'mapleTracker.weeklyDropRecovery.v1';
+const HUNT_RECOVERY_KEY = 'mapleTracker.huntRecovery.v1';
+const HUNT_TOMBSTONE_LIMIT = 500;
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
@@ -4021,7 +4026,7 @@ const EXP_HISTORY_RETRY_MS = 4 * 60 * 60 * 1000;
 let cloudSync = { ready:false, initializing:false, syncing:false, runId:0, timer:0, syncId:'', encryptionKey:null };
 let communityStats = { sending:false, loading:false, timer:0, queuedFingerprint:'', sentFingerprint:'', loadedKey:'', summary:null, error:'' };
 let nexonAutoRefresh = { timer:0, timeout:0, running:false };
-let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[] };
+let db = { records:{}, chars:[], settings:{}, profits:[], expenses:[], backupSnapshots:[], huntTombstones:[] };
 let monthlyBossMigrationPendingSave = false;
 let dailyRecordPage = 0;
 let collapsedDailyRecordDates = new Set();
@@ -4170,6 +4175,14 @@ function formatHuntRuns(value){
   const runs=Number.isFinite(parsed) && parsed>=0 ? Math.round(parsed*2)/2 : 0;
   return Number.isInteger(runs) ? String(runs) : runs.toFixed(1);
 }
+function normalizeHuntTimestamp(value, fallback=Date.now()){
+  const numeric=Number(value);
+  if(Number.isFinite(numeric) && numeric>0) return Math.floor(numeric);
+  const parsed=Date.parse(String(value || ''));
+  if(Number.isFinite(parsed) && parsed>0) return parsed;
+  const fallbackNumeric=Number(fallback);
+  return Number.isFinite(fallbackNumeric) && fallbackNumeric>=0 ? Math.floor(fallbackNumeric) : Date.now();
+}
 function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
   const defaults=ensureObj(fallbackSettings);
   const o=value && typeof value==='object' && !Array.isArray(value) ? value : {meso:value};
@@ -4179,6 +4192,7 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
   const runs=kind==='hunt' ? normalizeHuntRunValue(o.runs ?? o.huntCount ?? o.runCount ?? 1) : 0;
   const erda=Math.max(0,Math.floor(Number(o.erda)||0));
   const erdaSettled=Math.max(0,Math.min(erda,Math.floor(Number(o.erdaSettled)||0)));
+  const createdAt=String(o.createdAt || o.timestamp || Date.now());
   return {
     id:String(o.id || createHuntSessionId(kind==='erda-settlement'?'settlement':'hunt')).trim() || createHuntSessionId(kind),
     kind,
@@ -4191,7 +4205,8 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
     erdaFee:validDropFee(hasErdaFee ? o.erdaFee : defaults.erdaFee),
     extraIncome:mesoValueFromDigits(o.extraIncome || o.extra || o.sideIncome || 0),
     charName:String(o.charName || o.character || o.char || '').trim(),
-    createdAt:String(o.createdAt || o.timestamp || Date.now()),
+    createdAt,
+    updatedAt:normalizeHuntTimestamp(o.updatedAt || o.modifiedAt,normalizeHuntTimestamp(createdAt)),
     settlementFrom:normalizeDateInput(o.settlementFrom) || '',
     settlementTo:normalizeDateInput(o.settlementTo) || '',
     settlementSources:normalizeErdaSettlementSources(o.settlementSources)
@@ -4239,9 +4254,253 @@ function normalizeRecords(records, fallbackSettings=db.settings){
   const out={};
   ensureObj(records) && Object.keys(ensureObj(records)).forEach(date=>{
     const normalizedDate=normalizeDateInput(date) || date;
-    out[normalizedDate]=normalizeRecord(records[date],fallbackSettings);
+    const incoming=normalizeRecord(records[date],fallbackSettings);
+    if(out[normalizedDate]) out[normalizedDate]=recordFromSessions(normalizeRecord(out[normalizedDate],fallbackSettings).sessions.concat(incoming.sessions),fallbackSettings);
+    else out[normalizedDate]=incoming;
   });
   return out;
+}
+function normalizeHuntTombstones(value){
+  const latest=new Map();
+  (Array.isArray(value)?value:[]).forEach(entry=>{
+    const o=ensureObj(entry), id=String(o.id || '').trim();
+    const date=normalizeDateInput(o.date) || '';
+    const deletedAt=normalizeHuntTimestamp(o.deletedAt,0);
+    if(!id || !deletedAt) return;
+    const current=latest.get(id);
+    if(!current || current.deletedAt<deletedAt) latest.set(id,{id,date,deletedAt});
+  });
+  return Array.from(latest.values()).sort((a,b)=>b.deletedAt-a.deletedAt).slice(0,HUNT_TOMBSTONE_LIMIT);
+}
+function addHuntTombstone(session,date){
+  const s=normalizeHuntSession(session);
+  if(!s.id) return;
+  db.huntTombstones=normalizeHuntTombstones([{id:s.id,date:normalizeDateInput(date)||'',deletedAt:Date.now()}].concat(db.huntTombstones || []));
+}
+function huntRecoveryHash(value){
+  let hash=2166136261;
+  const text=String(value || '');
+  for(let i=0;i<text.length;i++){
+    hash^=text.charCodeAt(i);
+    hash=Math.imul(hash,16777619);
+  }
+  return (hash>>>0).toString(36);
+}
+function huntSessionFingerprint(date,session){
+  const s=normalizeHuntSession(session);
+  return [normalizeDateInput(date)||date,s.kind,formatHuntRuns(s.runs),s.label,s.meso,s.erda,s.erdaSettled,s.erdaUnitPrice,s.erdaFee,s.extraIncome,s.charName,s.settlementFrom,s.settlementTo,JSON.stringify(s.settlementSources)].join('|');
+}
+function huntRecordEntries(source){
+  const raw=ensureObj(source), records=ensureObj(raw.records), settings=normalizeSettings(Object.assign({},ensureObj(raw.settings)));
+  const entries=[];
+  Object.keys(records).forEach(rawDate=>{
+    const date=normalizeDateInput(rawDate) || rawDate;
+    const record=ensureObj(records[rawDate]);
+    const sourceSessions=Array.isArray(record.sessions) && record.sessions.length ? record.sessions : [record];
+    sourceSessions.forEach((value,index)=>{
+      const session=normalizeHuntSession(value,settings,index);
+      const fingerprint=huntSessionFingerprint(date,session);
+      const rawId=String(ensureObj(value).id || '').trim();
+      if(!rawId) session.id='hunt_legacy_'+huntRecoveryHash(fingerprint+'|'+index);
+      entries.push({date,session,id:session.id,fingerprint:huntSessionFingerprint(date,session)});
+    });
+  });
+  return entries;
+}
+function huntEntryLocationKeys(source){
+  return new Set(huntRecordEntries(source).map(entry=>entry.date+'|'+entry.id+'|'+entry.fingerprint));
+}
+function mergeHuntTombstones(localValue,remoteValue){
+  return normalizeHuntTombstones((Array.isArray(localValue)?localValue:[]).concat(Array.isArray(remoteValue)?remoteValue:[]));
+}
+function mergeHuntRecordStores(localSource,remoteSource,tombstones=[]){
+  const localRaw=ensureObj(localSource), remoteRaw=ensureObj(remoteSource);
+  const selected=new Map();
+  const consider=(entry,priority)=>{
+    const key=entry.id || ('legacy:'+entry.fingerprint);
+    const current=selected.get(key);
+    const updatedAt=normalizeHuntTimestamp(entry.session.updatedAt,normalizeHuntTimestamp(entry.session.createdAt));
+    if(!current || updatedAt>current.updatedAt || (updatedAt===current.updatedAt && priority>current.priority)) selected.set(key,{entry,priority,updatedAt});
+  };
+  huntRecordEntries(remoteRaw).forEach(entry=>consider(entry,1));
+  huntRecordEntries(localRaw).forEach(entry=>consider(entry,2));
+  const deleted=new Map(normalizeHuntTombstones(tombstones).map(entry=>[entry.id,entry.deletedAt]));
+  const byDate={};
+  const seenLegacyFingerprint=new Set();
+  selected.forEach(({entry,updatedAt})=>{
+    if((deleted.get(entry.id)||0)>=updatedAt) return;
+    if(entry.id.startsWith('hunt_legacy_')){
+      const duplicateKey=entry.date+'|'+entry.fingerprint;
+      if(seenLegacyFingerprint.has(duplicateKey)) return;
+      seenLegacyFingerprint.add(duplicateKey);
+    }
+    if(!byDate[entry.date]) byDate[entry.date]=[];
+    byDate[entry.date].push(entry.session);
+  });
+  const settings=normalizeSettings(Object.assign({},ensureObj(remoteRaw.settings),ensureObj(localRaw.settings)));
+  const records={};
+  Object.keys(byDate).sort().forEach(date=>{
+    byDate[date].sort((a,b)=>normalizeHuntTimestamp(a.createdAt)-normalizeHuntTimestamp(b.createdAt));
+    records[date]=recordFromSessions(byDate[date],settings);
+  });
+  return records;
+}
+function compactHuntRecoveryData(source){
+  const raw=ensureObj(source), settings=ensureObj(raw.settings);
+  return {
+    updatedAt:Number(raw.updatedAt)||Date.now(),
+    settings:{erdaPrice:mesoValueFromDigits(settings.erdaPrice||0),erdaFee:validDropFee(settings.erdaFee),includeErdaMeso:!!settings.includeErdaMeso},
+    records:JSON.parse(JSON.stringify(ensureObj(raw.records))),
+    huntTombstones:normalizeHuntTombstones(raw.huntTombstones)
+  };
+}
+function huntRecoveryHistory(){
+  try{
+    const history=JSON.parse(localStorage.getItem(HUNT_RECOVERY_KEY)||'[]');
+    return Array.isArray(history) ? history.filter(item=>item && item.data && item.data.records).slice(0,8) : [];
+  }catch(error){ return []; }
+}
+function mergeHuntRecoveryHistory(incoming){
+  try{
+    const merged=new Map();
+    huntRecoveryHistory().concat(Array.isArray(incoming)?incoming:[]).forEach(item=>{
+      if(!item || !ensureObj(item.data).records) return;
+      const id=String(item.id || ('hunt_recovery_'+String(item.createdAt||'')));
+      if(!merged.has(id)) merged.set(id,item);
+    });
+    const next=Array.from(merged.values()).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,8);
+    localStorage.setItem(HUNT_RECOVERY_KEY,JSON.stringify(next));
+    return next;
+  }catch(error){ return huntRecoveryHistory(); }
+}
+function storeHuntRecoveryPoint(source,reason='재획 기록 자동 보호'){
+  try{
+    const compact=compactHuntRecoveryData(source);
+    if(!huntRecordEntries(compact).length) return false;
+    const entry={id:'hunt_recovery_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),createdAt:new Date().toISOString(),reason,data:compact};
+    const next=[entry].concat(huntRecoveryHistory()).slice(0,8);
+    try{ localStorage.setItem(HUNT_RECOVERY_KEY,JSON.stringify(next)); }
+    catch(error){ localStorage.setItem(HUNT_RECOVERY_KEY,JSON.stringify([entry])); }
+    return true;
+  }catch(error){ return false; }
+}
+function preserveHuntRecordsBeforeWrite(nextDb,reason='재획 기록 감소 전 자동 보호'){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const previous=JSON.parse(raw);
+    const before=huntEntryLocationKeys(previous), after=huntEntryLocationKeys(nextDb);
+    if(!Array.from(before).some(key=>!after.has(key))) return false;
+    return storeHuntRecoveryPoint(previous,reason);
+  }catch(error){ return false; }
+}
+function preserveCloudHuntRecords(snapshot,reason='클라우드 재획 기록 자동 보호'){
+  try{
+    const remote=ensureObj(snapshot && snapshot.data);
+    if(!remote.records) return false;
+    mergeHuntRecoveryHistory(snapshot.huntRecovery);
+    const localKeys=huntEntryLocationKeys(db), remoteKeys=huntEntryLocationKeys(remote);
+    if(!Array.from(remoteKeys).some(key=>!localKeys.has(key))) return false;
+    return storeHuntRecoveryPoint(remote,reason);
+  }catch(error){ return false; }
+}
+function localHuntRecoverySources(){
+  const sources=[];
+  const add=(label,data,createdAt='')=>{
+    const raw=ensureObj(data);
+    if(!raw.records || !huntRecordEntries(raw).length) return;
+    sources.push({label,createdAt:String(createdAt || raw.updatedAt || ''),data:raw});
+  };
+  add('페이지 시작 전 저장 원본',startupRawDbSnapshot);
+  add('이전 형식 로컬 저장본',startupLegacyDbSnapshot);
+  try{
+    for(let index=0;index<localStorage.length;index++){
+      const key=localStorage.key(index);
+      if(!key || [LS_KEY,LS_OLD,DROP_RECOVERY_KEY,HUNT_RECOVERY_KEY].includes(key) || !/^mapleTracker/i.test(key)) continue;
+      const parsed=JSON.parse(localStorage.getItem(key)||'null'), wrapped=ensureObj(parsed);
+      add('이전 로컬 저장 '+key,wrapped.data && ensureObj(wrapped.data).records ? wrapped.data : parsed,wrapped.createdAt || wrapped.updatedAt);
+    }
+  }catch(error){}
+  return sources;
+}
+function huntRecoverySources(){
+  const sources=huntRecoveryHistory().map(item=>({label:item.reason||'자동 보호본',createdAt:item.createdAt||'',data:item.data}));
+  localHuntRecoverySources().forEach(source=>sources.push(source));
+  normalizeBackupSnapshots(db.backupSnapshots||[]).forEach(snapshot=>sources.push({label:snapshot.month+' 자동 보관',createdAt:snapshot.createdAt||'',data:snapshot.data}));
+  return sources.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+function huntRecoveryCandidates(extraSources=[]){
+  const candidates=[], seen=new Set();
+  const currentEntries=huntRecordEntries(db);
+  const currentIds=new Set(currentEntries.map(entry=>entry.id));
+  const currentFingerprints=new Set(currentEntries.filter(entry=>entry.id.startsWith('hunt_legacy_')).map(entry=>entry.date+'|'+entry.fingerprint));
+  const deleted=new Map(normalizeHuntTombstones(db.huntTombstones).map(entry=>[entry.id,entry.deletedAt]));
+  huntRecoverySources().concat(Array.isArray(extraSources)?extraSources:[]).forEach(source=>{
+    huntRecordEntries(source.data).forEach(entry=>{
+      const fingerprintKey=entry.date+'|'+entry.fingerprint;
+      const entryUpdatedAt=normalizeHuntTimestamp(entry.session.updatedAt,normalizeHuntTimestamp(entry.session.createdAt));
+      if((deleted.get(entry.id)||0)>=entryUpdatedAt) return;
+      if(currentIds.has(entry.id) || (entry.id.startsWith('hunt_legacy_') && currentFingerprints.has(fingerprintKey))) return;
+      const key=entry.date+'|'+entry.id+'|'+entry.fingerprint;
+      if(seen.has(key) || entry.session.kind==='erda-settlement') return;
+      seen.add(key);
+      candidates.push({date:entry.date,session:entry.session,source:source.label||'복구본'});
+    });
+  });
+  return candidates.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function restoreHuntRecoveryEntries(entries,description='누락 가능 재획 기록'){
+  const rows=Array.isArray(entries)?entries:[];
+  if(!rows.length){ alert('현재 기록에 없는 재획 회차를 찾지 못했습니다.'); return false; }
+  const dates=[...new Set(rows.map(row=>row.date))].sort();
+  if(!confirm(description+' '+rows.length+'개를 찾았습니다. 기존 기록은 유지하고 '+dates.join(', ')+' 회차만 합칠까요?')) return false;
+  storeHuntRecoveryPoint(db,'재획 복구 실행 전 보호본');
+  const incoming={settings:db.settings,records:{}};
+  rows.forEach(row=>{
+    if(!incoming.records[row.date]) incoming.records[row.date]={sessions:[]};
+    incoming.records[row.date].sessions.push(row.session);
+  });
+  const restoredIds=new Set(rows.map(row=>String(row.session.id||'')));
+  db.huntTombstones=normalizeHuntTombstones(db.huntTombstones).filter(entry=>!restoredIds.has(entry.id));
+  db.records=mergeHuntRecordStores(db,incoming,db.huntTombstones);
+  save();
+  dailyRecordPage=0;
+  dates.forEach(date=>collapsedDailyRecordDates.delete(date));
+  renderAll();
+  alert('재획 기록 '+rows.length+'개를 복구했습니다.');
+  return true;
+}
+function decodeHuntRecoveryPackage(value){
+  const raw=String(value || '').trim();
+  if(!raw) throw new Error('복구 코드가 비어 있습니다.');
+  let text=raw;
+  if(raw[0]!=='{'){
+    const normalized=raw.replace(/-/g,'+').replace(/_/g,'/');
+    const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+    const bytes=Uint8Array.from(atob(padded),char=>char.charCodeAt(0));
+    text=new TextDecoder().decode(bytes);
+  }
+  const payload=JSON.parse(text);
+  if(!payload || payload.type!=='maple-tracker-hunt-recovery' || !ensureObj(payload.data).records) throw new Error('올바른 재획 복구 코드가 아닙니다.');
+  return payload;
+}
+function restoreHuntRecoveryPackage(value){
+  try{
+    const payload=decodeHuntRecoveryPackage(value);
+    const source={label:payload.label||'복구 코드',data:payload.data};
+    const entries=huntRecordEntries(payload.data).map(entry=>({date:entry.date,session:entry.session,source:source.label}));
+    const currentIds=new Set(huntRecordEntries(db).map(entry=>entry.id));
+    const currentFingerprints=new Set(huntRecordEntries(db).filter(entry=>entry.id.startsWith('hunt_legacy_')).map(entry=>entry.date+'|'+entry.fingerprint));
+    const missing=entries.filter(entry=>!currentIds.has(entry.session.id) && !(entry.session.id.startsWith('hunt_legacy_') && currentFingerprints.has(entry.date+'|'+huntSessionFingerprint(entry.date,entry.session))));
+    return restoreHuntRecoveryEntries(missing,payload.label||'재획 복구 기록');
+  }catch(error){ alert('재획 기록 복구 실패: '+error.message); return false; }
+}
+function processHuntRecoveryQuery(){
+  const url=new URL(location.href), code=url.searchParams.get('hunt-recovery');
+  if(!code) return;
+  url.searchParams.delete('hunt-recovery');
+  history.replaceState(null,'',url.pathname+(url.search?'?'+url.searchParams.toString():'')+url.hash);
+  restoreHuntRecoveryPackage(code);
 }
 const EXPENSE_CATEGORIES=[
   {id:'equipment', name:'장비 구매'},
@@ -4647,7 +4906,9 @@ function maybeCreateMonthlyBackup(){
 }
 function save(){
   preserveWeeklyDropsBeforeWrite(db);
+  preserveHuntRecordsBeforeWrite(db);
   maybeCreateMonthlyBackup();
+  db.huntTombstones=normalizeHuntTombstones(db.huntTombstones);
   db.updatedAt=Date.now();
   localStorage.setItem(LS_KEY,JSON.stringify(db));
   queueCloudSync();
@@ -4670,6 +4931,7 @@ db.chars=(Array.isArray(db.chars) ? db.chars : []).map(normalizeChar);
 db.profits=normalizeProfitRecords(db.profits || []);
 db.expenses=normalizeExpenseRecords(db.expenses || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
+db.huntTombstones=normalizeHuntTombstones(db.huntTombstones || []);
 
 function normalizeAllBosses(){
   let changed=false;
@@ -5241,7 +5503,8 @@ function writeHuntSessions(date,sessions){
 }
 function appendHuntSession(date,session){
   const sessions=huntSessionsForDate(date);
-  const normalized=normalizeHuntSession(Object.assign({id:createHuntSessionId(session.kind==='erda-settlement'?'settlement':'hunt'),createdAt:Date.now()},session),db.settings,sessions.length);
+  const now=Date.now();
+  const normalized=normalizeHuntSession(Object.assign({id:createHuntSessionId(session.kind==='erda-settlement'?'settlement':'hunt'),createdAt:now,updatedAt:now},session),db.settings,sessions.length);
   sessions.push(normalized);
   writeHuntSessions(date,sessions);
   return normalized;
@@ -5341,6 +5604,7 @@ function saveHuntEntry(){
       id:previous.id,
       kind:'hunt',
       createdAt:previous.createdAt,
+      updatedAt:Date.now(),
       erdaSettled:previous.erdaSettled,
       erdaUnitPrice:previous.erdaUnitPrice,
       erdaFee:previous.erdaFee
@@ -5384,10 +5648,14 @@ function deleteHuntSession(date,id){
   const target=sessions.find(session=>session.id===id);
   if(!target) return;
   restoreErdaSettlement(target);
+  addHuntTombstone(target,date);
   writeHuntSessions(date,sessions.filter(session=>session.id!==id));
 }
 function deleteHuntDate(date){
-  huntSessionsForDate(date).forEach(restoreErdaSettlement);
+  huntSessionsForDate(date).forEach(session=>{
+    restoreErdaSettlement(session);
+    addHuntTombstone(session,date);
+  });
   delete db.records[date];
 }
 function availableErdaSources(start='2000-01-01',end=todayStr()){
@@ -5840,9 +6108,21 @@ function renderExpTracker(){
     '<div class="exp-history-grid">'+expBarHistoryHtml(days,currentLevel)+expLevelHistoryHtml(history)+'</div>';
   bindExpTooltipEvents(el);
 }
+function renderHuntRecoveryPanel(){
+  const panel=document.getElementById('hunt-record-recovery');
+  if(!panel) return;
+  const candidates=huntRecoveryCandidates();
+  if(!candidates.length){ panel.hidden=true; panel.innerHTML=''; return; }
+  const dates=[...new Set(candidates.map(candidate=>candidate.date))].sort();
+  panel.hidden=false;
+  panel.innerHTML='<span><strong>자동 보호본에서 현재 목록에 없는 재획 기록 '+candidates.length+'개를 찾았습니다.</strong><br>'+esc(dates.join(', '))+' 기록을 기존 회차에 덮어쓰지 않고 합칠 수 있습니다.</span><div class="weekly-drop-recovery-actions"><button class="ghost" type="button" data-recover-hunt-records>누락 기록 복구</button></div>';
+  const button=panel.querySelector('[data-recover-hunt-records]');
+  if(button) button.onclick=()=>restoreHuntRecoveryEntries(huntRecoveryCandidates());
+}
 function renderRecords(){
   const list=document.getElementById('daily-record-list');
   if(!list) return;
+  renderHuntRecoveryPanel();
   const asc=sortedDates(true);
   let cumM=0n, cumE=0;
   const totals={};
@@ -5935,6 +6215,10 @@ document.getElementById('btn-expand-daily-records')?.addEventListener('click',()
   collapsedDailyRecordDates.clear();
   dailyRecordCollapseInitialized=true;
   renderRecords();
+});
+document.getElementById('btn-hunt-recovery-code')?.addEventListener('click',()=>{
+  const code=prompt('전달받은 재획 복구 코드를 붙여넣어 주세요. 기존 기록은 유지되고 코드에 있는 누락 회차만 합쳐집니다.');
+  if(code) restoreHuntRecoveryPackage(code);
 });
 
 /* ───────── 통계 ───────── */
@@ -6573,6 +6857,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
     profits:normalizeProfitRecords(raw.profits||[]),
     expenses:normalizeExpenseRecords(raw.expenses||[]),
     backupSnapshots:normalizeBackupSnapshots(snapshots),
+    huntTombstones:normalizeHuntTombstones(raw.huntTombstones||[]),
     updatedAt:Number(raw.updatedAt)||Date.now()
   };
 }
@@ -6581,6 +6866,7 @@ function restoreBackupSnapshot(id){
   const snapshot=snapshots.find(item=>item.id===id);
   if(!snapshot || !snapshot.data) return;
   if(!confirm(snapshot.month+' 자동 보관 기록으로 복원할까요? 현재 기록은 먼저 JSON으로 백업해 두는 것을 권장합니다.')) return;
+  preserveHuntRecordsBeforeWrite(snapshot.data,'월간 자동 보관 복원 전 보호본');
   const apiKey=nexonApiKey();
   db=trackerDbFromData(snapshot.data,apiKey,snapshots);
   dailyRecordPage=0;
@@ -7443,6 +7729,7 @@ function cloudSnapshot(){
     version:CLOUD_SYNC_VERSION,
     updatedAt:Number(db.updatedAt)||Date.now(),
     weeklyDropRecovery:weeklyDropRecoveryHistory(),
+    huntRecovery:huntRecoveryHistory().slice(0,3),
     data:exportDb()
   };
 }
@@ -7472,14 +7759,26 @@ async function decryptCloudSnapshot(raw){
 function hasLocalTrackerData(){
   return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0 || db.expenses.length>0;
 }
-function applyCloudSnapshot(snapshot){
+function applyCloudSnapshot(snapshot,options={}){
   const currentApiKey=nexonApiKey();
-  const source=ensureObj(snapshot.data);
-  const snapshots=normalizeBackupSnapshots((db.backupSnapshots || []).concat(source.backupSnapshots || []));
-  preserveWeeklyDropsBeforeWrite(source);
+  const remoteSource=ensureObj(snapshot.data);
+  const localSource=backupDataPayload(db);
+  const preferLocal=!!ensureObj(options).preferLocal;
+  const source=preferLocal ? localSource : remoteSource;
+  const snapshots=normalizeBackupSnapshots((db.backupSnapshots || []).concat(remoteSource.backupSnapshots || []));
+  preserveWeeklyDropsBeforeWrite(remoteSource);
   preserveCloudWeeklyDrops(snapshot,'클라우드 불러오기 전 드랍 보호');
   mergeWeeklyDropRecoveryHistory(snapshot.weeklyDropRecovery);
-  db=trackerDbFromData(Object.assign({},source,{updatedAt:Number(snapshot.updatedAt)||Date.now()}),currentApiKey,snapshots);
+  preserveHuntRecordsBeforeWrite(remoteSource,'클라우드 불러오기 전 재획 보호');
+  preserveCloudHuntRecords(snapshot,'클라우드 원격 재획 보호본');
+  mergeHuntRecoveryHistory(snapshot.huntRecovery);
+  const tombstones=mergeHuntTombstones(localSource.huntTombstones,remoteSource.huntTombstones);
+  const mergedRecords=mergeHuntRecordStores(localSource,remoteSource,tombstones);
+  const baseKeys=huntEntryLocationKeys({settings:source.settings,records:source.records});
+  const mergedKeys=huntEntryLocationKeys({settings:source.settings,records:mergedRecords});
+  const needsUpload=baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key));
+  const updatedAt=needsUpload ? Date.now() : (Math.max(Number(localSource.updatedAt)||0,Number(snapshot.updatedAt)||0) || Date.now());
+  db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
   dailyRecordPage=0;
   weeklyStatsPage=0;
   monthlyStatsPage=0;
@@ -7489,6 +7788,8 @@ function applyCloudSnapshot(snapshot){
   initNexonApiControls();
   scheduleNexonAutoRefresh();
   renderAll();
+  if(needsUpload) queueCloudSync();
+  return {needsUpload,recordCount:huntRecordEntries(db).length};
 }
 function cloudUrl(){ return CLOUD_SYNC_ENDPOINT+'/v1/sync/'+cloudSync.syncId; }
 async function uploadCloudSnapshot(silent=true){
@@ -7732,11 +8033,13 @@ async function initializeCloudSync(){
       cloudSync.ready=true;
       cloudSync.initializing=false;
       if(hasLocalTrackerData() && localUpdatedAt>remoteUpdatedAt){
+        applyCloudSnapshot(snapshot,{preferLocal:true});
         await uploadCloudSnapshot(true);
         cloudSyncStatus('현재 기기의 더 최신 기록을 저장했습니다.');
       }else{
-        applyCloudSnapshot(snapshot);
-        cloudSyncStatus('클라우드 기록을 자동으로 불러왔습니다.','ok');
+        const result=applyCloudSnapshot(snapshot);
+        if(result.needsUpload) await uploadCloudSnapshot(true);
+        cloudSyncStatus(result.needsUpload?'클라우드와 현재 기기의 재획 기록을 안전하게 합쳤습니다.':'클라우드 기록을 자동으로 불러왔습니다.','ok');
       }
       if(protectedCloudDrops && activePageName()==='boss') renderWeeklyDropRecoveryPanel(weeklyBossViewWeek || currentWeekKey());
     }
@@ -8372,7 +8675,7 @@ function initNexonApiControls(){
 }
 initNexonApiControls();
 initCloudSyncControls();
-initializeCloudSync();
+initializeCloudSync().finally(processHuntRecoveryQuery);
 scheduleNexonAutoRefresh();
 initExpenseControls();
 function initCharacterGuideModal(){
@@ -9470,6 +9773,7 @@ function exportBackupBundle(){
   const data=exportDb();
   data.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
   data.weeklyDropRecovery=weeklyDropRecoveryHistory();
+  data.huntRecovery=huntRecoveryHistory();
   return data;
 }
 document.getElementById('btn-export').onclick=()=>{
@@ -9485,7 +9789,9 @@ document.getElementById('file-import').onchange=(e)=>{
       if(!data.records) throw new Error('형식 오류');
       const currentApiKey=nexonApiKey();
       const snapshots=normalizeBackupSnapshots((db.backupSnapshots || []).concat(data.backupSnapshots || []));
+      preserveHuntRecordsBeforeWrite(data,'JSON 복원 전 재획 보호본');
       mergeWeeklyDropRecoveryHistory(data.weeklyDropRecovery);
+      mergeHuntRecoveryHistory(data.huntRecovery);
       db=trackerDbFromData(data,currentApiKey,snapshots);
       dailyRecordPage=0;
       weeklyStatsPage=0;

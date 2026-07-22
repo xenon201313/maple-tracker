@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:data-safety": "node scripts/test-hunt-data-safety.cjs",
     "prepare:android-web": "node scripts/prepare-android-web.mjs",
     "sync:android": "npm run prepare:android-web && npx cap sync android",
     "open:android": "npx cap open android",
