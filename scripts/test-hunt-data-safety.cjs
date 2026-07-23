@@ -70,6 +70,17 @@ assert(!deleted['2026-07-15']);
 const normalized=normalizeRecords({'2026-7-6':{sessions:[makeSession('one','2026-07-06',1)]},'2026/7/6':{sessions:[makeSession('two','2026-07-06',2)]}},local.settings);
 assert.strictEqual(normalized['2026-07-06'].sessions.length,2);
 
+const aggregateRecovery=normalizeHuntSession({
+  id:'hunt_server_recovery_20260717_20260721',
+  kind:'recovery-adjustment',
+  runs:0,
+  label:'07-17~07-21 서버 집계 복구',
+  meso:'21618066987'
+},local.settings);
+assert.strictEqual(aggregateRecovery.kind,'recovery-adjustment');
+assert.strictEqual(huntSessionRunCount(aggregateRecovery),0);
+assert.strictEqual(aggregateRecovery.meso,'21618066987');
+
 mergeHuntJournal(huntRecordEntries(local).map(entry=>({date:entry.date,session:entry.session})));
 assert.strictEqual(huntJournalEntries().length,8);
 mergeHuntJournal([{date:'2026-07-22',session:makeSession('hunt_2026-07-16','2026-07-22',999,Date.now())}]);

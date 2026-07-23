@@ -4191,16 +4191,22 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
   const o=value && typeof value==='object' && !Array.isArray(value) ? value : {meso:value};
   const hasErdaPrice=Object.prototype.hasOwnProperty.call(o,'erdaUnitPrice');
   const hasErdaFee=Object.prototype.hasOwnProperty.call(o,'erdaFee');
-  const kind=o.kind==='erda-settlement' ? 'erda-settlement' : 'hunt';
+  const kind=o.kind==='erda-settlement'
+    ? 'erda-settlement'
+    : (o.kind==='recovery-adjustment' ? 'recovery-adjustment' : 'hunt');
   const runs=kind==='hunt' ? normalizeHuntRunValue(o.runs ?? o.huntCount ?? o.runCount ?? 1) : 0;
   const erda=Math.max(0,Math.floor(Number(o.erda)||0));
   const erdaSettled=Math.max(0,Math.min(erda,Math.floor(Number(o.erdaSettled)||0)));
   const createdAt=String(o.createdAt || o.timestamp || Date.now());
+  const idPrefix=kind==='erda-settlement' ? 'settlement' : (kind==='recovery-adjustment' ? 'recovery' : 'hunt');
+  const defaultLabel=kind==='erda-settlement'
+    ? '솔 에르다 조각 판매 정산'
+    : (kind==='recovery-adjustment' ? '서버 집계 복구' : (index+1)+'재획');
   return {
-    id:String(o.id || createHuntSessionId(kind==='erda-settlement'?'settlement':'hunt')).trim() || createHuntSessionId(kind),
+    id:String(o.id || createHuntSessionId(idPrefix)).trim() || createHuntSessionId(idPrefix),
     kind,
     runs,
-    label:String(o.label || o.sessionLabel || (kind==='erda-settlement' ? '솔 에르다 조각 판매 정산' : (index+1)+'재획')).trim(),
+    label:String(o.label || o.sessionLabel || defaultLabel).trim(),
     meso:mesoValueFromDigits(o.meso),
     erda,
     erdaSettled,
@@ -4217,11 +4223,12 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
 }
 function huntSessionRunCount(session){
   const s=normalizeHuntSession(session);
-  return s.kind==='erda-settlement' ? 0 : normalizeHuntRunValue(s.runs);
+  return s.kind==='hunt' ? normalizeHuntRunValue(s.runs) : 0;
 }
 function huntSessionDisplayLabel(session,index=0){
   const s=normalizeHuntSession(session,db.settings,index);
   if(s.kind==='erda-settlement') return s.label || '솔 에르다 조각 판매 정산';
+  if(s.kind==='recovery-adjustment') return s.label || '서버 집계 복구';
   const memo=String(s.label || '').trim();
   const genericLabel=/^\d+(?:\.\d+)?\s*재획$/.test(memo);
   const runs=huntSessionRunCount(s);
@@ -5748,7 +5755,7 @@ function resetHuntEntryForm(){
 function beginHuntSessionEdit(date,id){
   const sessions=huntSessionsForDate(date);
   const session=sessions.find(item=>item.id===id);
-  if(!session || session.kind==='erda-settlement') return;
+  if(!session || session.kind!=='hunt') return;
   const s=normalizeHuntSession(session);
   huntEditTarget={date,id};
   if(inDate) inDate.value=date;
@@ -6088,7 +6095,10 @@ function dailySessionFieldHtml(label,value,kind=''){
 function dailySessionCardHtml(date,session,index){
   const s=normalizeHuntSession(session);
   const isSettlement=s.kind==='erda-settlement';
-  const label=isSettlement ? (s.label || '솔 에르다 조각 판매 정산') : huntSessionDisplayLabel(s,index);
+  const isRecovery=s.kind==='recovery-adjustment';
+  const label=isSettlement
+    ? (s.label || '솔 에르다 조각 판매 정산')
+    : (isRecovery ? (s.label || '서버 집계 복구') : huntSessionDisplayLabel(s,index));
   const sessionErdaMeso=erdaMesoForSessionDisplay(s);
   const sourceCount=s.settlementSources.reduce((sum,source)=>sum+source.count,0);
   const meso=toMesoBig(s.meso)>0n ? korMeso(s.meso) : '<span class="muted">-</span>';
@@ -6097,10 +6107,10 @@ function dailySessionCardHtml(date,session,index){
     ? fmt(s.erda)+'개'+(s.erdaSettled?' · 정산 '+fmt(s.erdaSettled)+'개':'')
     : (isSettlement ? '정산 '+fmt(sourceCount)+'개' : '<span class="muted">-</span>');
   const total=korMeso(huntSessionMesoTotal(s));
-  const actions=(isSettlement ? '' : '<button class="record-edit" type="button" data-session-edit="'+esc(s.id)+'" data-date="'+date+'">수정</button>')+
+  const actions=(isSettlement || isRecovery ? '' : '<button class="record-edit" type="button" data-session-edit="'+esc(s.id)+'" data-date="'+date+'">수정</button>')+
     '<button class="danger" type="button" data-session-delete="'+esc(s.id)+'" data-date="'+date+'">삭제</button>';
   return '<div class="daily-session">'+
-    dailySessionFieldHtml('회차 / 메모',esc(label),isSettlement?'settlement':'')+
+    dailySessionFieldHtml(isRecovery?'복구 범위 / 메모':'회차 / 메모',esc(label),isSettlement?'settlement':(isRecovery?'recovery':''))+
     dailySessionFieldHtml('캐릭터',s.charName?esc(s.charName):'<span class="muted">-</span>')+
     dailySessionFieldHtml('획득 메소',meso+(sessionErdaMeso?'<br><small>조각 환산 +'+korMeso(sessionErdaMeso)+'</small>':''),'meso')+
     dailySessionFieldHtml('추가 부수입',extra,'extra')+
@@ -6351,12 +6361,15 @@ function renderRecords(){
     const record=normalizeRecord(db.records[date]);
     const erdaMeso=erdaMesoForRecord(record);
     const extraMeso=toMesoBig(record.extraIncome);
-    const hunts=record.sessions.filter(session=>session.kind!=='erda-settlement');
+    const hunts=record.sessions.filter(session=>session.kind==='hunt');
     const huntCount=hunts.length;
     const huntRuns=hunts.reduce((sum,session)=>sum+huntSessionRunCount(session),0);
-    const settlementCount=record.sessions.length-huntCount;
+    const settlementCount=record.sessions.filter(session=>session.kind==='erda-settlement').length;
+    const recoveryCount=record.sessions.filter(session=>session.kind==='recovery-adjustment').length;
     const isCollapsed=collapsedDailyRecordDates.has(date);
-    const summary='일일 합계 · '+formatHuntRuns(huntRuns)+'재획'+(huntCount>1?' · '+huntCount+'회차':'')+(settlementCount?' · 조각 정산 '+settlementCount+'건':'');
+    const summary='일일 합계 · '+formatHuntRuns(huntRuns)+'재획'+(huntCount>1?' · '+huntCount+'회차':'')+
+      (settlementCount?' · 조각 정산 '+settlementCount+'건':'')+
+      (recoveryCount?' · 서버 복구 '+recoveryCount+'건':'');
     const sessions=record.sessions.map((session,index)=>dailySessionCardHtml(date,session,index)).join('');
     return '<section class="daily-record-day" data-record-day="'+date+'">'+
       '<div class="daily-day-header">'+
