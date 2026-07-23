@@ -11,7 +11,7 @@ const stubs = String.raw`
 const HUNT_RECOVERY_KEY='mapleTracker.huntRecovery.v1';
 const HUNT_JOURNAL_KEY='mapleTracker.huntJournal.v1';
 const HUNT_TOMBSTONE_LIMIT=500;
-const HUNT_JOURNAL_LIMIT=400;
+const HUNT_JOURNAL_LIMIT=1200;
 let db={settings:{erdaPrice:'6777777',erdaFee:3},records:{},huntTombstones:[]};
 let startupRawDbSnapshot=null;
 let startupLegacyDbSnapshot=null;
@@ -68,9 +68,21 @@ assert.strictEqual(normalized['2026-07-06'].sessions.length,2);
 mergeHuntJournal(huntRecordEntries(local).map(entry=>({date:entry.date,session:entry.session})));
 assert.strictEqual(huntJournalEntries().length,8);
 mergeHuntJournal([{date:'2026-07-22',session:makeSession('hunt_2026-07-16','2026-07-22',999,Date.now())}]);
-const journalMoved=huntJournalEntries().find(entry=>entry.session.id==='hunt_2026-07-16');
+const movedRevisions=huntJournalEntries().filter(entry=>entry.session.id==='hunt_2026-07-16');
+assert.strictEqual(movedRevisions.length,2);
+const journalMoved=movedRevisions.find(entry=>entry.date==='2026-07-22');
 assert.strictEqual(journalMoved.date,'2026-07-22');
 assert.strictEqual(huntJournalRecoveryData().records['2026-07-22'].sessions.length,1);
+
+storage.clear();
+db.records=makeStore(['2026-07-22']).records;
+db.huntTombstones=[{id:'hunt_2026-07-20',date:'2026-07-20',deletedAt:Date.now()}];
+startupRawDbSnapshot=makeStore(['2026-07-20','2026-07-21']);
+const ordinaryCandidates=huntRecoveryCandidates([]);
+assert(!ordinaryCandidates.some(entry=>entry.date==='2026-07-20'),'삭제 표식이 있는 기록은 일반 복구에서 제외되어야 합니다.');
+const deepCandidates=deepHuntRecoveryCandidates([]);
+assert.deepStrictEqual([...new Set(deepCandidates.map(entry=>entry.date))],['2026-07-20','2026-07-21']);
+assert(deepCandidates.every(entry=>entry.session.id.startsWith('recovered_')),'정밀 복구는 새 ID로 병합해야 합니다.');
 
 const recoveryPayload={type:'maple-tracker-hunt-recovery',data:{settings:local.settings,records:{'2026-07-15':{sessions:[makeSession('recovery-15','2026-07-15',2019023948)]}}}};
 assert.strictEqual(Object.keys(decodeHuntRecoveryPackage(JSON.stringify(recoveryPayload)).data.records)[0],'2026-07-15');

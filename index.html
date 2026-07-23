@@ -4012,7 +4012,7 @@ const DROP_RECOVERY_KEY = 'mapleTracker.weeklyDropRecovery.v1';
 const HUNT_RECOVERY_KEY = 'mapleTracker.huntRecovery.v1';
 const HUNT_JOURNAL_KEY = 'mapleTracker.huntJournal.v1';
 const HUNT_TOMBSTONE_LIMIT = 500;
-const HUNT_JOURNAL_LIMIT = 400;
+const HUNT_JOURNAL_LIMIT = 1200;
 const DROP_SPLIT_FEES = [5,3,0];
 const CLOUD_SYNC_ENDPOINT = 'https://maple-tracker-sync.xenon201313.workers.dev';
 const CLOUD_SYNC_VERSION = 1;
@@ -4356,8 +4356,9 @@ function normalizeHuntJournal(value,fallbackSettings=db.settings){
     if(!date) return;
     const session=normalizeHuntSession(o.session || o,fallbackSettings,index);
     const updatedAt=normalizeHuntTimestamp(session.updatedAt,normalizeHuntTimestamp(session.createdAt));
-    const current=selected.get(session.id);
-    if(!current || updatedAt>=current.updatedAt) selected.set(session.id,{date,session,updatedAt});
+    const revisionKey=date+'|'+session.id+'|'+huntSessionFingerprint(date,session);
+    const current=selected.get(revisionKey);
+    if(!current || updatedAt>=current.updatedAt) selected.set(revisionKey,{date,session,updatedAt});
   });
   return Array.from(selected.values())
     .sort((a,b)=>a.updatedAt-b.updatedAt || a.date.localeCompare(b.date))
@@ -4496,6 +4497,53 @@ function huntRecoveryCandidates(extraSources=cloudHuntRecoverySources){
   });
   return candidates.sort((a,b)=>a.date.localeCompare(b.date));
 }
+function deepHuntRecoveryCandidates(extraSources=cloudHuntRecoverySources){
+  const currentHuntDates=new Set(
+    huntRecordEntries(db)
+      .filter(entry=>entry.session.kind!=='erda-settlement')
+      .map(entry=>entry.date)
+  );
+  const bestByDate=new Map();
+  const sources=huntRecoverySources().concat(Array.isArray(extraSources)?extraSources:[]);
+  sources.forEach((source,sourceIndex)=>{
+    const grouped=new Map();
+    huntRecordEntries(ensureObj(source).data).forEach(entry=>{
+      if(entry.session.kind==='erda-settlement' || !entry.date || entry.date>todayStr() || currentHuntDates.has(entry.date)) return;
+      if(!grouped.has(entry.date)) grouped.set(entry.date,[]);
+      grouped.get(entry.date).push(entry);
+    });
+    grouped.forEach((entries,date)=>{
+      const sourceTime=normalizeHuntTimestamp(ensureObj(source).createdAt,normalizeHuntTimestamp(ensureObj(ensureObj(source).data).updatedAt,0));
+      const entryTime=entries.reduce((latest,entry)=>Math.max(latest,normalizeHuntTimestamp(entry.session.updatedAt,normalizeHuntTimestamp(entry.session.createdAt,0))),0);
+      const rank=Math.max(sourceTime,entryTime);
+      const current=bestByDate.get(date);
+      if(!current || rank>current.rank || (rank===current.rank && sourceIndex<current.sourceIndex)){
+        bestByDate.set(date,{entries,rank,sourceIndex,source:ensureObj(source).label||'정밀 복구본'});
+      }
+    });
+  });
+  const recoveredAt=Date.now();
+  const candidates=[];
+  [...bestByDate.keys()].sort().forEach(date=>{
+    const selected=bestByDate.get(date);
+    const latestById=new Map();
+    selected.entries.forEach(entry=>{
+      const current=latestById.get(entry.id);
+      const updatedAt=normalizeHuntTimestamp(entry.session.updatedAt,normalizeHuntTimestamp(entry.session.createdAt,0));
+      if(!current || updatedAt>=current.updatedAt) latestById.set(entry.id,{entry,updatedAt});
+    });
+    let recoveredIndex=0;
+    latestById.forEach(({entry})=>{
+      const session=normalizeHuntSession(Object.assign({},entry.session,{
+        id:createHuntSessionId('recovered'),
+        updatedAt:recoveredAt+recoveredIndex
+      }),db.settings,recoveredIndex);
+      candidates.push({date,session,source:selected.source,deepRecovery:true});
+      recoveredIndex++;
+    });
+  });
+  return candidates;
+}
 function restoreHuntRecoveryEntries(entries,description='누락 가능 재획 기록'){
   const rows=Array.isArray(entries)?entries:[];
   if(!rows.length){ alert('현재 기록에 없는 재획 회차를 찾지 못했습니다.'); return false; }
@@ -4550,12 +4598,14 @@ function processHuntRecoveryQuery(){
   restoreHuntRecoveryPackage(code);
 }
 function huntRecoveryDiagnosticPayload(){
+  const deepCandidates=deepHuntRecoveryCandidates();
   return {
     type:'maple-tracker-hunt-recovery-diagnostic',
     version:1,
     exportedAt:new Date().toISOString(),
     current:compactHuntRecoveryData(db),
     journal:huntJournalEntries(),
+    deepCandidates:deepCandidates.map(row=>({date:row.date,source:row.source,session:row.session})),
     sources:huntRecoverySources().concat(cloudHuntRecoverySources).map(source=>({
       label:String(source.label||'복구본'),
       createdAt:String(source.createdAt||''),
@@ -4577,8 +4627,16 @@ async function scanAllHuntRecoveryRecords(){
   if(button){ button.disabled=true; button.textContent='복구본 검사 중...'; }
   try{
     await refreshCloudHuntRecoverySources(false);
-    const candidates=huntRecoveryCandidates();
-    if(candidates.length) return restoreHuntRecoveryEntries(candidates,'전체 보관본의 누락 가능 재획 기록');
+    const normalCandidates=huntRecoveryCandidates();
+    const normalDates=new Set(normalCandidates.map(row=>row.date));
+    const deepCandidates=deepHuntRecoveryCandidates().filter(row=>!normalDates.has(row.date));
+    const candidates=normalCandidates.concat(deepCandidates).sort((a,b)=>a.date.localeCompare(b.date));
+    if(candidates.length){
+      const description=deepCandidates.length
+        ? '삭제 표식과 ID 충돌까지 확인한 정밀 복구 기록'
+        : '전체 보관본의 누락 가능 재획 기록';
+      return restoreHuntRecoveryEntries(candidates,description);
+    }
     if(confirm('현재 브라우저와 클라우드 보관본에서 추가로 복구할 회차를 찾지 못했습니다. 진단 파일을 내려받아 확인할까요?')) downloadHuntRecoveryDiagnostic();
     return false;
   }finally{
