@@ -54,6 +54,11 @@ assert.strictEqual(huntRecordEntries({settings:local.settings,records:merged}).l
 const duplicate={settings:local.settings,records:{'2026-07-16':{sessions:[makeSession('duplicate-a','2026-07-16',123),makeSession('duplicate-b','2026-07-16',123)]}}};
 assert.strictEqual(huntRecordEntries({settings:local.settings,records:mergeHuntRecordStores(duplicate,{records:{}},[])}).length,2);
 
+const legacyShadow={settings:local.settings,records:{'2026-07-16':{sessions:[makeSession('modern','2026-07-16',123),makeSession('hunt_legacy_shadow','2026-07-16',123)]}}};
+const legacyShadowMerged=mergeHuntRecordStores(legacyShadow,{records:{}},[]);
+assert.strictEqual(huntRecordEntries({settings:local.settings,records:legacyShadowMerged}).length,1);
+assert.strictEqual(legacyShadowHuntDuplicates(legacyShadow).length,1);
+
 const movedLocal={settings:local.settings,records:{'2026-07-22':{sessions:[makeSession('move-me','2026-07-22',777,Date.now())]}}};
 const oldRemote={settings:local.settings,records:{'2026-07-16':{sessions:[makeSession('move-me','2026-07-16',555,1)]}}};
 const moved=mergeHuntRecordStores(movedLocal,oldRemote,[]);

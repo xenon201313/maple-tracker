@@ -4328,12 +4328,17 @@ function mergeHuntRecordStores(localSource,remoteSource,tombstones=[]){
   huntRecordEntries(remoteRaw).forEach(entry=>consider(entry,1));
   huntRecordEntries(localRaw).forEach(entry=>consider(entry,2));
   const deleted=new Map(normalizeHuntTombstones(tombstones).map(entry=>[entry.id,entry.deletedAt]));
+  const nonLegacyFingerprints=new Set();
+  selected.forEach(({entry})=>{
+    if(!entry.id.startsWith('hunt_legacy_')) nonLegacyFingerprints.add(entry.date+'|'+entry.fingerprint);
+  });
   const byDate={};
   const seenLegacyFingerprint=new Set();
   selected.forEach(({entry,updatedAt})=>{
     if((deleted.get(entry.id)||0)>=updatedAt) return;
     if(entry.id.startsWith('hunt_legacy_')){
       const duplicateKey=entry.date+'|'+entry.fingerprint;
+      if(nonLegacyFingerprints.has(duplicateKey)) return;
       if(seenLegacyFingerprint.has(duplicateKey)) return;
       seenLegacyFingerprint.add(duplicateKey);
     }
@@ -4347,6 +4352,44 @@ function mergeHuntRecordStores(localSource,remoteSource,tombstones=[]){
     records[date]=recordFromSessions(byDate[date],settings);
   });
   return records;
+}
+function legacyShadowHuntDuplicates(source=db){
+  const groups=new Map();
+  huntRecordEntries(source).forEach(entry=>{
+    if(entry.session.kind==='erda-settlement') return;
+    const key=entry.date+'|'+entry.fingerprint;
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push(entry);
+  });
+  const duplicates=[];
+  groups.forEach(entries=>{
+    if(!entries.some(entry=>!entry.id.startsWith('hunt_legacy_'))) return;
+    entries.filter(entry=>entry.id.startsWith('hunt_legacy_')).forEach(entry=>duplicates.push(entry));
+  });
+  return duplicates.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function removeLegacyShadowHuntDuplicates(entries){
+  const rows=Array.isArray(entries)?entries:[];
+  if(!rows.length) return 0;
+  const idsByDate=new Map();
+  rows.forEach(row=>{
+    if(!idsByDate.has(row.date)) idsByDate.set(row.date,new Set());
+    idsByDate.get(row.date).add(row.id);
+  });
+  storeHuntRecoveryPoint(db,'중복 재획 정리 전 보호본');
+  let removed=0;
+  idsByDate.forEach((ids,date)=>{
+    const sessions=huntSessionsForDate(date);
+    sessions.forEach(session=>{
+      if(ids.has(session.id)){
+        addHuntTombstone(session,date);
+        removed++;
+      }
+    });
+    writeHuntSessions(date,sessions.filter(session=>!ids.has(session.id)));
+  });
+  if(removed) save();
+  return removed;
 }
 function normalizeHuntJournal(value,fallbackSettings=db.settings){
   const selected=new Map();
@@ -4627,6 +4670,14 @@ async function scanAllHuntRecoveryRecords(){
   if(button){ button.disabled=true; button.textContent='복구본 검사 중...'; }
   try{
     await refreshCloudHuntRecoverySources(false);
+    const shadowDuplicates=legacyShadowHuntDuplicates();
+    let removedDuplicates=0;
+    if(shadowDuplicates.length){
+      const duplicateDates=[...new Set(shadowDuplicates.map(row=>row.date))].sort();
+      if(confirm('값이 완전히 같은 이전 형식 복제 회차 '+shadowDuplicates.length+'개를 찾았습니다. 원본 회차는 유지하고 '+duplicateDates.join(', ')+'의 복제본만 정리할까요?')){
+        removedDuplicates=removeLegacyShadowHuntDuplicates(shadowDuplicates);
+      }
+    }
     const normalCandidates=huntRecoveryCandidates();
     const normalDates=new Set(normalCandidates.map(row=>row.date));
     const deepCandidates=deepHuntRecoveryCandidates().filter(row=>!normalDates.has(row.date));
@@ -4636,6 +4687,12 @@ async function scanAllHuntRecoveryRecords(){
         ? '삭제 표식과 ID 충돌까지 확인한 정밀 복구 기록'
         : '전체 보관본의 누락 가능 재획 기록';
       return restoreHuntRecoveryEntries(candidates,description);
+    }
+    if(removedDuplicates){
+      dailyRecordPage=0;
+      renderAll();
+      alert('중복 재획 회차 '+removedDuplicates+'개를 정리했습니다. 원본 회차와 다른 기록은 유지했습니다.');
+      return true;
     }
     if(confirm('현재 브라우저와 클라우드 보관본에서 추가로 복구할 회차를 찾지 못했습니다. 진단 파일을 내려받아 확인할까요?')) downloadHuntRecoveryDiagnostic();
     return false;
