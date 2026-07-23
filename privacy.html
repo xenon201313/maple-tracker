@@ -39,8 +39,9 @@
   <h2>1. 브라우저에 저장되는 정보</h2>
   <p>재획, 보스, 드랍 아이템, 손익, 지출, 캐릭터 설정과 화면 설정은 기본적으로 이용 중인 브라우저의 로컬 저장소에 보관됩니다. 운영자는 이 로컬 기록을 직접 열람할 수 없습니다. 브라우저의 사이트 데이터를 삭제하면 로컬 기록도 함께 삭제될 수 있으므로 JSON 백업을 권장합니다.</p>
 
-  <h2>2. 넥슨 Open API</h2>
-  <p>이용자가 API 키를 직접 등록하면 캐릭터 프로필, 경험치, 스케줄러 정보를 조회하기 위해 넥슨 Open API로 요청을 보냅니다. API 키는 해당 브라우저에 저장되며 JSON 백업에는 포함하지 않습니다. 키가 노출된 경우 넥슨 Open API에서 재발급해 주세요.</p>
+  <h2>2. NEXON Open API 이용 고지</h2>
+  <p>본 서비스는 <a href="https://openapi.nexon.com/" target="_blank" rel="noopener">NEXON Open API</a>를 이용하여 캐릭터 프로필, 경험치, 스케줄러 정보를 제공합니다. NEXON의 공식 서비스가 아닙니다. 이용자가 직접 등록한 API 키는 해당 브라우저에 저장되며 JSON 백업에는 포함하지 않습니다. 키가 노출된 경우 NEXON Open API에서 재발급해 주세요.</p>
+  <p><a href="https://openapi.nexon.com/ko/support/terms/" target="_blank" rel="noopener">NEXON Open API 이용약관 보기</a></p>
 
   <h2>3. 암호화 클라우드 동기화</h2>
   <p>API 키 등록 후 클라우드 동기화를 사용하면 기록은 브라우저에서 AES-GCM 방식으로 암호화된 뒤 Cloudflare Workers 저장소로 전송됩니다. 서버에는 암호문과 동기화 식별자가 저장되며, 복호화는 같은 API 키를 가진 브라우저에서 수행합니다. 이 기능은 기기 간 기록 이동을 위한 선택 기능입니다.</p>

@@ -11,12 +11,12 @@
 - 일간·주간·월간 보스 결정석 관리와 난이도·파티 인원·드랍 체크
 - 파티장/파티원, 수수료, 사용자 지정 분배율을 반영한 아이템 수익 계산
 - 스타포스, 잠재능력, 주문서, 추가 옵션, 원더베리, 로얄스타일, 플래티넘 애플 손익 기록
-- 넥슨 Open API 기반 캐릭터 프로필 등록과 캐릭터 이미지 표시
+- NEXON Open API 기반 캐릭터 프로필 등록과 캐릭터 이미지 표시
 - API 키를 기반으로 암호화한 Cloudflare 동기화, JSON 백업/복원, 월간 자동 보관
 
 ## Built with
 
-`HTML` · `CSS` · `Vanilla JavaScript` · `GitHub Pages` · `Cloudflare Workers` · `Nexon Open API`
+`HTML` · `CSS` · `Vanilla JavaScript` · `GitHub Pages` · `Cloudflare Workers` · `NEXON Open API`
 
 ## Codex 및 GPT-5.6 활용
 
@@ -25,7 +25,7 @@
 - 복잡한 보스·난이도·드랍 아이템 데이터를 단일 데이터 구조로 정리하고, 기존 브라우저 저장 데이터가 깨지지 않도록 마이그레이션 로직을 설계했습니다.
 - 재획 기록, 드랍 분배, 솔 에르다 조각 정산, 손익 계산, 주간/월간/일간 초기화 규칙을 구현하고 예외 상황을 점검했습니다.
 - 모바일과 PC에서 모두 읽기 쉬운 카드, 표, 입력 폼, 그래프 UI를 반복적으로 개선했습니다.
-- 넥슨 Open API 캐릭터 조회, Cloudflare 암호화 동기화, GitHub Pages 배포 흐름을 연결했습니다.
+- NEXON Open API 캐릭터 조회, Cloudflare 암호화 동기화, GitHub Pages 배포 흐름을 연결했습니다.
 - 주간 전환 시 기존 기록을 보존하면서 새 주 데이터를 생성하는 복구 로직과 자동화 테스트를 추가했습니다.
 
 AI가 제안한 구현은 실제 사용 흐름과 메이플스토리 보스 규칙에 맞춰 검토하고 수정했으며, 최종 기능과 화면 구성은 사용자 피드백을 바탕으로 결정했습니다.
