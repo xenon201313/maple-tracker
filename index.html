@@ -1190,7 +1190,7 @@
     <ul class="guide-list">
       <li><b>월간 결정석</b> 탭은 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
       <li><b>일간 결정석</b> 탭은 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
-      <li>월간/일간 결정석도 전체 통계의 주간/월간 집계에 함께 반영됩니다.</li>
+      <li>월간 결정석은 월간 집계에만 반영하며, 일간 결정석은 클리어한 날짜의 주간·월간 집계에 반영합니다.</li>
       <li>일간 결정석을 쓰려면 캐릭터 등록 탭에서 캐릭터를 먼저 등록해 주세요.</li>
     </ul>
   </div>
@@ -5631,7 +5631,7 @@ function trackedWeeklyBossWeeks(){
   return Array.from(set).sort().reverse();
 }
 function dropCountForWeek(week){
-  return lootEntryCount(mergeLootEntries(mergeLootEntries(resolvedDropEntriesForWeek(week), resolvedMonthlyDropEntriesForWeek(week)), resolvedDailyDropEntriesForWeek(week)));
+  return lootEntryCount(mergeLootEntries(resolvedDropEntriesForWeek(week), resolvedDailyDropEntriesForWeek(week)));
 }
 
 /* ───────── 탭 ───────── */
@@ -6813,7 +6813,7 @@ function personalRecordData(){
     const boss=bossTotals(week);
     const profit=profitTotals(d=>mapleWeekStart(d)===week).net;
     const expense=expenseTotals(d=>mapleWeekStart(d)===week).total;
-    const total=hunt+toMesoBig(boss.week)+toMesoBig(boss.month)+toMesoBig(boss.daily)+profit-expense;
+    const total=hunt+toMesoBig(boss.week)+toMesoBig(boss.daily)+profit-expense;
     if(!bestWeek || total>bestWeek.total) bestWeek={week,total};
   });
   let bossClears=0;
@@ -6884,6 +6884,7 @@ function statsPeriodCardHtml(title,range,row,current,label){
   const total=row.m+row.boss+row.profit-row.expense;
   const totalClass=total<0n ? 'bad' : '';
   const profitClass=row.profit<0n ? 'bad' : '';
+  const bossLabel=label==='주간' ? '주간·일간 보스' : '보스 수익';
   return '<article class="stats-period-card'+(current?' is-current':'')+'">'+
     '<div class="stats-period-top">'+
       '<div class="stats-period-copy"><span class="stats-period-kicker">'+esc(current?'현재 '+label:label+' 결산')+'</span><h3>'+esc(title)+'</h3><p>'+esc(range)+' · 재획 '+fmt(row.days)+'일</p></div>'+
@@ -6891,7 +6892,7 @@ function statsPeriodCardHtml(title,range,row,current,label){
     '</div>'+
     '<div class="stats-period-metrics">'+
       '<div class="stats-period-metric hunt"><span>재획 메소</span><b>'+korMeso(row.m)+'</b></div>'+
-      '<div class="stats-period-metric"><span>보스 수익</span><b>'+korMeso(row.boss)+'</b></div>'+
+      '<div class="stats-period-metric"><span>'+bossLabel+'</span><b>'+korMeso(row.boss)+'</b></div>'+
       '<div class="stats-period-metric profit"><span>손익 계산기</span><b class="'+profitClass+'">'+signedKorMeso(row.profit)+'</b></div>'+
       '<div class="stats-period-metric expense"><span>직접 지출</span><b>'+outflowKorMeso(row.expense)+'</b></div>'+
     '</div>'+
@@ -6955,20 +6956,23 @@ function renderStats(){
   const thisMonthNetProfit=thisMonthProfit.net-thisMonthExpense.total;
   const totalNetProfit=totalProfit.net-totalExpense.total;
   const bt=bossTotals(wkStart);
-  const bossNow=toMesoBig(bt.week)+toMesoBig(bt.month)+toMesoBig(bt.daily);
+  const bossNow=toMesoBig(bt.week)+toMesoBig(bt.daily);
+  const monthlyBossNow=monthlyBossTotals(mon);
   const dropNow=dropCountForWeek(wkStart);
+  const monthlyDropNow=lootEntryCount(resolvedMonthlyDropEntriesForMonth(mon));
   const mesoLabel=erdaMesoModeLabel();
   const cards=[
     {t:'이번 주 '+mesoLabel+' ('+fmtShort(wkStart)+'~'+fmtShort(wkEnd)+')', v:korMeso(thisWeek.m), s:thisWeek.days+'일 재획 · 조각 '+fmt(thisWeek.e)+'개', tone:'income'},
     {t:'이번 달 '+mesoLabel+' ('+mon.replace('-','년 ')+'월)', v:korMeso(thisMonth.m), s:thisMonth.days+'일 재획 · 조각 '+fmt(thisMonth.e)+'개', tone:'income'},
     {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획', tone:'income'},
     {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true, tone:'boss'},
-    {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 월간 '+korMeso(bt.month)+' · 획득템 '+dropNow+'개', tone:'boss'},
+    {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 획득템 '+dropNow+'개 · 월간 보스 제외', tone:'boss'},
+    {t:'이번 달 월간 보스 수익', v:korMeso(monthlyBossNow.meso), s:'결정석 '+monthlyBossNow.crystals+'개 · 획득템 '+monthlyDropNow+'개', tone:'boss'},
     {t:'이번 주 직접 지출', v:outflowKorMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건', tone:'expense', valueClass:'bad'},
     {t:'이번 주 손익 (지출 반영)', v:signedKorMeso(thisWeekNetProfit), s:'계산기 '+signedKorMeso(thisWeekProfit.net)+' · 직접 지출 '+korMeso(thisWeekExpense.total), tone:'net', valueClass:thisWeekNetProfit<0n?'bad':'good'},
     {t:'이번 달 손익 (지출 반영)', v:signedKorMeso(thisMonthNetProfit), s:'계산기 '+signedKorMeso(thisMonthProfit.net)+' · 직접 지출 '+korMeso(thisMonthExpense.total), tone:'net', valueClass:thisMonthNetProfit<0n?'bad':'good'},
     {t:'전체 손익 (지출 반영)', v:signedKorMeso(totalNetProfit), s:'계산기 '+signedKorMeso(totalProfit.net)+' · 직접 지출 '+korMeso(totalExpense.total), tone:'net', valueClass:totalNetProfit<0n?'bad':'good'},
-    {t:'이번 주 합산 (재획+보스+손익-지출)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekNetProfit), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(bt.dropMeso), tone:'net', valueClass:(thisWeek.m+bossNow+thisWeekNetProfit)<0n?'bad':'good'},
+    {t:'이번 주 합산 (재획+보스+손익-지출)', v:signedKorMeso(thisWeek.m+bossNow+thisWeekNetProfit), s:'결정석 '+bt.weekCrystals+'개 · 아이템 '+korMeso(toMesoBig(bt.dropMeso)+toMesoBig(bt.dailyDropMeso))+' · 월간 보스 제외', tone:'net', valueClass:(thisWeek.m+bossNow+thisWeekNetProfit)<0n?'bad':'good'},
   ];
   document.getElementById('stat-cards').innerHTML = cards.map(c=>
     '<div class="stat'+(c.tone?' stat-'+c.tone:'')+'"><div class="t">'+c.t+'</div><div class="v'+(c.p?' p':'')+(c.valueClass?' '+c.valueClass:'')+'">'+c.v+'</div><div class="s">'+(c.s||'')+'</div></div>'
@@ -7022,7 +7026,7 @@ function renderStats(){
   }
   trackedWeeks().forEach(w=>{
     const row=ensureWeek(w), b=bossTotals(w);
-    row.boss=toMesoBig(b.week)+toMesoBig(b.month)+toMesoBig(b.daily); row.loot=mergeLootEntries(mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedMonthlyDropEntriesForWeek(w)), resolvedDailyDropEntriesForWeek(w));
+    row.boss=toMesoBig(b.week)+toMesoBig(b.daily); row.loot=mergeLootEntries(resolvedDropEntriesForWeek(w), resolvedDailyDropEntriesForWeek(w));
     row.profit=profitTotals(d=>mapleWeekStart(d)===w).net;
     row.expense=expenseTotals(d=>mapleWeekStart(d)===w).total;
   });
@@ -7291,14 +7295,14 @@ function renderHome(){
   const bossWeek=bossTotals(week);
   const profitWeek=profitTotals(d=>mapleWeekStart(d)===week).net;
   const expenseWeek=expenseTotals(d=>mapleWeekStart(d)===week).total;
-  const weekNet=huntWeek.m+toMesoBig(bossWeek.week)+toMesoBig(bossWeek.month)+toMesoBig(bossWeek.daily)+profitWeek-expenseWeek;
+  const weekNet=huntWeek.m+toMesoBig(bossWeek.week)+toMesoBig(bossWeek.daily)+profitWeek-expenseWeek;
   const currentMonthReport=monthlyReportData(month);
   const goal=resolveGoalState();
   const valueClass=value=>value<0n?'bad':(value>0n?'good':'');
   document.getElementById('home-period-label').textContent='오늘 '+today+' · 이번 주 '+fmtWeekRange(week)+' · '+fmtMonthLabel(today);
   summaryEl.innerHTML=[
     ['오늘 순수익',signedKorMeso(todayNet),valueClass(todayNet),'재획 · 일간 보스 · 손익 · 지출 반영'],
-    ['이번 주 순수익',signedKorMeso(weekNet),valueClass(weekNet),'재획 '+huntWeek.days+'일 · 직접 지출 '+korMeso(expenseWeek)],
+    ['이번 주 순수익',signedKorMeso(weekNet),valueClass(weekNet),'재획 '+huntWeek.days+'일 · 주간·일간 보스 · 월간 보스 별도'],
     ['이번 달 순수익',signedKorMeso(currentMonthReport.net),valueClass(currentMonthReport.net),'보스 · 판매 수익 · 지출 반영'],
     ['목표 진행',goal.empty?'목표 미설정':goal.pct.toFixed(goal.pct<10?2:0).replace(/\.00$/,'')+'%',goal.empty?'':'good',goal.empty?'통계 탭에서 목표 금액을 입력하세요.':korMeso(goal.progress)+' / '+korMeso(goal.target)]
   ].map(item=>'<div class="home-summary"><span>'+item[0]+'</span><b class="'+item[2]+'">'+item[1]+'</b><small>'+item[3]+'</small></div>').join('');
