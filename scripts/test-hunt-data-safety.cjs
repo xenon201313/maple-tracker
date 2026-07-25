@@ -70,6 +70,14 @@ assert(!deleted['2026-07-15']);
 const normalized=normalizeRecords({'2026-7-6':{sessions:[makeSession('one','2026-07-06',1)]},'2026/7/6':{sessions:[makeSession('two','2026-07-06',2)]}},local.settings);
 assert.strictEqual(normalized['2026-07-06'].sessions.length,2);
 
+const erdaIncluded=normalizeHuntSession(Object.assign(makeSession('erda-included','2026-07-16',1),{erdaMesoIncluded:true}),local.settings);
+const erdaExcluded=normalizeHuntSession(Object.assign(makeSession('erda-excluded','2026-07-16',1),{erdaMesoIncluded:false}),local.settings);
+assert.strictEqual(erdaIncluded.erdaMesoIncluded,true);
+assert.strictEqual(erdaExcluded.erdaMesoIncluded,false);
+assert.notStrictEqual(huntSessionFingerprint('2026-07-16',erdaIncluded),huntSessionFingerprint('2026-07-16',erdaExcluded));
+const legacyErdaIncluded=normalizeHuntSession({id:'legacy-erda',kind:'hunt',erda:10},{erdaPrice:'6777777',erdaFee:3,includeErdaMeso:true});
+assert.strictEqual(legacyErdaIncluded.erdaMesoIncluded,true);
+
 const aggregateRecovery=normalizeHuntSession({
   id:'hunt_server_recovery_20260717_20260721',
   kind:'recovery-adjustment',
