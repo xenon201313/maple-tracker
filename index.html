@@ -102,10 +102,13 @@
   .period-sub{color:var(--sub); font-size:13px; line-height:1.6; word-break:keep-all; overflow-wrap:break-word;}
   .row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;}
   .row>div{min-width:0; max-width:100%;}
-  #page-daily>.card:first-child .row{display:grid; grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr); gap:16px; align-items:start;}
+  #page-daily>.card:first-child .row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; align-items:start;}
   #page-daily>.card:first-child .row>div{min-width:0;}
-  #page-daily>.card:first-child .row label{height:22px; display:flex; align-items:center; gap:4px; margin-bottom:6px;}
-  #page-daily>.card:first-child .row input{width:100% !important; box-sizing:border-box;}
+  #page-daily>.card:first-child .row>div>label:not(.inline-check){height:22px; display:flex; align-items:center; gap:4px; margin-bottom:6px;}
+  #page-daily>.card:first-child .row input:not([type="checkbox"]){width:100% !important; box-sizing:border-box;}
+  #page-daily>.card:first-child .row .inline-check{display:flex; width:100%; min-width:0; min-height:42px; height:auto; margin:0; box-sizing:border-box; align-items:center;}
+  #page-daily>.card:first-child .row .inline-check input[type="checkbox"]{width:18px !important; height:18px; flex:0 0 18px; margin:0;}
+  #page-daily>.card:first-child .row .inline-check span{flex:1 1 auto; min-width:0; word-break:keep-all; overflow-wrap:break-word;}
   #page-daily>.card:first-child .row button{width:100%; margin-top:28px; height:42px; padding:0 14px;}
   label{display:block; font-size:13px; color:var(--sub); margin-bottom:4px;}
   input[type=date], input[type=number], input[type=text], input[type=password], select{
@@ -752,7 +755,7 @@
     .expense-form .wide{grid-column:1 / -1;}
     .expense-form button{width:100%;}
   }
-  @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:minmax(150px,220px) minmax(150px,220px) minmax(220px,1fr);} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
+  @media (max-width:1100px){ #page-daily>.card:first-child .row{grid-template-columns:repeat(2,minmax(0,1fr));} #page-daily>.card:first-child .row>div:last-child{grid-column:1 / -1;} #page-daily>.card:first-child .row button{margin-top:0;} }
   @media (max-width:900px) and (min-width:641px){ .tabs{grid-template-columns:repeat(3,minmax(0,1fr));} .tab{font-size:13px; padding:9px 7px;} }
   @media (max-width:900px){
     #page-daily>.card:first-child .row{grid-template-columns:1fr;}
@@ -794,7 +797,7 @@
     .row,.daily-date-row,.calc-card .row{display:grid; grid-template-columns:1fr; gap:10px; align-items:stretch;}
     input[type=date],input[type=number],input[type=text],input[type=password],select{width:100%; font-size:16px;}
     #page-daily>.card:first-child .row{grid-template-columns:1fr; gap:10px;}
-    #page-daily>.card:first-child .row label{height:auto;}
+    #page-daily>.card:first-child .row>div>label:not(.inline-check){height:auto;}
     #page-daily>.card:first-child .row button{height:42px; margin-top:0;}
     #page-daily>.card:first-child .row>div[style],.row>div[style]{min-width:0 !important; width:100% !important;}
     .daily-date-row input,.calc-card input,.calc-card select{width:100%;}
