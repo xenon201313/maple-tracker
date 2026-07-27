@@ -7,15 +7,22 @@ const webDir = join(root, 'www');
 
 await rm(webDir, { force: true, recursive: true });
 await mkdir(webDir, { recursive: true });
-const webIndex = join(webDir, 'index.html');
-await cp(join(root, 'index.html'), webIndex);
 
-const indexHtml = await readFile(webIndex, 'utf8');
-const nativeIndexHtml = indexHtml.replace(
+const stripAdsenseLoader = (html) => html.replace(
   /\s*<script async src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-\d+"\s+crossorigin="anonymous"><\/script>\s*/,
   '\n',
 );
-await writeFile(webIndex, nativeIndexHtml, 'utf8');
+
+for (const relativePath of ['index.html', 'privacy.html', 'api/index.html']) {
+  const source = join(root, relativePath);
+  const target = join(webDir, relativePath);
+  await mkdir(dirname(target), { recursive: true });
+  const html = await readFile(source, 'utf8');
+  await writeFile(target, stripAdsenseLoader(html), 'utf8');
+}
+
+await cp(join(root, 'ads-config.js'), join(webDir, 'ads-config.js'));
+await cp(join(root, 'site.webmanifest'), join(webDir, 'site.webmanifest'));
 await cp(join(root, 'thumbnail.png'), join(webDir, 'thumbnail.png'));
 await cp(join(root, 'assets'), join(webDir, 'assets'), { recursive: true });
 
