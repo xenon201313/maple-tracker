@@ -7,6 +7,12 @@
     <loc>https://maple-trackers.com/api/</loc>
   </url>
   <url>
+    <loc>https://maple-trackers.com/guide/</loc>
+  </url>
+  <url>
+    <loc>https://maple-trackers.com/about/</loc>
+  </url>
+  <url>
     <loc>https://maple-trackers.com/privacy.html</loc>
   </url>
 </urlset>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
+     crossorigin="anonymous"></script>
+<title>사이트 소개 | 나만의 메계부</title>
+<meta name="description" content="메이플스토리 재획과 보스 수익을 실제 수령액 기준으로 정리하는 나만의 메계부의 제작 목적, 데이터 원칙과 운영 안내">
+<meta name="theme-color" content="#14161f">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://maple-trackers.com/about/">
+<link rel="icon" type="image/png" href="../assets/icon.png">
+<link rel="apple-touch-icon" href="../assets/icon.png">
+<link rel="stylesheet" href="../assets/public-pages.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="사이트 소개 | 나만의 메계부">
+<meta property="og:description" content="수익을 직접 기록하며 생긴 불편을 줄이기 위해 만든 메이플스토리 개인 장부입니다.">
+<meta property="og:url" content="https://maple-trackers.com/about/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png">
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="../"><img src="../assets/icon.png" alt="">나만의 메계부</a>
+    <nav class="nav" aria-label="주요 페이지">
+      <a href="../">기록장</a>
+      <a href="../guide/">사용 가이드</a>
+      <a href="../about/" aria-current="page">사이트 소개</a>
+      <a href="../api/">API 연동</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">크로아/얀보 제작</p>
+      <h1>나만의 메계부를 만든 이유</h1>
+      <p class="lead">재획 메소, 솔 에르다 조각, 보스 결정석과 드랍 아이템을 서로 다른 메모장에 적던 불편을 줄이고, 실제로 내게 들어온 메소를 한곳에서 확인하기 위해 만든 개인 수익 기록 도구입니다.</p>
+      <div class="meta">
+        <span>메이플스토리 비공식 도구</span>
+        <span>브라우저 우선 저장</span>
+        <span>사용자 피드백 기반 개선</span>
+        <span>최종 수정 2026-07-30</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>기록의 기준</h2>
+      <p>표면적인 판매 가격보다 실제 수령액을 보여주는 것을 우선합니다. 결정석은 파티 인원으로 나눈 몫을 계산하고, 드랍 아이템은 판매 수수료와 파티 분배율을 적용합니다. 아직 판매하지 않은 아이템은 보유 기록으로 남길 수 있지만 실제 메소 수익에는 섞지 않습니다.</p>
+      <p>일간, 주간과 월간 보스는 초기화 주기가 다르므로 별도 화면과 기간으로 관리합니다. 재획 기록 역시 같은 날짜에 여러 회차를 나누어 저장하며, 솔 에르다 조각의 가격과 환산 선택은 각 회차에 고정합니다.</p>
+    </section>
+
+    <section class="section">
+      <h2>이 사이트가 제공하는 것</h2>
+      <div class="grid">
+        <article class="item">
+          <h3>사냥 수익 기록</h3>
+          <p>캐릭터와 회차별로 획득 메소, 추가 부수입, 솔 에르다 조각을 기록합니다. 조각을 보유할 때와 실제로 판매했을 때를 분리해 중복 계산을 줄입니다.</p>
+        </article>
+        <article class="item">
+          <h3>보스 수익 계산</h3>
+          <p>난이도, 파티 인원, 결정석, 드랍 아이템, 판매 수수료와 사용자 지정 분배율을 함께 계산합니다. 월간 보스 수익은 주간 보스 합계에서 분리합니다.</p>
+        </article>
+        <article class="item">
+          <h3>손익과 지출</h3>
+          <p>강화나 확률형 아이템에 사용한 메소와 판매 완료된 결과물을 비교하고, 장비·펫·코디·도핑처럼 직접 사용한 메소를 별도의 지출로 남깁니다.</p>
+        </article>
+        <article class="item">
+          <h3>통계와 목표</h3>
+          <p>최근 기록, 주간·월간 결산, 획득 아이템과 목표 금액 진행을 확인합니다. 저장된 기록만으로 계산하며 임의의 예상 수익을 실제 수익에 넣지 않습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>데이터와 API 원칙</h2>
+      <p>기본 기록은 이용자의 브라우저에 저장되며 운영자가 개인 장부를 직접 열람하지 않습니다. 선택적으로 사용하는 클라우드 동기화는 브라우저에서 기록을 암호화한 뒤 전송하도록 구성했습니다. 중요한 기록은 JSON 백업도 함께 보관하는 것을 권장합니다.</p>
+      <p>캐릭터 프로필과 공개 게임 정보 조회에는 NEXON Open API를 사용합니다. 이 사이트는 NEXON의 공식 서비스가 아니며 API 키는 이용자가 직접 발급하고 관리합니다. 키는 JSON 백업에 포함하지 않습니다.</p>
+      <div class="link-list">
+        <a href="../privacy.html">개인정보·쿠키 안내</a>
+        <a href="../api/">API 연동 방법</a>
+        <a href="https://openapi.nexon.com/ko/support/terms/" target="_blank" rel="noopener">NEXON Open API 이용약관</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>운영과 광고 원칙</h2>
+      <p>기능 개선은 실제 사용 중 받은 불편 제보와 재현 가능한 오류를 우선해 반영합니다. 기존 브라우저 기록이 깨지지 않도록 저장 구조 변경에는 호환 처리와 데이터 보존 검사를 함께 적용합니다.</p>
+      <p>사이트 운영비를 보조하기 위해 Google AdSense를 사용할 수 있지만, 광고는 승인 이후 본문 사용을 방해하지 않는 위치에 제한적으로 표시합니다. 광고를 콘텐츠처럼 보이게 만들거나 클릭을 유도하지 않으며, 광고 미송출 상태에서는 불필요한 빈 공간을 남기지 않습니다.</p>
+    </section>
+
+    <section class="section">
+      <h2>제작과 문의</h2>
+      <p>나만의 메계부는 메이플스토리 크로아 월드에서 플레이하는 얀보가 개인 기록용으로 시작해 공개한 프로젝트입니다. 소스와 변경 이력은 GitHub 저장소에서 확인할 수 있고, 오류 제보와 개선 의견도 GitHub 이슈로 받고 있습니다.</p>
+      <div class="link-list">
+        <a href="https://github.com/xenon201313/maple-tracker" target="_blank" rel="noopener">GitHub 저장소</a>
+        <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">오류·의견 남기기</a>
+        <a href="../guide/">사용 가이드 보기</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="../guide/">사용 가이드</a>
+    <a href="../privacy.html">개인정보·쿠키 안내</a>
+    <a href="../">기록장으로 돌아가기</a>
+    <span>크로아/얀보 제작</span>
+  </footer>
+</div>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3a594c7a9bb647f2aec94efbeb9bb992"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>

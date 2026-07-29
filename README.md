@@ -13,6 +13,7 @@
 - 스타포스, 잠재능력, 주문서, 추가 옵션, 원더베리, 로얄스타일, 플래티넘 애플 손익 기록
 - NEXON Open API 기반 캐릭터 프로필 등록과 캐릭터 이미지 표시
 - 별도 [API 연동 랜딩](https://maple-trackers.com/api/)에서 키 발급과 캐릭터 등록 흐름 안내
+- 공개 [사용 가이드](https://maple-trackers.com/guide/)와 [사이트 소개](https://maple-trackers.com/about/) 제공
 - API 키를 기반으로 암호화한 Cloudflare 동기화, JSON 백업/복원, 월간 자동 보관
 
 ## Built with

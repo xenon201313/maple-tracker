@@ -13,7 +13,7 @@ const stripAdsenseLoader = (html) => html.replace(
   '\n',
 );
 
-for (const relativePath of ['index.html', 'privacy.html', 'api/index.html']) {
+for (const relativePath of ['index.html', 'privacy.html', 'api/index.html', 'guide/index.html', 'about/index.html']) {
   const source = join(root, relativePath);
   const target = join(webDir, relativePath);
   await mkdir(dirname(target), { recursive: true });

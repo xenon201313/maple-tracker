@@ -46,7 +46,38 @@ google.com, pub-실제_게시자_번호, DIRECT, f08c47fec0942fa0
 
 - 공식 안내: [AdSense ads.txt 가이드](https://support.google.com/adsense/answer/12171612?hl=ko)
 
-## 5. 개인정보 메시지 설정
+현재 사이트에는 다음 게시자 정보가 적용되어 있습니다.
+
+```text
+google.com, pub-7107280230386162, DIRECT, f08c47fec0942fa0
+```
+
+## 5. Cloudflare에서 Google 심사 봇 허용
+
+Cloudflare에서 `Verified bots`를 차단하면 AdSense 심사에 사용하는 Google 크롤러도 사이트를 읽지 못할 수 있습니다.
+
+1. Cloudflare에서 `maple-trackers.com`을 선택합니다.
+2. `Security` → `Settings`에서 `Super Bot Fight Mode`를 찾습니다.
+3. `Verified bots`를 반드시 `Allow`로 설정합니다.
+4. `Security Events`에서 `Google-Display-Ads-Bot`, `Mediapartners-Google`, `Googlebot` 요청이 차단되는지 확인합니다.
+5. 별도 WAF 차단 규칙이 있다면 알려진 정상 봇(`cf.client.bot`)을 해당 규칙에서 제외합니다.
+
+사이트의 `robots.txt`는 위 Google 광고 크롤러에 전체 경로 접근을 허용합니다.
+
+## 6. 공개 콘텐츠와 탐색 구조 확인
+
+AdSense 검토 전에 아래 페이지가 로그인 없이 열리고, 서로 일반 링크로 연결되는지 확인합니다.
+
+- 기록장: `https://maple-trackers.com/`
+- 사용 가이드: `https://maple-trackers.com/guide/`
+- 사이트 소개: `https://maple-trackers.com/about/`
+- API 연동 안내: `https://maple-trackers.com/api/`
+- 개인정보 안내: `https://maple-trackers.com/privacy.html`
+- ads.txt: `https://maple-trackers.com/ads.txt`
+
+빈 페이지, 준비 중 문구, 깨진 이미지가 없어야 하며 기록장 이외의 공개 페이지에도 사이트의 목적과 사용 방법을 완전한 문장으로 설명해야 합니다.
+
+## 7. 개인정보 메시지 설정
 
 유럽 경제 지역, 영국, 스위스 이용자에게 광고를 제공하려면 Google이 요구하는 인증된 동의 관리 플랫폼(CMP)을 사용해야 합니다. AdSense의 `개인정보 보호 및 메시지`에서 Google CMP 메시지를 설정하는 방법이 가장 간단합니다.
 
@@ -64,6 +95,7 @@ google.com, pub-실제_게시자_번호, DIRECT, f08c47fec0942fa0
 ## 배포 후 확인
 
 1. 광고 차단 확장 프로그램을 잠시 끄고 사이트를 확인합니다.
-2. PC와 모바일에서 하단 광고가 콘텐츠를 밀거나 가리지 않는지 확인합니다.
-3. 승인 직후에는 실제 광고가 보이기까지 시간이 더 걸릴 수 있습니다.
-4. 문제가 생기면 `ads-config.js`의 `enabled`를 `false`로 바꾸면 즉시 광고 로딩을 중단할 수 있습니다.
+2. `https://maple-trackers.com/ads.txt`가 한 줄의 일반 텍스트와 HTTP 200으로 열리는지 확인합니다.
+3. PC와 모바일에서 하단 광고가 콘텐츠를 밀거나 가리지 않는지 확인합니다.
+4. 승인 직후에는 실제 광고가 보이기까지 시간이 더 걸릴 수 있습니다.
+5. 문제가 생기면 `ads-config.js`의 `enabled`를 `false`로 바꾸면 즉시 광고 로딩을 중단할 수 있습니다.

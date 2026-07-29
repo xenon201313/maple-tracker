@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
+     crossorigin="anonymous"></script>
+<title>나만의 메계부 사용 가이드 | 재획·보스 수익 기록</title>
+<meta name="description" content="재획 메소, 솔 에르다 조각, 일간·주간·월간 보스 결정석과 드랍 분배를 나만의 메계부에 정확히 기록하는 방법">
+<meta name="theme-color" content="#14161f">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://maple-trackers.com/guide/">
+<link rel="icon" type="image/png" href="../assets/icon.png">
+<link rel="apple-touch-icon" href="../assets/icon.png">
+<link rel="stylesheet" href="../assets/public-pages.css">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="나만의 메계부 사용 가이드">
+<meta property="og:description" content="재획부터 보스 드랍 분배와 통계까지 기록하는 방법을 확인하세요.">
+<meta property="og:url" content="https://maple-trackers.com/guide/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png">
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="../"><img src="../assets/icon.png" alt="">나만의 메계부</a>
+    <nav class="nav" aria-label="주요 페이지">
+      <a href="../">기록장</a>
+      <a href="../guide/" aria-current="page">사용 가이드</a>
+      <a href="../about/">사이트 소개</a>
+      <a href="../api/">API 연동</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">메이플스토리 수익 기록 안내</p>
+      <h1>나만의 메계부 사용 가이드</h1>
+      <p class="lead">사냥과 보스에서 얻은 메소를 같은 기준으로 기록하고, 실제 판매가 끝난 수익과 아직 보유 중인 아이템을 구분하는 방법을 설명합니다.</p>
+      <div class="meta">
+        <span>재획 회차별 기록</span>
+        <span>일간·주간·월간 보스 분리</span>
+        <span>드랍 분배와 판매 수수료</span>
+        <span>브라우저 우선 저장</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1. 처음 사용할 때</h2>
+      <ol class="steps">
+        <li>기록장은 로그인 없이 사용할 수 있습니다. 처음 입력한 데이터는 현재 브라우저의 로컬 저장소에 저장됩니다.</li>
+        <li>캐릭터 등록 탭에서 캐릭터명과 서버를 등록합니다. NEXON Open API 키가 있으면 프로필과 공개 게임 정보를 함께 불러올 수 있습니다.</li>
+        <li>PC방이나 다른 기기로 옮겨 다닌다면 암호화 클라우드 동기화와 JSON 백업을 함께 준비합니다. API 키 자체는 JSON 백업에 포함되지 않습니다.</li>
+      </ol>
+      <p class="callout"><strong>중요:</strong> 브라우저의 사이트 데이터나 쿠키를 일괄 삭제하면 로컬 기록도 지워질 수 있습니다. 큰 수정 전과 기기 이동 전에는 JSON 백업을 내려받아 보관하세요.</p>
+    </section>
+
+    <section class="section">
+      <h2>2. 재획 기록</h2>
+      <div class="grid">
+        <article class="item">
+          <h3>회차를 나누어 입력</h3>
+          <p>같은 날짜에 여러 번 사냥했다면 각각 별도 회차로 저장합니다. 캐릭터, 재획 횟수, 획득 메소, 추가 부수입과 솔 에르다 조각 수량을 회차별로 남길 수 있습니다.</p>
+          <p>재획 횟수는 0.5 단위 입력을 지원하지만 상한을 강제로 막지 않으므로 실제 사냥 시간에 맞춰 기록하면 됩니다.</p>
+        </article>
+        <article class="item">
+          <h3>조각 가격은 해당 회차 기준</h3>
+          <p>솔 에르다 조각의 단가, 판매 수수료와 메소 환산 여부는 저장 당시 회차에 고정됩니다. 오늘 입력한 가격을 바꿔도 이전 날짜의 기록이 함께 바뀌지 않습니다.</p>
+          <p>조각을 보유만 할 때는 메소 환산을 끄고, 실제로 모아서 판매했다면 별도의 조각 판매 정산으로 실제 판매 수익을 추가할 수 있습니다.</p>
+        </article>
+      </div>
+      <div class="formula">재획 총수익 = 획득 메소 + 추가 부수입 + 해당 회차에서 환산하도록 선택한 조각 실수령액</div>
+    </section>
+
+    <section class="section">
+      <h2>3. 일간·주간·월간 결정석</h2>
+      <div class="grid">
+        <article class="item">
+          <h3>기간이 다른 보스는 분리</h3>
+          <p>일간 결정석은 날짜별, 주간 결정석은 목요일부터 다음 수요일까지, 월간 결정석은 달력의 월 단위로 기록합니다. 검은 마법사는 월간 탭에서 별도로 집계되어 이번 주 보스 수익에 섞이지 않습니다.</p>
+        </article>
+        <article class="item">
+          <h3>설정은 유지하고 완료만 초기화</h3>
+          <p>새 기간이 시작되면 난이도와 파티 인원 같은 반복 설정은 유지하고, 격파 체크와 해당 기간의 드랍 결과만 새로 기록할 수 있도록 구분합니다. 본서버와 챌린저스 서버의 주간 한도도 각각 표시합니다.</p>
+        </article>
+      </div>
+      <p>보스 카드에서 난이도를 먼저 선택해야 해당 난이도에서 실제로 나오는 드랍 목록을 확인할 수 있습니다. 결정석 몫은 선택한 파티 인원에 따라 나눈 실제 수령액을 기준으로 계산합니다.</p>
+    </section>
+
+    <section class="section">
+      <h2>4. 드랍 아이템 판매와 분배</h2>
+      <p>아이템을 획득했다면 해당 보스 카드의 드랍 목록에서 체크하고 판매 가격을 입력합니다. 가격은 다른 보스 카드와 공유되지 않으며, 같은 이름의 아이템이라도 획득한 보스와 기간에 귀속됩니다.</p>
+      <div class="grid">
+        <article class="item">
+          <h3>판매 수수료</h3>
+          <p>결정석을 제외한 아이템 판매에는 3% 또는 5% 수수료를 선택할 수 있습니다. 통계에는 입력한 판매가가 아니라 수수료를 제외한 실수령액이 반영됩니다.</p>
+        </article>
+        <article class="item">
+          <h3>파티 분배</h3>
+          <p>2인 이상에서는 파티장·파티원 역할과 1:1, 7:3, 10:0 같은 사용자 지정 분배율을 기록할 수 있습니다. 1인 격파에는 분배 설정을 적용하지 않습니다.</p>
+        </article>
+      </div>
+      <div class="formula">내 드랍 수익 = 판매가 × (1 - 판매 수수료) × 내 분배 비율</div>
+    </section>
+
+    <section class="section">
+      <h2>5. 손익 계산과 지출 기록</h2>
+      <p>손익 계산기는 스타포스, 잠재능력, 주문서, 추가 옵션, 원더베리, 로얄스타일과 플래티넘 애플처럼 비용과 판매 결과를 함께 비교할 때 사용합니다. 획득한 결과물은 판매 완료로 표시한 경우에만 실제 수익으로 반영합니다.</p>
+      <p>장비 구매, 솔 에르다 조각 구매, 펫 구매, 코디 아이템 구매, 도핑 구매와 메이플포인트 구매처럼 결과물을 되팔지 않는 지출은 지출 기록에 바로 남깁니다. 같은 사용 메소를 손익 계산기와 지출 기록에 중복 입력하지 않도록 구분하는 것이 좋습니다.</p>
+    </section>
+
+    <section class="section">
+      <h2>6. 통계를 읽는 방법</h2>
+      <div class="grid">
+        <article class="item">
+          <h3>기간별 합계</h3>
+          <p>최근 14일 재획 메소는 사냥으로 직접 획득한 메소 흐름을 보여줍니다. 주간과 월간 결산에서는 보스 수익, 판매가 완료된 아이템, 손익 계산과 직접 지출을 구분해 확인할 수 있습니다.</p>
+        </article>
+        <article class="item">
+          <h3>아이템과 경험치</h3>
+          <p>획득 아이템 합계에 마우스를 올리면 아이콘, 이름과 개수를 볼 수 있습니다. API 갱신으로 쌓인 경험치 기록은 재획 기록 화면에서 별도 그래프로 제공되며 메소 통계에는 포함되지 않습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>7. 기록이 보이지 않을 때</h2>
+      <ol class="steps">
+        <li>현재 접속 주소가 `maple-trackers.com`인지 확인합니다. 다른 도메인과 로컬 HTML은 서로 다른 브라우저 저장 공간을 사용합니다.</li>
+        <li>기록 목록의 페이지 이동, 접기 상태와 선택된 캐릭터·기간을 확인합니다.</li>
+        <li>클라우드 동기화를 사용했다면 같은 API 키를 저장한 뒤 클라우드 불러오기를 실행합니다.</li>
+        <li>복원하기 전에는 현재 상태를 먼저 JSON으로 백업하고, 날짜가 가장 최근인 정상 백업 파일을 선택합니다.</li>
+      </ol>
+      <div class="link-list">
+        <a href="../">기록장 열기</a>
+        <a href="../api/">API 연동 안내</a>
+        <a href="../privacy.html">데이터 저장 안내</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a href="../about/">사이트 소개</a>
+    <a href="../privacy.html">개인정보·쿠키 안내</a>
+    <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">문의·오류 제보</a>
+    <span>크로아/얀보 제작</span>
+  </footer>
+</div>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3a594c7a9bb647f2aec94efbeb9bb992"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
