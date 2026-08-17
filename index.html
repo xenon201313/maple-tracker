@@ -327,14 +327,11 @@
   .bgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;}
   .bcard{background:linear-gradient(180deg,rgba(30,36,55,.93),rgba(20,25,38,.91)); border:1px solid rgba(220,230,255,.17); border-radius:10px; padding:10px 10px 9px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; transition:border-color .15s, background .15s, box-shadow .15s; box-shadow:0 10px 24px rgba(0,0,0,.22); content-visibility:auto; contain-intrinsic-size:310px 340px;}
   .bcard.checked{border-color:rgba(255,210,77,.74); background:linear-gradient(180deg,rgba(62,55,24,.94),rgba(36,35,24,.93)); box-shadow:0 12px 28px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,210,77,.14);}
-  .bcard.locked{opacity:.58;}
+  .bcard.locked{opacity:.68; border-color:rgba(220,230,255,.13);}
   .bcard.locked .bcheck{cursor:not-allowed;}
-  .bimg-wrap{height:84px; display:flex; align-items:flex-end; justify-content:center;}
-  .bimg{display:block; max-height:84px; max-width:150px; object-fit:contain; image-rendering:auto; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
-  .boss-img-adversary{filter:drop-shadow(0 0 2px rgba(128,185,255,.9)) drop-shadow(0 0 8px rgba(71,120,255,.45)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
-  .boss-img-star{filter:drop-shadow(0 0 2px rgba(255,218,84,.92)) drop-shadow(0 0 8px rgba(255,128,28,.5)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
-  .boss-img-baldrix{filter:drop-shadow(0 0 2px rgba(166,112,255,.9)) drop-shadow(0 0 9px rgba(74,48,160,.54)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
-  .boss-img-meirin{filter:drop-shadow(0 0 2px rgba(96,218,255,.92)) drop-shadow(0 0 9px rgba(35,135,255,.55)) drop-shadow(0 2px 3px rgba(0,0,0,.55));}
+  .bcard.locked .bshare{color:#d7c58c; font-weight:bold;}
+  .bimg-wrap{width:100%; height:88px; display:flex; align-items:flex-end; justify-content:center; overflow:visible; isolation:isolate;}
+  .bimg{display:block; max-height:88px; max-width:150px; object-fit:contain; image-rendering:auto; opacity:.97; filter:saturate(.96) contrast(.98) drop-shadow(0 4px 7px rgba(0,0,0,.42)); transform:translateZ(0);}
   .bname{font-size:14px; font-weight:bold; text-align:center; line-height:1.25; min-height:18px; display:flex; align-items:center;}
   .bdiff{width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:var(--sub);}
   .bdiff select{flex:1; max-width:122px; min-width:0; padding:4px 6px; font-size:12px; border-radius:6px;}
@@ -3993,12 +3990,24 @@ function bossParts(name){
 function bossDiff(b){ return bossParts(b[1]).diff; }
 const CHALLENGER_ONLY_BOSS_IDS = new Set(['nmeirin','hmeirin']);
 const LIMIT_FREE_BOSS_IDS = new Set(['nmeirin','hmeirin']);
+const BOSS_RELEASE_DATES = Object.freeze({
+  ebellona:'2026-08-20',
+  nbellona:'2026-08-20',
+  hbellona:'2026-08-20'
+});
 function charServer(c){ return c && c.server === 'challenger' ? 'challenger' : 'main'; }
 function serverLabel(c){ return charServer(c) === 'challenger' ? '챌린저스' : '본서버'; }
 function weeklyBossDisplayLimit(c){ return MAX_CHECK + (charServer(c) === 'challenger' ? 1 : 0); }
 function isChallengerOnlyBoss(b){ return !!b && CHALLENGER_ONLY_BOSS_IDS.has(b[0]); }
 function isLimitFreeBoss(b){ return !!b && (b[3] === 'm' || LIMIT_FREE_BOSS_IDS.has(b[0])); }
-function canUseBoss(c,b){ return !isChallengerOnlyBoss(b) || charServer(c) === 'challenger'; }
+function bossReleaseDate(b){ return b && BOSS_RELEASE_DATES[b[0]] || ''; }
+function isBossReleased(b,date=todayStr()){ const release=bossReleaseDate(b); return !release || date>=release; }
+function bossLockReason(c,b,date=todayStr()){
+  if(!isBossReleased(b,date)) return '8월 20일부터 선택 가능';
+  if(isChallengerOnlyBoss(b) && charServer(c) !== 'challenger') return '챌린저스 전용';
+  return '';
+}
+function canUseBoss(c,b,date=todayStr()){ return !bossLockReason(c,b,date); }
 function bossPartyMax(b){
   const base = bossParts(b[1]).base;
   if(base === '메이린') return 1;
@@ -8598,7 +8607,7 @@ function applySchedulerBossCompletion(c, boss, scope, date){
   if(selected && selected[0]!==boss[0]){
     return {added:false,conflict:boss[1]+' (현재 '+selected[1]+' 선택)'};
   }
-  if(scope==='weekly' && !canUseBoss(c,boss)) return {added:false,conflict:boss[1]+' (현재 서버에서 사용 불가)'};
+  if(scope==='weekly' && !canUseBoss(c,boss)) return {added:false,conflict:boss[1]+' ('+bossLockReason(c,boss)+')'};
   if(scope==='weekly' && !(boss[0] in target.store) && !isLimitFreeBoss(boss)){
     const regularCount=Object.keys(target.store).filter(id=>{
       const picked=BOSS_MAP[id];
@@ -9252,7 +9261,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const newId=sel.value;
       const bosses=bossStore(c,period,scope);
       const newBoss=BOSS_MAP[newId];
-      if(!canUseBoss(c,newBoss)){ alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.'); renderAll(); return; }
+      if(!canUseBoss(c,newBoss)){ alert(bossLockReason(c,newBoss)); renderAll(); return; }
       bossDrafts.set(c.name+'|'+scope+'|'+period+'|'+sel.dataset.group, newId);
       const pref=bossPreference(c,group);
       const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
@@ -9282,7 +9291,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
         const b=BOSS_MAP[id];
         if(!canUseBoss(c,b)){
           chk.checked=false;
-          alert('메이린은 챌린저스 서버 캐릭터만 선택할 수 있습니다.');
+          alert(bossLockReason(c,b));
           return;
         }
         if(scope==='weekly' && !alreadyOn && !isLimitFreeBoss(b) && charSum(c,period).limitCount>=MAX_CHECK){
@@ -9902,7 +9911,8 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const bosses=bossStore(c,period,scope);
   const pref=bossPreference(c,g);
   const img = IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
-  const allowed = canUseBoss(c,b);
+  const lockReason = bossLockReason(c,b);
+  const allowed = !lockReason;
   const on = allowed && (id in bosses);
   const maxParty = bossPartyMax(b);
   const party = clampPartyForBoss(b,bosses[id]||pref.party);
@@ -9913,9 +9923,9 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const diffHtml = g.bosses.length>1
     ? '<div class="bdiff">난이도 <select class="diff" data-group="'+g.key+'" data-current="'+id+'"'+disabled+'>'+diffOpts+'</select></div>'
     : '<div class="bmeta">난이도 '+bossDiff(b)+'</div>';
-  const shareTxt = !allowed ? '챌린저스 전용' : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
+  const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
   const dropHtml = allowed ? dropChecklistHtml(g,b,c,period,scope) : '';
-  return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'">'+
+  return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
