@@ -3949,6 +3949,32 @@ const DROP_ITEMS = {
     }
     return null;
   };
+  const BELLONA_DROP_IMAGES = Object.freeze({
+    white_boss_ring_box:'assets/drops/bellona/white-boss-ring-box.png',
+    chaos_pitched_box:'assets/drops/bellona/chaos-pitched-box.png',
+    life_grindstone:'assets/drops/bellona/life-grindstone.png',
+    life_boss_ring_box:'assets/drops/bellona/life-boss-ring-box.png',
+    faith_grindstone:'assets/drops/bellona/faith-grindstone.png',
+    chaos_loose_machine_mark:'assets/drops/bellona/loose-control-machine-mark.png',
+    chaos_demian_eye_patch:'assets/drops/bellona/magic-eye-patch.png',
+    chaos_dreamy_belt:'assets/drops/bellona/dreamy-belt.png',
+    chaos_giant_fear:'assets/drops/bellona/giant-fear.png',
+    chaos_cursed_spellbook_box:'assets/drops/bellona/cursed-spellbook-box.png',
+    chaos_commander_force_earring:'assets/drops/bellona/commander-force-earring.png',
+    chaos_pain_source:'assets/drops/bellona/pain-source.png'
+  });
+  const cloneBellonaDropTemplate = (id) => {
+    const item=cloneDropTemplate(id);
+    if(!item) return null;
+    const withLocalImage = entry => ({
+      ...entry,
+      img:BELLONA_DROP_IMAGES[entry.id] || entry.img
+    });
+    return {
+      ...withLocalImage(item),
+      ...(item.children ? {children:item.children.map(withLocalImage)} : {})
+    };
+  };
   const compactDrops = items => items.filter(Boolean);
   const bellonaroid = {
     id:'bellonaroid',
@@ -3957,13 +3983,13 @@ const DROP_ITEMS = {
   };
 
   DROP_ITEMS.ebellona = compactDrops([
-    cloneDropTemplate('white_boss_ring_box')
+    cloneBellonaDropTemplate('white_boss_ring_box')
   ]);
   DROP_ITEMS.nbellona = compactDrops([
     {...bellonaroid},
-    cloneDropTemplate('chaos_pitched_box'),
-    cloneDropTemplate('white_boss_ring_box'),
-    cloneDropTemplate('life_grindstone')
+    cloneBellonaDropTemplate('chaos_pitched_box'),
+    cloneBellonaDropTemplate('white_boss_ring_box'),
+    cloneBellonaDropTemplate('life_grindstone')
   ]);
   DROP_ITEMS.hbellona = compactDrops([
     {...bellonaroid},
@@ -3977,9 +4003,9 @@ const DROP_ITEMS = {
       name:'광기의 에테르넬 방어구 상자',
       img:'assets/drops/madness-eternal-armor-box.webp'
     },
-    cloneDropTemplate('chaos_pitched_box'),
-    cloneDropTemplate('life_boss_ring_box'),
-    cloneDropTemplate('faith_grindstone')
+    cloneBellonaDropTemplate('chaos_pitched_box'),
+    cloneBellonaDropTemplate('life_boss_ring_box'),
+    cloneBellonaDropTemplate('faith_grindstone')
   ]);
 }
 
@@ -9637,6 +9663,123 @@ function crystalIcon(kind){
   return '<img class="crystal-icon" src="'+src+'" alt="">';
 }
 function imageKeyClass(key){ return String(key||'').replace(/[^a-z0-9_-]/gi,'').toLowerCase(); }
+
+/* Thin only the sticker-like color band touching an artwork's transparent edge. */
+const BOSS_ART_EDGE_RULES = Object.freeze({
+  cygnus:{hues:[[168,206],[238,315]],minS:.42,minL:.18},
+  hilla:{hues:[[166,208]],minS:.32,minL:.28},
+  damien:{hues:[[318,18]],minS:.42,minL:.18},
+  gas:{hues:[[158,205]],minS:.36,minL:.26},
+  dunkel:{hues:[[232,292]],minS:.24,minL:.34},
+  jinhilla:{hues:[[43,94]],minS:.5,minL:.24},
+  kalos:{hues:[[346,18]],minS:.58,minL:.2},
+  kaling:{hues:[[247,337]],minS:.45,minL:.17},
+  limbo:{hues:[[255,327]],minS:.44,minL:.18},
+  adversary:{hues:[[175,248]],minS:.08,minL:.5,allowWhite:true},
+  baldrix:{hues:[[305,355]],minS:.3,minL:.38,allowWhite:true},
+  star:{hues:[[24,72]],minS:.2,minL:.48,allowWhite:true},
+  arkarium:{hues:[[324,24]],minS:.18,minL:.52,allowWhite:true},
+  meirin:{hues:[[166,224]],minS:.18,minL:.45,allowWhite:true}
+});
+const bossArtCleanupCache = new Map();
+function bossArtHueMatches(h,ranges){
+  return ranges.some(([start,end])=>start<=end ? h>=start && h<=end : h>=start || h<=end);
+}
+function bossArtEdgeCandidate(rule,r,g,b,a){
+  if(a<10) return false;
+  const rr=r/255, gg=g/255, bb=b/255;
+  const max=Math.max(rr,gg,bb), min=Math.min(rr,gg,bb);
+  const light=(max+min)/2, delta=max-min;
+  const saturation=delta===0 ? 0 : delta/(1-Math.abs(2*light-1));
+  let hue=0;
+  if(delta){
+    if(max===rr) hue=60*(((gg-bb)/delta)%6);
+    else if(max===gg) hue=60*((bb-rr)/delta+2);
+    else hue=60*((rr-gg)/delta+4);
+    if(hue<0) hue+=360;
+  }
+  if(rule.allowWhite && light>.82 && saturation<.24) return true;
+  return saturation>=rule.minS && light>=rule.minL && bossArtHueMatches(hue,rule.hues);
+}
+function cleanedBossArtDataUrl(img,key){
+  const rule=BOSS_ART_EDGE_RULES[key];
+  if(!rule || !img.naturalWidth || !img.naturalHeight) return '';
+  const canvas=document.createElement('canvas');
+  const width=canvas.width=img.naturalWidth, height=canvas.height=img.naturalHeight;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx) return '';
+  ctx.drawImage(img,0,0,width,height);
+  const pixels=ctx.getImageData(0,0,width,height), data=pixels.data, count=width*height;
+  const candidate=new Uint8Array(count), connected=new Uint8Array(count);
+  const distance=new Int16Array(count); distance.fill(-1);
+  const queue=new Int32Array(count); let head=0, tail=0;
+  for(let i=0;i<count;i++){
+    const p=i*4;
+    candidate[i]=bossArtEdgeCandidate(rule,data[p],data[p+1],data[p+2],data[p+3]) ? 1 : 0;
+  }
+  const visitSeed=i=>{ if(candidate[i]&&!connected[i]){ connected[i]=1; queue[tail++]=i; } };
+  for(let i=0;i<count;i++){
+    if(!candidate[i]) continue;
+    const x=i%width, y=(i/width)|0;
+    if(x===0||y===0||x===width-1||y===height-1){ visitSeed(i); continue; }
+    const left=i-1,right=i+1,up=i-width,down=i+width;
+    if(data[left*4+3]<10||data[right*4+3]<10||data[up*4+3]<10||data[down*4+3]<10) visitSeed(i);
+  }
+  const neighbors=(i,fn)=>{
+    const x=i%width, y=(i/width)|0;
+    for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy) continue;
+      const nx=x+dx, ny=y+dy;
+      if(nx>=0&&nx<width&&ny>=0&&ny<height) fn(ny*width+nx);
+    }
+  };
+  while(head<tail){
+    const i=queue[head++];
+    neighbors(i,n=>{ if(candidate[n]&&!connected[n]){ connected[n]=1; queue[tail++]=n; } });
+  }
+  head=0; tail=0;
+  for(let i=0;i<count;i++){
+    if(!connected[i]) continue;
+    let touchesSubject=false;
+    neighbors(i,n=>{ if(data[n*4+3]>=10&&!candidate[n]) touchesSubject=true; });
+    if(touchesSubject){ distance[i]=0; queue[tail++]=i; }
+  }
+  while(head<tail){
+    const i=queue[head++], next=distance[i]+1;
+    neighbors(i,n=>{ if(connected[n]&&distance[n]<0){ distance[n]=next; queue[tail++]=n; } });
+  }
+  const keep=Math.max(1,Math.round(Math.min(width,height)*.012));
+  let changed=false;
+  for(let i=0;i<count;i++){
+    if(!connected[i]) continue;
+    const p=i*4;
+    if(distance[i]<0||distance[i]>keep){ data[p+3]=0; changed=true; }
+    else if(distance[i]===keep){ data[p+3]=Math.round(data[p+3]*.62); changed=true; }
+  }
+  if(!changed) return '';
+  ctx.putImageData(pixels,0,0);
+  return canvas.toDataURL('image/png');
+}
+function queueBossArtCleanup(root=document){
+  root.querySelectorAll('img.bimg[data-boss-art-key]').forEach(img=>{
+    const key=img.dataset.bossArtKey;
+    if(!BOSS_ART_EDGE_RULES[key]||img.dataset.edgeCleanupQueued) return;
+    img.dataset.edgeCleanupQueued='1';
+    const original=img.getAttribute('src')||'', cacheKey=key+'|'+original;
+    const apply=()=>{
+      if(!img.isConnected) return;
+      let cleaned=bossArtCleanupCache.get(cacheKey);
+      if(cleaned===undefined){
+        try{ cleaned=cleanedBossArtDataUrl(img,key); }
+        catch(_err){ cleaned=''; }
+        bossArtCleanupCache.set(cacheKey,cleaned);
+      }
+      if(cleaned){ img.dataset.edgeCleanupApplied='1'; img.src=cleaned; }
+    };
+    if(img.complete&&img.naturalWidth) apply();
+    else img.addEventListener('load',apply,{once:true});
+  });
+}
 function dropKey(b,item){ return b[0]+'|'+item.id; }
 function dailyDropKey(b,item){ return b[0]+'|'+item.id; }
 function legacyDropKeys(g,item){ return [g.key+'|'+item.id, g.name+'|'+item.id]; }
@@ -9926,7 +10069,7 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
   const dropHtml = allowed ? dropChecklistHtml(g,b,c,period,scope) : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
-    '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
+    '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" data-boss-art-key="'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
@@ -9962,7 +10105,7 @@ function dailyBossGroupCard(g,c,date){
   const shareTxt = on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;');
   const dropHtml = dailyDropChecklistHtml(g,b,c,date);
   return '<div class="bcard'+(on?' checked':'')+'">'+
-    '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
+    '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" data-boss-art-key="'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
@@ -10183,7 +10326,8 @@ function persistMonthlyBossMigration(){
 function renderAll(){
   persistMonthlyBossMigration();
   normalizeAllBosses();
-  switch(activePageName()){
+  const page=activePageName();
+  switch(page){
     case 'character': renderRegisteredCharacters(); break;
     case 'daily':
       renderRecords();
@@ -10199,6 +10343,7 @@ function renderAll(){
     case 'stats': renderStats(); break;
     case 'home': renderHome(); break;
   }
+  if(page==='boss'||page==='monthlyboss'||page==='dailyboss') queueBossArtCleanup();
 }
 function renderAllPreservingViewport(){
   const left=window.pageXOffset || document.documentElement.scrollLeft || 0;
