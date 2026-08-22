@@ -1,0 +1,233 @@
+[
+  {
+    "key": "zakum",
+    "source": "148x150",
+    "art": "148x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "bloodyqueen",
+    "source": "90x150",
+    "art": "90x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "vonbon",
+    "source": "119x150",
+    "art": "117x149",
+    "canvas": "275x165",
+    "edgeCleaned": false
+  },
+  {
+    "key": "pierre",
+    "source": "124x150",
+    "art": "122x149",
+    "canvas": "275x165",
+    "edgeCleaned": false
+  },
+  {
+    "key": "magnus",
+    "source": "200x115",
+    "art": "198x114",
+    "canvas": "227x136",
+    "edgeCleaned": false
+  },
+  {
+    "key": "vellum",
+    "source": "128x150",
+    "art": "128x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "papulatus",
+    "source": "128x150",
+    "art": "126x148",
+    "canvas": "274x164",
+    "edgeCleaned": false
+  },
+  {
+    "key": "suwu",
+    "source": "467x437",
+    "art": "439x422",
+    "canvas": "784x470",
+    "edgeCleaned": false
+  },
+  {
+    "key": "damien",
+    "source": "104x144",
+    "art": "94x133",
+    "canvas": "245x147",
+    "edgeCleaned": true
+  },
+  {
+    "key": "gas",
+    "source": "196x150",
+    "art": "195x147",
+    "canvas": "282x169",
+    "edgeCleaned": true
+  },
+  {
+    "key": "lucid",
+    "source": "140x150",
+    "art": "140x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "will",
+    "source": "83x150",
+    "art": "83x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "dusk",
+    "source": "700x650",
+    "art": "636x619",
+    "canvas": "1149x689",
+    "edgeCleaned": false
+  },
+  {
+    "key": "dunkel",
+    "source": "199x150",
+    "art": "198x150",
+    "canvas": "287x172",
+    "edgeCleaned": true
+  },
+  {
+    "key": "jinhilla",
+    "source": "110x150",
+    "art": "99x133",
+    "canvas": "245x147",
+    "edgeCleaned": true
+  },
+  {
+    "key": "seren",
+    "source": "149x150",
+    "art": "149x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "kalos",
+    "source": "200x124",
+    "art": "200x124",
+    "canvas": "244x146",
+    "edgeCleaned": true
+  },
+  {
+    "key": "adversary",
+    "source": "380x420",
+    "art": "364x403",
+    "canvas": "745x447",
+    "edgeCleaned": true
+  },
+  {
+    "key": "kaling",
+    "source": "200x126",
+    "art": "195x122",
+    "canvas": "240x144",
+    "edgeCleaned": true
+  },
+  {
+    "key": "bellona",
+    "source": "520x376",
+    "art": "520x358",
+    "canvas": "694x416",
+    "edgeCleaned": false
+  },
+  {
+    "key": "star",
+    "source": "357x419",
+    "art": "234x221",
+    "canvas": "412x247",
+    "edgeCleaned": true
+  },
+  {
+    "key": "limbo",
+    "source": "124x150",
+    "art": "121x148",
+    "canvas": "274x164",
+    "edgeCleaned": true
+  },
+  {
+    "key": "baldrix",
+    "source": "420x323",
+    "art": "409x303",
+    "canvas": "579x347",
+    "edgeCleaned": true
+  },
+  {
+    "key": "jupiter",
+    "source": "298x273",
+    "art": "282x257",
+    "canvas": "482x289",
+    "edgeCleaned": false
+  },
+  {
+    "key": "meirin",
+    "source": "386x380",
+    "art": "285x257",
+    "canvas": "482x289",
+    "edgeCleaned": true
+  },
+  {
+    "key": "blackmage",
+    "source": "135x150",
+    "art": "135x150",
+    "canvas": "277x166",
+    "edgeCleaned": false
+  },
+  {
+    "key": "hilla",
+    "source": "161x114",
+    "art": "160x112",
+    "canvas": "217x130",
+    "edgeCleaned": true
+  },
+  {
+    "key": "horntail",
+    "source": "721x639",
+    "art": "714x637",
+    "canvas": "1192x715",
+    "edgeCleaned": false
+  },
+  {
+    "key": "vonleon",
+    "source": "679x526",
+    "art": "554x506",
+    "canvas": "944x566",
+    "edgeCleaned": false
+  },
+  {
+    "key": "arkarium",
+    "source": "290x275",
+    "art": "185x253",
+    "canvas": "469x281",
+    "edgeCleaned": true
+  },
+  {
+    "key": "kaung",
+    "source": "599x342",
+    "art": "596x331",
+    "canvas": "662x398",
+    "edgeCleaned": false
+  },
+  {
+    "key": "pinkbean",
+    "source": "91x88",
+    "art": "89x85",
+    "canvas": "159x95",
+    "edgeCleaned": false
+  },
+  {
+    "key": "cygnus",
+    "source": "112x150",
+    "art": "107x142",
+    "canvas": "264x158",
+    "edgeCleaned": true
+  }
+]
