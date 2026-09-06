@@ -1007,22 +1007,22 @@
     .bimg{width:130px; height:78px;}
   }
 </style>
-<link rel="stylesheet" href="assets/workspace.css">
+<link rel="stylesheet" href="assets/workspace.css?v=20260907-2">
 </head>
 <body>
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
 <aside class="workspace-sidebar" id="workspace-sidebar" aria-label="기록장 메뉴">
-  <a class="workspace-brand" href="?page=home"><img id="logo-meso" alt=""><span>나만의 메계부<small>MAPLE TRACKER</small></span></a>
+  <a class="workspace-brand" href="?page=home"><img id="logo-meso" alt=""><span>나만의 메계부</span></a>
   <button class="icon-button sidebar-close" type="button" data-menu-close aria-label="메뉴 닫기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#close"></use></svg></button>
   <nav class="tabs" aria-label="주요 메뉴">
     <span class="nav-group-label">내 기록</span>
-    <button class="tab active" type="button" data-page="home" aria-current="page"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#home"></use></svg>대시보드</button>
+    <button class="tab active" type="button" data-page="home" aria-current="page"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#home"></use></svg>홈</button>
     <button class="tab" type="button" data-page="character"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg>캐릭터 등록</button>
     <button class="tab" type="button" data-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg>재획 기록</button>
     <span class="nav-group-label">보스</span>
-    <button class="tab" type="button" data-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</button>
-    <button class="tab" type="button" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</button>
-    <button class="tab" type="button" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석</button>
+    <button class="tab" type="button" data-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</button>
+    <button class="tab" type="button" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 보스</button>
+    <button class="tab" type="button" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 보스</button>
     <span class="nav-group-label">수익 관리</span>
     <button class="tab" type="button" data-page="profit"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#profit"></use></svg>손익 계산기</button>
     <button class="tab" type="button" data-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg>지출 기록</button>
@@ -1030,13 +1030,13 @@
     <span class="nav-group-label">도움말</span>
     <button class="tab" type="button" data-page="intro"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>사용 설명</button>
   </nav>
-  <div class="sidebar-footer"><div class="sidebar-landscape" aria-hidden="true"></div><b>꾸준히 쌓이는 나의 기록</b><span>주간 목요일 · 월간 매월 1일 초기화</span><a href="api/">NEXON Open API 이용 안내</a></div>
+  <div class="sidebar-footer"><span>보스 초기화</span><dl><dt>주간</dt><dd>매주 목요일</dd><dt>월간</dt><dd>매월 1일</dd></dl><a href="api/">NEXON Open API 이용 안내</a></div>
 </aside>
 <button class="sidebar-scrim" type="button" data-menu-close aria-label="메뉴 닫기" hidden></button>
 <header class="workspace-header">
   <div class="workspace-heading">
     <button class="icon-button mobile-menu-toggle" type="button" data-menu-toggle aria-label="전체 메뉴 열기" aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg></button>
-    <div><span class="workspace-eyebrow">나만의 메계부</span><h1 id="workspace-title" tabindex="-1">대시보드</h1></div>
+    <div><span class="workspace-eyebrow">나만의 메계부</span><h1 id="workspace-title" tabindex="-1">홈</h1></div>
   </div>
   <div class="workspace-header-actions"><span class="storage-badge" title="기록은 현재 브라우저에 저장됩니다.">브라우저 저장</span><button class="ghost workspace-backup" id="workspace-backup" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#download"></use></svg><span>백업</span></button></div>
 </header>
@@ -1051,43 +1051,35 @@
 
 <!-- ══════════ 홈 ══════════ -->
 <div class="page active" id="page-home">
+  <div class="workspace-quick-actions" aria-label="빠른 기록">
+    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+  </div>
   <div class="card home-overview">
     <div class="home-head">
       <div>
-        <h2>나의 수익 한눈에</h2>
+        <h2>수익 요약</h2>
         <p id="home-period-label">이번 주와 이번 달의 수익 흐름을 정리하고 있습니다.</p>
       </div>
-      <button class="ghost" id="home-open-stats" type="button">통계 자세히 보기</button>
+      <button class="ghost" id="home-open-stats" type="button">전체 통계</button>
     </div>
     <div class="home-summary-grid" id="home-summary"></div>
   </div>
 
-  <div class="workspace-quick-actions" aria-label="빠른 기록">
-    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록하기</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>이번 주 보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출 기록하기</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-  </div>
   <div class="home-grid">
-    <div class="card home-wide home-automation">
-      <div class="home-section-head">
-        <div><h2>⚡ 기록 자동 분석</h2></div>
-        <span class="muted">새 입력 없이 저장된 기록을 기준으로 자동 갱신합니다.</span>
-      </div>
-      <div id="home-automation"></div>
-    </div>
-
     <div class="card">
       <div class="home-section-head">
         <div><h2>👑 이번 주 보스 진행</h2></div>
         <span class="muted">본서버 12개 · 챌린저스 13개 기준으로 확인합니다.</span>
       </div>
       <div class="weekly-progress-list" id="home-weekly-progress"></div>
-      <div class="home-action-row"><button class="ghost" type="button" data-open-page="boss">주간 결정석 열기</button></div>
+      <div class="home-action-row"><button class="ghost" type="button" data-open-page="boss">주간 보스 보기</button></div>
     </div>
 
     <div class="card">
       <div class="home-section-head">
-        <div><h2>🧾 월간 결산 리포트</h2></div>
+        <div><h2>🧾 월간 결산</h2></div>
         <span class="muted">실제 수입과 지출만 반영합니다.</span>
       </div>
       <div class="monthly-report-controls">
@@ -1096,6 +1088,14 @@
         <button class="ghost" id="home-report-image" type="button">이미지 저장</button>
       </div>
       <div id="home-monthly-report"></div>
+    </div>
+
+    <div class="card home-wide home-automation">
+      <div class="home-section-head">
+        <div><h2>수익 추이</h2></div>
+        <span class="muted">저장된 기록 기준 · 예상 수익은 실제 수익과 다를 수 있습니다.</span>
+      </div>
+      <div id="home-automation"></div>
     </div>
 
     <div class="card">
@@ -1109,14 +1109,14 @@
     <div class="card">
       <div class="home-section-head">
         <div><h2>🏅 나의 기록</h2></div>
-        <span class="muted">꾸준히 쌓인 기록을 가볍게 돌아봅니다.</span>
+        <span class="muted">최고 수익과 누적 재획 기록</span>
       </div>
       <div class="personal-records" id="home-personal-records"></div>
     </div>
 
     <div class="card home-wide">
       <div class="home-section-head">
-        <div><h2>🛡 데이터 보호</h2></div>
+        <div><h2>🛡 백업 · 복원</h2></div>
         <span class="muted">API 키는 어떤 백업 파일에도 포함하지 않습니다.</span>
       </div>
       <div class="backup-status" id="home-backup"></div>
@@ -1171,7 +1171,7 @@
   </div>
 
   <div class="card">
-    <h2>홈 대시보드와 월간 결산</h2>
+    <h2>홈 수익 요약과 월간 결산</h2>
     <div class="guide-grid">
       <div class="guide-item"><b>한눈에 보기</b><p>홈에서 오늘·이번 주·이번 달 순수익, 목표 진행률, 캐릭터별 보스 진행을 바로 확인합니다.</p></div>
       <div class="guide-item"><b>자동 분석</b><p>최근 7일 수익 페이스, 월말 예상 순수익, 목표 달성 예상일을 계산하고 드랍·판매 가격처럼 합계에서 빠질 수 있는 항목을 자동으로 알려줍니다.</p></div>
@@ -1207,7 +1207,7 @@
   </div>
 
   <div class="card">
-    <h2>3. 주간 결정석</h2>
+    <h2>3. 주간 보스</h2>
     <ul class="guide-list">
       <li>먼저 캐릭터 이름을 등록하고, 본서버 또는 챌린저스 서버를 선택합니다.</li>
       <li>캐릭터 이름을 누르면 보스 카드가 열리고, 보스마다 난이도와 파티 인원수를 선택할 수 있습니다.</li>
@@ -1227,10 +1227,10 @@
   </div>
 
   <div class="card">
-    <h2>5. 월간 결정석과 일간 결정석</h2>
+    <h2>5. 월간 보스와 일간 보스</h2>
     <ul class="guide-list">
-      <li><b>월간 결정석</b> 탭은 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
-      <li><b>일간 결정석</b> 탭은 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
+      <li><b>월간 보스</b> 메뉴는 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
+      <li><b>일간 보스</b> 메뉴는 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
       <li>월간 결정석은 월간 집계에만 반영하며, 일간 결정석은 클리어한 날짜의 주간·월간 집계에 반영합니다.</li>
       <li>일간 결정석을 쓰려면 캐릭터 등록 탭에서 캐릭터를 먼저 등록해 주세요.</li>
     </ul>
@@ -1332,7 +1332,7 @@
       </div>
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
-    <div class="muted" style="margin-top:8px;">등록한 캐릭터 이름을 주간/월간/일간 결정석 탭에서 눌러 보스 체크 목록을 열 수 있습니다.</div>
+    <div class="muted" style="margin-top:8px;">주간/월간/일간 보스 메뉴에서 캐릭터의 '보스 펼치기'를 누르면 체크 목록이 열립니다.</div>
   </div>
 
   <div class="card">
@@ -1503,7 +1503,7 @@
 <!-- ══════════ 주간 결정석 ══════════ -->
 <div class="page" id="page-boss">
   <div class="card period-card">
-    <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
     <div class="period-history-nav" id="weeklyboss-period-nav" aria-label="주간 보스 기록 주차 선택"></div>
     <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
@@ -1526,7 +1526,7 @@
 <!-- ══════════ 월간 결정석 ══════════ -->
 <div class="page" id="page-monthlyboss">
   <div class="card period-card">
-    <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 보스</h2>
     <div class="period-note" id="monthlyboss-period-note">월간 결정석</div>
     <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">검은 마법사 월간 결정석과 드랍 아이템 수익을 현재 월 기준으로 기록합니다. 완료 체크와 드랍은 새 기록 기간에 맞춰 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div></details>
   </div>
@@ -1545,7 +1545,7 @@
 <!-- ══════════ 일간 결정석 ══════════ -->
 <div class="page" id="page-dailyboss">
   <div class="card">
-    <h2><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 결정석</h2>
+    <h2><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 보스</h2>
     <div class="daily-date-row">
       <div>
         <label>날짜</label>
@@ -7472,8 +7472,8 @@ function renderHomeAutomation(report,goal){
   ).join('')+'</div>';
   const issueHtml=issues.length
     ? '<div class="automation-task-list">'+issues.map(issue=>'<button class="automation-task" type="button" data-open-page="'+esc(issue.page)+'"><span class="automation-task-mark">!</span><span class="automation-task-copy"><b>'+esc(issue.title)+'</b><small>'+esc(issue.detail)+'</small></span><span class="automation-task-action">확인</span></button>').join('')+'</div>'
-    : '<div class="automation-clear">현재 합계에서 빠질 가능성이 있는 미입력 항목을 찾지 못했습니다. 새 기록을 저장하면 이곳도 함께 갱신됩니다.</div>';
-  el.innerHTML=insightHtml+'<div class="automation-check"><div class="automation-check-head"><b>자동 확인</b><span>'+(issues.length?fmt(issues.length)+'가지 확인이 필요합니다.':'누락 없이 정리되어 있습니다.')+'</span></div>'+issueHtml+'</div>';
+    : '';
+  el.innerHTML=insightHtml+(issues.length?'<div class="automation-check"><div class="automation-check-head"><b>입력 확인</b><span>'+fmt(issues.length)+'가지 확인이 필요합니다.</span></div>'+issueHtml+'</div>':'');
 }
 function renderHome(){
   const summaryEl=document.getElementById('home-summary');
@@ -7505,8 +7505,8 @@ function renderHome(){
     ['오늘 순수익',signedKorMeso(todayNet),valueClass(todayNet),'재획 · 일간 보스 · 손익 · 지출 반영'],
     ['이번 주 순수익',signedKorMeso(weekNet),valueClass(weekNet),'재획 '+huntWeek.days+'일 · 주간·일간 보스 · 월간 보스 별도'],
     ['이번 달 순수익',signedKorMeso(currentMonthReport.net),valueClass(currentMonthReport.net),'보스 · 판매 수익 · 지출 반영'],
-    ['목표 진행',goal.empty?'목표 미설정':goal.pct.toFixed(goal.pct<10?2:0).replace(/\.00$/,'')+'%',goal.empty?'':'good',goal.empty?'통계 탭에서 목표 금액을 입력하세요.':korMeso(goal.progress)+' / '+korMeso(goal.target)]
-  ].map(item=>'<div class="home-summary"><span>'+item[0]+'</span><b class="'+item[2]+'">'+item[1]+'</b><small>'+item[3]+'</small></div>').join('');
+    ['목표 진행',goal.empty?'목표 미설정':goal.pct.toFixed(goal.pct<10?2:0).replace(/\.00$/,'')+'%',goal.empty?'':'good',goal.empty?'':korMeso(goal.progress)+' / '+korMeso(goal.target)]
+  ].map((item,index)=>'<div class="home-summary"><span>'+item[0]+'</span><b class="'+item[2]+'">'+item[1]+'</b>'+(item[3]?'<small>'+item[3]+'</small>':'')+(index===3?'<button class="ghost" type="button" data-open-page="stats">목표 '+(goal.empty?'설정':'보기')+'</button>':'')+'</div>').join('');
   renderHomeAutomation(currentMonthReport,goal);
 
   const progressEl=document.getElementById('home-weekly-progress');

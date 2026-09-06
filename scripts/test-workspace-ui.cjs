@@ -88,6 +88,31 @@ async function overflow(page, label) {
   assert.deepEqual(offenders, [], label + ' horizontal overflow: ' + JSON.stringify(offenders));
 }
 
+async function checkReadability(page, width) {
+  const style = await page.evaluate(() => {
+    const css = selector => getComputedStyle(document.querySelector(selector));
+    const backdrop = getComputedStyle(document.body, '::before');
+    const main = document.querySelector('.workspace-main').getBoundingClientRect();
+    return {
+      background: backdrop.backgroundImage, display: backdrop.display,
+      body: parseFloat(css('body').fontSize), nav: parseFloat(css('.tab').fontSize),
+      action: parseFloat(css('.workspace-quick-actions button').fontSize),
+      label: parseFloat(css('.home-summary span').fontSize),
+      note: parseFloat(css('.home-summary small').fontSize),
+      value: parseFloat(css('.home-summary b').fontSize),
+      gutter: document.documentElement.clientWidth - main.right,
+      actionsFirst: document.querySelector('.workspace-quick-actions').getBoundingClientRect().bottom < document.querySelector('.home-summary-grid').getBoundingClientRect().top
+    };
+  });
+  assert.match(style.background, /maple-village-bg\.png/, width+' original village background');
+  assert.notEqual(style.display, 'none');
+  assert(style.gutter >= 8, width+' background has no visible side gutter');
+  for (const [field, minimum] of Object.entries({body:15,nav:15,action:14,label:14,note:13,value:23})) {
+    assert(style[field] >= minimum, width+' '+field+' too small: '+style[field]);
+  }
+  assert(style.actionsFirst, width+' primary actions must precede the summary');
+}
+
 (async () => {
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
   const origin = 'http://127.0.0.1:' + server.address().port;
@@ -113,6 +138,7 @@ async function overflow(page, label) {
       await page.setViewportSize({width,height:1000});
       for (const name of ['home','character','daily','boss','monthlyboss','dailyboss','profit','expense','stats','intro']) {
         await navigate(page,name);
+        if (name === 'home') await checkReadability(page,width);
         if (['boss','monthlyboss','dailyboss'].includes(name)) {
           if (!await page.locator('.page.active .bosslist.open').count()) {
             await page.locator('.page.active .character-disclosure').first().click();
@@ -140,6 +166,9 @@ async function overflow(page, label) {
       }
     }
     assert.equal(await recordSnapshot(page),before,'Navigation changed ledger records');
+    await navigate(page,'home');
+    await page.locator('.home-summary [data-open-page="stats"]').click();
+    assert.equal(await page.locator('#workspace-title').textContent(),'통계','Goal shortcut must open statistics');
     await page.setViewportSize({width:390,height:844});
     await navigate(page,'boss');
     const disclosure = page.locator('.page.active .character-disclosure').first();
@@ -223,11 +252,15 @@ async function overflow(page, label) {
         await page.goto(origin+route);
         await settle(page);
         await overflow(page,width+' '+route);
+        assert.match(await page.evaluate(()=>getComputedStyle(document.body).backgroundImage+' '+getComputedStyle(document.body,'::before').backgroundImage),/maple-village-bg\.png/,route+' original village background');
+        if (route === '/guide/' && [1440,390].includes(width)) {
+          await page.screenshot({path:path.join(output,'guide-'+width+'-viewport.png')});
+        }
       }
     }
     assert.deepEqual(errors,[],'Browser errors');
     await context.close();
-    console.log('Workspace UI: 50 page/viewport checks, navigation, mobile menu, hunt save, backup, boss drops and reload persistence passed.');
+    console.log('Workspace UI: 50 app + 12 public page/viewport checks, background, readable text, shortcuts, navigation, mobile menu, hunt save, backup, boss drops and reload persistence passed.');
     console.log('Screenshots: '+output);
   } finally {
     await browser.close();

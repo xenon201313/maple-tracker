@@ -13,17 +13,19 @@
 :root{
   color-scheme:dark;
   --text:#f0f2f4;
-  --sub:#b1bac5;
-  --gold:#f4cf67;
+  --sub:#c2c9d3;
+  --gold:#ffda62;
   --blue:#91c4eb;
   --green:#72dbb0;
-  --line:#363b42;
-  --panel:#1e2125;
-  --panel-soft:#25292e;
+  --line:#484e59;
+  --panel:#292d34;
+  --panel-soft:#333740;
 }
 *{box-sizing:border-box;}
 html{min-height:100%;background:#17191c;overflow-x:hidden;}
 body{
+  position:relative;
+  isolation:isolate;
   min-height:100dvh;
   margin:0;
   padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(34px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
@@ -35,8 +37,9 @@ body{
   word-break:keep-all;
   overflow-wrap:break-word;
 }
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#0a0e1461,#0a0e1461),url('maple-village-bg.png') center/cover no-repeat;}
 a{color:var(--blue);text-underline-offset:3px;}
-.shell{width:min(1040px,100%);margin:0 auto;}
+.shell{width:min(1100px,100%);margin:0 auto;padding:28px 32px;background:rgba(30,33,40,.97);}
 .topbar{
   display:flex;
   align-items:center;
@@ -97,13 +100,13 @@ p{margin:8px 0;color:var(--sub);}
   font-size:12px;
 }
 /* Shared visual language with the record workspace. */
-.nav a { background:#25292e; font-weight:550; }
+.nav a { background:var(--panel-soft); font-weight:550; font-size:14px; }
 .nav a[aria-current="page"] { background:#f4cf6710; border-color:#f4cf6740; }
 .topbar { padding-bottom:20px; border-bottom:1px solid var(--line); }
 .hero { padding:36px 0; }
 .section { padding:24px 0; }
 .hero h1 { color:var(--text); }
-h2 { color:var(--text); font-size:22px; }
+h2 { color:var(--gold); font-family:'MaplestoryTitle','Malgun Gothic',sans-serif; font-size:22px; }
 .steps li { background:var(--panel-soft); border-color:var(--line); }
 a:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
 @media(max-width:760px) {
@@ -203,11 +206,13 @@ footer a{color:#cfe8ff;}
   .nav a{justify-content:center;text-align:center;}
   h1{font-size:27px;}
 }
-.privacy-page main { display:block; padding:28px 0; background:none; border:0; border-radius:0; box-shadow:none; }
+.privacy-page main { display:block; padding:28px 32px; background:rgba(30,33,40,.97); border:0; border-radius:0; box-shadow:none; }
 .privacy-page h1 { color:var(--text); }
 .privacy-page h2 { margin-top:28px; }
 .privacy-page .date { border-radius:6px; }
 @media(max-width:760px) {
-  body { padding-inline:18px; }
+  body { padding-inline:10px; }
+  .shell, .privacy-page main { padding:22px 16px; }
+  .nav a { font-size:13px; }
   .hero,.section { padding-inline:0; }
 }
