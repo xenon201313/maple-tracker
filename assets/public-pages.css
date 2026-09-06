@@ -12,28 +12,26 @@
 }
 :root{
   color-scheme:dark;
-  --text:#f3f6ff;
-  --sub:#c5cfe2;
-  --gold:#ffd24d;
-  --blue:#92d2ff;
-  --green:#6de3aa;
-  --line:rgba(207,222,255,.22);
-  --panel:rgba(15,20,33,.95);
-  --panel-soft:rgba(24,31,48,.9);
+  --text:#f0f2f4;
+  --sub:#b1bac5;
+  --gold:#f4cf67;
+  --blue:#91c4eb;
+  --green:#72dbb0;
+  --line:#363b42;
+  --panel:#1e2125;
+  --panel-soft:#25292e;
 }
 *{box-sizing:border-box;}
-html{min-height:100%;background:#0d121c;overflow-x:hidden;}
+html{min-height:100%;background:#17191c;overflow-x:hidden;}
 body{
   min-height:100dvh;
   margin:0;
   padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(34px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
   color:var(--text);
-  font-family:'MaplestoryBody','Malgun Gothic',sans-serif;
+  font-family:'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
   font-size:16px;
   line-height:1.72;
-  background:
-    linear-gradient(180deg,rgba(7,11,19,.46),rgba(7,11,19,.86)),
-    url('maple-village-bg.png') center/cover fixed no-repeat;
+  background:#17191c;
   word-break:keep-all;
   overflow-wrap:break-word;
 }
@@ -79,17 +77,12 @@ a{color:var(--blue);text-underline-offset:3px;}
 .nav a[aria-current="page"]{border-color:rgba(255,210,77,.62);color:var(--gold);}
 .nav a:hover,.nav a:focus-visible{border-color:rgba(146,210,255,.62);color:#fff;outline:none;}
 main{display:grid;gap:16px;}
-.hero,.section{
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--panel);
-  box-shadow:0 18px 44px rgba(0,0,0,.34);
-}
+.hero,.section{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none;}
 .hero{padding:30px;}
 .section{padding:24px 26px;}
 .eyebrow{margin:0 0 8px;color:var(--blue);font-size:13px;font-weight:700;}
-h1,h2,h3{font-family:'MaplestoryTitle','Malgun Gothic',sans-serif;letter-spacing:0;}
-h1{margin:0;font-size:clamp(30px,5vw,46px);line-height:1.24;}
+h1,h2,h3{font-family:inherit;letter-spacing:0;}
+h1{margin:0;font-size:36px;line-height:1.35;}
 h2{margin:0 0 11px;color:var(--gold);font-size:23px;line-height:1.35;}
 h3{margin:0 0 6px;color:#f7f9ff;font-size:17px;line-height:1.45;}
 p{margin:8px 0;color:var(--sub);}
@@ -102,6 +95,23 @@ p{margin:8px 0;color:var(--sub);}
   background:rgba(23,31,47,.78);
   color:#cfd9ec;
   font-size:12px;
+}
+/* Shared visual language with the record workspace. */
+.nav a { background:#25292e; font-weight:550; }
+.nav a[aria-current="page"] { background:#f4cf6710; border-color:#f4cf6740; }
+.topbar { padding-bottom:20px; border-bottom:1px solid var(--line); }
+.hero { padding:36px 0; }
+.section { padding:24px 0; }
+.hero h1 { color:var(--text); }
+h2 { color:var(--text); font-size:22px; }
+.steps li { background:var(--panel-soft); border-color:var(--line); }
+a:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+@media(max-width:760px) {
+  body { padding-inline:18px; }
+  .hero { padding:26px 0; }
+  .section { padding:22px 0; }
+  h1 { font-size:28px; }
+  h2 { font-size:20px; }
 }
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .item{
@@ -192,4 +202,12 @@ footer a{color:#cfe8ff;}
   .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;}
   .nav a{justify-content:center;text-align:center;}
   h1{font-size:27px;}
+}
+.privacy-page main { display:block; padding:28px 0; background:none; border:0; border-radius:0; box-shadow:none; }
+.privacy-page h1 { color:var(--text); }
+.privacy-page h2 { margin-top:28px; }
+.privacy-page .date { border-radius:6px; }
+@media(max-width:760px) {
+  body { padding-inline:18px; }
+  .hero,.section { padding-inline:0; }
 }

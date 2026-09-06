@@ -47,3 +47,12 @@ AI가 제안한 구현은 실제 사용 흐름과 메이플스토리 보스 규�
 ## 실행
 
 정적 사이트이므로 `index.html`을 브라우저에서 열거나 GitHub Pages 배포 주소로 접속하면 사용할 수 있습니다.
+
+## UI 검증
+
+- `assets/workspace.css`, `assets/workspace.js`는 기록 저장 구조와 분리된 화면·탐색 계층입니다.
+- `npm run test:data-safety`: 재획 보호 및 클라우드 이력 회귀 테스트
+- `npx playwright install chromium` 후 `npm run test:ui`: 임시 로컬 서버와 격리된 브라우저에서 PC·모바일 화면, 메뉴, 저장, 백업, 드랍 기록 유지 확인
+- 설치된 Chrome을 사용하려면 `PLAYWRIGHT_CHANNEL=chrome` 환경 변수를 지정합니다.
+- 테스트는 가상 기록만 사용하며 실제 서비스와 외부 API 요청을 차단합니다. 캡처는 Git에서 제외된 `.tools/ui-review/`에 저장됩니다.
+- `npm run prepare:android-web`: 같은 UI를 Android 웹 자산에도 반영합니다.
