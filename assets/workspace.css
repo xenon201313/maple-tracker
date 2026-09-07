@@ -214,6 +214,47 @@ h1,h2,h3 { letter-spacing: 0; }
 .exp-history-panel { box-shadow: none; }
 .profit-menu button { white-space: normal; word-break: keep-all; }
 .profit-line, .profit-line-name { min-width: 0; }
+.profit-layout { grid-template-columns: minmax(0,1fr); }
+#profit-type-list { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+#profit-type-list .profit-type-btn { justify-content: center; border-radius: 8px; }
+#profit-type-list .profit-type-btn > span,
+#profit-type-list .profit-type-label { white-space: normal; overflow: visible; }
+#profit-calculator, #manual-enhancement-calculator { container: ledger-form / inline-size; min-width: 0; }
+#profit-calculator h3 { margin: 24px 0 10px; font-size: 18px; }
+.profit-line { grid-template-columns: minmax(0,1.6fr) minmax(0,1fr) minmax(0,.6fr) minmax(0,1fr); gap: 12px; border-radius: 8px; padding: 14px; }
+.profit-line.output { grid-template-columns: minmax(0,1.5fr) minmax(0,1fr) minmax(0,.55fr) minmax(0,.7fr) minmax(0,.75fr) minmax(0,1.15fr); }
+.profit-line.output.unsellable { grid-template-columns: minmax(0,1.6fr) minmax(0,.6fr) minmax(0,1fr) minmax(0,1fr); }
+#page-profit .profit-line .profit-line-name { grid-column: auto; align-self: center; }
+.profit-line > div { min-width: 0; }
+.profit-line-name span:last-child { white-space: normal; overflow: visible; text-overflow: clip; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.5; }
+.profit-line label { font-size: 14px; word-break: keep-all; overflow-wrap: anywhere; }
+.profit-line input:not([type=checkbox]), .profit-line select { width: 100%; min-width: 0; min-height: 44px; }
+.profit-line .profit-check { min-height: 44px; height: auto; border-radius: 8px; }
+.profit-line .profit-record-stat { min-height: 44px; display: flex; align-items: center; }
+.profit-line .profit-record-stat b { font-size: 16px; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
+.profit-result { grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); }
+.profit-metric { border-radius: 8px; }
+.manual-enhancement-type { display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 18px 0; }
+.manual-enhancement-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 16px; margin-top: 18px; }
+.manual-enhancement-actions span { min-width: 0; overflow-wrap: anywhere; }
+.manual-enhancement-actions b { color: var(--red); margin-left: 8px; }
+#manual-enhancement-records .profit-record-title b { white-space: normal; overflow-wrap: anywhere; }
+#manual-enhancement-records .expense-only { grid-template-columns: minmax(0,1fr) minmax(0,.6fr) auto; }
+@media (max-width: 620px) {
+  #profit-type-list .profit-type-btn > span { flex-direction: column; text-align: center; }
+  #manual-enhancement-records .expense-only { grid-template-columns: minmax(0,1fr); }
+}
+@container ledger-form (max-width: 1000px) {
+  #page-profit .profit-line.output { grid-template-columns: minmax(0,1.3fr) minmax(0,.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr); }
+  #page-profit .profit-line.output.unsellable { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  #page-profit .profit-line.output .profit-line-name { grid-column: 1 / -1; }
+}
+@container ledger-form (max-width: 620px) {
+  .profit-entry-grid { grid-template-columns: minmax(0,1fr); }
+  .profit-line, #page-profit .profit-line.output, #page-profit .profit-line.output.unsellable { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .profit-line .profit-line-name, #page-profit .profit-line .profit-line-name,
+  .profit-line > :last-child { grid-column: 1 / -1; }
+}
 .chart-float, .loot-float { background: #20252b; border-color: #63717e; box-shadow: 0 8px 24px #0005; }
 .site-footer { width: calc(100% - 64px); max-width: 1480px; margin: 0 auto; padding: 20px 28px; font: 12px/1.7 var(--font-body); color: var(--sub); border-top: 1px solid var(--line); background: rgba(30,33,40,.97); }
 .watermark { position: static; text-align: right; padding: 12px 32px 24px; color: #f0f2f5; font-size: 12px; background: none; border: 0; box-shadow: none; text-shadow: 0 1px 3px #000; }

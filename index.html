@@ -1010,7 +1010,7 @@
     .bimg{width:130px; height:78px;}
   }
 </style>
-<link rel="stylesheet" href="assets/workspace.css?v=20260908-1">
+<link rel="stylesheet" href="assets/workspace.css?v=20260908-2">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 </head>
 <body>
@@ -1253,9 +1253,9 @@
   <div class="card">
     <h2>7. 손익 계산기</h2>
     <ul class="guide-list">
-      <li>스타포스와 잠재능력은 기대값 계산기에서 확인한 값을 직접 입력하고, 실제 사용 메소와 비교합니다.</li>
-      <li>기대값 대비 이득은 참고로만 표시되며 통계에는 들어가지 않습니다. 통계에는 사용 메소와 판매 체크된 아이템 수익만 반영됩니다.</li>
-      <li>주문서, 추가옵션, 어빌리티, 원더베리, 로얄스타일, 플래티넘 애플은 실제 지출과 판매 수익을 기록하는 방식으로 관리합니다.</li>
+      <li>원더베리, 로얄스타일, 플래티넘 애플의 구입 비용과 판매 수익을 비교합니다.</li>
+      <li>통계에는 실제 사용 메소와 판매 완료한 아이템의 수수료 차감 후 수익만 반영됩니다.</li>
+      <li>스타포스, 잠재능력, 주문서, 추가옵션, 어빌리티는 지출 기록에서 관리합니다.</li>
     </ul>
     <div class="guide-note">아이템을 아직 판매하지 않았다면 순수 손실만 표시됩니다. 판매 여부를 체크하고 판매가와 수수료 3% 또는 5%를 선택하면 실수령액이 수익으로 잡힙니다.</div>
   </div>
@@ -1265,7 +1265,8 @@
     <ul class="guide-list">
       <li>장비 구매, 솔 에르다 조각 구매, 펫 구매, 코디템 구매, 도핑 구매, 메포 구매는 지출 기록 탭에 날짜와 유형을 남깁니다.</li>
       <li>직접 지출은 홈, 주간·월간 통계, 월간 결산의 순수익에서 자동으로 차감됩니다.</li>
-      <li>강화, 큐브, 주문서, 추가옵션, 어빌리티, 뽑기 사용 메소는 손익 계산기에서 자동 합산되므로 이 탭은 별도 구매 기록을 관리합니다.</li>
+      <li>강화 이력은 API로 불러와 금액을 확인한 뒤 반영하거나, 강화 지출 직접 입력으로 기록할 수 있습니다. 같은 지출은 한 번만 입력하세요.</li>
+      <li>이전에 손익 계산기에 저장한 강화 기록도 지출 기록에서 확인합니다. 기존 판매 수익과 통계는 유지됩니다.</li>
     </ul>
   </div>
 
@@ -1569,14 +1570,11 @@
 <div class="page" id="page-profit">
   <div class="card">
     <h2>💸 손익 계산기</h2>
-    <p class="muted">강화, 큐브, 주문서, 뽑기에서 실제로 쓴 메소와 판매된 아이템 수익을 기록합니다. 기대값 비교는 참고용이며 통계에는 실제 지출과 수수료 차감 후 판매 수익만 들어갑니다.</p>
-    <div class="profit-note">스타포스와 잠재능력 기대값은 <a href="https://www.mesu.live/" target="_blank" rel="noopener">mesu.live에서 기대값을 검색</a>한 뒤 입력해 주세요. 판매한 아이템은 수수료 3% 또는 5%를 선택하면 실수령 기준으로 반영됩니다.</div>
+    <p class="muted">뽑기 비용과 판매 수익을 비교합니다. 판매 완료한 결과물만 수수료를 뺀 수익으로 반영됩니다.</p>
+    <p class="muted">강화 비용과 기존 강화 기록은 <a href="?page=expense">지출 기록</a>에서 관리합니다.</p>
   </div>
   <div class="profit-layout">
-    <div class="card">
-      <h2>항목 선택</h2>
-      <div class="profit-menu" id="profit-type-list"></div>
-    </div>
+    <nav class="profit-menu" id="profit-type-list" aria-label="손익 계산 항목"></nav>
     <div class="card">
       <div id="profit-calculator"></div>
       <div id="profit-result" class="profit-result"></div>
@@ -1584,7 +1582,7 @@
   </div>
   <div class="card">
     <h2>손익 기록</h2>
-    <div class="muted">저장된 손익 기록입니다. 판매 체크가 꺼진 아이템은 수익 없이 지출만 통계에 반영되며, 판매한 항목은 선택한 수수료를 뺀 실수령액으로 집계됩니다.</div>
+    <div class="muted">원더베리 · 로얄스타일 · 플래티넘 애플의 저장된 기록입니다.</div>
     <div id="profit-records" class="profit-records"></div>
   </div>
 </div>
@@ -1612,9 +1610,14 @@
 <details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 동일 레벨·등급의 메소 재설정 비용으로 환산합니다. 무료·캐시 큐브의 환산액은 실제 메소 지출이 아니며, 확인한 메소 구매분만 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 5개 권한의 동의를 요청하며, 강화·큐브·잠재능력 이력만 조회합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
   </section>
   <div class="card">
-    <h2>💳 지출 기록</h2>
-    <p class="muted">장비, 솔 에르다 조각, 펫, 코디템, 도핑, 메포 구매처럼 손익 계산기와 별도로 남길 지출을 기록합니다. 이 탭의 지출은 통계와 순수익에서 차감됩니다.</p>
-    <div class="guide-note">강화·큐브·주문서·추가옵션·어빌리티·뽑기 사용 메소는 손익 계산기에서 자동으로 합산됩니다. 이 탭에서는 별도 구매 지출을 기록해 내역을 깔끔하게 분리합니다.</div>
+    <h2>강화 지출 직접 입력</h2>
+    <p class="muted">API 없이도 입력할 수 있습니다. API에서 이미 반영한 지출은 제외하세요.</p>
+    <label class="manual-enhancement-type">강화 종류<select id="manual-enhancement-type"></select></label>
+    <div id="manual-enhancement-calculator"></div>
+  </div>
+  <div class="card">
+    <h2>💳 구매 지출 입력</h2>
+    <p class="muted">장비, 조각, 펫 등 구매에 쓴 메소를 기록합니다.</p>
     <div class="expense-form" style="margin-top:14px;">
       <div>
         <label>날짜</label>
@@ -1642,12 +1645,16 @@
   <div class="card">
     <h2>📉 지출 요약</h2>
     <div id="expense-summary" class="expense-summary-grid"></div>
-    <div class="muted" style="margin-top:12px;">유형별 합계에는 이 탭에서 직접 입력한 지출과 손익 계산기에 저장된 실제 사용 메소가 함께 표시됩니다.</div>
+    <div class="muted" style="margin-top:12px;">구매 지출, 직접 입력한 강화 비용, 확정한 API 지출, 손익 계산기의 뽑기 비용을 합산합니다.</div>
     <div id="expense-categories" class="expense-category-grid"></div>
   </div>
   <div class="card">
-    <h2>🧾 저장된 직접 지출</h2>
-    <div class="muted">여기에서는 직접 입력한 지출만 삭제할 수 있습니다. 손익 계산기 기록은 손익 계산기 탭에서 관리하세요.</div>
+    <h2>강화 지출 입력 기록</h2>
+    <p class="muted">이전에 손익 계산기에 입력한 강화 기록도 포함됩니다. 기존 판매 수익은 그대로 유지됩니다.</p>
+    <div id="manual-enhancement-records" class="profit-records"></div>
+  </div>
+  <div class="card">
+    <h2>🧾 구매 지출 기록</h2>
     <div id="expense-records" class="expense-records"></div>
   </div>
 </div>
@@ -7740,14 +7747,11 @@ const PROFIT_PLATINUM_OUTPUTS=[
   {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', img:PROFIT_ASSET_BASE+'sol-erda-energy.png', sellable:false},
   {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png', sellable:false}
 ];
-const profitState={active:'starforce'};
+const MANUAL_ENHANCEMENT_TYPES=new Set(['starforce','potential','scroll','bonus','ability']);
+const profitState={active:'wonderberry'};
 function profitCategory(id){ return PROFIT_CATEGORIES.find(c=>c.id===id) || PROFIT_CATEGORIES[0]; }
 function profitEquipItemsForType(type){
   return type==='potential' ? PROFIT_EQUIP_ITEMS.concat(PROFIT_POTENTIAL_EXTRA_ITEMS) : PROFIT_EQUIP_ITEMS;
-}
-function profitEquipById(id,type=profitState.active){
-  const items=profitEquipItemsForType(type);
-  return items.find(i=>i.id===id) || items[0];
 }
 function profitIconHtml(item){
   const label=item?.name || item?.title || '아이템';
@@ -7772,18 +7776,9 @@ function profitNumberBlock(label,key,value='',attrs=''){
 function profitDateBlock(){
   return '<div class="profit-field"><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+todayStr()+'" value="'+todayStr()+'"></div>';
 }
-function profitSelectBlock(label,key,value,options){
-  return '<div class="profit-field"><label>'+label+'</label><select data-profit-input="'+key+'">'+options.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===value?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select></div>';
-}
 function profitFeeOptionsHtml(value=3){
   const selected=normalizeProfitFee(value,3);
   return PROFIT_SALE_FEES.map(fee=>'<option value="'+fee+'"'+(fee===selected?' selected':'')+'>'+fee+'%</option>').join('');
-}
-function profitFeeBlock(label='판매 수수료',key='saleFee',value=3){
-  return '<div class="profit-field profit-fee-field"><label>'+label+'</label><select data-profit-input="'+key+'">'+profitFeeOptionsHtml(value)+'</select></div>';
-}
-function profitSoldBlock(){
-  return '<div class="profit-field profit-sold-field"><label>판매 여부</label><label class="profit-check"><input data-profit-input="sold" type="checkbox"> 판매 완료</label></div>';
 }
 function profitCostRowsHtml(items){
   return '<div class="profit-lines">'+items.map(item=>
@@ -7816,16 +7811,11 @@ function profitOutputRowsHtml(items){
     '</div>';
   }).join('')+'</div>';
 }
-function profitEquipmentGrid(type){
-  return '<div class="profit-item-grid">'+profitEquipItemsForType(type).map(item=>
-    '<button type="button" class="profit-item-chip" data-profit-equip="'+esc(item.id)+'">'+profitIconHtml(item)+'<span>'+esc(item.name)+'<small>'+esc(item.note)+'</small></span></button>'
-  ).join('')+'</div>';
-}
 function renderProfitMenu(){
   const list=document.getElementById('profit-type-list');
   if(!list) return;
-  list.innerHTML=PROFIT_CATEGORIES.map(c=>
-    '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'"><span>'+profitIconHtml(c)+'<span class="profit-type-label">'+esc(c.title)+'</span></span><b>'+esc(c.tag)+'</b></button>'
+  list.innerHTML=PROFIT_CATEGORIES.filter(c=>!MANUAL_ENHANCEMENT_TYPES.has(c.id)).map(c=>
+    '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'" aria-pressed="'+(c.id===profitState.active)+'"><span>'+profitIconHtml(c)+'<span class="profit-type-label">'+esc(c.title)+'</span></span></button>'
   ).join('');
   list.querySelectorAll('[data-profit-type]').forEach(btn=>{
     btn.onclick=()=>{ profitState.active=btn.dataset.profitType; renderProfitCalculator(); };
@@ -7838,32 +7828,12 @@ function renderProfitCalculator(){
   const type=profitState.active;
   const cat=profitCategory(type);
   let body='';
-  if(type==='starforce' || type==='potential'){
-    const equipItems=profitEquipItemsForType(type);
-    body=
-      '<div class="profit-entry-grid">'+
-      profitDateBlock()+
-      profitSelectBlock('아이템', 'itemId', equipItems[0].id, equipItems)+
-      profitMoneyBlock('사용 메소', 'used')+
-      profitMoneyBlock('외부 계산 기대값', 'expected')+
-      profitMoneyBlock('실제 판매가', 'sale')+
-      profitFeeBlock()+
-      profitSoldBlock()+
-      '<div class="wide profit-note">기대값 대비 이득/손실은 참고용입니다. 통계에는 사용 메소와 판매 완료한 아이템의 수수료 차감 후 실수령액만 반영됩니다.</div>'+
-      '<div class="wide">'+profitEquipmentGrid(type)+'</div>'+
-      '</div>';
-  }else if(type==='scroll'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">가격과 사용 장수를 입력하면 전부 지출로 반영됩니다.</div></div>'+profitCostRowsHtml(PROFIT_SCROLL_COSTS);
-  }else if(type==='bonus'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+profitNumberBlock('재설정 횟수','bonusCount')+'<div class="profit-note">1회당 3,000,000 메소로 계산합니다.</div></div>';
-  }else if(type==='ability'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">대형 보스 명예의 훈장 가격과 사용 개수를 입력하면 지출로 반영됩니다.</div></div>'+profitCostRowsHtml(PROFIT_ABILITY_COSTS);
-  }else if(type==='wonderberry'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">원더베리와 루나 크리스탈은 지출입니다. 결과물은 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
+  if(type==='wonderberry'){
+    body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
   }else if(type==='royal'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'<div class="wide profit-note">로얄스타일과 프리미엄 마스터피스는 지출입니다. 결과물은 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
   }else{
-    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'<div class="wide profit-note">플래티넘 애플에서 나온 항목의 개수와 판매가를 입력해 주세요. 판매 체크와 수수료를 적용한 실수령액만 수익으로 반영됩니다.</div></div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'</div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+profitIconHtml(cat)+'<span>'+esc(cat.title)+'</span></h2><div class="muted">'+esc(cat.desc)+'</div></div></div>'+
@@ -7887,32 +7857,17 @@ function bindProfitForm(box){
   });
   const saveBtn=box.querySelector('#profit-save');
   if(saveBtn) saveBtn.onclick=saveProfitRecord;
-  box.querySelectorAll('[data-profit-equip]').forEach(btn=>{
-    btn.onclick=()=>{
-      const select=box.querySelector('[data-profit-input="itemId"]');
-      if(select){
-        select.value=btn.dataset.profitEquip;
-        select.dispatchEvent(new Event('change',{bubbles:true}));
-      }
-    };
-  });
-  updateProfitEquipSelection(box);
 }
-function profitInputValue(key){
-  const el=document.querySelector('[data-profit-input="'+key+'"]');
+function profitInputValue(key,scope=document.getElementById('profit-calculator')){
+  const el=scope?.querySelector('[data-profit-input="'+key+'"]');
   if(!el) return '';
   if(el.type==='checkbox') return el.checked;
   return el.value;
 }
-function updateProfitEquipSelection(scope=document){
-  const select=scope.querySelector?.('[data-profit-input="itemId"]') || document.querySelector('[data-profit-input="itemId"]');
-  const value=select ? select.value : '';
-  document.querySelectorAll('[data-profit-equip]').forEach(btn=>btn.classList.toggle('active', btn.dataset.profitEquip===value));
-}
-function profitReadCostLines(items){
+function profitReadCostLines(items,scope=document.getElementById('profit-calculator')){
   return items.map(item=>{
-    const priceEl=document.querySelector('[data-profit-cost-price="'+item.id+'"]');
-    const countEl=document.querySelector('[data-profit-cost-count="'+item.id+'"]');
+    const priceEl=scope?.querySelector('[data-profit-cost-price="'+item.id+'"]');
+    const countEl=scope?.querySelector('[data-profit-cost-count="'+item.id+'"]');
     return Object.assign({},item,{price:mesoValueFromDigits(priceEl?.value), count:Math.max(0,Math.floor(Number(countEl?.value)||0)), sold:false});
   }).filter(line=>line.price || line.count);
 }
@@ -7939,22 +7894,7 @@ function buildProfitRecord(showErrors){
     return null;
   }
   const base={id:'profit_'+Date.now()+'_'+Math.random().toString(36).slice(2), date, type, title:cat.title, costs:[], outputs:[], expected:0, createdAt:new Date().toISOString()};
-  if(type==='starforce' || type==='potential'){
-    const item=profitEquipById(profitInputValue('itemId'), type);
-    const used=mesoValueFromDigits(profitInputValue('used'));
-    const sale=mesoValueFromDigits(profitInputValue('sale'));
-    const saleFee=normalizeProfitFee(profitInputValue('saleFee'),3);
-    base.itemId=item.id; base.itemName=item.name; base.expected=mesoValueFromDigits(profitInputValue('expected'));
-    base.costs=[{id:'used', name:'사용 메소', icon:cat.icon, price:used, count:used?1:0}];
-    base.outputs=[Object.assign({},item,{price:sale, count:sale?1:0, fee:saleFee, sold:!!profitInputValue('sold')})];
-  }else if(type==='scroll'){
-    base.costs=profitReadCostLines(PROFIT_SCROLL_COSTS);
-  }else if(type==='bonus'){
-    const count=Math.max(0,Math.floor(Number(profitInputValue('bonusCount'))||0));
-    base.costs=[{id:'bonus_reset', name:'추가옵션 재설정', icon:'🔥', price:3000000, count}];
-  }else if(type==='ability'){
-    base.costs=profitReadCostLines(PROFIT_ABILITY_COSTS);
-  }else if(type==='wonderberry'){
+  if(type==='wonderberry'){
     base.costs=profitReadCostLines(PROFIT_WONDER_COSTS);
     base.outputs=profitReadOutputLines(PROFIT_WONDER_OUTPUTS);
   }else if(type==='royal'){
@@ -7986,7 +7926,6 @@ function saveProfitRecord(){
 function renderProfitResult(){
   const out=document.getElementById('profit-result');
   if(!out) return;
-  updateProfitEquipSelection(document.getElementById('profit-calculator') || document);
   const record=buildProfitRecord(false);
   if(!record){ out.innerHTML=''; return; }
   const totals=profitRecordTotals(record);
@@ -7999,29 +7938,29 @@ function renderProfitResult(){
   if(toMesoBig(record.expected)>0n){
     metrics.push(profitMetric('기대값 대비', signedKorMeso(totals.expectedDiff), totals.expectedDiff>=0n?'good':'bad'));
   }
-  metrics.push(profitMetric('통계 반영', '실제 손익만 반영', ''));
-  metrics.push(profitMetric('판매 기준', '판매 체크 + 수수료 차감', ''));
   out.innerHTML=metrics.join('');
 }
-function updateProfitSubtotals(record){
+function updateProfitSubtotals(record,scope=document.getElementById('profit-calculator')){
+  scope?.querySelectorAll('[data-profit-cost-subtotal]').forEach(el=>el.textContent='0 메소');
+  scope?.querySelectorAll('[data-profit-out-subtotal]').forEach(el=>el.textContent=el.closest('.unsellable')?'미반영':'미판매');
   record.costs.forEach(line=>{
-    const el=document.querySelector('[data-profit-cost-subtotal="'+line.id+'"]');
+    const el=scope?.querySelector('[data-profit-cost-subtotal="'+line.id+'"]');
     if(el) el.textContent=korMeso(profitLineValue(line));
   });
   record.outputs.forEach(line=>{
-    const el=document.querySelector('[data-profit-out-subtotal="'+line.id+'"]');
+    const el=scope?.querySelector('[data-profit-out-subtotal="'+line.id+'"]');
     if(el) el.textContent=line.sellable===false ? '미반영' : (line.sold ? korMeso(profitLineValue(line)) : '미판매');
   });
 }
 function profitMetric(label,value,cls){
   return '<div class="profit-metric '+(cls||'')+'"><span>'+label+'</span><b>'+value+'</b></div>';
 }
-function renderProfitRecords(){
-  const el=document.getElementById('profit-records');
+function renderProfitRecords(manual=false){
+  const el=document.getElementById(manual?'manual-enhancement-records':'profit-records');
   if(!el) return;
-  const records=allProfitRecords().map(normalizeProfitRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  const records=(Array.isArray(db.profits)?db.profits:[]).filter(r=>MANUAL_ENHANCEMENT_TYPES.has(r.type)===manual).map(normalizeProfitRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
   if(!records.length){
-    el.innerHTML='<div class="muted">아직 저장된 손익 기록이 없습니다.</div>';
+    el.innerHTML='<div class="muted">'+(manual?'직접 입력한 강화 지출이 없습니다.':'아직 저장된 손익 기록이 없습니다.')+'</div>';
     return;
   }
   el.innerHTML=records.map(r=>{
@@ -8029,17 +7968,18 @@ function renderProfitRecords(){
     const totals=profitRecordTotals(r);
     const sold=r.outputs.filter(o=>o.sold && o.count>0).map(o=>o.name+' '+o.count+'개'+(o.fee ? ' (수수료 '+o.fee+'%)' : '')).join(', ');
     const title=r.itemName || r.title || cat.title;
-    return '<div class="profit-record">'+
-      '<div class="profit-record-title">'+profitIconHtml(cat)+'<b>'+esc(title)+'<small>'+esc(r.date)+' · '+esc(cat.title)+(sold?' · '+esc(sold):' · 판매 수익 없음')+'</small></b></div>'+
+    const expenseOnly=manual && r.outputs.length===0;
+    return '<div class="profit-record'+(expenseOnly?' expense-only':'')+'">'+
+      '<div class="profit-record-title">'+profitIconHtml(cat)+'<b>'+esc(title)+'<small>'+esc(r.date)+' · '+esc(cat.title)+(sold?' · '+esc(sold):'')+'</small></b></div>'+
       '<div class="profit-record-stat bad"><span>지출</span><b>'+korMeso(totals.cost)+'</b></div>'+
-      '<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
-      '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>'+
+      (expenseOnly?'':'<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
+      '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>')+
       (r.id.startsWith('enhancement:') ? '<a href="?page=expense" class="ghost">API 지출 관리</a>' : '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>')+
     '</div>';
   }).join('');
   el.querySelectorAll('[data-profit-delete]').forEach(btn=>{
     btn.onclick=()=>{
-      if(!confirm('손익 기록을 삭제할까요?')) return;
+      if(!confirm(manual?'직접 입력한 강화 지출 기록을 삭제할까요?':'손익 기록을 삭제할까요?')) return;
       db.profits=(Array.isArray(db.profits)?db.profits:[]).filter(r=>String(r.id)!==String(btn.dataset.profitDelete));
       save();
       renderAll();
@@ -8047,7 +7987,85 @@ function renderProfitRecords(){
   });
 }
 
+function buildManualEnhancementRecord(showErrors=false){
+  const box=document.getElementById('manual-enhancement-calculator');
+  const type=document.getElementById('manual-enhancement-type')?.value;
+  if(!box || !MANUAL_ENHANCEMENT_TYPES.has(type)) return null;
+  const value=key=>profitInputValue(key,box);
+  const date=normalizeDateInput(value('date'));
+  if(!date || date>todayStr()){
+    if(showErrors) alert('오늘까지의 날짜를 올바르게 입력해 주세요.');
+    return null;
+  }
+  const cat=profitCategory(type);
+  const record={id:'profit_'+Date.now()+'_'+Math.random().toString(36).slice(2),date,type,title:cat.title,costs:[],outputs:[],expected:0,createdAt:new Date().toISOString()};
+  if(type==='starforce' || type==='potential'){
+    record.itemName=String(value('itemName')).trim();
+    const item=profitEquipItemsForType(type).find(item=>item.name===record.itemName);
+    record.itemId=item?.id || '';
+    record.costs=[{id:'used',name:'사용 메소',icon:cat.icon,price:mesoValueFromDigits(value('used')),count:1}];
+  }else if(type==='bonus'){
+    record.costs=[{id:'bonus_reset',name:'추가옵션 재설정',icon:cat.icon,price:3000000,count:Math.max(0,Math.floor(Number(value('bonusCount'))||0))}];
+  }else{
+    record.costs=profitReadCostLines(type==='scroll'?PROFIT_SCROLL_COSTS:PROFIT_ABILITY_COSTS,box);
+  }
+  const normalized=normalizeProfitRecord(record);
+  if(showErrors && profitRecordTotals(normalized).cost<=0n){
+    alert('사용한 메소 또는 단가와 개수를 입력해 주세요.');
+    return null;
+  }
+  return normalized;
+}
+function renderManualEnhancementResult(){
+  const box=document.getElementById('manual-enhancement-calculator');
+  const record=buildManualEnhancementRecord();
+  if(!record) return;
+  updateProfitSubtotals(record,box);
+  box.querySelector('[data-manual-total]').textContent=korMeso(profitRecordTotals(record).cost);
+}
+function renderManualEnhancementForm(reset=false){
+  const select=document.getElementById('manual-enhancement-type');
+  const box=document.getElementById('manual-enhancement-calculator');
+  if(!select || !box) return;
+  if(!select.options.length){
+    select.innerHTML=PROFIT_CATEGORIES.filter(c=>MANUAL_ENHANCEMENT_TYPES.has(c.id)).map(c=>'<option value="'+c.id+'">'+esc(c.title)+'</option>').join('');
+    select.onchange=()=>renderManualEnhancementForm(true);
+  }
+  // API refreshes and page navigation must not erase an unfinished manual entry.
+  if(box.childElementCount && !reset) return;
+  const type=select.value;
+  let fields=profitDateBlock(),rows='';
+  if(type==='starforce' || type==='potential'){
+    fields+='<div class="profit-field"><label for="manual-enhancement-item">아이템 (선택)</label><input id="manual-enhancement-item" data-profit-input="itemName" type="text" list="manual-enhancement-items" placeholder="아이템 이름"><datalist id="manual-enhancement-items">'+profitEquipItemsForType(type).map(item=>'<option value="'+esc(item.name)+'">').join('')+'</datalist></div>'+profitMoneyBlock('실제 사용 메소','used');
+  }else if(type==='bonus'){
+    fields+=profitNumberBlock('재설정 횟수','bonusCount')+'<div class="muted">1회 3,000,000 메소</div>';
+  }else{
+    rows=profitCostRowsHtml(type==='scroll'?PROFIT_SCROLL_COSTS:PROFIT_ABILITY_COSTS);
+  }
+  box.innerHTML='<div class="profit-entry-grid">'+fields+'</div>'+rows+
+    '<div class="manual-enhancement-actions"><span>지출 합계 <b data-manual-total>0 메소</b></span><button type="button" id="manual-enhancement-save">지출 저장</button></div>';
+  box.querySelectorAll('input,select').forEach(input=>{
+    input.addEventListener('input',()=>{
+      if(input.classList.contains('profit-money')) input.value=formatDigits(onlyDigits(input.value));
+      renderManualEnhancementResult();
+    });
+    input.addEventListener('change',renderManualEnhancementResult);
+  });
+  box.querySelector('#manual-enhancement-save').onclick=()=>{
+    const record=buildManualEnhancementRecord(true);
+    if(!record) return;
+    // Retain the existing ledger stream so API duplicate checks and totals stay compatible.
+    db.profits=normalizeProfitRecords([record,...(Array.isArray(db.profits)?db.profits:[])]);
+    save();
+    renderManualEnhancementForm(true);
+    renderAllPreservingViewport();
+  };
+  renderManualEnhancementResult();
+}
+
 function renderExpenses(){
+  renderManualEnhancementForm();
+  renderProfitRecords(true);
   const dateInput=document.getElementById('expense-date');
   const charInput=document.getElementById('expense-character');
   const categoryInput=document.getElementById('expense-category');
@@ -8074,16 +8092,16 @@ function renderExpenses(){
   const calculatorMonth=profitTotals(d=>String(d).slice(0,7)===month);
   const calculatorTotal=profitTotals(()=>true);
   const summaryRows=[
-    ['이번 주 직접 지출',outflowKorMeso(directWeek.total),'직접 '+directWeek.count+'건'],
-    ['이번 달 직접 지출',outflowKorMeso(directMonth.total),'직접 '+directMonth.count+'건'],
-    ['전체 직접 지출',outflowKorMeso(directTotal.total),'직접 '+directTotal.count+'건'],
-    ['손익 계산기 사용 메소',outflowKorMeso(calculatorTotal.cost),'이번 주 '+korMeso(calculatorWeek.cost)+' · 이번 달 '+korMeso(calculatorMonth.cost)]
+    ['이번 주 총 지출',outflowKorMeso(directWeek.total+calculatorWeek.cost),(directWeek.count+calculatorWeek.count)+'건'],
+    ['이번 달 총 지출',outflowKorMeso(directMonth.total+calculatorMonth.cost),(directMonth.count+calculatorMonth.count)+'건'],
+    ['전체 총 지출',outflowKorMeso(directTotal.total+calculatorTotal.cost),(directTotal.count+calculatorTotal.count)+'건'],
+    ['전체 구매 지출',outflowKorMeso(directTotal.total),'강화·뽑기 비용 '+korMeso(calculatorTotal.cost)]
   ];
   summary.innerHTML=summaryRows.map(row=>'<div class="expense-summary"><span>'+row[0]+'</span><b>'+row[1]+'</b><small>'+row[2]+'</small></div>').join('');
 
   const categoryRows=spendingCategoryRows(()=>true);
   categories.innerHTML=categoryRows.length ? categoryRows.map(row=>
-    '<div class="expense-category"><span>'+esc(row.name)+'<small>직접 '+korMeso(row.direct)+' · 계산기 '+korMeso(row.calculator)+'</small></span><b>'+outflowKorMeso(row.total)+'</b></div>'
+    '<div class="expense-category"><span>'+esc(row.name)+'<small>'+row.count+'건</small></span><b>'+outflowKorMeso(row.total)+'</b></div>'
   ).join('') : '<div class="muted">아직 지출 기록이 없습니다.</div>';
 
   const records=(Array.isArray(db.expenses)?db.expenses:[]).map(normalizeExpenseRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
