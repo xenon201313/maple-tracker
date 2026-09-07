@@ -8607,10 +8607,14 @@ function serverFromNexonWorld(world, fallback='main'){
   if(w.trim()) return 'main';
   return fallback === 'challenger' ? 'challenger' : 'main';
 }
-async function fetchNexonCharacterProfile(name, fallbackServer){
+async function resolveNexonCharacterOcid(name){
   const idData=await nexonFetch('/id',{character_name:name});
   const ocid=String(idData.ocid || '').trim();
   if(!ocid) throw new Error('캐릭터 식별자(ocid)를 찾지 못했습니다.');
+  return ocid;
+}
+async function fetchNexonCharacterProfile(name, fallbackServer){
+  const ocid=await resolveNexonCharacterOcid(name);
   return fetchNexonCharacterProfileByOcid(ocid,name,fallbackServer);
 }
 async function fetchNexonCharacterBasicByOcid(ocid){
@@ -8663,8 +8667,8 @@ async function fetchNexonCombatPowerByOcid(ocid){
     return '';
   }
 }
-async function fetchNexonCharacterProfileByOcid(ocid, name, fallbackServer){
-  const basic=await fetchNexonCharacterBasicByOcid(ocid);
+async function fetchNexonCharacterProfileByOcid(ocid, name, fallbackServer, basic=null){
+  basic=basic || await fetchNexonCharacterBasicByOcid(ocid);
   const profile=profileFromNexonBasic(basic,name,ocid,fallbackServer);
   const [combatPower,schedulerResult]=await Promise.all([
     fetchNexonCombatPowerByOcid(ocid),
@@ -8886,9 +8890,23 @@ async function refreshStoredCharacterProfile(c){
   if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
   const fallbackServer=charServer(c);
   const ocid=String(c.ocid || '').trim();
-  const profile=ocid
-    ? await fetchNexonCharacterProfileByOcid(ocid,c.name,fallbackServer)
-    : await fetchNexonCharacterProfile(c.name,fallbackServer);
+  let basic=null;
+  if(ocid){
+    try{ basic=await nexonFetch('/character/basic',{ocid}); }
+    catch(error){ /* A world transfer can invalidate the stored OCID. */ }
+  }
+  // Resolve again even when the old OCID still returns the pre-transfer profile.
+  // Use its official name first so existing nickname-change tracking is preserved.
+  const name=String(basic?.character_name || c.name || '').trim();
+  const currentOcid=await resolveNexonCharacterOcid(name);
+  if(currentOcid!==ocid || !basic){
+    // Do not commit yesterday's world while the new identity is still being prepared.
+    basic=await nexonFetch('/character/basic',{ocid:currentOcid});
+  }
+  if(!String(basic?.world_name || '').trim() || !String(basic?.character_name || '').trim()){
+    throw new Error('캐릭터의 최신 월드 정보가 아직 준비되지 않았습니다. 잠시 후 다시 갱신해 주세요.');
+  }
+  const profile=await fetchNexonCharacterProfileByOcid(currentOcid,name,fallbackServer,basic);
   applyCharacterProfile(c,profile,fallbackServer);
   await hydrateCharacterExpHistory(c);
   return c;
@@ -9278,7 +9296,8 @@ function charSum(c, week=currentWeekKey()){
   let w=0, wc=0, limitCount=0, freeCount=0;
   const bosses = bossStore(c, week, 'weekly');
   for(const id in bosses){
-    const b=BOSS_MAP[id]; if(!b || !canUseBoss(c,b)) continue;
+    // Already-recorded challenger clears remain income after moving to another world.
+    const b=BOSS_MAP[id]; if(!b || (!isChallengerOnlyBoss(b) && !canUseBoss(c,b))) continue;
     if(b[3]!=='w') continue;
     const party=clampPartyForBoss(b,bosses[id]);
     const val=share(b[2], party);
