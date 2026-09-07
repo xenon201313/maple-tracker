@@ -14,6 +14,8 @@
   let session=read(sessionKey), ready=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
   let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const callback=new URL(location.href);
+  // Normalize the separator before decoding so escaped +, %, and & in codes stay intact.
+  callback.search=callback.search.replace(/([?&]page=home)\?(?=(?:code|state|error|error_description)=)/,'$1&');
   const authParams=['code','state','error','error_description'];
   let invalidCallback=false;
   // Some redirects append ?code= to the existing ?page=home query.

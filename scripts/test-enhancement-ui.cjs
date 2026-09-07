@@ -22,6 +22,7 @@ const server=http.createServer((req,res)=>{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     const context=await browser.newContext({viewport:{width:1440,height:1000}});
     let fail=false,historyCalls=0,oauthReady=false,finishCalls=0,repairHistory=false,oauthFailure=false;
+    let expectedAuthCode='fixture-code';
     await context.route('**/*',async route=>{
       const url=new URL(route.request().url());
       if(url.origin===origin || url.protocol==='data:') return route.continue();
@@ -30,7 +31,7 @@ const server=http.createServer((req,res)=>{
       if(url.pathname==='/v1/friends/finish') {
         finishCalls++;
         const data=route.request().postDataJSON();
-        assert.equal(data.state,'c'.repeat(64));assert.equal(data.proof,'a'.repeat(64));assert.equal(data.code,'fixture-code');
+        assert.equal(data.state,'c'.repeat(64));assert.equal(data.proof,'a'.repeat(64));assert.equal(data.code,expectedAuthCode);
         if(oauthFailure) return route.fulfill({status:502,contentType:'application/json',body:JSON.stringify({error:'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:'TOKEN_EXCHANGE / OPENAPI00012'})});
         return fulfill({connected:true,account:'fixture-account'});
       }
@@ -285,6 +286,19 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>sessionStorage.getItem('maple:friends:session')),null);
     assert.equal(await page.evaluate(()=>JSON.stringify({records:db.records,profits:db.profits,expenses:db.expenses,chars:db.chars})),manualBefore,'Failed login mutated manual records');
     oauthFailure=false;
+    expectedAuthCode='fixture+a/b=c%25&d';
+    for(const search of [
+      '?page=home?code='+encodeURIComponent(expectedAuthCode)+'&state='+'c'.repeat(64),
+      '?page='+encodeURIComponent('home?code='+encodeURIComponent(expectedAuthCode)+'&state='+'c'.repeat(64)),
+    ]) {
+      await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));
+      await page.goto(origin+'/'+search);
+      await page.waitForFunction(()=>JSON.parse(sessionStorage.getItem('maple:friends:session')||'null')?.account==='fixture-account');
+      assert(!decodeURIComponent(page.url()).includes('fixture'),'Encoded credentials remained in URL');
+      await page.click('#enhancement-disconnect');
+      await page.waitForFunction(()=>!sessionStorage.getItem('maple:friends:session'));
+    }
+    expectedAuthCode='fixture-code';
     assert.deepEqual(errors,[]);
     const catalog=await page.evaluate(()=>MapleEnhancements.equipment.filter(([name])=>/^(데스티니|아스트라) /.test(name)).map(([name])=>({name,icon:MapleEnhancements.itemInfo(name).icon})));
     assert.equal(catalog.length,83);
