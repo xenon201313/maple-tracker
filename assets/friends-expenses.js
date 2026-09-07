@@ -34,6 +34,7 @@
   const callbackState=callback.searchParams.get('state');
   const callbackCode=callback.searchParams.get('code');
   const callbackError=invalidCallback?'invalid_callback':callback.searchParams.get('error');
+  let finishing=!!(callbackCode || callbackError);
   // Strip OAuth parameters before ads, analytics, or other application scripts execute.
   if(callbackCode || callbackError || callbackState) {
     authParams.forEach(k=>callback.searchParams.delete(k));
@@ -50,27 +51,28 @@
     const data=await response.json();
     if (!response.ok) {
       if (response.status===401 && path!=='finish') { session=null; sessionStorage.removeItem(sessionKey); }
-      throw new Error(typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.');
+      const code=typeof data.errorCode==='string' && /^[A-Z_]+(?: \/ (?:OPENAPI\d{5}|\d{3}|UNAVAILABLE))?$/.test(data.errorCode)?' ('+data.errorCode+')':'';
+      throw new Error((typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.')+code);
     }
     return data;
   }
   function controls() {
     const useFriends=$('enhancement-source').value==='friends';
     $('enhancement-connect').hidden=!useFriends || !!session;
-    $('enhancement-connect').disabled=!ready || !!running;
+    $('enhancement-connect').disabled=!ready || !!running || finishing;
     $('enhancement-connect').title=ready?'넥슨 게임 데이터 제공 동의':'프렌즈 서버 설정이 필요합니다.';
     $('enhancement-disconnect').hidden=!useFriends || !session;
-    ['enhancement-source','enhancement-from','enhancement-to','enhancement-refresh','enhancement-disconnect'].forEach(id=>$(id).disabled=!!running);
+    ['enhancement-source','enhancement-from','enhancement-to','enhancement-refresh','enhancement-disconnect'].forEach(id=>$(id).disabled=!!running || finishing);
     $('enhancement-cancel').hidden=!running;
   }
-  async function configure() {
-    if(configured) return;
+  async function configure(preserveStatus=false) {
+    if(configured || finishing) return;
     configured=true;
     try {
       ready=!!(await call('config')).ready;
       if(session && ready) { const info=await call('status',session); session.account=info.account; }
-      status(ready?(session?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.');
-    } catch { status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
+      if(!preserveStatus) status(ready?(session?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.');
+    } catch { if(!preserveStatus) status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
     controls();
   }
   async function connect() {
@@ -85,6 +87,7 @@
   }
   async function finish() {
     if(!callbackCode && !callbackError) return;
+    status('넥슨 로그인 확인 중...');
     const flow=read(flowKey); sessionStorage.removeItem(flowKey);
     try {
       if(!flow || flow.state!==callbackState || Date.now()-flow.createdAt>600000) throw new Error('로그인 요청이 만료되었거나 일치하지 않습니다. 다시 연결해 주세요.');
@@ -96,6 +99,9 @@
       ready=true; status('넥슨 계정이 연결되었습니다. 이력을 가져올 수 있습니다.');
     } catch(error) {status(error.message,true);}
     document.querySelector('.tab[data-page="expense"]')?.click();
+    finishing=false;
+    controls();
+    await configure(true);
     controls();
   }
   async function sync(auto=false) {

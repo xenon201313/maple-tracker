@@ -12,20 +12,23 @@ const hash = async value => hex(new Uint8Array(await crypto.subtle.digest('SHA-2
 const validSecret = value => typeof value==='string' && /^[a-f0-9]{64}$/.test(value);
 const json = (value,status=200) => new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
 
-async function upstream(url, init={}) {
-  const response=await fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(12000)});
+async function upstream(url, init={}, stage='HISTORY') {
+  let response;
+  try { response=await fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(12000)}); }
+  catch { throw Object.assign(new Error('UPSTREAM'),{stage}); }
   let data;
-  try { data=await response.json(); } catch { throw new Error('UPSTREAM'); }
+  try { data=await response.json(); } catch { throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status}); }
   if (!response.ok || data?.error) {
     const error=new Error('UPSTREAM');
     error.status=response.status;
     error.code=data?.error?.name;
+    error.stage=stage;
     throw error;
   }
   return data;
 }
 function tokenState(data, previous) {
-  if (!data || typeof data.access_token!=='string' || typeof data.refresh_token!=='string' || !(data.expires_in>0) || !(data.refresh_token_expires_in>0)) throw new Error('UPSTREAM');
+  if (!data || typeof data.access_token!=='string' || typeof data.refresh_token!=='string' || !(data.expires_in>0) || !(data.refresh_token_expires_in>0)) throw Object.assign(new Error('UPSTREAM'),{stage:'TOKEN_RESPONSE'});
   return {...previous,access:data.access_token,refresh:data.refresh_token,
     accessUntil:Date.now()+Math.min(Number(data.expires_in)*1000,SESSION_TTL),
     expires:Date.now()+Math.min(Number(data.refresh_token_expires_in)*1000,SESSION_TTL)};
@@ -60,9 +63,11 @@ export class FriendsSession {
           if (!session.pending || typeof input.code!=='string' || !input.code || input.code.length>4096) return json({error:'Invalid state'},400);
           // Consume first, including on upstream failure. A retry needs a fresh login.
           await store.delete('session');
-          const data=await upstream(TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,client_secret:this.env.NEXON_CLIENT_SECRET,code:input.code})});
-          const info=await upstream('https://openid.nexon.com/oauth2/userinfo',{headers:{Authorization:'Bearer '+data.access_token}});
-          if (typeof info?.result?.uid!=='string' || !info.result.uid || !SCOPES.every(scope=>info.result.scope?.includes(scope))) return json({error:'스타포스와 잠재능력 데이터 제공 동의가 필요합니다.'},403);
+          const data=await upstream(TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,client_secret:this.env.NEXON_CLIENT_SECRET,code:input.code})},'TOKEN_EXCHANGE');
+          const tokens=tokenState(data);
+          const info=await upstream('https://openid.nexon.com/oauth2/userinfo',{headers:{Authorization:'Bearer '+tokens.access}},'USER_INFO');
+          if (typeof info?.result?.uid!=='string' || !info.result.uid) throw Object.assign(new Error('UPSTREAM'),{stage:'USER_RESPONSE'});
+          if (!Array.isArray(info.result.scope) || !SCOPES.every(scope=>info.result.scope.includes(scope))) return json({error:'스타포스와 잠재능력 데이터 제공 동의가 필요합니다.',errorCode:'USER_SCOPE'},403);
           session=tokenState(data,{challenge:session.challenge,pending:false,account:await hash(CLIENT_ID+':'+info.result.uid),requests:0,window:Date.now()});
           await store.put('session',session); await store.setAlarm(session.expires);
           return json({connected:true,account:session.account});
@@ -77,7 +82,7 @@ export class FriendsSession {
         await store.put('session',session);
         if (session.accessUntil<=Date.now()+60000) {
           try {
-            const data=await upstream(TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',client_id:CLIENT_ID,client_secret:this.env.NEXON_CLIENT_SECRET,refresh_token:session.refresh})});
+            const data=await upstream(TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',client_id:CLIENT_ID,client_secret:this.env.NEXON_CLIENT_SECRET,refresh_token:session.refresh})},'TOKEN_REFRESH');
             session=tokenState(data,session);
             await store.put('session',session); await store.setAlarm(session.expires);
           } catch (error) {
@@ -95,7 +100,10 @@ export class FriendsSession {
         if (!Array.isArray(history[field])) throw new Error('UPSTREAM');
         return json({[field]:history[field],next_cursor:history.next_cursor || '',count:history.count});
       } catch (error) {
-        return json({error:error.status===429?'넥슨 API 호출 한도를 초과했습니다. 잠시 후 다시 조회해 주세요.':'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.'},error.status===429?429:502);
+        // Only fixed stage names and official error identifiers can reach the browser.
+        const stage=['TOKEN_EXCHANGE','TOKEN_RESPONSE','TOKEN_REFRESH','USER_INFO','USER_RESPONSE','HISTORY'].includes(error.stage)?error.stage:'SESSION';
+        const code=/^OPENAPI\d{5}$/.test(error.code||'')?error.code:Number.isInteger(error.status)?String(error.status):'UNAVAILABLE';
+        return json({error:error.status===429?'넥슨 API 호출 한도를 초과했습니다. 잠시 후 다시 조회해 주세요.':'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:stage+' / '+code},error.status===429?429:502);
       }
     });
   }
