@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<meta name="referrer" content="no-referrer">
+<script src="assets/enhancement-ledger.js"></script>
+<script src="assets/friends-expenses.js"></script>
+<link rel="stylesheet" href="assets/friends-expenses.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
@@ -1587,6 +1591,24 @@
 
 <!-- ══════════ 지출 기록 ══════════ -->
 <div class="page" id="page-expense">
+  <section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
+    <div class="enhancement-heading"><div><h2 id="enhancement-title">강화 지출 자동 기록</h2><p class="muted">API 이력으로 추정하고, 확인한 금액만 손익과 통계에 반영합니다.</p></div><span class="enhancement-badge">확인 후 반영</span></div>
+    <div class="enhancement-controls">
+      <label>연결 방식<select id="enhancement-source"><option value="friends">넥슨 프렌즈</option><option value="key">등록한 개인 API 키</option></select></label>
+      <button type="button" id="enhancement-connect" class="nexon-login"><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
+      <button type="button" id="enhancement-disconnect" class="ghost" hidden>연결 해제</button>
+      <label>조회 시작일<input type="date" id="enhancement-from"></label>
+      <label>조회 종료일<input type="date" id="enhancement-to"></label>
+      <button type="button" id="enhancement-refresh">이력 가져오기</button>
+      <button type="button" id="enhancement-cancel" class="ghost" hidden>조회 중단</button>
+    </div>
+    <label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">이 화면에서 최근 2일 이력 자동 갱신 (5분 간격)</label>
+    <p id="enhancement-status" class="muted" role="status" aria-live="polite"></p>
+    <details class="enhancement-help"><summary>추정 금액의 계산 기준</summary><p>잠재능력은 장비 레벨과 재설정 전 등급의 공식 기본 단가를 사용합니다. 3회 재설정·이벤트 할인·다른 재화 사용 여부는 확인해 주세요. 스타포스는 API에 장비 레벨과 실제 비용이 없어 같은 날의 장비·강화 단계·조건별 1회 비용을 입력하면 이력 수로 자동 합산합니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>자동 수집만으로 지출은 늘어나지 않습니다. 수동으로 기록한 비용은 다시 확정하지 마세요. NEXON Open API를 이용합니다.</p></details>
+    <div id="enhancement-list"></div>
+    <div id="enhancement-pagination" class="enhancement-pagination"></div>
+    <details class="enhancement-confirmed"><summary>확정 / 제외한 강화 이력</summary><div id="enhancement-confirmed-list"></div></details>
+  </section>
   <div class="card">
     <h2>💳 지출 기록</h2>
     <p class="muted">장비, 솔 에르다 조각, 펫, 코디템, 도핑, 메포 구매처럼 손익 계산기와 별도로 남길 지출을 기록합니다. 이 탭의 지출은 통계와 순수익에서 차감됩니다.</p>
@@ -4968,6 +4990,14 @@ function normalizeProfitRecord(record){
   return {id:String(o.id || ('profit_'+Date.now()+'_'+Math.random().toString(36).slice(2))).trim(),date:normalizeDateInput(o.date) || todayStr(),type:String(o.type || o.category || 'starforce').trim(),title:String(o.title || '').trim(),itemId:String(o.itemId || '').trim(),itemName:String(o.itemName || '').trim(),expected:mesoValueFromDigits(o.expected),costs:Array.isArray(o.costs) ? o.costs.map(normalizeProfitLine) : [],outputs:Array.isArray(o.outputs) ? o.outputs.map(normalizeProfitLine) : [],createdAt:String(o.createdAt || new Date().toISOString()).trim()};
 }
 function normalizeProfitRecords(records){ return Array.isArray(records) ? records.map(normalizeProfitRecord).filter(record=>record.date) : []; }
+let enhancementProfitCacheSource, enhancementProfitCache=[];
+function allProfitRecords(){
+  if(enhancementProfitCacheSource!==db.enhancements){
+    enhancementProfitCacheSource=db.enhancements;
+    enhancementProfitCache=MapleEnhancements.profits(db.enhancements);
+  }
+  return (Array.isArray(db.profits)?db.profits:[]).concat(enhancementProfitCache);
+}
 function normalizeSettings(settings){
   const s=ensureObj(settings);
   s.nexonApiKey=String(s.nexonApiKey || '').trim();
@@ -5307,7 +5337,7 @@ function downloadWeeklyDropRecoveryDiagnostic(){
 }
 function hasTrackerDataForBackup(source=db){
   const data=ensureObj(source);
-  return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0);
+  return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0) || MapleEnhancements.normalize(data.enhancements).events.length>0;
 }
 function maybeCreateMonthlyBackup(){
   const month=todayStr().slice(0,7);
@@ -5343,6 +5373,7 @@ db.settings=normalizeSettings(db.settings);
 db.records=normalizeRecords(db.records || {},db.settings);
 db.chars=(Array.isArray(db.chars) ? db.chars : []).map(normalizeChar);
 db.profits=normalizeProfitRecords(db.profits || []);
+db.enhancements=MapleEnhancements.normalize(db.enhancements);
 db.expenses=normalizeExpenseRecords(db.expenses || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
 db.huntTombstones=normalizeHuntTombstones(db.huntTombstones || []);
@@ -5778,7 +5809,7 @@ function dailyBossTotalsForWeek(week=currentWeekKey()){
 function trackedWeeks(){
   const set = new Set();
   for(const d in db.records) set.add(mapleWeekStart(d));
-  (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{
+  allProfitRecords().forEach(r=>{
     const d=normalizeDateInput(r.date);
     if(d) set.add(mapleWeekStart(d));
   });
@@ -6680,7 +6711,7 @@ function profitRecordTotals(record){
 }
 function profitTotals(pred){
   let cost=0n,revenue=0n,net=0n,count=0;
-  (Array.isArray(db.profits)?db.profits:[]).forEach(rec=>{
+  allProfitRecords().forEach(rec=>{
     const r=normalizeProfitRecord(rec);
     if(pred(r.date,r)){
       const t=profitRecordTotals(r);
@@ -6717,7 +6748,7 @@ function spendingCategoryRows(pred){
       add(category.id,category.name,r.amount,'direct');
     }
   });
-  (Array.isArray(db.profits)?db.profits:[]).forEach(rec=>{
+  allProfitRecords().forEach(rec=>{
     const r=normalizeProfitRecord(rec);
     if(pred(r.date,r)){
       const category=profitCategory(r.type);
@@ -6872,7 +6903,7 @@ if(typeof window!=='undefined'){
 function dashboardMonths(){
   const months=new Set([todayStr().slice(0,7)]);
   Object.keys(ensureObj(db.records)).forEach(d=>{ const nd=normalizeDateInput(d); if(nd) months.add(nd.slice(0,7)); });
-  (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
+  allProfitRecords().forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
   (Array.isArray(db.expenses)?db.expenses:[]).forEach(r=>{ const d=normalizeDateInput(r.date); if(d) months.add(d.slice(0,7)); });
   db.chars.forEach(c=>{
     Object.keys(ensureObj(c.monthBossMonths)).forEach(month=>{ if(/^\d{4}-\d{2}$/.test(month)) months.add(month); });
@@ -6971,7 +7002,7 @@ function priceHistoryData(){
       });
     });
   });
-  (Array.isArray(db.profits)?db.profits:[]).forEach(record=>{
+  allProfitRecords().forEach(record=>{
     const r=normalizeProfitRecord(record);
     r.outputs.forEach(line=>{
       const output=normalizeProfitLine(line);
@@ -7258,7 +7289,7 @@ function renderStats(){
     row.boss+=monthly.meso;
     row.loot=mergeLootEntries(row.loot,resolvedMonthlyDropEntriesForMonth(month));
   });
-  (Array.isArray(db.profits)?db.profits:[]).forEach(r=>{
+  allProfitRecords().forEach(r=>{
     const d=normalizeDateInput(r.date);
     if(!d) return;
     ensureMonth(d.slice(0,7)).profit+=profitRecordTotals(r).net;
@@ -7290,6 +7321,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
     settings,
     chars:(Array.isArray(raw.chars) ? raw.chars : []).map(c=>normalizeChar(c)),
     profits:normalizeProfitRecords(raw.profits||[]),
+    enhancements:MapleEnhancements.merge(db.enhancements,raw.enhancements),
     expenses:normalizeExpenseRecords(raw.expenses||[]),
     backupSnapshots:normalizeBackupSnapshots(snapshots),
     huntTombstones:normalizeHuntTombstones(raw.huntTombstones||[]),
@@ -7409,7 +7441,7 @@ function missingDailyDropPrices(date=todayStr()){
 }
 function missingProfitPrices(){
   const names=[];
-  (Array.isArray(db.profits)?db.profits:[]).forEach(record=>{
+  allProfitRecords().forEach(record=>{
     const r=normalizeProfitRecord(record);
     r.costs.forEach(line=>{
       const item=normalizeProfitLine(line);
@@ -7985,7 +8017,7 @@ function profitMetric(label,value,cls){
 function renderProfitRecords(){
   const el=document.getElementById('profit-records');
   if(!el) return;
-  const records=(Array.isArray(db.profits)?db.profits:[]).map(normalizeProfitRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  const records=allProfitRecords().map(normalizeProfitRecord).sort((a,b)=>String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
   if(!records.length){
     el.innerHTML='<div class="muted">아직 저장된 손익 기록이 없습니다.</div>';
     return;
@@ -8000,7 +8032,7 @@ function renderProfitRecords(){
       '<div class="profit-record-stat bad"><span>지출</span><b>'+korMeso(totals.cost)+'</b></div>'+
       '<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
       '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>'+
-      '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>'+
+      (r.id.startsWith('enhancement:') ? '<a href="?page=expense" class="ghost">API 지출 관리</a>' : '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>')+
     '</div>';
   }).join('');
   el.querySelectorAll('[data-profit-delete]').forEach(btn=>{
@@ -8219,7 +8251,7 @@ async function refreshCloudHuntRecoverySources(showError=false){
   }
 }
 function hasLocalTrackerData(){
-  return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0 || db.expenses.length>0;
+  return Object.keys(ensureObj(db.records)).length>0 || db.chars.length>0 || db.profits.length>0 || db.expenses.length>0 || MapleEnhancements.normalize(db.enhancements).events.length>0;
 }
 function applyCloudSnapshot(snapshot,options={}){
   const currentApiKey=nexonApiKey();
@@ -8241,9 +8273,10 @@ function applyCloudSnapshot(snapshot,options={}){
   const mergedRecords=mergeHuntRecordStores(localSource,remoteSource,tombstones);
   const baseKeys=huntEntryLocationKeys({settings:source.settings,records:source.records});
   const mergedKeys=huntEntryLocationKeys({settings:source.settings,records:mergedRecords});
-  const needsUpload=baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key));
+  const enhancements=MapleEnhancements.merge(localSource.enhancements,remoteSource.enhancements);
+  const needsUpload=baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key)) || JSON.stringify(enhancements)!==JSON.stringify(MapleEnhancements.normalize(source.enhancements));
   const updatedAt=needsUpload ? Date.now() : (Math.max(Number(localSource.updatedAt)||0,Number(snapshot.updatedAt)||0) || Date.now());
-  db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
+  db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,enhancements,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
   storeHuntJournalFromSource(db);
   dailyRecordPage=0;
   weeklyStatsPage=0;
@@ -8539,7 +8572,8 @@ function nexonApiErrorMessage(status, data){
   if(status === 429) return 'API 호출이 너무 많습니다. 잠시 후 다시 시도하세요.';
   return msg ? String(msg) : 'API 요청에 실패했습니다. (HTTP '+status+')';
 }
-async function nexonFetch(path, params={}){
+async function nexonFetch(path, params={}, signal){
+  signal?.throwIfAborted();
   const key=nexonApiKey();
   if(!key) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
   const url=new URL(NEXON_API_BASE+path);
@@ -8556,10 +8590,11 @@ async function nexonFetch(path, params={}){
     status=Number(res.status)||0;
     data=res.data || {};
   }else{
-    const res=await fetch(url.toString(), {headers:{'x-nxopen-api-key':key}});
+    const res=await fetch(url.toString(), {headers:{'x-nxopen-api-key':key},signal});
     status=res.status;
     try{ data=await res.json(); }catch(e){}
   }
+  signal?.throwIfAborted();
   if(status<200 || status>=300) throw new Error(nexonApiErrorMessage(status,data));
   return data;
 }
@@ -10539,6 +10574,23 @@ initSiteAd();
   <button type="button" data-mobile-page="stats"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#stats"></use></svg><span>통계</span></button>
   <button type="button" data-menu-toggle aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg><span>전체</span></button>
 </nav>
+<script>
+window.MapleEnhancementBridge={
+  get:()=>db.enhancements,
+  key:()=>nexonApiKey(),
+  api:(path,params,signal)=>nexonFetch(path,params,signal),
+  money:value=>korMeso(value),
+  manual:()=>db.profits,
+  commit(value){
+    const previous=db.enhancements;
+    let stored;
+    try{ stored=JSON.parse(localStorage.getItem(LS_KEY)||'{}').enhancements; }catch{}
+    db.enhancements=MapleEnhancements.merge(previous,stored,value);
+    try{ save(); }catch(error){ db.enhancements=previous; throw error; }
+    renderAll();
+  }
+};
+</script>
 <script src="assets/workspace.js"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>

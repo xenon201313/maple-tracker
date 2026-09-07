@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:enhancements": "node scripts/test-enhancement-ledger.mjs && node scripts/test-enhancement-ui.cjs",
     "test:ui": "node scripts/test-workspace-ui.cjs",
     "test:data-safety": "node scripts/test-hunt-data-safety.cjs && node scripts/test-cloud-sync-history.mjs",
     "prepare:android-web": "node scripts/prepare-android-web.mjs",

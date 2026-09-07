@@ -11,3 +11,7 @@ android/upload-keystore.jks
 *.keystore
 *.jks
 local.properties
+.dev.vars
+.env
+.env.*
+.wrangler/

@@ -1,3 +1,6 @@
+import { friendsRoute } from './friends.mjs';
+export { FriendsSession } from './friends.mjs';
+
 const ALLOWED_ORIGINS = new Set([
   'https://maple-trackers.com',
   'https://www.maple-trackers.com',
@@ -173,6 +176,10 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers });
     if (url.pathname === '/health') return json({ ok: true }, 200, headers);
     if (!ALLOWED_ORIGINS.has(origin)) return json({ error: 'Origin not allowed' }, 403, headers);
+    if (url.pathname.startsWith('/v1/friends/')) {
+      const response=await friendsRoute(request,env);
+      return new Response(response.body,{status:response.status,headers:{...headers,...Object.fromEntries(response.headers)}});
+    }
 
     const syncHistoryMatch = url.pathname.match(/^\/v1\/sync\/([a-f0-9]{64})\/history$/i);
     if (syncHistoryMatch && validSyncId(syncHistoryMatch[1])) {

@@ -15,6 +15,7 @@
 - 별도 [API 연동 랜딩](https://maple-trackers.com/api/)에서 키 발급과 캐릭터 등록 흐름 안내
 - 공개 [사용 가이드](https://maple-trackers.com/guide/)와 [사이트 소개](https://maple-trackers.com/about/) 제공
 - API 키를 기반으로 암호화한 Cloudflare 동기화, JSON 백업/복원, 월간 자동 보관
+- 강화 API 이력 수집, 추정 지출 검토와 확정 반영. 프렌즈 로그인 서버 설정 및 제한 사항은 [FRIENDS_SETUP.md](FRIENDS_SETUP.md) 참고
 
 ## Built with
 
@@ -52,6 +53,7 @@ AI가 제안한 구현은 실제 사용 흐름과 메이플스토리 보스 규�
 
 - `assets/workspace.css`, `assets/workspace.js`는 기록 저장 구조와 분리된 화면·탐색 계층입니다.
 - `npm run test:data-safety`: 재획 보호 및 클라우드 이력 회귀 테스트
+- `npm run test:enhancements`: 강화 추정, 중복 방지, OAuth 보안 및 지출 반영 회귀 테스트
 - `npx playwright install chromium` 후 `npm run test:ui`: 임시 로컬 서버와 격리된 브라우저에서 PC·모바일 화면, 메뉴, 저장, 백업, 드랍 기록 유지 확인
 - 설치된 Chrome을 사용하려면 `PLAYWRIGHT_CHANNEL=chrome` 환경 변수를 지정합니다.
 - 테스트는 가상 기록만 사용하며 실제 서비스와 외부 API 요청을 차단합니다. 캡처는 Git에서 제외된 `.tools/ui-review/`에 저장됩니다.

@@ -3,6 +3,14 @@ main = "maple-tracker-sync.mjs"
 compatibility_date = "2026-07-13"
 preview_urls = false
 
+[[durable_objects.bindings]]
+name = "FRIENDS_SESSIONS"
+class_name = "FriendsSession"
+
+[[migrations]]
+tag = "friends-sessions-v1"
+new_sqlite_classes = ["FriendsSession"]
+
 [[kv_namespaces]]
 binding = "DATA"
 id = "a300687477cb4f45a35e6abb329bd367"
