@@ -2,11 +2,11 @@
 
 ## 현재 남은 작업
 
-기능 코드와 가상 데이터 테스트를 완료했습니다. 2026-09-07 서버를 배포했고, 비밀 변수와 세션 저장소 연결, 상태 응답, 로그인 요청 생성 및 잘못된 요청 차단을 운영 서버에서 확인했습니다. 실제 넥슨 계정 로그인과 이력 조회는 별도 확인이 필요합니다.
+기능 코드와 격리된 회귀 테스트를 완료했습니다. 2026-09-07 실제 제작자 계정의 넥슨 프렌즈 로그인과 9월 5~7일 이력 800건 조회를 운영 사이트에서 확인했습니다. 새로고침 후 연결 유지, 세 종류의 이력 구분, 재조회 시 추가 0건, 확정 전 지출 통계 미반영도 확인했습니다. 토큰 만료 후 갱신과 실제 연결 해제는 이번 운영 검증에서 실행하지 않았습니다.
 
 1. Cloudflare Worker의 새 코드와 세션 저장소 배포를 완료했습니다. 기존 장부 저장소는 유지했습니다.
 2. 넥슨 프렌즈 애플리케이션의 Secret Key가 Worker의 `NEXON_CLIENT_SECRET` **비밀 변수**로 등록된 것을 확인했습니다. 비밀키 값은 열람하지 않았습니다. 키를 채팅에 보내거나 사이트의 개인 API 키 입력란에 넣으면 안 됩니다.
-3. 웹 코드를 배포하고 제작자 계정으로 로그인·이력 조회·연결 해제를 확인합니다.
+3. 웹 코드 배포와 제작자 계정 로그인·이력 조회를 확인했습니다. 검수 캡처를 위해 기존 지출을 확정하거나 삭제하지 않았고, 연결은 유지했습니다.
 4. 일반 사용자에게 공개하려면 현재 '대기' 상태인 넥슨 애플리케이션 검수를 진행해야 합니다.
 
 기존 등록 API 키 방식은 프렌즈 서버 설정 없이도 사용할 수 있습니다. 추정 금액은 '지출 확정' 전까지 통계에 포함되지 않습니다.
@@ -129,7 +129,10 @@ npm run test:ui
 ```
 
 These tests use isolated fixtures and mocked Nexon responses. They do **not**
-prove that the configured Secret Key is valid for a real Nexon login or that Nexon approved the app.
+prove that Nexon approved the app. A separate production check on 2026-09-07
+successfully connected the creator account and imported 463 Star Force events,
+306 meso resets and 31 cube uses. Reload retained the connection; repeating the
+same date range added zero events, and unconfirmed imports did not affect spending.
 Wrangler 4.129.0 deployed the Worker on 2026-09-07, retaining the existing DATA KV
 binding and adding the FRIENDS_SESSIONS Durable Object binding. Production checks
 passed for health, secret/binding readiness, origin rejection, OAuth session creation,
