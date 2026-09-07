@@ -75,8 +75,18 @@ store. This does not replace the existing encrypted ledger sync KV namespace.
   reset equivalent, explicitly labeled as a comparison value, not their purchase
   price. A separate actual-meso confirmation is required before recording it as
   spending. Cash/free cubes can be excluded; saved manual prices remain intact.
-- Known accessory icons are unchanged official Nexon PNGs, stored locally. Missing
-  icons use the existing unavailable-image asset, never a different item's art.
+- Meso resets and item cubes have separate tabs, totals, method labels and
+  timestamped history (20 events per page). Adversary and Karma cube variants
+  retain their full names; their equivalent never becomes actual spending by itself.
+- Potential type labels with the reset suffix are normalized before choosing the
+  normal/additional before-grade array. Old missing-grade events can be re-fetched
+  for their date from the detail panel. The same event IDs are merged in place,
+  preserving manual rates and confirmed amounts, including across stale snapshots.
+- The local icon catalog includes all 36 Destiny weapons and 47 Astra secondary
+  types in KMS as of 2026-09-07, as well as existing accessories. Original image
+  provenance is recorded in `assets/enhancements/SOURCES.json`. Run
+  `node scripts/fetch-enhancement-icons.mjs` to restore missing files. Missing
+  icons use the unavailable-image asset, never a different item's art.
 - Confirmation creates an isolated enhancement batch. Existing manual expenses,
   profits, hunting sessions, drops and settings are not rewritten. Confirmed
   batches are projected into existing profit totals once, in every view.

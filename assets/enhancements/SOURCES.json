@@ -1,0 +1,508 @@
+{
+  "verifiedOn": "2026-09-07",
+  "copyright": "Equipment artwork belongs to NEXON. Original pixels are preserved; no generated replacements.",
+  "astraRoster": "https://maplestory.nexon.com/News/Update/794",
+  "items": [
+    {
+      "name": "데스티니 가즈",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELFJFGJ",
+      "source": "https://chuchu.gg/jobs/%EB%82%98%EC%9D%B4%ED%8A%B8%EB%A1%9C%EB%93%9C/equipment",
+      "code": "KELFJFGJ"
+    },
+    {
+      "name": "데스티니 대거",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMBJEOC",
+      "source": "https://chuchu.gg/jobs/%EC%84%80%EB%8F%84%EC%96%B4/equipment",
+      "code": "KEMBJEOC"
+    },
+    {
+      "name": "데스티니 데스페라도",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENBJGNE",
+      "source": "https://chuchu.gg/jobs/%EB%8D%B0%EB%AA%AC%EC%96%B4%EB%B2%A4%EC%A0%B8/equipment",
+      "code": "KENBJGNE"
+    },
+    {
+      "name": "데스티니 듀얼보우건",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKAJGIF",
+      "source": "https://chuchu.gg/jobs/%EB%A9%94%EB%A5%B4%EC%84%B8%EB%8D%B0%EC%8A%A4/equipment",
+      "code": "KEKAJGIF"
+    },
+    {
+      "name": "데스티니 라즐리",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKFJHPA",
+      "source": "https://chuchu.gg/jobs/%EC%A0%9C%EB%A1%9C/equipment",
+      "code": "KEKFJHPA"
+    },
+    {
+      "name": "데스티니 라피스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKEJHPA",
+      "source": "https://chuchu.gg/jobs/%EC%A0%9C%EB%A1%9C/equipment",
+      "code": "KEKEJHPA"
+    },
+    {
+      "name": "데스티니 매직건틀릿",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENKJHLF",
+      "source": "https://chuchu.gg/jobs/%EC%9D%BC%EB%A6%AC%EC%9B%80/equipment",
+      "code": "KENKJHLF"
+    },
+    {
+      "name": "데스티니 보우",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELHJFGE",
+      "source": "https://chuchu.gg/jobs/%EB%B3%B4%EC%9A%B0%EB%A7%88%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KELHJFGE"
+    },
+    {
+      "name": "데스티니 브레스 슈터",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENDPHKI",
+      "source": "https://chuchu.gg/jobs/%EC%B9%B4%EC%9D%B8/equipment",
+      "code": "KENDPHKI"
+    },
+    {
+      "name": "데스티니 블래스트캐논",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKBJGJB",
+      "source": "https://chuchu.gg/jobs/%EC%BA%90%EB%85%BC%EB%A7%88%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEKBJGJB"
+    },
+    {
+      "name": "데스티니 샤이닝로드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENDJGKD",
+      "source": "https://chuchu.gg/jobs/%EB%A3%A8%EB%AF%B8%EB%84%88%EC%8A%A4/equipment",
+      "code": "KENDJGKD"
+    },
+    {
+      "name": "데스티니 세이버",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMCJEJC",
+      "source": "https://chuchu.gg/jobs/%ED%8C%94%EB%9D%BC%EB%94%98/equipment",
+      "code": "KEMCJEJC"
+    },
+    {
+      "name": "데스티니 소울슈터",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENAJGNE",
+      "source": "https://chuchu.gg/jobs/%EC%97%94%EC%A0%A4%EB%A6%AD%EB%B2%84%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KENAJGNE"
+    },
+    {
+      "name": "데스티니 스태프",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMKJFGG",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%ED%81%AC%EB%A9%94%EC%9D%B4%EC%A7%80(%EB%B6%88%2C%EB%8F%85)/equipment",
+      "code": "KEMKJFGG"
+    },
+    {
+      "name": "데스티니 스피어",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELBJFKB",
+      "source": "https://chuchu.gg/jobs/%EB%8B%A4%ED%81%AC%EB%82%98%EC%9D%B4%ED%8A%B8/equipment",
+      "code": "KELBJFKB"
+    },
+    {
+      "name": "데스티니 에너지체인",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENGJGIA",
+      "source": "https://chuchu.gg/jobs/%EC%A0%9C%EB%85%BC/equipment",
+      "code": "KENGJGIA"
+    },
+    {
+      "name": "데스티니 에인션트 보우",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKLJHKI",
+      "source": "https://chuchu.gg/jobs/%ED%8C%A8%EC%8A%A4%ED%8C%8C%EC%9D%B8%EB%8D%94/equipment",
+      "code": "KEKLJHKI"
+    },
+    {
+      "name": "데스티니 엑스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMDJFMH",
+      "source": "https://chuchu.gg/jobs/%EB%8D%B0%EB%AA%AC%EC%8A%AC%EB%A0%88%EC%9D%B4%EC%96%B4/equipment",
+      "code": "KEMDJFMH"
+    },
+    {
+      "name": "데스티니 엘라하",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEKKJHLJ",
+      "source": "https://chuchu.gg/jobs/%EB%B8%94%EB%9E%98%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEKKJHLJ"
+    },
+    {
+      "name": "데스티니 완드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMFJFLA",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%ED%81%AC%EB%A9%94%EC%9D%B4%EC%A7%80(%EB%B6%88%2C%EB%8F%85)/equipment",
+      "code": "KEMFJFLA"
+    },
+    {
+      "name": "데스티니 차크람",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELCPHKH",
+      "source": "https://chuchu.gg/jobs/%EC%B9%BC%EB%A6%AC/equipment",
+      "code": "KELCPHKH"
+    },
+    {
+      "name": "데스티니 체인",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENFJHLF",
+      "source": "https://chuchu.gg/jobs/%EC%B9%B4%EB%8D%B0%EB%82%98/equipment",
+      "code": "KENFJHLF"
+    },
+    {
+      "name": "데스티니 초극검",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENDOHME",
+      "source": "https://chuchu.gg/jobs/%EB%A0%8C/equipment",
+      "code": "KENDOHME"
+    },
+    {
+      "name": "데스티니 초월선",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENLJHLB",
+      "source": "https://chuchu.gg/jobs/%ED%98%B8%EC%98%81/equipment",
+      "code": "KENLJHLB"
+    },
+    {
+      "name": "데스티니 케인",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMEJGIA",
+      "source": "https://chuchu.gg/jobs/%ED%8C%AC%ED%85%80/equipment",
+      "code": "KEMEJGIA"
+    },
+    {
+      "name": "데스티니 크로스보우",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELEJFIJ",
+      "source": "https://chuchu.gg/jobs/%EC%8B%A0%EA%B6%81/equipment",
+      "code": "KELEJFIJ"
+    },
+    {
+      "name": "데스티니 클로",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELKJFKE",
+      "source": "https://chuchu.gg/jobs/%EB%B0%94%EC%9D%B4%ED%8D%BC/equipment",
+      "code": "KELKJFKE"
+    },
+    {
+      "name": "데스티니 투핸드소드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELCJFHB",
+      "source": "https://chuchu.gg/jobs/%ED%9E%88%EC%96%B4%EB%A1%9C/equipment",
+      "code": "KELCJFHB"
+    },
+    {
+      "name": "데스티니 투핸드엑스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELDJGHG",
+      "source": "https://chuchu.gg/jobs/%ED%9E%88%EC%96%B4%EB%A1%9C/equipment",
+      "code": "KELDJGHG"
+    },
+    {
+      "name": "데스티니 투핸드해머",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELAJFOJ",
+      "source": "https://chuchu.gg/jobs/%ED%8C%94%EB%9D%BC%EB%94%98/equipment",
+      "code": "KELAJFOJ"
+    },
+    {
+      "name": "데스티니 튜너",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENDIHLC",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%EB%8D%B8/equipment",
+      "code": "KENDIHLC"
+    },
+    {
+      "name": "데스티니 폴암",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELGJEOA",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%EB%9E%80/equipment",
+      "code": "KELGJEOA"
+    },
+    {
+      "name": "데스티니 피스톨",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELLJFLI",
+      "source": "https://chuchu.gg/jobs/%EC%BA%A1%ED%8B%B4/equipment",
+      "code": "KELLJFLI"
+    },
+    {
+      "name": "데스티니 해머",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMAJFJI",
+      "source": "https://chuchu.gg/jobs/%ED%8C%94%EB%9D%BC%EB%94%98/equipment",
+      "code": "KEMAJFJI"
+    },
+    {
+      "name": "데스티니 ESP리미터",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KENEJHIE",
+      "source": "https://chuchu.gg/jobs/%ED%82%A4%EB%84%A4%EC%8B%9C%EC%8A%A4/equipment",
+      "code": "KENEJHIE"
+    },
+    {
+      "name": "아스트라 금강석 선추",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPCOB",
+      "source": "https://chuchu.gg/jobs/%ED%98%B8%EC%98%81/equipment",
+      "code": "KEIAPCOB"
+    },
+    {
+      "name": "아스트라 노바의 정수",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIEOD",
+      "source": "https://chuchu.gg/jobs/%EC%B9%B4%EC%9D%B4%EC%A0%80/equipment",
+      "code": "KEIAIEOD"
+    },
+    {
+      "name": "아스트라 데카코어 컨트롤러",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIHOD",
+      "source": "https://chuchu.gg/jobs/%EC%A0%9C%EB%85%BC/equipment",
+      "code": "KEIAIHOD"
+    },
+    {
+      "name": "아스트라 레이븐아이",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKFOD",
+      "source": "https://chuchu.gg/jobs/%EC%BA%A1%ED%8B%B4/equipment",
+      "code": "KEIAKFOD"
+    },
+    {
+      "name": "아스트라 렐릭",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALPOD",
+      "source": "https://chuchu.gg/jobs/%ED%8C%A8%EC%8A%A4%ED%8C%8C%EC%9D%B8%EB%8D%94/equipment",
+      "code": "KEIALPOD"
+    },
+    {
+      "name": "아스트라 로자리오",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALGOD",
+      "source": "https://chuchu.gg/jobs/%ED%8C%94%EB%9D%BC%EB%94%98/equipment",
+      "code": "KEIALGOD"
+    },
+    {
+      "name": "아스트라 루비 실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGNG",
+      "source": "https://chuchu.gg/jobs/%ED%94%8C%EB%A0%88%EC%9E%84%EC%9C%84%EC%9E%90%EB%93%9C/equipment",
+      "code": "KEPLJGNG"
+    },
+    {
+      "name": "아스트라 리스트 밴드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKGOD",
+      "source": "https://chuchu.gg/jobs/%EB%B0%94%EC%9D%B4%ED%8D%BC/equipment",
+      "code": "KEIAKGOD"
+    },
+    {
+      "name": "아스트라 림리스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKEOD",
+      "source": "https://chuchu.gg/jobs/%EC%BA%90%EB%85%BC%EB%A7%88%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEIAKEOD"
+    },
+    {
+      "name": "아스트라 마법 화살",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJGOD",
+      "source": "https://chuchu.gg/jobs/%EB%A9%94%EB%A5%B4%EC%84%B8%EB%8D%B0%EC%8A%A4/equipment",
+      "code": "KEIAJGOD"
+    },
+    {
+      "name": "아스트라 마법깃펜",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIANHOI",
+      "source": "https://chuchu.gg/jobs/%EB%A0%88%ED%85%8C/equipment",
+      "code": "KEIANHOI"
+    },
+    {
+      "name": "아스트라 매그넘",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJOOD",
+      "source": "https://chuchu.gg/jobs/%EB%A9%94%EC%B9%B4%EB%8B%89/equipment",
+      "code": "KEIAJOOD"
+    },
+    {
+      "name": "아스트라 매직윙",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPHOD",
+      "source": "https://chuchu.gg/jobs/%EC%9D%BC%EB%A6%AC%EC%9B%80/equipment",
+      "code": "KEIAPHOD"
+    },
+    {
+      "name": "아스트라 메달",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALHOD",
+      "source": "https://chuchu.gg/jobs/%ED%9E%88%EC%96%B4%EB%A1%9C/equipment",
+      "code": "KEIALHOD"
+    },
+    {
+      "name": "아스트라 백호추",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKOOD",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%EB%9E%80/equipment",
+      "code": "KEIAKOOD"
+    },
+    {
+      "name": "아스트라 베인 실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGNA",
+      "source": "https://chuchu.gg/jobs/%EC%84%80%EB%8F%84%EC%96%B4/equipment",
+      "code": "KEPLJGNA"
+    },
+    {
+      "name": "아스트라 불스아이",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALAOA",
+      "source": "https://chuchu.gg/jobs/%EC%8B%A0%EA%B6%81/equipment",
+      "code": "KEIALAOA"
+    },
+    {
+      "name": "아스트라 브레이슬릿",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIOOD",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%EB%8D%B8/equipment",
+      "code": "KEIAIOOD"
+    },
+    {
+      "name": "아스트라 블레이드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEMGJGMC",
+      "source": "https://chuchu.gg/jobs/%EB%93%80%EC%96%BC%EB%B8%94%EB%A0%88%EC%9D%B4%EB%8D%94/equipment",
+      "code": "KEMGJGMC"
+    },
+    {
+      "name": "아스트라 사옥 노리개",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPDOD",
+      "source": "https://chuchu.gg/jobs/%EB%9D%BC%EB%9D%BC/equipment",
+      "code": "KEIAPDOD"
+    },
+    {
+      "name": "아스트라 사파이어",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKPOD",
+      "source": "https://chuchu.gg/jobs/%EC%8A%A4%ED%8A%B8%EB%9D%BC%EC%9D%B4%EC%BB%A4/equipment",
+      "code": "KEIAKPOD"
+    },
+    {
+      "name": "아스트라 세이크리드 이지스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGME",
+      "source": "https://chuchu.gg/jobs/%ED%8C%94%EB%9D%BC%EB%94%98/equipment",
+      "code": "KEPLJGME"
+    },
+    {
+      "name": "아스트라 소울링",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIBOD",
+      "source": "https://chuchu.gg/jobs/%EC%97%94%EC%A0%A4%EB%A6%AD%EB%B2%84%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEIAIBOD"
+    },
+    {
+      "name": "아스트라 소울실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLDHPF",
+      "source": "https://chuchu.gg/jobs/%EB%AF%B8%ED%95%98%EC%9D%BC/equipment",
+      "code": "KEPLDHPF"
+    },
+    {
+      "name": "아스트라 아케인 실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGMJ",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%ED%81%AC%EB%A9%94%EC%9D%B4%EC%A7%80(%EB%B6%88%2C%EB%8F%85)/equipment",
+      "code": "KEPLJGMJ"
+    },
+    {
+      "name": "아스트라 엄브럴 실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGKC",
+      "source": "https://chuchu.gg/jobs/%EB%B0%B0%ED%8B%80%EB%A9%94%EC%9D%B4%EC%A7%80/equipment",
+      "code": "KEPLJGKC"
+    },
+    {
+      "name": "아스트라 에메랄드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKBOD",
+      "source": "https://chuchu.gg/jobs/%EC%9C%88%EB%93%9C%EB%B8%8C%EB%A0%88%EC%9D%B4%EC%BB%A4/equipment",
+      "code": "KEIAKBOD"
+    },
+    {
+      "name": "아스트라 여우구슬",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJDOD",
+      "source": "https://chuchu.gg/jobs/%EC%9D%80%EC%9B%94/equipment",
+      "code": "KEIAJDOD"
+    },
+    {
+      "name": "아스트라 여의보주",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPEOD",
+      "source": "https://chuchu.gg/jobs/%EB%A0%8C/equipment",
+      "code": "KEIAPEOD"
+    },
+    {
+      "name": "아스트라 오브",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJEOD",
+      "source": "https://chuchu.gg/jobs/%EB%A3%A8%EB%AF%B8%EB%84%88%EC%8A%A4/equipment",
+      "code": "KEIAJEOD"
+    },
+    {
+      "name": "아스트라 옵시디언",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKAOD",
+      "source": "https://chuchu.gg/jobs/%EB%82%98%EC%9D%B4%ED%8A%B8%EC%9B%8C%EC%BB%A4/equipment",
+      "code": "KEIAKAOD"
+    },
+    {
+      "name": "아스트라 와일드 터스크",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJPOD",
+      "source": "https://chuchu.gg/jobs/%EC%99%80%EC%9D%BC%EB%93%9C%ED%97%8C%ED%84%B0/equipment",
+      "code": "KEIAJPOD"
+    },
+    {
+      "name": "아스트라 웨폰 벨트",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIDOD",
+      "source": "https://chuchu.gg/jobs/%EC%B9%B4%EC%9D%B8/equipment",
+      "code": "KEIAIDOD"
+    },
+    {
+      "name": "아스트라 익스플로시브 필",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIGOA",
+      "source": "https://chuchu.gg/jobs/%EB%B8%94%EB%9E%98%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEIAIGOA"
+    },
+    {
+      "name": "아스트라 체스피스 디 킹",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAIPOD",
+      "source": "https://chuchu.gg/jobs/%ED%82%A4%EB%84%A4%EC%8B%9C%EC%8A%A4/equipment",
+      "code": "KEIAIPOD"
+    },
+    {
+      "name": "아스트라 체인",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALFOD",
+      "source": "https://chuchu.gg/jobs/%EB%8B%A4%ED%81%AC%EB%82%98%EC%9D%B4%ED%8A%B8/equipment",
+      "code": "KEIALFOD"
+    },
+    {
+      "name": "아스트라 카르트",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAJFOD",
+      "source": "https://chuchu.gg/jobs/%ED%8C%AC%ED%85%80/equipment",
+      "code": "KEIAJFOD"
+    },
+    {
+      "name": "아스트라 탈리스만",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALOOD",
+      "source": "https://chuchu.gg/jobs/%EB%82%98%EC%9D%B4%ED%8A%B8%EB%A1%9C%EB%93%9C/equipment",
+      "code": "KEIALOOD"
+    },
+    {
+      "name": "아스트라 토파즈",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAKDOD",
+      "source": "https://chuchu.gg/jobs/%EC%86%8C%EC%9A%B8%EB%A7%88%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEIAKDOD"
+    },
+    {
+      "name": "아스트라 트랜스미터",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAICOD",
+      "source": "https://chuchu.gg/jobs/%EC%B9%B4%EB%8D%B0%EB%82%98/equipment",
+      "code": "KEIAICOD"
+    },
+    {
+      "name": "아스트라 패스",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPFOD",
+      "source": "https://chuchu.gg/jobs/%EC%95%84%ED%81%AC/equipment",
+      "code": "KEIAPFOD"
+    },
+    {
+      "name": "아스트라 페더",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIALBOD",
+      "source": "https://chuchu.gg/jobs/%EB%B3%B4%EC%9A%B0%EB%A7%88%EC%8A%A4%ED%84%B0/equipment",
+      "code": "KEIALBOD"
+    },
+    {
+      "name": "아스트라 포스실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLCHNA",
+      "source": "https://chuchu.gg/jobs/%EB%8D%B0%EB%AA%AC%EC%8A%AC%EB%A0%88%EC%9D%B4%EC%96%B4/equipment",
+      "code": "KEPLCHNA"
+    },
+    {
+      "name": "아스트라 프로미넌트 실드",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPLJGKB",
+      "source": "https://chuchu.gg/jobs/%EC%97%90%EB%B0%98/equipment",
+      "code": "KEPLJGKB"
+    },
+    {
+      "name": "아스트라 헥스시커",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEIAPGOD",
+      "source": "https://chuchu.gg/jobs/%EC%B9%BC%EB%A6%AC/equipment",
+      "code": "KEIAPGOD"
+    },
+    {
+      "name": "아스트라 아워글라스",
+      "level": 200,
+      "code": "astra-hourglass",
+      "url": "https://maplestory.io/api/GMS/270/item/1723702/icon",
+      "source": "https://maplestory.io/api/GMS/270/item/1723702/name"
+    },
+    {
+      "name": "아스트라 토파즈 이지스",
+      "level": 200,
+      "code": "astra-topaz-aegis",
+      "url": "https://maplestory.io/api/GMS/270/item/1092134/icon",
+      "source": "https://maplestory.io/api/GMS/270/item/1092134/name"
+    },
+    {
+      "name": "데스티니 카르타",
+      "level": 250,
+      "code": "destiny-carta",
+      "url": "https://blog.kakaocdn.net/dna/vffYO/dJMcacXLF6G/AAAAAAAAAAAAAAAAAAAAAH0jbLXtr-KI2v6FaKE2S1VJCgEbKekjKdChkx-yZ5wo0Qk6VwHv0lKr-c2oDPhGEXj9M18rUAIGmH5TuOqtyrlNTFnrgNDxEqzH1rgq37AR/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1790780399&allow_ip=&allow_referer=&signature=vdwk8EfoKq7p44eyI2CxJgkCV78%3D",
+      "source": "https://matsu1207.tistory.com/587"
+    }
+  ]
+}

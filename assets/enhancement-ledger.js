@@ -12,9 +12,103 @@
     ['가디언 엔젤 링',160,'KEODIEPC'],['에스텔라 이어링',160,'KEPBJENB'],
     ['루즈 컨트롤 머신 마크',160,'KEPDJBND'],['마력이 깃든 안대',160,'KEPAJFJJ'],['고통의 근원',160,'KEOAJDNB'],
     ['몽환의 벨트',200,'KEOBJEOJ'],['커맨더 포스 이어링',200,'KEPBJEPH'],['거대한 공포',200,'KEODIEOH'],['컴플리트 언더컨트롤',200,'KEJFJHHE'],
-    ['근원의 속삭임',250,'KEODIEKA'],['죽음의 맹세',250,'KEOAJDKG'],['황홀한 악몽',250,'KEODIEIB'],['굶주리는 핏빛 원혼',250,'KEPAJEHG']
+    ['근원의 속삭임',250,'KEODIEKA'],['죽음의 맹세',250,'KEOAJDKG'],['황홀한 악몽',250,'KEODIEIB'],['굶주리는 핏빛 원혼',250,'KEPAJEHG'],
+    ["데스티니 가즈",250,"KELFJFGJ"],
+    ["데스티니 대거",250,"KEMBJEOC"],
+    ["데스티니 데스페라도",250,"KENBJGNE"],
+    ["데스티니 듀얼보우건",250,"KEKAJGIF"],
+    ["데스티니 라즐리",250,"KEKFJHPA"],
+    ["데스티니 라피스",250,"KEKEJHPA"],
+    ["데스티니 매직건틀릿",250,"KENKJHLF"],
+    ["데스티니 보우",250,"KELHJFGE"],
+    ["데스티니 브레스 슈터",250,"KENDPHKI"],
+    ["데스티니 블래스트캐논",250,"KEKBJGJB"],
+    ["데스티니 샤이닝로드",250,"KENDJGKD"],
+    ["데스티니 세이버",250,"KEMCJEJC"],
+    ["데스티니 소울슈터",250,"KENAJGNE"],
+    ["데스티니 스태프",250,"KEMKJFGG"],
+    ["데스티니 스피어",250,"KELBJFKB"],
+    ["데스티니 에너지체인",250,"KENGJGIA"],
+    ["데스티니 에인션트 보우",250,"KEKLJHKI"],
+    ["데스티니 엑스",250,"KEMDJFMH"],
+    ["데스티니 엘라하",250,"KEKKJHLJ"],
+    ["데스티니 완드",250,"KEMFJFLA"],
+    ["데스티니 차크람",250,"KELCPHKH"],
+    ["데스티니 체인",250,"KENFJHLF"],
+    ["데스티니 초극검",250,"KENDOHME"],
+    ["데스티니 초월선",250,"KENLJHLB"],
+    ["데스티니 케인",250,"KEMEJGIA"],
+    ["데스티니 크로스보우",250,"KELEJFIJ"],
+    ["데스티니 클로",250,"KELKJFKE"],
+    ["데스티니 투핸드소드",250,"KELCJFHB"],
+    ["데스티니 투핸드엑스",250,"KELDJGHG"],
+    ["데스티니 투핸드해머",250,"KELAJFOJ"],
+    ["데스티니 튜너",250,"KENDIHLC"],
+    ["데스티니 폴암",250,"KELGJEOA"],
+    ["데스티니 피스톨",250,"KELLJFLI"],
+    ["데스티니 해머",250,"KEMAJFJI"],
+    ["데스티니 ESP리미터",250,"KENEJHIE"],
+    ["아스트라 금강석 선추",200,"KEIAPCOB"],
+    ["아스트라 노바의 정수",200,"KEIAIEOD"],
+    ["아스트라 데카코어 컨트롤러",200,"KEIAIHOD"],
+    ["아스트라 레이븐아이",200,"KEIAKFOD"],
+    ["아스트라 렐릭",200,"KEIALPOD"],
+    ["아스트라 로자리오",200,"KEIALGOD"],
+    ["아스트라 루비 실드",200,"KEPLJGNG"],
+    ["아스트라 리스트 밴드",200,"KEIAKGOD"],
+    ["아스트라 림리스",200,"KEIAKEOD"],
+    ["아스트라 마법 화살",200,"KEIAJGOD"],
+    ["아스트라 마법깃펜",200,"KEIANHOI"],
+    ["아스트라 매그넘",200,"KEIAJOOD"],
+    ["아스트라 매직윙",200,"KEIAPHOD"],
+    ["아스트라 메달",200,"KEIALHOD"],
+    ["아스트라 백호추",200,"KEIAKOOD"],
+    ["아스트라 베인 실드",200,"KEPLJGNA"],
+    ["아스트라 불스아이",200,"KEIALAOA"],
+    ["아스트라 브레이슬릿",200,"KEIAIOOD"],
+    ["아스트라 블레이드",200,"KEMGJGMC"],
+    ["아스트라 사옥 노리개",200,"KEIAPDOD"],
+    ["아스트라 사파이어",200,"KEIAKPOD"],
+    ["아스트라 세이크리드 이지스",200,"KEPLJGME"],
+    ["아스트라 소울링",200,"KEIAIBOD"],
+    ["아스트라 소울실드",200,"KEPLDHPF"],
+    ["아스트라 아케인 실드",200,"KEPLJGMJ"],
+    ["아스트라 엄브럴 실드",200,"KEPLJGKC"],
+    ["아스트라 에메랄드",200,"KEIAKBOD"],
+    ["아스트라 여우구슬",200,"KEIAJDOD"],
+    ["아스트라 여의보주",200,"KEIAPEOD"],
+    ["아스트라 오브",200,"KEIAJEOD"],
+    ["아스트라 옵시디언",200,"KEIAKAOD"],
+    ["아스트라 와일드 터스크",200,"KEIAJPOD"],
+    ["아스트라 웨폰 벨트",200,"KEIAIDOD"],
+    ["아스트라 익스플로시브 필",200,"KEIAIGOA"],
+    ["아스트라 체스피스 디 킹",200,"KEIAIPOD"],
+    ["아스트라 체인",200,"KEIALFOD"],
+    ["아스트라 카르트",200,"KEIAJFOD"],
+    ["아스트라 탈리스만",200,"KEIALOOD"],
+    ["아스트라 토파즈",200,"KEIAKDOD"],
+    ["아스트라 트랜스미터",200,"KEIAICOD"],
+    ["아스트라 패스",200,"KEIAPFOD"],
+    ["아스트라 페더",200,"KEIALBOD"],
+    ["아스트라 포스실드",200,"KEPLCHNA"],
+    ["아스트라 프로미넌트 실드",200,"KEPLJGKB"],
+    ["아스트라 헥스시커",200,"KEIAPGOD"],
+    ["아스트라 아워글라스",200,"astra-hourglass"],
+    ["아스트라 토파즈 이지스",200,"astra-topaz-aegis"],
+    ["데스티니 카르타",250,"destiny-carta"]
   ];
   const cleanName = value => String(value||'').replace(/\s/g,'');
+  function potentialType(value) {
+    const name=cleanName(value);
+    if(/^에디셔널잠재능력(?:재설정)?$/.test(name)) return '에디셔널 잠재능력';
+    if(/^잠재능력(?:재설정)?$/.test(name)) return '잠재능력';
+    return '';
+  }
+  function methodLabel(e) {
+    if(e.kind==='starforce') return '스타포스';
+    if(e.kind==='cube') return '큐브 · '+(e.cubeType||'종류 미상');
+    return '메소 · '+(potentialType(e.potentialType)||'잠재능력');
+  }
   function itemInfo(name) {
     const match=equipment.find(row=>cleanName(row[0])===cleanName(name));
     const level=match?.[1] ?? (/^(에테르넬|데스티니)/.test(name)?250:/^(아케인셰이드|아스트라|제네시스)/.test(name)?200:/^앱솔랩스/.test(name)?160:/^파프니르/.test(name)?150:null);
@@ -34,10 +128,10 @@
     if (!kinds.has(kind) || !raw || !string(raw.id) || !string(account)) throw new Error('잘못된 강화 이력입니다.');
     const date = dateKst(raw.date_create);
     if (!date || !string(raw.target_item) || !string(raw.character_name)) throw new Error('강화 이력의 날짜 또는 장비 정보가 없습니다.');
-    const additional = raw.potential_type === '에디셔널 잠재능력' || (kind==='cube' && /에디셔널/.test(raw.cube_type||''));
+    const additional = potentialType(raw.potential_type) === '에디셔널 잠재능력' || (kind==='cube' && /에디셔널/.test(raw.cube_type||''));
     const before = additional ? raw.before_additional_potential_option : raw.before_potential_option;
     const after = additional ? raw.after_additional_potential_option : raw.after_potential_option;
-    return {
+    const result = {
       key:key([account,kind,raw.id]), account:string(account), id:string(raw.id), kind, date,
       at:string(raw.date_create), character:string(raw.character_name), world:string(raw.world_name),
       item:string(raw.target_item), result:string(raw.item_upgrade_result),
@@ -49,8 +143,14 @@
       stars:Number.isInteger(raw.before_starforce_count) ? raw.before_starforce_count : null,
       nextStars:Number.isInteger(raw.after_starforce_count) ? raw.after_starforce_count : null,
       conditions:kind === 'starforce' ? key([raw.superior_item_flag,raw.destroy_defence,raw.chance_time,raw.event_field_flag,raw.upgrade_item,raw.protect_shield,raw.bonus_stat_upgrade,(raw.starforce_event_list || []).map(e=>[e.cost_discount_rate,e.starforce_event_range,e.recovery_cost_discount_rate])]) : '',
-      observedAt:Number(observedAt) || 0
+      observedAt:Number(observedAt) || 0, schemaVersion:2
     };
+    // Keep pre-fix manual rates addressable when an API reimport repairs the grade.
+    if(kind==='potential' && additional && raw.potential_type!=='에디셔널 잠재능력') {
+      const legacy={...result,grade:string(raw.before_potential_option?.[0]?.grade),multiResult:Array.isArray(raw.after_potential_option) && raw.after_potential_option.length>3};
+      if(rateKey(legacy)!==rateKey(result)) result.rateAliases=[rateKey(legacy)];
+    }
+    return result;
   }
   function normalize(value) {
     const result = {version:1, events:[], batches:[], rates:[], profiles:[]};
@@ -61,18 +161,19 @@
     result.profiles = (Array.isArray(value.profiles) ? value.profiles : []).filter(p=>p && typeof p.key==='string' && Number.isFinite(p.updatedAt)).map(p=>({key:p.key,level:Number.isInteger(p.level)&&p.level>=1&&p.level<=300?p.level:null,mvp:[0,3,5,10].includes(p.mvp)?p.mvp:0,pc:p.pc===true,attempts:[1,3].includes(p.attempts)?p.attempts:1,updatedAt:p.updatedAt}));
     return result;
   }
-  function union(rows, id, version) {
+  function union(rows, id, version, schema) {
     const map = new Map();
     rows.forEach(row=>{
       const old = map.get(row[id]);
-      if (!old || Number(row[version])>Number(old[version]) || (Number(row[version])===Number(old[version]) && JSON.stringify(row)>JSON.stringify(old))) map.set(row[id],row);
+      const generation=schema?(Number(row[schema])||1)-(Number(old?.[schema])||1):0;
+      if (!old || generation>0 || (generation===0 && (Number(row[version])>Number(old[version]) || (Number(row[version])===Number(old[version]) && JSON.stringify(row)>JSON.stringify(old))))) map.set(row[id],row);
     });
     return [...map.values()].sort((a,b)=>a[id].localeCompare(b[id]));
   }
   function merge(...values) {
     const states = values.map(normalize);
     return {version:1,
-      events:union(states.flatMap(s=>s.events),'key','observedAt'),
+      events:union(states.flatMap(s=>s.events),'key','observedAt','schemaVersion'),
       batches:union(states.flatMap(s=>s.batches),'id','updatedAt'),
       rates:union(states.flatMap(s=>s.rates),'key','updatedAt'),
       profiles:union(states.flatMap(s=>s.profiles),'key','updatedAt')};
@@ -148,9 +249,9 @@
     return String(Math.round(base*(100-extra)*(100-discount)/10000+base*safeguard));
   }
   function defaultUnit(e) {
-    let type=e.potentialType;
+    let type=potentialType(e.potentialType);
     if(e.kind==='cube') {
-      const cube=String(e.cubeType||'').replace(/^카르마\s+/,'').trim();
+      const cube=String(e.cubeType||'').trim().replace(/^(?:카르마|대적자의)\s+/,'');
       if(!['수상한 큐브','장인의 큐브','명장의 큐브','레드 큐브','블랙 큐브','에디셔널 큐브','화이트 에디셔널 큐브','수상한 에디셔널 큐브'].includes(cube)) return null;
       // A comparison value, not the purchase price of a free or cash cube.
       type=cube.includes('에디셔널')?'에디셔널 잠재능력':'잠재능력';
@@ -174,7 +275,7 @@
     });
     return [...map.values()].map(g=>{
       const profile=profiles.get(reportKey(g))||{}, level=g.level??profile.level??itemInfo(g.item).level;
-      const saved=rates.get(g.key), rate=saved?.auto===true?undefined:saved;
+      const saved=[g.key,...(Array.isArray(g.rateAliases)?g.rateAliases:[])].map(k=>rates.get(k)).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)[0], rate=saved?.auto===true?undefined:saved;
       const attempts=g.kind==='potential'?(rate?.attempts||profile.attempts||1):1;
       const resolved={...g,level,multiResult:g.multiResult && !profile.attempts};
       const costs=g.events.map(e=>rate?.unit ?? (g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
@@ -198,8 +299,8 @@
       r.details.sort((a,b)=>(a.stars??grades.indexOf(a.grade))-(b.stars??grades.indexOf(b.grade))||a.key.localeCompare(b.key));
       const {total,...report}=r;
       return {...report,estimate:r.missing?null:String(total),subtotal:String(total),
-        firstStars:first.stars,lastStars:last.nextStars,firstGrade:first.grade,lastGrade:last.nextGrade||'',
-        success:events.filter(e=>e.kind==='starforce'?e.nextStars>e.stars:grades.indexOf(e.nextGrade)>grades.indexOf(e.grade)).length,
+        firstAt:first.at,lastAt:last.at,firstStars:first.stars,lastStars:last.nextStars,firstGrade:first.grade,lastGrade:last.nextGrade||'',
+        success:events.filter(e=>e.kind==='starforce'?e.nextStars>e.stars:grades.includes(e.grade) && grades.indexOf(e.nextGrade)>grades.indexOf(e.grade)).length,
         destroyed:events.filter(e=>/파괴/.test(e.result)).length,icon:itemInfo(r.item).icon};
     });
   }
@@ -207,7 +308,7 @@
     if (amount(value)===null || (status==='confirmed' && BigInt(value)<=0n)) throw new Error('확정할 메소를 입력해 주세요.');
     const current=(group.details?reports(state):groups(state)).find(g=>g.key===group.key);
     if (!current || key([...current.eventKeys].sort())!==key([...group.eventKeys].sort())) throw new Error('이력이 변경되었습니다. 목록을 다시 확인해 주세요.');
-    const batch={id,eventKeys:current.eventKeys,status,amount:String(value),kind:current.kind,date:current.date,item:current.item,character:current.character,createdAt:now,updatedAt:Date.parse(now)};
+    const batch={id,eventKeys:current.eventKeys,status,amount:String(value),kind:current.kind,potentialType:current.potentialType,cubeType:current.cubeType,date:current.date,item:current.item,character:current.character,createdAt:now,updatedAt:Date.parse(now)};
     return merge(state,{batches:[batch]});
   }
   function profits(state) {
@@ -233,5 +334,5 @@
     }
     throw new Error('하루 조회 한도를 넘었습니다. 기존 기록은 유지됩니다.');
   }
-  root.MapleEnhancements={event,normalize,merge,groups,reports,confirm,profits,allocated,collect,dateKst,defaultUnit,amount,starBase,starCost,starConditions,itemInfo,equipment,flag};
+  root.MapleEnhancements={event,normalize,merge,groups,reports,confirm,profits,allocated,collect,dateKst,defaultUnit,amount,starBase,starCost,starConditions,itemInfo,equipment,flag,potentialType,methodLabel};
 })(typeof window==='undefined'?globalThis:window);

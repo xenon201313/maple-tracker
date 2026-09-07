@@ -86,5 +86,41 @@ assert.equal(karma.details[0].unit,'83000000');
 assert.equal(karma.estimate,'1660000000');
 assert.equal(karma.count,20);
 assert.deepEqual(E.profits({events:karmaEvents}),[]);
+for(const [type,beforeField,afterField,expected] of [
+  ['잠재능력 재설정','before_potential_option','after_potential_option','42500000'],
+  ['에디셔널 잠재능력 재설정','before_additional_potential_option','after_additional_potential_option','83000000'],
+  ['에디셔널  잠재능력 재설정 ','before_additional_potential_option','after_additional_potential_option','83000000']
+]) {
+  const imported=E.event('potential',{...potRaw,id:type.trim(),potential_type:type,before_potential_option:[],after_potential_option:[],[beforeField]:[{grade:'레전드리'}],[afterField]:[{grade:'레전드리'}]},'account',20);
+  assert.equal(imported.grade,'레전드리','API reset suffix must select the correct potential options');
+  assert.equal(E.reports({events:[imported]})[0].estimate,expected);
+  assert.match(E.methodLabel(imported),/^메소 · /);
+  if(type.startsWith('에디셔널')) {
+    const legacy={...imported,grade:'',nextGrade:'',schemaVersion:1,observedAt:10};delete legacy.rateAliases;
+    const legacyGroup=E.groups({events:[legacy]})[0];
+    const legacyState={events:[legacy],rates:[{key:legacyGroup.key,unit:'7654321',attempts:1,updatedAt:15}]};
+    const repaired=E.merge(legacyState,{events:[imported]});
+    assert.equal(repaired.events.length,1,'Reimport repairs in place without adding a duplicate');
+    assert.equal(E.reports(repaired)[0].estimate,'7654321','Repaired grade must retain the pre-fix manual rate');
+    assert.equal(E.merge(repaired,{events:[{...legacy,observedAt:30}]}).events[0].grade,'레전드리','Old browser sync must not undo a repaired API record');
+    assert.deepEqual(E.merge(legacyState,{events:[imported]}),E.merge({events:[imported]},legacyState));
+    const locked=E.confirm(legacyState,legacyGroup,'12345678','locked');
+    assert.equal(E.profits(E.merge(locked,{events:[imported]}))[0].costs[0].price,'12345678');
+  }
+}
+for(const [item,level,cubeType,count,total] of [
+  ['데스티니 피스톨',250,'대적자의 블랙 큐브',8,'400000000'],
+  ['아스트라 매그넘',200,'대적자의 화이트 에디셔널 큐브',3,'264000000']
+]) {
+  const events=Array.from({length:count},(_,i)=>E.event('cube',{...potRaw,id:item+i,target_item:item,item_level:level,cube_type:cubeType,before_potential_option:[{grade:'레전드리'}],before_additional_potential_option:[{grade:'레전드리'}],after_additional_potential_option:[{grade:'레전드리'}]},'account'));
+  assert.equal(E.reports({events})[0].estimate,total);
+  assert.equal(E.methodLabel(events[0]),'큐브 · '+cubeType);
+  assert.deepEqual(E.profits({events}),[]);
+}
+const missingBefore=E.event('potential',{...potRaw,before_potential_option:[],potential_option_grade:'레전드리'},'account');
+assert.equal(E.reports({events:[missingBefore]})[0].estimate,null,'Never price a missing pre-upgrade grade from the after grade');
+assert.equal(E.equipment.filter(e=>e[0].startsWith('데스티니 ')).length,36);
+assert.equal(E.equipment.filter(e=>e[0].startsWith('아스트라 ')).length,47);
+assert.equal(E.itemInfo('아스트라 마법화살').icon,E.itemInfo('아스트라 마법 화살').icon);
 for(const [name,,code] of E.equipment) if(code) await access(new URL('../'+E.itemInfo(name).icon,import.meta.url));
 console.log('Item costs, date-scoped settings, grouped history and icon checks passed.');
