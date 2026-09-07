@@ -108,6 +108,14 @@ store. This does not replace the existing encrypted ledger sync KV namespace.
   HTTPS JSON POSTs to allowlisted routes from the exact production origin.
 - The provider URL, callback URI, scopes and allowed history paths are fixed.
   OAuth query parameters are stripped before third-party page scripts execute.
+- Nexon's nested `?page=home?code=...` callback is normalized before decoding,
+  preserving escaped code characters. Missing, conflicting or expired state is
+  rejected. Callback errors remain visible after switching to the expense page.
+- Worker requests use `redirect: 'manual'` and explicitly reject 3xx responses.
+  The deployed compatibility runtime rejects `redirect: 'error'` before making
+  a request; this was reproduced with a credential-free workerd probe. Tokens
+  and secrets are never forwarded to a redirect target. Diagnostics expose only
+  fixed stage names, HTTP status and allowlisted Nexon error identifiers.
 - Token rotation is serialized in a Durable Object. Sessions expire, and
   disconnect deletes the server-side credentials. Upstream errors are sanitized.
 

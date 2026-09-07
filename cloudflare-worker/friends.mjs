@@ -14,8 +14,10 @@ const json = (value,status=200) => new Response(JSON.stringify(value),{status,he
 
 async function upstream(url, init={}, stage='HISTORY') {
   let response;
-  try { response=await fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(12000)}); }
+  try { response=await fetch(url,{...init,redirect:'manual',signal:AbortSignal.timeout(12000)}); }
   catch { throw Object.assign(new Error('UPSTREAM'),{stage}); }
+  // Workers does not support redirect:error. Reject redirects without forwarding credentials.
+  if(response.status>=300 && response.status<400) throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status});
   let data;
   try { data=await response.json(); } catch { throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status}); }
   if (!response.ok || data?.error) {

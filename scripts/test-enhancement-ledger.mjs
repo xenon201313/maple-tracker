@@ -52,13 +52,14 @@ await assert.rejects(E.collect(async()=>{throw new Error('should not run');},'po
 
 const originalFetch=globalThis.fetch;
 const stores=new Map();
-let exchanges=0,upstreamFailure=null;
+let exchanges=0,upstreamFailure=null,upstreamStatus=401;
 globalThis.fetch=async (url,init)=>{
   url=String(url);
+  assert.equal(init.redirect,'manual','Worker requests must reject redirects manually');
   if(url==='https://openid.nexon.com/oauth2/token') {
     exchanges++;
     assert.equal(init.body.get('client_secret'),'server-only-fixture');
-    if(upstreamFailure) return new Response(JSON.stringify(upstreamFailure),{status:401});
+    if(upstreamFailure) return new Response(JSON.stringify(upstreamFailure),{status:upstreamStatus,headers:{Location:'https://untrusted.example/never-follow'}});
     return new Response(JSON.stringify({access_token:'private-access',refresh_token:'private-refresh',expires_in:1800,refresh_token_expires_in:1209600}));
   }
   if(url==='https://openid.nexon.com/oauth2/userinfo') return new Response(JSON.stringify({result:{uid:'fixture-uid',scope:['maplestory.starforce','maplestory.potential']}}));
@@ -102,11 +103,12 @@ try {
   assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind:'potential',date:'invalid'}),env)).status,400);
   assert.equal((await friendsRoute(request('logout',{state:start.state,proof}),env)).status,200);
   assert.equal((await friendsRoute(request('status',{state:start.state,proof}),env)).status,401);
-  for(const name of ['OPENAPI00012','private-access']) {
+  for(const name of ['OPENAPI00012','private-access','redirect']) {
     const retry=await (await friendsRoute(request('start',{challenge}),env)).json();
     upstreamFailure={error:{name,message:'server-only-fixture private-access private-refresh'}};
+    upstreamStatus=name==='redirect'?302:401;
     const failure=await (await friendsRoute(request('finish',{state:retry.state,proof,code:'code'}),env)).json();
-    assert.equal(failure.errorCode,'TOKEN_EXCHANGE / '+(name==='OPENAPI00012'?name:'401'));
+    assert.equal(failure.errorCode,'TOKEN_EXCHANGE / '+(name==='OPENAPI00012'?name:String(upstreamStatus)));
     assert(!JSON.stringify(failure).includes('private-'));
     assert(!JSON.stringify(failure).includes('server-only-fixture'));
     const count=exchanges;
