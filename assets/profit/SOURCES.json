@@ -1,0 +1,9 @@
+{
+  "equipmentSprite": {
+    "file": "assets/profit/equipment-sprite.png",
+    "url": "https://www.boomback.com/equipments/sprite.png",
+    "verifiedOn": "2026-09-08",
+    "sha256": "cb9e3f562d378f07adc0b343fb960062e8500c4c3fc22a95b0fa2a804c5104eb",
+    "note": "Unmodified item sprite sheet, previously loaded from this remote URL."
+  }
+}

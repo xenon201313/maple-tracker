@@ -16,6 +16,12 @@
   const imageFallback = new URL('assets/image-unavailable.svg', document.baseURI).href;
   function showImageFallback(image) {
     if (!(image instanceof HTMLImageElement) || image.dataset.imageUnavailable || !image.getAttribute('src')) return;
+    const local=window.resolveItemImage?.({name:image.alt});
+    if(!image.dataset.localIconRetry && local && new URL(local,document.baseURI).href!==image.src){
+      image.dataset.localIconRetry='true';
+      image.src=local;
+      return;
+    }
     image.dataset.imageUnavailable = 'true';
     image.title = (image.alt ? image.alt + ': ' : '') + '원본 이미지를 불러올 수 없습니다.';
     image.src = imageFallback;

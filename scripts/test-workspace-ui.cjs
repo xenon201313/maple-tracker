@@ -175,13 +175,14 @@ async function checkReadability(page, width) {
               const images = [...document.querySelectorAll('.page.active img')];
               images.forEach(image=>{image.loading='eager';});
               await Promise.all(images.map(image => image.decode().catch(()=>{})));
-              // A failed remote image is explicitly represented by the local missing-image icon.
+              // Every registered boss and drop icon must load without an external host.
               await new Promise(resolve=>setTimeout(resolve,100));
               await Promise.all(images.map(image => image.decode().catch(()=>{})));
               return images.filter(image=>!image.naturalWidth).map(image=>image.getAttribute('src'));
             });
             assert.deepEqual(broken,[],name+' broken images');
             assert.equal(await page.locator('.page.active .bimg[data-image-unavailable]').count(),0,name+' boss artwork must not use placeholders');
+            assert.equal(await page.locator('.page.active .drops img[data-image-unavailable]').count(),0,name+' drop icons must not use placeholders');
           }
         }
         await overflow(page,width+' '+name);
