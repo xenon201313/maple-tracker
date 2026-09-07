@@ -59,6 +59,14 @@ async function seed(page) {
 
 async function settle(page) {
   await page.evaluate(() => document.fonts.ready);
+  const typography=await page.evaluate(()=>({
+    body:getComputedStyle(document.body).fontFamily,
+    loaded:[...document.fonts].some(font=>font.family==='Nanum Gothic' && font.status==='loaded'),
+    wrong:[...document.querySelectorAll('h1,h2,h3,input,button,select,textarea')].filter(el=>getComputedStyle(el).fontFamily.indexOf('Nanum Gothic')!==0 && !getComputedStyle(el).fontFamily.startsWith('"Nanum Gothic"')).map(el=>el.tagName+'#'+el.id)
+  }));
+  assert.match(typography.body,/Nanum Gothic/,'Body must use Nanum Gothic');
+  assert.equal(typography.loaded,true,'Self-hosted Nanum Gothic failed to load');
+  assert.deepEqual(typography.wrong,[],'Headings and controls must share the readable body font');
   await page.waitForTimeout(170);
 }
 async function navigate(page, name) {

@@ -1,0 +1,27 @@
+@font-face {
+  font-family:'Nanum Gothic';
+  src:url('fonts/NanumGothic-Regular.ttf') format('truetype');
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+}
+@font-face {
+  font-family:'Nanum Gothic';
+  src:url('fonts/NanumGothic-Bold.ttf') format('truetype');
+  font-style:normal;
+  font-weight:700;
+  font-display:swap;
+}
+:root {
+  --font-body:'Nanum Gothic','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  --font-title:var(--font-body);
+}
+body,body h1,body h2,body h3,body h4,
+body button,body input,body select,body textarea,
+body .button,body .step-number,body .exp-level-event-label,body .site-ad-label {
+  font-family:var(--font-body);
+  letter-spacing:0;
+}
+body .workspace-brand,body .brand {
+  font-family:'MaplestoryTitle',var(--font-body);
+}

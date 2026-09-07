@@ -144,10 +144,28 @@ const server=http.createServer((req,res)=>{
     await page.click('[data-enhancement-tab="potential"]');
     const cube=page.locator('.enhancement-row');
     assert.match(await cube.innerText(),/수상한 큐브/);
-    assert.match(await cube.locator('.enhancement-estimate').innerText(),/구매 금액 확인/);
+    assert.match(await cube.locator('.enhancement-estimate').innerText(),/메소 환산액/);
     await cube.locator('summary').click();
-    assert.equal(await cube.locator('[data-amount]').inputValue(),'','Cube price must not be fabricated');
+    assert.equal(await cube.locator('[data-amount]').inputValue(),'4250000','Auto-fill the same-level meso-reset equivalent');
+    const beforeCube=await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements)));
+    await cube.locator('[data-confirm]').click();
+    assert.match(await page.locator('#enhancement-status').innerText(),/실제 메소/);
+    assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'An unconfirmed equivalent changed actual expenses');
     await cube.locator('[data-exclude]').click();
+    await page.evaluate(()=>MapleEnhancementBridge.commit({events:Array.from({length:20},(_,i)=>MapleEnhancements.event('cube',{id:'karma-'+i,date_create:todayStr()+'T12:30:00+09:00',character_name:'테스트 캐릭터',target_item:'루즈 컨트롤 머신 마크',item_level:160,cube_type:'카르마 화이트 에디셔널 큐브',before_additional_potential_option:[{grade:'레전드리'}],after_additional_potential_option:[{grade:'레전드리'}]},'fixture-grouped'))}));
+    const karma=page.locator('.enhancement-row');
+    assert.match(await karma.locator('.enhancement-estimate').innerText(),/16억 6,000만/);
+    await karma.locator('summary').click();
+    assert.equal(await karma.locator('[data-unit]').inputValue(),'83000000');
+    assert.equal(await karma.locator('[data-amount]').inputValue(),'1660000000');
+    assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube);
+    for(const width of [1440,390,320]) {
+      await page.setViewportSize({width,height:1000});
+      await page.evaluate(()=>document.fonts.ready);
+      await page.waitForTimeout(350);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Cube price layout overflow at '+width);
+      if(width!==320) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'potential-auto-'+width+'.png')});
+    }
     assert(historyCalls>=4);
     oauthReady=true;
     await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));

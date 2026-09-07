@@ -67,10 +67,24 @@ assert.equal(report.success,1);
 assert.equal(report.firstGrade,'유니크');assert.equal(report.lastGrade,'레전드리');
 assert.equal(E.reports(E.merge(potentials,{profiles:[{key:report.key,level:250,attempts:3,updatedAt:1}]}))[0].estimate,'235875000','Raw API item level wins over an override');
 const cube=E.event('cube',{...potRaw,cube_type:'수상한 큐브'},'account');
-assert.equal(E.reports({events:[cube]})[0].estimate,null,'Item cubes are not meso resets');
+assert.equal(E.reports({events:[cube]})[0].estimate,'36125000','Cubes use a clearly separated meso equivalent');
+assert.equal(E.reports({events:[cube]})[0].basis,'cube-equivalent');
+assert.deepEqual(E.profits({events:[cube]}),[],'A cube equivalent is not automatically a real expense');
+assert.equal(E.defaultUnit({...cube,cubeType:'알 수 없는 큐브'}),null);
 assert.equal(E.reports({events:[cube]})[0].count,1);
 assert.equal(E.reports({events:[cube,p1]}).length,2);
 const cubeReport=E.reports({events:[cube]})[0];
 assert.equal(E.profits(E.confirm({events:[cube]},cubeReport,'10000','cube-batch'))[0].type,'potential');
+for(const [level,normal,additional] of [[140,'40000000','78000000'],[160,'42500000','83000000'],[200,'45000000','88000000'],[250,'50000000','98000000']]) {
+  assert.equal(E.defaultUnit({...p1,level,grade:'레전드리'}),normal);
+  assert.equal(E.defaultUnit({...p1,level,grade:'레전드리',potentialType:'에디셔널 잠재능력'}),additional);
+  assert.equal(E.defaultUnit({...cube,level,grade:'레전드리',cubeType:'카르마 화이트 에디셔널 큐브'}),additional);
+}
+const karmaEvents=Array.from({length:20},(_,i)=>E.event('cube',{id:'karma-'+i,date_create:at,character_name:'테스트',target_item:'루즈 컨트롤 머신 마크',item_level:160,cube_type:'카르마 화이트 에디셔널 큐브',before_additional_potential_option:[{grade:'레전드리'}],after_additional_potential_option:[{grade:'레전드리'}]},'account'));
+const karma=E.reports({events:karmaEvents})[0];
+assert.equal(karma.details[0].unit,'83000000');
+assert.equal(karma.estimate,'1660000000');
+assert.equal(karma.count,20);
+assert.deepEqual(E.profits({events:karmaEvents}),[]);
 for(const [name,,code] of E.equipment) if(code) await access(new URL('../'+E.itemInfo(name).icon,import.meta.url));
 console.log('Item costs, date-scoped settings, grouped history and icon checks passed.');

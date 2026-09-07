@@ -148,11 +148,18 @@
     return String(Math.round(base*(100-extra)*(100-discount)/10000+base*safeguard));
   }
   function defaultUnit(e) {
-    if (e.kind!=='potential' || e.multiResult || !['잠재능력','에디셔널 잠재능력'].includes(e.potentialType)) return null;
+    let type=e.potentialType;
+    if(e.kind==='cube') {
+      const cube=String(e.cubeType||'').replace(/^카르마\s+/,'').trim();
+      if(!['수상한 큐브','장인의 큐브','명장의 큐브','레드 큐브','블랙 큐브','에디셔널 큐브','화이트 에디셔널 큐브','수상한 에디셔널 큐브'].includes(cube)) return null;
+      // A comparison value, not the purchase price of a free or cash cube.
+      type=cube.includes('에디셔널')?'에디셔널 잠재능력':'잠재능력';
+    }
+    if (!['potential','cube'].includes(e.kind) || e.multiResult || !['잠재능력','에디셔널 잠재능력'].includes(type)) return null;
     const grade = grades.indexOf(e.grade), level=e.level;
-    const since=e.potentialType==='잠재능력' ? '2024-01-25' : '2024-06-20';
+    const since=type==='잠재능력' ? '2024-01-25' : '2024-06-20';
     if (e.date<since || grade<0 || !Number.isInteger(level) || level<1 || level>300) return null;
-    const table=e.potentialType==='잠재능력' ? potentialCosts : additionalCosts;
+    const table=type==='잠재능력' ? potentialCosts : additionalCosts;
     return String(table[level<160?0:level<200?1:level<250?2:3][grade]);
   }
   function groups(value) {
@@ -173,7 +180,7 @@
       const costs=g.events.map(e=>rate?.unit ?? (g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
       const unit=costs.every(cost=>cost===costs[0])?costs[0]:null;
       const estimate=costs.some(cost=>cost===null)?null:String(costs.reduce((sum,cost)=>sum+BigInt(cost)*BigInt(attempts),0n));
-      return {...g,resolvedLevel:level,profile,unit,attempts,estimate,basis:rate?'saved-rate':estimate===null?'needs-rate':g.kind==='starforce'?'star-formula':'official-table'};
+      return {...g,resolvedLevel:level,profile,unit,attempts,estimate,basis:rate?'saved-rate':estimate===null?'needs-rate':g.kind==='starforce'?'star-formula':g.kind==='cube'?'cube-equivalent':'official-table'};
     }).sort((a,b)=>b.date.localeCompare(a.date)||a.character.localeCompare(b.character)||a.item.localeCompare(b.item)||a.key.localeCompare(b.key));
   }
   function reports(value) {

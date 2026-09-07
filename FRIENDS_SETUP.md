@@ -71,8 +71,10 @@ store. This does not replace the existing encrypted ledger sync KV namespace.
 - Pending events are displayed by date, character and item, with stage/grade
   details collapsed. Settings are additive, mergeable profiles. Confirmed or
   excluded event references and amounts are never replaced by new estimates.
-- Item cubes show usage counts, not an invented meso price. Only a user-confirmed
-  meso purchase cost becomes an expense. Cash and free cubes can be excluded.
+- Recognized item cubes are auto-filled with the same-level, before-grade meso
+  reset equivalent, explicitly labeled as a comparison value, not their purchase
+  price. A separate actual-meso confirmation is required before recording it as
+  spending. Cash/free cubes can be excluded; saved manual prices remain intact.
 - Known accessory icons are unchanged official Nexon PNGs, stored locally. Missing
   icons use the existing unavailable-image asset, never a different item's art.
 - Confirmation creates an isolated enhancement batch. Existing manual expenses,
