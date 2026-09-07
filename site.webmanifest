@@ -8,7 +8,7 @@
   "lang": "ko",
   "icons": [
     {
-      "src": "assets/icon.png",
+      "src": "assets/icon.png?v=20260908",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"

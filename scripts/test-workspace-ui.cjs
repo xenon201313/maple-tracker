@@ -112,7 +112,7 @@ async function checkReadability(page, width) {
       actionsFirst: document.querySelector('.workspace-quick-actions').getBoundingClientRect().bottom < document.querySelector('.home-summary-grid').getBoundingClientRect().top
     };
   });
-  assert.match(style.background, /maple-village-bg\.png/, width+' original village background');
+  assert.match(style.background, /maple-mushroom-meso-bg\.webp/, width+' mushroom meso background');
   assert.notEqual(style.display, 'none');
   assert(style.gutter >= 8, width+' background has no visible side gutter');
   for (const [field, minimum] of Object.entries({body:15,nav:15,action:14,label:14,note:13,value:23})) {
@@ -133,9 +133,27 @@ async function checkReadability(page, width) {
     });
     const page = await context.newPage();
     const errors = [];
+    const retiredBackgroundRequests = [];
+    page.on('request', request => { if (new URL(request.url()).pathname.endsWith('/maple-village-bg.png')) retiredBackgroundRequests.push(request.url()); });
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(origin);
     await settle(page);
+    const backgroundSize=await page.evaluate(async()=>{
+      const background=new Image();background.src='assets/maple-mushroom-meso-bg.webp';
+      await background.decode();return {width:background.naturalWidth,height:background.naturalHeight};
+    });
+    assert(backgroundSize.width>=1024 && backgroundSize.height>=576,'Mushroom background failed to decode');
+    const previewSize=await page.evaluate(async()=>{
+      const preview=new Image();preview.src=document.querySelector('meta[property="og:image"]').content.replace('https://maple-trackers.com',location.origin);
+      await preview.decode();
+      const icon=new Image();icon.src=document.querySelector('link[rel="icon"]').href;await icon.decode();
+      return {width:preview.naturalWidth,height:preview.naturalHeight,iconWidth:icon.naturalWidth,
+        expectedWidth:Number(document.querySelector('meta[property="og:image:width"]').content),
+        expectedHeight:Number(document.querySelector('meta[property="og:image:height"]').content),
+        alt:document.querySelector('meta[property="og:image:alt"]').content};
+    });
+    assert.equal(previewSize.width,previewSize.expectedWidth);assert.equal(previewSize.height,previewSize.expectedHeight);
+    assert.equal(previewSize.iconWidth,1024);assert.match(previewSize.alt,/메소 주머니/);
     await overflow(page,'empty home');
     await page.screenshot({path:path.join(output,'empty-home.png'),fullPage:true});
     await seed(page);
@@ -260,13 +278,14 @@ async function checkReadability(page, width) {
         await page.goto(origin+route);
         await settle(page);
         await overflow(page,width+' '+route);
-        assert.match(await page.evaluate(()=>getComputedStyle(document.body).backgroundImage+' '+getComputedStyle(document.body,'::before').backgroundImage),/maple-village-bg\.png/,route+' original village background');
+        assert.match(await page.evaluate(()=>getComputedStyle(document.body).backgroundImage+' '+getComputedStyle(document.body,'::before').backgroundImage),/maple-mushroom-meso-bg\.webp/,route+' mushroom meso background');
         if (route === '/guide/' && [1440,390].includes(width)) {
           await page.screenshot({path:path.join(output,'guide-'+width+'-viewport.png')});
         }
       }
     }
     assert.deepEqual(errors,[],'Browser errors');
+    assert.deepEqual(retiredBackgroundRequests,[],'A page still requests the retired background');
     await context.close();
     console.log('Workspace UI: 50 app + 12 public page/viewport checks, background, readable text, shortcuts, navigation, mobile menu, hunt save, backup, boss drops and reload persistence passed.');
     console.log('Screenshots: '+output);

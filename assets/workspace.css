@@ -28,8 +28,8 @@ body {
   overflow-x: clip;
 }
 html.native-android body { padding-top: 0; padding-bottom: 0; }
-/* Keep the original Maple village visible around the readable ledger surface. */
-body::before { display: block; background: url('maple-village-bg.png') center center / cover no-repeat; }
+/* Keep the mushroom village visible around the readable ledger surface. */
+body::before { display: block; background: url('maple-mushroom-meso-bg.webp') center center / cover no-repeat; }
 body::after { display: block; background: rgba(10,14,20,.38); }
 button, input, select, textarea { font: inherit; }
 button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }

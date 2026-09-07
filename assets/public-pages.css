@@ -37,7 +37,7 @@ body{
   word-break:keep-all;
   overflow-wrap:break-word;
 }
-body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#0a0e1461,#0a0e1461),url('maple-village-bg.png') center/cover no-repeat;}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(#0a0e1461,#0a0e1461),url('maple-mushroom-meso-bg.webp') center/cover no-repeat;}
 a{color:var(--blue);text-underline-offset:3px;}
 .shell{width:min(1100px,100%);margin:0 auto;padding:28px 32px;background:rgba(30,33,40,.97);}
 .topbar{
