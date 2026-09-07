@@ -276,7 +276,8 @@
     return [...map.values()].map(g=>{
       const profile=profiles.get(reportKey(g))||{}, level=g.level??profile.level??itemInfo(g.item).level;
       const saved=[g.key,...(Array.isArray(g.rateAliases)?g.rateAliases:[])].map(k=>rates.get(k)).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)[0], rate=saved?.auto===true?undefined:saved;
-      const attempts=g.kind==='potential'?(rate?.attempts||profile.attempts||1):1;
+      const attemptSettings=profile.updatedAt>=(rate?.updatedAt||0)?profile:rate;
+      const attempts=g.kind==='potential'?(attemptSettings?.attempts||rate?.attempts||profile.attempts||1):1;
       const resolved={...g,level,multiResult:g.multiResult && !profile.attempts};
       const costs=g.events.map(e=>rate?.unit ?? (g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
       const unit=costs.every(cost=>cost===costs[0])?costs[0]:null;

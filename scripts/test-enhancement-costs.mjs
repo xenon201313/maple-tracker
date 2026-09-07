@@ -66,6 +66,14 @@ assert.equal(report.estimate,'78625000','Pre-upgrade grades must be charged indi
 assert.equal(report.success,1);
 assert.equal(report.firstGrade,'유니크');assert.equal(report.lastGrade,'레전드리');
 assert.equal(E.reports(E.merge(potentials,{profiles:[{key:report.key,level:250,attempts:3,updatedAt:1}]}))[0].estimate,'235875000','Raw API item level wins over an override');
+const manualPotential=E.merge({events:[p1]},{rates:[{key:E.groups({events:[p1]})[0].key,unit:'100',attempts:1,updatedAt:1}]});
+const manualReport=E.reports(manualPotential)[0];
+const triplePotential=E.merge(manualPotential,{profiles:[{key:manualReport.key,level:160,attempts:3,updatedAt:2}]});
+assert.equal(E.reports(triplePotential)[0].count,3,'Changing attempts must take effect after entering a manual unit price');
+assert.equal(E.reports(triplePotential)[0].estimate,'300','Changing attempts must preserve the manual unit price');
+const singlePotential=E.merge(triplePotential,{profiles:[{key:manualReport.key,level:160,attempts:1,updatedAt:3}]});
+assert.equal(E.reports(singlePotential)[0].estimate,'100','Switching back to one attempt must not retain triple spending');
+assert.equal(E.profits(E.merge(E.confirm(manualPotential,manualReport,'100','fixed-manual'),triplePotential))[0].costs[0].price,'100','Already confirmed costs must never be recalculated');
 const cube=E.event('cube',{...potRaw,cube_type:'수상한 큐브'},'account');
 assert.equal(E.reports({events:[cube]})[0].estimate,'36125000','Cubes use a clearly separated meso equivalent');
 assert.equal(E.reports({events:[cube]})[0].basis,'cube-equivalent');

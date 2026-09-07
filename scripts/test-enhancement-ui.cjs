@@ -87,6 +87,18 @@ const server=http.createServer((req,res)=>{
     await page.click('[data-enhancement-tab="potential"]');
     const potential=page.locator('.enhancement-row').filter({hasText:'잠재능력'});
     assert.match(await potential.innerText(),/4,500만/);
+    await potential.locator('.enhancement-details > summary').click();
+    await potential.locator('[data-unit]').fill('100');
+    await potential.locator('[data-calculate]').click();
+    await potential.locator('[data-attempts]').selectOption('3');
+    await potential.locator('[data-settings]').click();
+    assert.equal(await potential.locator('[data-amount]').inputValue(),'300','Manual unit price blocked a new attempt count');
+    assert.match(await potential.locator('.enhancement-result').innerText(),/3회/);
+    await potential.locator('[data-attempts]').selectOption('1');
+    await potential.locator('[data-settings]').click();
+    assert.equal(await potential.locator('[data-amount]').inputValue(),'100');
+    await potential.locator('[data-auto-rate]').click();
+    assert.equal(await potential.locator('[data-amount]').inputValue(),'45000000');
     await potential.locator('[data-confirm]').click();
     assert.match(await page.locator('#enhancement-status').innerText(),/수동 기록/,'Duplicate manual record needs confirmation');
     await potential.locator('[data-distinct]').check();
