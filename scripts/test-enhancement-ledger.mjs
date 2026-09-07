@@ -84,7 +84,7 @@ try {
   const start=await (await friendsRoute(request('start',{challenge}),env)).json();
   const auth=new URL(start.url);
   assert.equal(auth.searchParams.get('state'),start.state);
-  assert.equal(auth.searchParams.get('scope'),'maplestory.starforce,maplestory.potential');
+  assert.equal(auth.searchParams.get('scope'),'maplestory.characterlist,maplestory.starforce,maplestory.potential,maplestory.scheduler,maplestory.cube');
   assert.equal((await friendsRoute(request('finish',{state:start.state,proof:'b'.repeat(64),code:'code'}),env)).status,401);
   const finish=await friendsRoute(request('finish',{state:start.state,proof,code:'code'}),env);
   const connection=await finish.json();
@@ -95,6 +95,7 @@ try {
   const history=await friendsRoute(request('history',{state:start.state,proof,kind:'potential',date:'2026-09-06'}),env);
   assert.equal((await history.json()).potential_history.length,1);
   assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind:'../../oauth2/token',date:'2026-09-06'}),env)).status,400);
+  for(const kind of ['cube','characterlist','scheduler']) assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind,date:'2026-09-06'}),env)).status,400,'Unused authorized data must not be queried');
   assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind:'potential',date:'invalid'}),env)).status,400);
   assert.equal((await friendsRoute(request('logout',{state:start.state,proof}),env)).status,200);
   assert.equal((await friendsRoute(request('status',{state:start.state,proof}),env)).status,401);

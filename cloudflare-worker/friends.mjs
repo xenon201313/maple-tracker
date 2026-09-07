@@ -2,6 +2,8 @@ const CLIENT_ID = '94027613-24a9-4bab-9c74-c5d4ae55bf5e';
 const APP_ORIGIN = 'https://maple-trackers.com';
 const REDIRECT_URI = APP_ORIGIN + '/?page=home';
 const SCOPES = ['maplestory.starforce', 'maplestory.potential'];
+// Nexon rejects subsets of the application's registered authorization scopes.
+const AUTH_SCOPES = ['maplestory.characterlist', 'maplestory.starforce', 'maplestory.potential', 'maplestory.scheduler', 'maplestory.cube'];
 const TOKEN_URL = 'https://openid.nexon.com/oauth2/token';
 const SESSION_TTL = 14 * 24 * 3600 * 1000;
 const hex = bytes => Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
@@ -104,7 +106,7 @@ export async function friendsRoute(request,env) {
   const path=url.pathname.replace('/v1/friends/','');
   if (request.headers.get('Origin')!==APP_ORIGIN) return json({error:'Origin not allowed'},403);
   const ready=!!env.NEXON_CLIENT_SECRET && !!env.FRIENDS_SESSIONS;
-  if (path==='config' && request.method==='GET') return json({ready,clientId:CLIENT_ID,scopes:SCOPES});
+  if (path==='config' && request.method==='GET') return json({ready,clientId:CLIENT_ID,scopes:AUTH_SCOPES});
   if (!ready) return json({error:'프렌즈 서버 설정이 아직 완료되지 않았습니다.'},503);
   if (request.method!=='POST' || !request.headers.get('Content-Type')?.startsWith('application/json')) return json({error:'Method not allowed'},405);
   const text=await request.text();
@@ -122,7 +124,7 @@ export async function friendsRoute(request,env) {
     const saved=await stub.fetch(new Request('https://session/start',{method:'POST',body:JSON.stringify({action:'start',challenge:body.challenge})}));
     if (!saved.ok) return saved;
     const authorize=new URL('https://openid.nexon.com/oauth2/authorize');
-    Object.entries({response_type:'code',client_id:CLIENT_ID,redirect_uri:REDIRECT_URI,scope:SCOPES.join(','),state}).forEach(([k,v])=>authorize.searchParams.set(k,v));
+    Object.entries({response_type:'code',client_id:CLIENT_ID,redirect_uri:REDIRECT_URI,scope:AUTH_SCOPES.join(','),state}).forEach(([k,v])=>authorize.searchParams.set(k,v));
     return json({state,url:authorize.href});
   }
   if (!['finish','status','history','logout'].includes(path)) return json({error:'Not found'},404);

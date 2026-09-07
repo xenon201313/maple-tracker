@@ -15,8 +15,9 @@
 
 - Client ID: `94027613-24a9-4bab-9c74-c5d4ae55bf5e` (public identifier).
 - Existing redirect URI: `https://maple-trackers.com/?page=home`.
-- Requested scopes: `maplestory.starforce,maplestory.potential`.
-- The application currently has these scopes selected. Do not change or broaden them for this feature.
+- Authorization scopes match the existing application registration: `maplestory.characterlist,maplestory.starforce,maplestory.potential,maplestory.scheduler,maplestory.cube`.
+- Live verification found that Nexon rejects a subset of the registered scopes with an invalid-request dialog. The registered set opens the normal login screen with the same Client ID, redirect and state. Application permissions were not changed.
+- Only Star Force and potential histories are fetched; unused character-list, scheduler and cube data paths remain blocked on the server. The consent scope is disclosed in the expense page and privacy notice.
 - On 2026-09-07 the review screen showed `대기`. Test with the creator/registered testers before requesting production review.
 
 ## Server setup
