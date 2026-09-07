@@ -1592,7 +1592,7 @@
 <!-- ══════════ 지출 기록 ══════════ -->
 <div class="page" id="page-expense">
   <section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
-    <div class="enhancement-heading"><div><h2 id="enhancement-title">강화 지출 자동 기록</h2><p class="muted">API 이력으로 추정하고, 확인한 금액만 손익과 통계에 반영합니다.</p></div><span class="enhancement-badge">확인 후 반영</span></div>
+    <div class="enhancement-heading"><h2 id="enhancement-title">강화 내역</h2><span class="enhancement-badge">지출 반영 전까지 통계 제외</span></div>
     <div class="enhancement-controls">
       <label>연결 방식<select id="enhancement-source"><option value="friends">넥슨 프렌즈</option><option value="key">등록한 개인 API 키</option></select></label>
       <button type="button" id="enhancement-connect" class="nexon-login"><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
@@ -1602,13 +1602,14 @@
       <button type="button" id="enhancement-refresh">이력 가져오기</button>
       <button type="button" id="enhancement-cancel" class="ghost" hidden>조회 중단</button>
     </div>
-    <label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">이 화면에서 최근 2일 이력 자동 갱신 (5분 간격)</label>
     <p id="enhancement-status" class="muted" role="status" aria-live="polite"></p>
-    <p class="muted">프렌즈 로그인은 등록된 캐릭터 목록·스케줄러·큐브·스타포스·잠재능력 권한의 동의를 요청합니다. 이 기능은 스타포스·잠재능력 이력만 조회합니다.</p>
-    <details class="enhancement-help"><summary>추정 금액의 계산 기준</summary><p>잠재능력은 장비 레벨과 재설정 전 등급의 공식 기본 단가를 사용합니다. 3회 재설정·이벤트 할인·다른 재화 사용 여부는 확인해 주세요. 스타포스는 API에 장비 레벨과 실제 비용이 없어 같은 날의 장비·강화 단계·조건별 1회 비용을 입력하면 이력 수로 자동 합산합니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>자동 수집만으로 지출은 늘어나지 않습니다. 수동으로 기록한 비용은 다시 확정하지 마세요. NEXON Open API를 이용합니다.</p></details>
+    <div class="enhancement-tabs" role="tablist" aria-label="강화 종류"><button type="button" role="tab" id="enhancement-tab-starforce" data-enhancement-tab="starforce" aria-selected="true" aria-controls="enhancement-list">스타포스 <span>0</span></button><button type="button" role="tab" id="enhancement-tab-potential" data-enhancement-tab="potential" aria-selected="false" aria-controls="enhancement-list">큐브·잠재능력 <span>0</span></button></div>
+    <div class="enhancement-summary" id="enhancement-summary"></div>
+    <datalist id="enhancement-levels"><option value="140"><option value="160"><option value="200"><option value="250"></datalist>
     <div id="enhancement-list"></div>
     <div id="enhancement-pagination" class="enhancement-pagination"></div>
     <details class="enhancement-confirmed"><summary>확정 / 제외한 강화 이력</summary><div id="enhancement-confirmed-list"></div></details>
+    <details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 사용 개수만 집계하며, 메소 구매분만 직접 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 5개 권한의 동의를 요청하며, 강화·큐브·잠재능력 이력만 조회합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
   </section>
   <div class="card">
     <h2>💳 지출 기록</h2>

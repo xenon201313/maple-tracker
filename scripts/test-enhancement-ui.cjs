@@ -41,8 +41,9 @@ const server=http.createServer((req,res)=>{
         const date=url.searchParams.get('date');
         historyCalls++;
         const common={character_name:'테스트 캐릭터',target_item:'아케인셰이드 스태프',date_create:date+'T10:00:00+09:00'};
-        if(url.pathname.endsWith('/starforce')) return fulfill({starforce_history:[{...common,id:date+'-sf',world_name:'크로아',before_starforce_count:17,after_starforce_count:18,destroy_defence:'적용',superior_item_flag:'미적용',starforce_event_list:[]}],next_cursor:''});
+        if(url.pathname.endsWith('/starforce')) return fulfill({starforce_history:[{...common,target_item:'가디언 엔젤 링',id:date+'-sf',world_name:'크로아',before_starforce_count:17,after_starforce_count:18,destroy_defence:'적용',superior_item_flag:'미적용',starforce_event_list:[]}],next_cursor:''});
         if(url.pathname.endsWith('/potential')) return fulfill({potential_history:[{...common,id:date+'-p',item_level:200,potential_type:'잠재능력',before_potential_option:[{grade:'레전드리'}],after_potential_option:[{grade:'레전드리'}]}],next_cursor:''});
+        if(url.pathname.endsWith('/cube')) return fulfill({cube_history:[],next_cursor:''});
       }
       return route.abort();
     });
@@ -65,10 +66,12 @@ const server=http.createServer((req,res)=>{
     await page.fill('#enhancement-from',today);await page.fill('#enhancement-to',today);
     await page.click('#enhancement-refresh');
     await page.waitForFunction(()=>document.querySelector('#enhancement-status').textContent.includes('조회 완료'));
-    assert.equal(await page.locator('.enhancement-row').count(),2);
+    assert.equal(await page.locator('.enhancement-row').count(),1);
     assert.equal(await page.evaluate(()=>profitTotals(()=>true).cost.toString()),'1000000','Estimates changed existing totals');
-    assert.match(await page.locator('.enhancement-row').filter({hasText:'잠재능력'}).innerText(),/4,500만/);
-    assert.match(await page.locator('.enhancement-row').filter({hasText:'17성'}).innerText(),/단가 확인 필요/);
+    assert.match(await page.locator('.enhancement-row').innerText(),/2억 73만 9,300/);
+    assert.match(await page.locator('.enhancement-row').innerText(),/160제/);
+    assert.equal(await page.locator('.enhancement-row img').evaluate(img=>img.complete && img.naturalWidth>0),true);
+    assert(!await page.locator('.enhancement-row').innerText().then(text=>text.includes('미적용')));
     for(const width of [1440,768,390,320]) {
       await page.setViewportSize({width,height:1000});
       await page.waitForTimeout(300);
@@ -77,7 +80,9 @@ const server=http.createServer((req,res)=>{
       if([1440,390].includes(width)) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'enhancement-'+width+'.png')});
     }
     await page.setViewportSize({width:1440,height:1000});
+    await page.click('[data-enhancement-tab="potential"]');
     const potential=page.locator('.enhancement-row').filter({hasText:'잠재능력'});
+    assert.match(await potential.innerText(),/4,500만/);
     await potential.locator('[data-confirm]').click();
     assert.match(await page.locator('#enhancement-status').innerText(),/수동 기록/,'Duplicate manual record needs confirmation');
     await potential.locator('[data-distinct]').check();
@@ -94,7 +99,11 @@ const server=http.createServer((req,res)=>{
     await page.waitForFunction(()=>document.querySelector('#enhancement-status').textContent.includes('조회 완료'));
     assert.equal(await page.locator('.enhancement-row').count(),1,'Reimport showed confirmed events again');
     const starforce=page.locator('.enhancement-row');
+    await starforce.locator('summary').click();
+    const scroll=await page.evaluate(()=>scrollY);
     await starforce.locator('[data-unit]').fill('12345678');
+    await page.waitForTimeout(350);
+    assert(Math.abs(await page.evaluate(()=>scrollY)-scroll)<3,'Editing jumped the page');
     await starforce.locator('[data-calculate]').click();
     assert.equal(await starforce.locator('[data-amount]').inputValue(),'12345678');
     await starforce.locator('[data-confirm]').click();
@@ -119,6 +128,26 @@ const server=http.createServer((req,res)=>{
     await page.locator('[data-undo]').first().click();
     assert.equal(await page.evaluate(()=>MapleEnhancements.profits(db.enhancements).length),1);
     assert.equal(await page.evaluate(()=>MapleEnhancements.groups(db.enhancements).length),0,'Cancellation should retain exclusion tombstone');
+    await page.evaluate(()=>{
+      const raw={character_name:'테스트 캐릭터',target_item:'가디언 엔젤 링',date_create:todayStr()+'T12:00:00+09:00',before_starforce_count:19,after_starforce_count:20,starforce_event_list:[{cost_discount_rate:'30',starforce_event_range:'0~29'}]};
+      MapleEnhancementBridge.commit({events:[...Array.from({length:25},(_,i)=>MapleEnhancements.event('starforce',{...raw,id:'grouped-'+i,before_starforce_count:i%2?19:20,after_starforce_count:i%2?20:21},'fixture-grouped')),MapleEnhancements.event('cube',{...raw,id:'cube-usage',cube_type:'수상한 큐브',item_level:160,before_potential_option:[{grade:'레어'}],after_potential_option:[{grade:'에픽'}]},'fixture-grouped')]});
+    });
+    assert.equal(await page.locator('.enhancement-row').count(),1,'25 attempts should stay in one item row');
+    assert.match(await page.locator('.enhancement-result').innerText(),/25회/);
+    await page.locator('.enhancement-details summary').click();
+    assert.equal(await page.locator('[data-detail]').count(),2);
+    for(const width of [1440,768,390,320]) {
+      await page.setViewportSize({width,height:1000});
+      await page.waitForTimeout(200);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Expanded costs overflow at '+width);
+    }
+    await page.click('[data-enhancement-tab="potential"]');
+    const cube=page.locator('.enhancement-row');
+    assert.match(await cube.innerText(),/수상한 큐브/);
+    assert.match(await cube.locator('.enhancement-estimate').innerText(),/구매 금액 확인/);
+    await cube.locator('summary').click();
+    assert.equal(await cube.locator('[data-amount]').inputValue(),'','Cube price must not be fabricated');
+    await cube.locator('[data-exclude]').click();
     assert(historyCalls>=4);
     oauthReady=true;
     await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));

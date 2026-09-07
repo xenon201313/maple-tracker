@@ -130,7 +130,7 @@ export async function friendsRoute(request,env) {
   if (!['finish','status','history','logout'].includes(path)) return json({error:'Not found'},404);
   if (!validSecret(body.state) || !validSecret(body.proof)) return json({error:'로그인이 필요합니다.'},401);
   if (path==='history') {
-    if (!['starforce','potential'].includes(body.kind)) return json({error:'Invalid history kind'},400);
+    if (!['starforce','potential','cube'].includes(body.kind)) return json({error:'Invalid history kind'},400);
     const date=body.date, cursor=body.cursor;
     const parsed=typeof date==='string'?new Date(date+'T00:00:00Z'):new Date(NaN);
     if (cursor ? typeof cursor!=='string' || cursor.length>4096 : typeof date!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0,10)!==date) return json({error:'Invalid query'},400);

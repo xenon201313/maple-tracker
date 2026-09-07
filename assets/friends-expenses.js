@@ -11,13 +11,14 @@
   const offset=(day,n)=>new Date(Date.parse(day+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
   const read=key=>{try{return JSON.parse(sessionStorage.getItem(key)||'null');}catch{return null;}};
   const bridge=()=>window.MapleEnhancementBridge;
-  let session=read(sessionKey), ready=false, configured=false, page=0, running=null, lastAuto=0;
+  let session=read(sessionKey), ready=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
+  let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const callback=new URL(location.href);
   const callbackState=callback.searchParams.get('state');
   const callbackCode=callback.searchParams.get('code');
   const callbackError=callback.searchParams.get('error');
   // Strip OAuth parameters before ads, analytics, or other application scripts execute.
-  if(callbackCode || callbackError) {
+  if(callbackCode || callbackError || callbackState) {
     ['code','state','error','error_description'].forEach(k=>callback.searchParams.delete(k));
     history.replaceState(history.state,'',callback.pathname+callback.search+callback.hash);
   }
@@ -51,7 +52,7 @@
     try {
       ready=!!(await call('config')).ready;
       if(session && ready) { const info=await call('status',session); session.account=info.account; }
-      status(ready?(session?'넥슨 계정 연결됨':'넥슨 로그인 또는 등록한 개인 API 키로 조회할 수 있습니다.'):'프렌즈 서버 설정 전입니다. 등록한 개인 API 키로 먼저 조회할 수 있습니다.');
+      status(ready?(session?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.');
     } catch { status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
     controls();
   }
@@ -105,8 +106,8 @@
       };
       const events=[];
       for(let day=from;day<=to;day=offset(day,1)) {
-        for(const kind of ['starforce','potential']) {
-          status(day+' '+(kind==='starforce'?'스타포스':'잠재능력')+' 이력을 가져오는 중...');
+        for(const kind of ['starforce','potential','cube']) {
+          status(day+' '+(kind==='starforce'?'스타포스':kind==='cube'?'큐브':'잠재능력')+' 조회 중...');
           events.push(...await E.collect(fetchPage,kind,day,account,controller.signal));
         }
       }
@@ -116,48 +117,95 @@
       bridge().commit({events});
       const added=E.normalize(bridge().get()).events.length-before;
       page=0; render();
-      status('조회 완료 · 새 이력 '+added.toLocaleString()+'건 · 지출은 아직 추가하지 않았습니다.');
+      status('조회 완료 · 새 이력 '+added.toLocaleString()+'건');
     } catch(error) {status(controller.signal.aborted?'조회가 중단되었습니다. 기존 기록은 유지됩니다.':error.message,true);}
     finally {running=null;lastAuto=Date.now();controls();}
   }
   function hasManual(group) {
-    return bridge().manual().some(r=>r.date===group.date && r.type===group.kind && (r.costs||[]).some(c=>BigInt(String(c.price||0).replace(/,/g,''))>0n));
+    return bridge().manual().some(r=>r.date===group.date && r.type===(group.kind==='cube'?'potential':group.kind) && (r.costs||[]).some(c=>BigInt(String(c.price||0).replace(/,/g,''))>0n));
   }
-  function starCondition(group) {
-    let conditions=[];
-    try{conditions=JSON.parse(group.conditions);}catch{}
-    const labels=['슈페리얼','파괴방지','찬스타임','이벤트 필드','사용 주문서','보호막','추가옵션 강화'];
-    const details=labels.flatMap((label,i)=>conditions[i] && conditions[i]!=='미적용'?[label+' '+conditions[i]]:[]);
-    (conditions[7]||[]).forEach(row=>{if(row[0]) details.push('비용 할인 '+row[0]);});
-    return (group.stars??'?')+'성에서 강화'+(details.length?' · '+details.join(' · '):'');
+  function conditionTags(g) {
+    if(g.basis==='saved-rate') return '직접 입력한 단가';
+    if(g.kind!=='starforce') return g.kind==='cube'?g.cubeType:g.potentialType;
+    const c=E.starConditions(g), tags=[];
+    if(E.flag(c[0])) tags.push('슈페리얼');
+    if(E.flag(c[1])) tags.push('파괴방지');
+    if(E.flag(c[2])) tags.push('찬스타임');
+    for(const row of Array.isArray(c[7])?c[7]:[]) {
+      const discount=Number(String(row[0]||'').replace('%',''));
+      if(discount>0) tags.push(discount+'% 할인');
+    }
+    return [...new Set(tags)].join(' · ')||'기본';
+  }
+  const amountText=g=>g.estimate===null?(g.kind==='cube'?'구매 금액 확인':g.resolvedLevel===null?'장비 레벨 선택':'비용 확인 필요'):bridge().money(g.estimate);
+  const labelFor=g=>g.kind==='starforce'?(g.stars??'?')+'성':g.grade||'등급 미상';
+  function detailsHtml(g) {
+    const level=g.resolvedLevel??'', manual=hasManual(g), knownLevel=Number.isInteger(g.level);
+    return '<details class="enhancement-details"><summary>상세 내역 · 비용 조정</summary><div class="enhancement-detail-body">'+
+      '<div class="enhancement-settings"><label>장비 레벨<input data-level type="number" min="1" max="300" step="1" list="enhancement-levels" value="'+level+'" '+(knownLevel?'disabled':'')+'></label>'+
+      (g.kind==='starforce'?'<label>MVP 할인<select data-mvp>'+[[0,'없음'],[3,'실버 3%'],[5,'골드 5%'],[10,'다이아 이상 10%']].map(([value,label])=>'<option value="'+value+'" '+((g.profile.mvp||0)===value?'selected':'')+'>'+label+'</option>').join('')+'</select></label><label class="enhancement-check"><input type="checkbox" data-pc '+(g.profile.pc?'checked':'')+'>PC방 5%</label>':
+      g.kind==='potential'?'<label>이력당 재설정<select data-attempts><option value="1" '+(g.attempts===1?'selected':'')+'>1회</option><option value="3" '+(g.attempts===3?'selected':'')+'>3회</option></select></label>':'')+
+      '<button type="button" class="ghost" data-settings>계산 적용</button></div>'+
+      (g.kind==='starforce'?'<p class="enhancement-note">이력 당시 이벤트·파괴방지 적용. MVP·PC방 할인은 16성 이하에만 적용됩니다.</p>':g.kind==='cube'?'<p class="enhancement-note">큐브 사용 개수입니다. 무료·캐시 큐브는 메소 지출에서 제외하고, 메소로 구매한 비용만 입력하세요.</p>':'<p class="enhancement-note">재설정 전 등급의 메소 비용입니다. 3회 재설정을 사용했다면 횟수를 변경하세요.</p>')+
+      '<div class="enhancement-breakdown"><div class="enhancement-breakdown-head"><span>단계 / 조건</span><span>횟수</span><span>1회 메소</span><span>합계</span></div>'+g.details.map((d,i)=>'<div class="enhancement-breakdown-row" data-detail="'+i+'"><div><b>'+escape(labelFor(d))+'</b><small>'+escape(conditionTags(d))+'</small></div><span>'+d.count*d.attempts+'회</span><label><span class="enhancement-sr">'+escape(labelFor(d))+' 1회 비용</span><input data-unit inputmode="numeric" value="'+escape(d.unit??'')+'" placeholder="직접 입력"></label><strong>'+(d.estimate===null?'미확인':bridge().money(d.estimate))+'</strong></div>').join('')+'</div>'+
+      '<div class="enhancement-actions"><button type="button" class="ghost" data-calculate>수정한 단가 적용</button>'+(g.kind!=='cube' && g.details.some(d=>d.basis==='saved-rate')?'<button type="button" class="ghost" data-auto-rate>자동 단가로 복원</button>':'')+'</div>'+
+      '<div class="enhancement-final"><label>최종 반영 금액 (메소)<input data-amount inputmode="numeric" value="'+escape(g.estimate??'')+'" placeholder="최종 금액"></label>'+
+      (manual?'<label class="enhancement-duplicate"><input type="checkbox" data-distinct>같은 날 수동 지출과 별개인 비용입니다.</label>':'')+'</div></div></details>';
   }
   function render() {
     if(!bridge() || !$('enhancement-list')) return;
-    const state=E.normalize(bridge().get()), groups=E.groups(state);
+    const source=bridge().get();
+    if(source===renderedState && renderedManual===bridge().manual() && renderedTab===tab && renderedPage===page) return;
+    const state=E.normalize(source), all=E.reports(state), groups=all.filter(g=>tab==='starforce'?g.kind==='starforce':g.kind!=='starforce');
     page=Math.min(page,Math.max(0,Math.ceil(groups.length/10)-1));
+    renderedState=source; renderedManual=bridge().manual(); renderedTab=tab; renderedPage=page;
     const visible=groups.slice(page*10,page*10+10);
+    const open=new Set([...$('enhancement-list').querySelectorAll('article')].filter(r=>r.querySelector('details')?.open).map(r=>r.dataset.reportKey));
+    document.querySelectorAll('[data-enhancement-tab]').forEach(button=>{
+      const active=button.dataset.enhancementTab===tab;
+      button.setAttribute('aria-selected',String(active));
+      button.querySelector('span').textContent=all.filter(g=>button.dataset.enhancementTab==='starforce'?g.kind==='starforce':g.kind!=='starforce').length;
+    });
+    const total=groups.reduce((sum,g)=>sum+BigInt(g.subtotal),0n), unknown=groups.filter(g=>g.estimate===null).length;
+    $('enhancement-summary').innerHTML='<div><span>확인할 장비</span><strong>'+groups.length+'개</strong></div><div><span>'+(tab==='starforce'?'강화 시도':'재설정 / 큐브')+'</span><strong>'+groups.reduce((sum,g)=>sum+g.count,0).toLocaleString()+'회</strong></div><div><span>추정 지출'+(unknown?' · '+unknown+'개 미확인':'')+'</span><strong>'+bridge().money(String(total))+'</strong></div>';
     $('enhancement-list').innerHTML=visible.length?visible.map((g,i)=>{
-      const condition=g.kind==='starforce'?starCondition(g):g.potentialType+' · '+g.grade+' · Lv.'+(g.level??'?');
-      const manual=hasManual(g);
-      return '<article class="enhancement-row" data-enhancement-row="'+i+'"><div class="enhancement-row-title"><strong>'+escape(g.item)+'</strong><span>'+escape(g.date+' · '+g.character+(g.world?' ('+g.world+')':''))+'</span><small>'+escape(condition)+' · 이력 '+g.count.toLocaleString()+'건</small></div><div class="enhancement-rate"><label>1회 비용 (메소)<input data-unit inputmode="numeric" value="'+escape(g.unit??'')+'" placeholder="비용 확인 필요"></label>'+(g.kind==='potential'?'<label>이력 1건당<select data-attempts><option value="1" '+(g.attempts===1?'selected':'')+'>1회 기준</option><option value="3" '+(g.attempts===3?'selected':'')+'>3회 기준</option></select></label>':'')+'<button type="button" class="ghost" data-calculate>추정 계산</button></div><div class="enhancement-estimate"><span>추정 지출 · 통계 미반영</span><strong>'+(g.estimate===null?'단가 확인 필요':bridge().money(g.estimate))+'</strong><small>'+(g.basis==='official-table'?'공식 기본 단가 · 3회 재설정 여부 확인':g.basis==='saved-rate'?'확인한 단가 기준':'장비·할인·파괴방지 조건의 실제 1회 비용 입력')+'</small></div><div class="enhancement-confirm"><label>확정할 메소<input data-amount inputmode="numeric" value="'+escape(g.estimate??'')+'" placeholder="최종 금액 확인"></label>'+(manual?'<label class="enhancement-duplicate"><input type="checkbox" data-distinct>같은 날 수동 강화 지출과 별개인 비용입니다.</label>':'')+'<div class="enhancement-actions"><button type="button" data-confirm>지출 확정</button><button type="button" class="ghost" data-exclude>이미 기록 / 제외</button></div></div></article>';
-    }).join(''):'<p class="muted enhancement-empty">확인할 강화 이력이 없습니다. 기간을 선택해 이력을 가져오세요.</p>';
+      const progress=g.kind==='starforce'?(g.firstStars??'?')+'성 → '+(g.lastStars??'?')+'성':(g.firstGrade||'등급 미상')+(g.lastGrade && g.lastGrade!==g.firstGrade?' → '+g.lastGrade:'');
+      return '<article class="enhancement-row" data-enhancement-row="'+i+'" data-report-key="'+escape(g.key)+'"><div class="enhancement-row-main"><div class="enhancement-item"><div class="enhancement-item-image"><img src="'+escape(g.icon||'assets/image-unavailable.svg')+'" alt="'+escape(g.icon?g.item:'아이콘 미등록')+'" width="48" height="48" loading="lazy"></div><div class="enhancement-row-title"><strong>'+escape(g.item)+'</strong><span>'+escape(g.date+' · '+g.character+(g.world?' ('+g.world+')':''))+'</span><small>'+escape((g.resolvedLevel===null?'레벨 미확인':g.resolvedLevel+'제')+' · '+(g.kind==='starforce'?progress:g.kind==='cube'?g.cubeType:g.potentialType))+'</small></div></div><div class="enhancement-result"><strong>'+g.count.toLocaleString()+'회</strong><span>'+escape(g.kind==='starforce'?'성공 '+g.success+' · 파괴 '+g.destroyed:progress+' · 등급 상승 '+g.success)+'</span></div><div class="enhancement-estimate"><span>추정 지출</span><strong>'+amountText(g)+'</strong></div><div class="enhancement-actions"><button type="button" data-confirm>지출 반영</button><button type="button" class="ghost" data-exclude>제외</button></div></div>'+detailsHtml(g)+'</article>';
+    }).join(''):'<p class="muted enhancement-empty">확인할 이력이 없습니다.</p>';
     $('enhancement-list').querySelectorAll('[data-enhancement-row]').forEach(row=>{
       const group=visible[Number(row.dataset.enhancementRow)];
-      row.querySelector('[data-calculate]').onclick=()=>{
+      row.querySelector('details').open=open.has(group.key);
+      row.querySelector('img').onerror=event=>{event.target.onerror=null;event.target.src='assets/image-unavailable.svg';event.target.alt='아이콘 미등록';};
+      row.querySelector('[data-settings]').onclick=()=>{
         try {
-          const unit=row.querySelector('[data-unit]').value.replace(/,/g,'').trim();
-          if(E.amount(unit)===null) throw new Error('1회 비용을 정수로 입력해 주세요.');
-          const attempts=Number(row.querySelector('[data-attempts]')?.value||1);
-          bridge().commit({rates:[{key:group.key,unit,attempts,updatedAt:Date.now()}]}); render();
+          const rawLevel=row.querySelector('[data-level]').value, level=rawLevel===''?null:Number(rawLevel);
+          if(level!==null && (!Number.isInteger(level)||level<1||level>300)) throw new Error('장비 레벨은 1~300으로 입력하세요.');
+          bridge().commit({profiles:[{key:group.key,level,mvp:Number(row.querySelector('[data-mvp]')?.value||0),pc:!!row.querySelector('[data-pc]')?.checked,attempts:Number(row.querySelector('[data-attempts]')?.value||1),updatedAt:Date.now()}]});
+          render();
         }catch(error){status(error.message,true);}
       };
+      row.querySelector('[data-calculate]').onclick=()=>{
+        try {
+          const rates=[];
+          row.querySelectorAll('[data-detail]').forEach(detail=>{
+            const d=group.details[Number(detail.dataset.detail)],unit=detail.querySelector('[data-unit]').value.replace(/,/g,'').trim();
+            if(unit===(d.unit??'')) return;
+            if(E.amount(unit)===null) throw new Error('1회 비용을 정수로 입력해 주세요.');
+            rates.push({key:d.key,unit,attempts:d.attempts,updatedAt:Date.now()});
+          });
+          if(rates.length) bridge().commit({rates}); render();
+        }catch(error){status(error.message,true);}
+      };
+      row.querySelector('[data-auto-rate]')?.addEventListener('click',()=>{
+        try {bridge().commit({rates:group.details.filter(d=>d.basis==='saved-rate').map(d=>({key:d.key,unit:d.unit,attempts:d.attempts,auto:true,updatedAt:Date.now()}))});render();}catch(error){status(error.message,true);}
+      });
       row.querySelector('[data-confirm]').onclick=()=>{
         try {
-          if(hasManual(group) && !row.querySelector('[data-distinct]')?.checked) throw new Error('같은 날 수동 기록이 있습니다. 별개 비용인지 확인하거나 제외해 주세요.');
+          if(hasManual(group) && !row.querySelector('[data-distinct]')?.checked) {row.querySelector('details').open=true;throw new Error('같은 날 수동 기록이 있습니다. 별개 비용인지 확인해 주세요.');}
           const amount=row.querySelector('[data-amount]').value.replace(/,/g,'').trim();
-          if(E.amount(amount)===null || BigInt(amount)<=0n) throw new Error('확정할 메소를 입력해 주세요.');
+          if(E.amount(amount)===null || BigInt(amount)<=0n) {row.querySelector('details').open=true;throw new Error('계산 조건 또는 최종 반영 금액을 확인하세요.');}
           if(!window.confirm(group.date+' '+group.item+'\n'+bridge().money(amount)+'를 지출에 반영할까요?')) return;
-          bridge().commit(E.confirm(bridge().get(),group,amount,crypto.randomUUID())); render(); status('확인한 금액을 손익·지출 요약·통계에 한 번 반영했습니다.');
+          bridge().commit(E.confirm(bridge().get(),group,amount,crypto.randomUUID())); render(); status('지출에 반영했습니다.');
         }catch(error){status(error.message,true);}
       };
       row.querySelector('[data-exclude]').onclick=()=>{
@@ -184,6 +232,7 @@
     $('enhancement-to').max=today(); $('enhancement-from').max=today();
     if(!session && bridge().key()) $('enhancement-source').value='key';
     $('enhancement-source').onchange=controls;
+    document.querySelectorAll('[data-enhancement-tab]').forEach(button=>button.onclick=()=>{tab=button.dataset.enhancementTab;page=0;render();});
     $('enhancement-connect').onclick=connect;
     $('enhancement-refresh').onclick=()=>sync();
     $('enhancement-cancel').onclick=()=>running?.abort();
@@ -191,7 +240,7 @@
       try {await call('logout',session);session=null;sessionStorage.removeItem(sessionKey);controls();status('연결을 해제했습니다. 저장한 지출 기록은 유지됩니다.');}catch(error){status(error.message,true);}
     };
     document.addEventListener('workspace:page',event=>{if(event.detail.page==='expense'){render();configure();}});
-    document.addEventListener('workspace:render',()=>{if(!document.querySelector('#enhancement-list :focus')) render();});
+    document.addEventListener('workspace:render',()=>{if($('page-expense').classList.contains('active') && !document.querySelector('#enhancement-list :focus')) render();});
     setInterval(()=>{if($('enhancement-auto').checked && $('page-expense').classList.contains('active') && !document.hidden && !document.querySelector('#enhancement-list :focus') && Date.now()-lastAuto>=300000) sync(true);},30000);
     render(); controls();
     if($('page-expense').classList.contains('active')) configure();

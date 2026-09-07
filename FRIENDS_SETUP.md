@@ -17,7 +17,7 @@
 - Existing redirect URI: `https://maple-trackers.com/?page=home`.
 - Authorization scopes match the existing application registration: `maplestory.characterlist,maplestory.starforce,maplestory.potential,maplestory.scheduler,maplestory.cube`.
 - Live verification found that Nexon rejects a subset of the registered scopes with an invalid-request dialog. The registered set opens the normal login screen with the same Client ID, redirect and state. Application permissions were not changed.
-- Only Star Force and potential histories are fetched; unused character-list, scheduler and cube data paths remain blocked on the server. The consent scope is disclosed in the expense page and privacy notice.
+- Star Force, potential and cube histories are fetched. Character-list and scheduler paths remain blocked on the history route. The consent scope is disclosed in the expense page and privacy notice.
 - On 2026-09-07 the review screen showed `대기`. Test with the creator/registered testers before requesting production review.
 
 ## Server setup
@@ -61,10 +61,20 @@ store. This does not replace the existing encrypted ledger sync KV namespace.
 - Potential: official base-cost tables, equipment level, and **before** grade.
   Discounts, alternate currencies and three-at-once resets need review. Unknown
   types/grades/levels or multi-result structures are not treated as free.
-- Star Force: the history schema does not give equipment level or charged mesos.
-  Enter the observed one-attempt price for the date/item/stage/conditions group;
-  matching history is then summed automatically. No obsolete or guessed cost
-  formula is used. Restoration/material purchase costs are outside this estimate.
+- Star Force: resolve level from the known equipment catalog or a date/item-specific
+  override. Apply the KMS cost formula at the event timestamp, including the
+  2024-01-25 reduction and 2025-03-20 expansion. Event discounts are restricted to
+  their recorded star range; safeguard surcharges are not discounted. MVP/PC
+  adjustments are optional and only apply below 17 stars. Unknown equipment,
+  superior items and special scrolls require review. Restoration and equipment
+  purchases are separate. Existing manual rate keys remain stable.
+- Pending events are displayed by date, character and item, with stage/grade
+  details collapsed. Settings are additive, mergeable profiles. Confirmed or
+  excluded event references and amounts are never replaced by new estimates.
+- Item cubes show usage counts, not an invented meso price. Only a user-confirmed
+  meso purchase cost becomes an expense. Cash and free cubes can be excluded.
+- Known accessory icons are unchanged official Nexon PNGs, stored locally. Missing
+  icons use the existing unavailable-image asset, never a different item's art.
 - Confirmation creates an isolated enhancement batch. Existing manual expenses,
   profits, hunting sessions, drops and settings are not rewritten. Confirmed
   batches are projected into existing profit totals once, in every view.
@@ -112,6 +122,9 @@ and invalid-proof rejection. No existing ledger data was accessed by these check
 - [Login button assets and design rules](https://openapi.nexon.com/ko/open-id/design-guide/)
 - [Potential base costs](https://maplestory.nexon.com/news/update/737)
 - [Additional potential base costs](https://maplestory.nexon.com/news/update/746)
+- [Star Force expansion and safeguard costs](https://maplestory.nexon.com/news/update/767)
+- [Star Force 2026 changes](https://maplestory.nexon.com/news/update/799)
+- UI reference: [Star Force profile](https://chuchu.gg/starforce/profile?source=nexon), [cube profile](https://chuchu.gg/cube/profile?source=nexon). Private profiles require a separate login; only public pages and the public calculator were inspected.
 
 The official guide's curl example includes an extra `/openid` path segment, but
 its request URL and Node example agree on `https://openid.nexon.com/oauth2/token`;

@@ -61,8 +61,9 @@ globalThis.fetch=async (url,init)=>{
     return new Response(JSON.stringify({access_token:'private-access',refresh_token:'private-refresh',expires_in:1800,refresh_token_expires_in:1209600}));
   }
   if(url==='https://openid.nexon.com/oauth2/userinfo') return new Response(JSON.stringify({result:{uid:'fixture-uid',scope:['maplestory.starforce','maplestory.potential']}}));
-  assert.match(url,/https:\/\/open.api.nexon.com\/maplestory\/v1\/history\/potential/);
+  assert.match(url,/https:\/\/open.api.nexon.com\/maplestory\/v1\/history\/(potential|cube)/);
   assert.equal(init.headers.Authorization,'Bearer private-access');
+  if(url.includes('/history/cube')) return new Response(JSON.stringify({cube_history:[],next_cursor:''}));
   return new Response(JSON.stringify({potential_history:[raw],next_cursor:''}));
 };
 const env={NEXON_CLIENT_SECRET:'server-only-fixture'};
@@ -95,7 +96,8 @@ try {
   const history=await friendsRoute(request('history',{state:start.state,proof,kind:'potential',date:'2026-09-06'}),env);
   assert.equal((await history.json()).potential_history.length,1);
   assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind:'../../oauth2/token',date:'2026-09-06'}),env)).status,400);
-  for(const kind of ['cube','characterlist','scheduler']) assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind,date:'2026-09-06'}),env)).status,400,'Unused authorized data must not be queried');
+  assert.deepEqual((await (await friendsRoute(request('history',{state:start.state,proof,kind:'cube',date:'2026-09-06'}),env)).json()).cube_history,[]);
+  for(const kind of ['characterlist','scheduler']) assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind,date:'2026-09-06'}),env)).status,400,'Unused authorized data must not be queried');
   assert.equal((await friendsRoute(request('history',{state:start.state,proof,kind:'potential',date:'invalid'}),env)).status,400);
   assert.equal((await friendsRoute(request('logout',{state:start.state,proof}),env)).status,200);
   assert.equal((await friendsRoute(request('status',{state:start.state,proof}),env)).status,401);
