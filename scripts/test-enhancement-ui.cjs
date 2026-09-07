@@ -247,6 +247,33 @@ const server=http.createServer((req,res)=>{
     await page.goto(origin+'/?page=home&code=unbound-code');
     assert(!page.url().includes('code='),'Unbound codes must also be stripped before third-party scripts');
     assert.equal(finishCalls,1,'Unbound callback must not exchange a code');
+    for(const search of [
+      '?page=home?code=fixture-code&state='+'c'.repeat(64),
+      '?page='+encodeURIComponent('home?code=fixture-code&state='+'c'.repeat(64)),
+    ]) {
+      await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));
+      const calls=finishCalls;
+      await page.goto(origin+'/'+search);
+      await page.waitForFunction(()=>JSON.parse(sessionStorage.getItem('maple:friends:session')||'null')?.account==='fixture-account');
+      assert.equal(finishCalls,calls+1,'Nested callback did not complete the bound login');
+      assert(!decodeURIComponent(page.url()).includes('fixture-code'),'Nested code remained in URL');
+      assert(!page.url().includes('state'));
+      await page.click('#enhancement-disconnect');
+      await page.waitForFunction(()=>!sessionStorage.getItem('maple:friends:session'));
+    }
+    for(const search of [
+      '?page=home?code=fixture-code',
+      '?page=home?code=fixture-code&state='+'b'.repeat(64),
+      '?page='+encodeURIComponent('home?code=fixture-code&state='+'c'.repeat(64))+'&state='+'b'.repeat(64),
+      '?page=home?code=fixture-code&code=other-code&state='+'c'.repeat(64),
+    ]) {
+      await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));
+      const calls=finishCalls;
+      await page.goto(origin+'/'+search);
+      await page.waitForFunction(()=>!sessionStorage.getItem('maple:friends:flow'));
+      assert.equal(finishCalls,calls,'An invalid nested callback exchanged credentials');
+      assert(!decodeURIComponent(page.url()).includes('code'),'Invalid callback code remained in URL');
+    }
     assert.deepEqual(errors,[]);
     const catalog=await page.evaluate(()=>MapleEnhancements.equipment.filter(([name])=>/^(데스티니|아스트라) /.test(name)).map(([name])=>({name,icon:MapleEnhancements.itemInfo(name).icon})));
     assert.equal(catalog.length,83);

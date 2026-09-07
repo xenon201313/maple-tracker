@@ -14,12 +14,29 @@
   let session=read(sessionKey), ready=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
   let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const callback=new URL(location.href);
+  const authParams=['code','state','error','error_description'];
+  let invalidCallback=false;
+  // Some redirects append ?code= to the existing ?page=home query.
+  const callbackPage=callback.searchParams.get('page')||'', separator=callbackPage.indexOf('?');
+  if(separator>=0) {
+    const nested=new URLSearchParams(callbackPage.slice(separator+1));
+    if(authParams.some(k=>nested.has(k))) {
+      invalidCallback=callbackPage.slice(0,separator)!=='home';
+      callback.searchParams.set('page','home');
+      authParams.forEach(k=>{
+        const values=[...callback.searchParams.getAll(k),...nested.getAll(k)];
+        if(new Set(values).size>1) invalidCallback=true;
+        if(!callback.searchParams.has(k) && nested.has(k)) callback.searchParams.set(k,nested.get(k));
+      });
+    }
+  }
+  authParams.forEach(k=>{if(new Set(callback.searchParams.getAll(k)).size>1) invalidCallback=true;});
   const callbackState=callback.searchParams.get('state');
   const callbackCode=callback.searchParams.get('code');
-  const callbackError=callback.searchParams.get('error');
+  const callbackError=invalidCallback?'invalid_callback':callback.searchParams.get('error');
   // Strip OAuth parameters before ads, analytics, or other application scripts execute.
   if(callbackCode || callbackError || callbackState) {
-    ['code','state','error','error_description'].forEach(k=>callback.searchParams.delete(k));
+    authParams.forEach(k=>callback.searchParams.delete(k));
     history.replaceState(history.state,'',callback.pathname+callback.search+callback.hash);
   }
   function status(text,error=false) {
