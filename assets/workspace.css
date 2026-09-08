@@ -417,3 +417,18 @@ h1,h2,h3 { letter-spacing: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* 공개 안내는 개인 장부와 독립적으로 제공한다. */
+.home-welcome p,.home-reading > p { color:var(--sub); line-height:1.8; max-width:78ch; }
+.home-welcome { margin-bottom:22px; }
+.home-reading { margin-top:24px; }
+.home-reading-links { display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:12px; }
+.home-reading-links a,.reading-card { color:var(--text); text-underline-offset:4px; }
+.home-reading-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:18px; }
+.reading-card { display:block; min-width:0; padding:18px; border:1px solid var(--line); border-radius:8px; text-decoration:none; background:var(--panel-soft); }
+.reading-card:hover { border-color:var(--gold); }
+.reading-card:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.reading-card h3 { margin:0 0 10px; font-size:17px; line-height:1.5; }
+.reading-card p { color:var(--sub); line-height:1.8; margin:8px 0 14px; }
+.reading-card span { font-size:14px; color:var(--gold); }
+@media(max-width:1100px) { .home-reading-grid { grid-template-columns:1fr; } }

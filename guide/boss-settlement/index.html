@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
+<title>보스 드랍 분배와 월말 결산 검산하기 | 나만의 메계부</title>
+<meta name="description" content="10억 메소 판매 사례로 파티장·파티원 실수령을 비교합니다. 송금 수수료, 100메소 내림, 7:3 비율과 월말 주차의 집계 차이를 설명합니다.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#14161f">
+<link rel="canonical" href="https://maple-trackers.com/guide/boss-settlement/">
+<link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
+<link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="보스 드랍 분배와 월말 결산 검산하기">
+<meta property="og:description" content="10억 메소 판매 사례로 파티장·파티원 실수령을 비교합니다. 송금 수수료, 100메소 내림, 7:3 비율과 월말 주차의 집계 차이를 설명합니다.">
+<meta property="og:url" content="https://maple-trackers.com/guide/boss-settlement/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
+<script defer src="../../ads-config.js?v=20260909-1"></script>
+<script defer src="../../assets/site-ads.js?v=20260909-1"></script>
+</head>
+<body class="article-page">
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="../../"><img src="../../assets/icon.png?v=20260908" alt="">나만의 메계부</a>
+    <nav class="nav" aria-label="주요 페이지"><a href="../../">기록장</a><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../api/">API 연동</a></nav>
+  </header>
+  <main>
+    <header class="hero">
+      <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
+      <h1>보스 드랍 분배와 월말 결산 검산하기</h1>
+      <p class="lead">10억 메소 판매 사례로 파티장·파티원 실수령을 비교합니다. 송금 수수료, 100메소 내림, 7:3 비율과 월말 주차의 집계 차이를 설명합니다.</p>
+      <p class="article-meta">작성: 나만의 메계부 · <time datetime="2026-09-09">2026년 9월 9일</time> · 가상 금액을 사용한 계산 예제</p>
+    </header>
+    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#boss-entry">클리어, 획득 아이템, 판매 수익은 각각 확인합니다</a></li><li><a href="#solo-sale">혼자 얻은 드랍부터 계산을 맞춰 보세요</a></li><li><a href="#party-split">2인 이상에서는 판매 수수료와 전달 과정이 함께 계산됩니다</a></li><li><a href="#unequal-ratio">7:3은 파티장과 각 파티원 한 명의 비율입니다</a></li><li><a href="#period-close">주간 합계와 두 월간 화면의 기간 기준을 구분하세요</a></li><li><a href="#boss-review">금액이 맞지 않을 때는 입력 조건부터 좁혀 보세요</a></li></ol></nav>
+    <article aria-label="계산 사례 본문">
+<section class="section" id="boss-entry">
+  <h2>1. 클리어, 획득 아이템, 판매 수익은 각각 확인합니다</h2>
+  <p><a href="/?page=boss">주간 보스</a>에서 캐릭터와 주차를 고른 뒤 보스 난이도, 파티 인원, 클리어 상태를 기록합니다. 결정석 수입은 사이트에 저장된 해당 보스의 기준 가격을 파티 인원으로 나눈 값입니다. 드랍 아이템 수입은 별도로 선택한 아이템의 판매가·수수료·분배 조건에서 계산합니다. 결정석과 드랍은 계산 경로가 다르므로, 결정석의 내 몫이 맞는다고 드랍의 내 몫도 맞는 것은 아닙니다.</p>
+  <p>아이템을 얻었다면 <strong>드랍 아이템 선택</strong>에서 체크하고, 아래 <strong>선택 아이템 정산</strong>에서 가격과 조건을 입력합니다. 상자에 세부 구성품 선택이 있는 경우 실제로 기록할 구성품을 고릅니다. 상자와 구성품 가격을 각각 두 번 합산하는 방식이 아니라 선택한 구성품의 정산 조건을 사용하는 구조입니다. 확인할 때는 아이콘뿐 아니라 전체 아이템 이름도 같이 보세요.</p>
+  <p><strong>현재 보스 드랍 화면에는 손익 계산기와 같은 별도의 판매 완료 체크가 없습니다.</strong> 획득으로 선택된 아이템에 판매가를 입력하면 계산한 내 몫이 수익에 포함됩니다. 아직 팔지 않은 물건의 희망 판매가를 적으면 실제 메소가 들어오기 전부터 보스 수익이 커질 수 있습니다. 실현 수입을 관리하려면 판매가를 실제 거래가 확인된 뒤 입력하고, 보유 중인 아이템은 획득 체크와 구분하여 살펴야 합니다.</p>
+  <p>이 글의 가격과 수수료는 사이트의 정산 방식을 이해하기 위한 가정값입니다. 현재 게임의 시세, 거래 방법별 실제 수수료, 보스 보상 규칙을 보장하는 자료가 아닙니다. 게임에서 적용된 조건과 사이트에서 선택한 조건이 같은지 확인한 뒤 사용하세요.</p>
+</section>
+<section class="section" id="solo-sale">
+  <h2>2. 혼자 얻은 드랍부터 계산을 맞춰 보세요</h2>
+  <p>혼자 얻은 아이템을 10억 메소에 판매했고 수수료가 5%였다고 가정합니다. <strong>경매장 판매가</strong>에는 수수료 전 금액인 1,000,000,000을, 판매 수수료에는 5%를 입력합니다. 실수령은 <code>1,000,000,000 × 95 ÷ 100 = 950,000,000</code>메소입니다. 판매가 칸에 이미 수수료를 뺀 9억 5,000만을 입력하면 수수료가 다시 차감되어 9억 250만만 반영됩니다.</p>
+  <p class="table-hint">표가 잘리면 좌우로 밀어 전체 금액을 확인하세요.</p><div class="table-scroll" tabindex="0" role="region" aria-label="계산 예제 표"><table>
+    <caption>가상의 단독 판매 검산 — 단위: 메소</caption>
+    <thead><tr><th scope="col">입력·계산 항목</th><th scope="col">금액</th><th scope="col">확인할 점</th></tr></thead>
+    <tbody><tr><th scope="row">판매가</th><td class="amount">1,000,000,000</td><td>수수료 전 전체 판매가</td></tr><tr><th scope="row">판매 수수료 5%</th><td class="amount">50,000,000</td><td>실제 적용 조건과 비교</td></tr><tr><th scope="row">내 실수령</th><td class="amount">950,000,000</td><td>입금받은 메소와 비교</td></tr></tbody>
+  </table></div>
+  <p>이 상태에서 예상보다 수입이 작다면 먼저 전체 판매가 대신 순액을 입력했는지 확인합니다. 예상보다 크다면 파티 인원이 1명으로 남아 있거나, 다른 캐릭터의 같은 아이템 기록까지 함께 보고 있는지 확인하세요. 가격과 분배 조건은 캐릭터·기간·보스·아이템별 기록이므로 한 곳의 값을 수정했다고 다른 곳의 가격이 모두 바뀌는 것으로 생각하면 안 됩니다.</p>
+  <p>수수료 선택지는 이 화면에서 0%, 3%, 5%를 제공합니다. 선택지의 존재가 특정 거래에 그 비율을 적용해도 된다는 뜻은 아닙니다. 본인의 거래 상황에 맞는 값을 고르는 입력 도구입니다. 분배 약속과 실제 송금 방식이 사이트 계산 모형과 다르면 결과를 그대로 송금 지시로 사용하지 말고 파티의 실제 정산 내역과 비교해야 합니다.</p>
+</section>
+<section class="section" id="party-split">
+  <h2>3. 2인 이상에서는 판매 수수료와 전달 과정이 함께 계산됩니다</h2>
+  <p>현재 주간·월간 드랍 정산은 판매대금에서 판매 수수료를 먼저 차감한 뒤, 파티장이 파티원에게 전달하는 금액에도 선택한 수수료율이 적용되는 모형입니다. 그래서 단순히 <code>판매가 × 95% ÷ 인원</code>으로 나눈 결과와 다를 수 있습니다. 전달할 금액은 100메소 단위로 내림 처리하고, 그 잔여액은 파티장에게 남습니다.</p>
+  <p>가상 판매가 10억, 2인, 수수료 5%, 분배율 1:1을 입력하면 아래처럼 계산됩니다. 전체 판매 후 파티장이 가진 금액은 9억 5,000만입니다. 파티원에게 수수료 전 4억 8,717만 9,400메소를 전달하고, 파티원은 전달 수수료 후 4억 6,282만 430메소를 받습니다. 파티장에게 남는 금액은 4억 6,282만 600메소입니다.</p>
+  <p class="table-hint">표가 잘리면 좌우로 밀어 전체 금액을 확인하세요.</p><div class="table-scroll" tabindex="0" role="region" aria-label="계산 예제 표"><table>
+    <caption>2인 1:1 분배의 사이트 계산 예제 — 단위: 메소</caption>
+    <thead><tr><th scope="col">항목</th><th scope="col">금액</th><th scope="col">계산 확인</th></tr></thead>
+    <tbody><tr><th scope="row">판매 후 금액</th><td class="amount">950,000,000</td><td>10억의 95%</td></tr><tr><th scope="row">파티원 전달액</th><td class="amount">487,179,400</td><td>수수료 전 송금액, 100메소 단위</td></tr><tr><th scope="row">파티원 실수령</th><td class="amount">462,820,430</td><td>전달액의 95%</td></tr><tr><th scope="row">파티장 잔여</th><td class="amount">462,820,600</td><td>950,000,000 − 487,179,400</td></tr></tbody>
+  </table></div>
+  <p>두 사람의 최종 금액 차이 170메소는 100메소 단위 전달액 내림과 정수 계산에서 생깁니다. 두 사람의 몫을 합하면 9억 2,564만 1,030메소이고, 처음 판매 후 금액과의 차이 2,435만 8,970메소는 파티원 전달 과정에 적용된 수수료입니다. <strong>역할</strong>을 파티장으로 선택했는지 파티원으로 선택했는지에 따라 내 장부에 반영되는 값도 달라집니다.</p>
+  <p>여기서 파티원이 전달액 4억 8,717만 9,400을 자신의 수익으로 적거나, 파티장이 판매 후 금액 9억 5,000만을 전부 자기 수익으로 적으면 과대 집계됩니다. 화면의 <strong>내 몫</strong>과 <strong>전달액</strong>은 목적이 다릅니다. 정산할 때는 누가 보유하는 금액인지 붙여 읽으면 혼동을 줄일 수 있습니다.</p>
+</section>
+<section class="section" id="unequal-ratio">
+  <h2>4. 7:3은 파티장과 각 파티원 한 명의 비율입니다</h2>
+  <p>분배율 입력의 의미는 <strong>파티장:파티원 한 명</strong>입니다. 2인 파티의 7:3과 3인 파티의 7:3은 총액 배분이 같지 않습니다. 3인이라면 파티장 가중치 7, 첫 파티원 3, 둘째 파티원 3으로 해석합니다. 파티원 전체가 합쳐서 3을 나누어 갖는 구조가 아닙니다. 3인에서 파티장이 전체의 70%, 두 파티원이 합쳐서 30%라는 합의를 표현하려면 이 차이를 먼저 이해해야 합니다.</p>
+  <p>판매가 10억, 3인, 수수료 5%, 7:3을 가정하면 파티장 잔여는 499,407,200메소, 파티원 한 명의 실수령은 214,031,580메소입니다. 파티원 한 명에게 전달하는 수수료 전 금액은 225,296,400메소입니다. 따라서 파티장 잔여 검산은 <code>950,000,000 − 225,296,400 × 2 = 499,407,200</code>입니다. 두 파티원에게 똑같은 조건을 적용하는 모형이라는 점도 함께 확인하세요.</p>
+  <p>보다 직접적으로 검산하려면 판매 후 금액을 N, 수수료를 뺀 비율을 q, 파티 인원을 n, 파티장·파티원 가중치를 a와 b라고 둘 수 있습니다. 파티원 목표 실수령은 대략 <code>N × b × q ÷ (a × q + (n−1) × b)</code>입니다. 실제 화면에서는 이 값에서 전달액을 역산하고 100메소 단위 내림을 거치므로 마지막 몇 자리까지는 앞 절의 정수 계산 순서로 비교해야 합니다.</p>
+  <p>파티원마다 서로 다른 몫을 받거나 한 사람이 수수료를 전부 부담하는 약속은 이 입력 모형으로 그대로 표현되지 않을 수 있습니다. 그런 경우 하나의 비율만 바꿔 숫자를 억지로 맞추기보다, 실제 판매금·송금액·각 실수령을 별도 기록하여 차이를 확인하는 편이 안전합니다. 이 도구의 계산값은 입력한 모형의 결과이지 파티 간 정산 합의를 대신 정하는 규칙이 아닙니다.</p>
+</section>
+<section class="section" id="period-close">
+  <h2>5. 주간 합계와 두 월간 화면의 기간 기준을 구분하세요</h2>
+  <p>주간 기록은 목요일부터 다음 수요일까지입니다. <strong>통계 보기 → 주간 합계</strong>는 해당 주의 재획 수입, 주간·일간 보스 수입, 손익과 직접 지출을 반영합니다. 월간 보스 수입은 주간 합계에 섞이지 않습니다. 예를 들어 재획 3억, 주간·일간 보스 5억, 손익 +2,000만, 직접 지출 7,000만이면 주간 순수익은 <code>300,000,000 + 500,000,000 + 20,000,000 − 70,000,000 = 750,000,000</code>메소입니다. 같은 기간의 월간 보스 수입 2억은 이 주간 숫자에 더하지 않습니다.</p>
+  <p>월간 화면은 현재 서로 다른 집계 기준이 있습니다. <strong>통계 보기 → 월간 합계</strong>는 재획·손익·직접 지출을 기록 날짜의 달로 모으고, 주간·일간 보스는 주차의 목요일이 속한 달로 모읍니다. 월간 보스는 선택한 월의 저장 기록을 별도로 더합니다. 반면 <strong>홈 → 월간 결산</strong>은 선택한 달과 하루라도 겹치는 주차의 보스 합계를 가져오는 방식입니다.</p>
+  <p>가령 2026년 8월 27일~9월 2일 주차에만 주간·일간 보스 수입이 1억 있다고 가정하면, 통계의 월간 합계에서는 주 시작일이 8월이므로 그 수입을 8월에 넣습니다. 홈의 월간 결산에서는 그 주차가 8월과 9월에 모두 겹치므로 두 달 결산에 포함될 수 있습니다. 따라서 <strong>홈의 인접 두 달 결산을 단순히 더하면 월 경계의 보스 수입이 중복될 수 있습니다.</strong> 이 차이는 조각이나 재획 회차를 더 저장해서 보정할 문제가 아닙니다.</p>
+  <p>달력 날짜만으로 월 수입을 정확히 비교해야 한다면 월말 주차를 따로 확인하고 어떤 기준으로 보고한 숫자인지 함께 적으세요. 현재 보스 드랍 기록은 판매 날짜를 독립적으로 저장하는 거래 원장이 아니므로, 획득한 주차와 실제 판매한 달이 달라도 현금 유입 날짜대로 자동 이동하지 않습니다. <strong>월간 결산</strong>을 복사하거나 이미지로 공유하기 전에는 선택한 달과 경계 주차를 확인하는 것이 필요합니다.</p>
+</section>
+<section class="section" id="boss-review">
+  <h2>6. 금액이 맞지 않을 때는 입력 조건부터 좁혀 보세요</h2>
+  <ol><li><strong>대상 확인:</strong> 캐릭터, 주차 또는 월, 보스 난이도, 실제 아이템 이름을 먼저 확인합니다. 현재 주 기록과 과거 주 기록을 섞어 비교하지 않습니다.</li><li><strong>가격 확인:</strong> 전체 판매가인지 이미 수수료를 뺀 실수령액인지 확인합니다. 아직 판매하지 않은 예상 가격이 수익에 포함된 것은 아닌지도 봅니다.</li><li><strong>분배 확인:</strong> 파티 인원, 파티장·파티원 역할, 수수료, 파티장 대 파티원 한 명의 비율을 대조합니다.</li><li><strong>중복 확인:</strong> 보스 내 몫을 재획의 추가 부수입이나 손익 판매 수입에 다시 넣었는지 확인합니다.</li><li><strong>기간 확인:</strong> 월말에 걸친 주차와 월간 보스가 어느 화면에 포함되는지 확인합니다.</li></ol>
+  <p>한 번에 여러 조건을 바꾸면 어떤 입력 때문에 차이가 생겼는지 찾기 어렵습니다. 수정 전 JSON 백업을 만들고 기존 판매가·인원·비율을 기록한 뒤 한 항목씩 검산하세요. 난이도나 파티 설정을 바꿨다고 이전에 획득한 드랍 자체가 없어진 것으로 판단해서 다시 체크·입력하면 같은 거래를 이중으로 해석하기 쉽습니다. 원본 거래와 장부의 연결을 먼저 확인하는 순서가 좋습니다.</p>
+  <p>현재 소스의 주간·월간 드랍 분배 계산을 설명한 글이며, 일간 드랍의 표시와 계산 경로는 별도입니다. 모든 보스 화면이 동일한 역할·비율 입력을 제공한다고 가정하지 마세요. 실제 거래에 적용된 규칙이 바뀌었거나 입력 모형과 다르면 게임에서 확인한 조건을 우선하고, 장부에서는 그 차이를 식별할 수 있도록 기록해야 합니다.</p>
+</section>
+
+    </article>
+    <section class="section"><h2>함께 읽으면 좋은 안내</h2><div class="link-list"><a href="../hunt-income/">재획 수익과 조각 판매를 중복 없이 기록하기</a>
+<a href="../profit-expense/">판매 손익과 강화 지출을 구분해 기록하기</a><a href="../../privacy.html">데이터 저장과 개인정보 안내</a></div><p>설명과 화면이 다르거나 계산 예제에 오류가 있다면 <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">오류 제보</a>로 알려주세요. 공개 제보에 개인 장부나 API 키를 첨부하지 마세요.</p></section>
+  </main>
+  <aside class="site-ad-shell" data-content-ad hidden aria-label="광고"><div class="site-ad-label">광고</div><ins class="adsbygoogle site-ad-slot" data-ad-format="auto" data-full-width-responsive="true"></ins></aside>
+  <footer><a href="../">사용 가이드</a><a href="../../about/">사이트 소개·문의</a><a href="../../privacy.html">개인정보·쿠키 안내</a><span>크로아/얀보 제작 · NEXON의 비공식 서비스</span></footer>
+</div>
+</body>
+</html>

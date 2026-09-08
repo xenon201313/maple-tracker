@@ -1,101 +1,79 @@
-# 나만의 메계부 AdSense 설정 방법
+# 나만의 메계부 AdSense 재심사와 광고 설정
 
-사이트에는 화면을 가리지 않는 **하단 반응형 광고 1개**만 준비되어 있습니다. 자동 광고, 앵커 광고, 팝업 광고는 사용하지 않습니다. 승인 전에는 광고 영역 자체가 보이지 않으며, 광고 차단이나 미송출 상태에서도 빈칸을 남기지 않습니다.
+2026-09-09 기준. 사용자가 알려 준 거절 사유는 **가치가 별로 없는 콘텐츠**입니다. 이번 변경은 사이트의 설명과 실제 사용 가치를 개선하기 위한 조치이며 승인을 보장하지 않습니다. Google은 사이트 전체를 심사합니다. 글 수나 글자 수만으로 승인 조건을 충족했다고 판단하지 않습니다.
 
-## 1. AdSense에 사이트 등록
+## 공개 콘텐츠 보강
 
-1. [Google AdSense](https://www.google.com/adsense/)에 로그인합니다.
-2. `사이트`에서 `maple-trackers.com`을 추가합니다.
-3. AdSense가 제시하는 방법 중 하나로 사이트 소유권을 확인합니다.
-4. 연결을 완료한 뒤 검토를 요청합니다.
+- `/guide/hunt-income/`: 회차별 조각 가격, 보유와 판매 정산, 중복 계산을 피하는 숫자 예제.
+- `/guide/boss-settlement/`: 판매·송금 수수료, 파티장·파티원 실수령액, 100메소 내림과 월 경계 주차 검산.
+- `/guide/profit-expense/`: 미판매 결과물, 구매일·판매일 분리, 강화 추정치와 확정 지출의 구분.
+- 홈의 서비스 설명과 공개 가이드 연결, 가이드 허브, 사이트 소개·작성 기준, 실제 기능과 불일치하던 설명 정정.
 
-Google 안내에 따르면 검토는 보통 며칠이지만 경우에 따라 2~4주가 걸릴 수 있으며, 승인 전에는 광고가 송출되지 않습니다.
+세 문서는 로그인·API 키·개인 장부 없이 읽는 정적 HTML입니다. 가상 예시는 실제 게임 시세나 기대 수익이 아닙니다. 개인 장부와 복구 기록을 공개 콘텐츠로 사용하지 않습니다.
 
-- 공식 안내: [AdSense에 사이트 연결하기](https://support.google.com/adsense/answer/7584263?hl=ko)
+## 소유권 확인과 재심사
 
-## 2. 광고 단위 만들기
+기존 게시자 ID `ca-pub-7107280230386162`를 유지하고 메타 태그와 루트 ads.txt를 사용합니다.
 
-승인이 완료되면 AdSense에서 `광고` → `광고 단위 기준` → `디스플레이 광고`를 선택하고 반응형 광고 단위를 1개 만듭니다. 생성된 코드에서 다음 두 값을 확인합니다.
-
-- 게시자 클라이언트: `ca-pub-`로 시작하는 값
-- 광고 슬롯: 숫자로 된 `data-ad-slot` 값
-
-## 3. 사이트 설정 켜기
-
-[`ads-config.js`](ads-config.js)를 아래처럼 수정합니다.
-
-```js
-window.MESOBOOK_ADS = {
-  enabled: true,
-  client: 'ca-pub-실제_게시자_번호',
-  slot: '실제_광고_슬롯_번호'
-};
+```html
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
 ```
-
-이 값들은 웹페이지 광고 코드에 원래 공개되는 식별자입니다. 단, AdSense 로그인 정보, 지급 정보, 세금 정보는 저장소에 넣으면 안 됩니다.
-
-## 4. ads.txt 추가
-
-AdSense 계정에 표시되는 정확한 `ads.txt` 한 줄을 복사해 저장소 루트의 `ads.txt`로 만듭니다. [`ads.txt.example`](ads.txt.example)은 형식만 보여주는 예시입니다.
-
-```text
-google.com, pub-실제_게시자_번호, DIRECT, f08c47fec0942fa0
-```
-
-여기서는 `ca-pub-`가 아니라 `pub-` 값을 사용합니다. 배포 후 `https://maple-trackers.com/ads.txt`에서 보이는지 확인합니다.
-
-- 공식 안내: [AdSense ads.txt 가이드](https://support.google.com/adsense/answer/12171612?hl=ko)
-
-현재 사이트에는 다음 게시자 정보가 적용되어 있습니다.
 
 ```text
 google.com, pub-7107280230386162, DIRECT, f08c47fec0942fa0
 ```
 
-## 5. Cloudflare에서 Google 심사 봇 허용
+1. 변경된 공개 가이드가 실제 도메인에서 열리는지 확인합니다.
+2. AdSense → 사이트 → maple-trackers.com에서 거절 사유와 추가 경고를 확인합니다.
+3. 연결 방법을 선택해야 한다면 **메타 태그** 또는 **ads.txt**를 선택합니다. 무조건 로드되던 광고 스크립트는 제거했으므로 코드 스니펫이 남아 있다고 확인하지 마세요.
+4. 수정사항을 확인한 뒤 검토를 요청합니다. 사이트 수정·배포만으로 AdSense 재심사가 신청되지는 않습니다.
 
-Cloudflare에서 `Verified bots`를 차단하면 AdSense 심사에 사용하는 Google 크롤러도 사이트를 읽지 못할 수 있습니다.
+- [사이트 연결과 소유권 확인](https://support.google.com/adsense/answer/7584263?hl=ko)
+- [AdSense에 적합한 페이지 준비](https://support.google.com/adsense/answer/7299563?hl=ko)
+- [사이트에 광고를 게재할 준비가 되지 않은 경우](https://support.google.com/adsense/answer/12176698?hl=ko)
 
-1. Cloudflare에서 `maple-trackers.com`을 선택합니다.
-2. `Security` → `Settings`에서 `Super Bot Fight Mode`를 찾습니다.
-3. `Verified bots`를 반드시 `Allow`로 설정합니다.
-4. `Security Events`에서 `Google-Display-Ads-Bot`, `Mediapartners-Google`, `Googlebot` 요청이 차단되는지 확인합니다.
-5. 별도 WAF 차단 규칙이 있다면 알려진 정상 봇(`cf.client.bot`)을 해당 규칙에서 제외합니다.
+## 접근 차단 확인
 
-사이트의 `robots.txt`는 위 Google 광고 크롤러에 전체 경로 접근을 허용합니다.
+점검 시 일반 HTTP 클라이언트에서는 HTML 페이지와 sitemap.xml에 Cloudflare 403 응답이 있었고, 브라우저에서는 기존 공개 가이드가 열렸습니다. ads.txt와 robots.txt는 HTTP 200으로 읽혔습니다. **일부 요청의 차단**을 확인한 것이며 실제 Google 크롤러의 차단을 입증한 결과는 아닙니다.
 
-## 6. 공개 콘텐츠와 탐색 구조 확인
+Cloudflare 보안 이벤트에서 검증된 Google 광고 크롤러 요청의 차단 여부를 확인합니다. 차단 이벤트가 있으면 해당 규칙과 원인을 확인하여 검증된 정상 봇에 필요한 예외만 적용합니다. User-Agent 문자열만 믿고 접근을 허용하거나 사이트 보안을 일괄 해제하지 않습니다. robots.txt의 Allow만으로 Cloudflare 차단을 해결할 수는 없습니다.
 
-AdSense 검토 전에 아래 페이지가 로그인 없이 열리고, 서로 일반 링크로 연결되는지 확인합니다.
+현재 robots.txt는 공개 경로를 허용합니다. 사이트맵에는 세 계산 사례 페이지를 추가했습니다.
 
-- 기록장: `https://maple-trackers.com/`
-- 사용 가이드: `https://maple-trackers.com/guide/`
-- 사이트 소개: `https://maple-trackers.com/about/`
-- API 연동 안내: `https://maple-trackers.com/api/`
-- 개인정보 안내: `https://maple-trackers.com/privacy.html`
-- ads.txt: `https://maple-trackers.com/ads.txt`
+## 승인 후 실제 광고 활성화
 
-빈 페이지, 준비 중 문구, 깨진 이미지가 없어야 하며 기록장 이외의 공개 페이지에도 사이트의 목적과 사용 방법을 완전한 문장으로 설명해야 합니다.
+현재 `ads-config.js`는 `enabled:false`, `slot:''`입니다. 사용자는 광고 단위를 아직 만들지 않았다고 확인했습니다. **사이트 승인·실제 광고 단위·필요한 동의 메시지 설정을 확인한 뒤** 켭니다. 빈 슬롯에 임의의 번호를 넣지 않습니다.
 
-## 7. 개인정보 메시지 설정
+1. AdSense의 광고 단위 메뉴에서 반응형 디스플레이 광고 단위 1개를 만듭니다.
+2. 생성된 코드의 data-ad-client가 기존 게시자 ID와 맞는지 확인하고 data-ad-slot 숫자를 복사합니다.
+3. 유럽 경제 지역·영국·스위스의 광고 제공에 필요한 Google 인증 CMP를 개인정보 보호 및 메시지에서 설정·게시하고 적용 범위를 확인합니다. 사이트 안내문만으로 동의 메시지가 설정되지는 않습니다.
+4. 자동 광고는 끕니다. 이 사이트는 본문 아래에 명시적으로 삽입한 광고 단위만 사용합니다.
+5. ads-config.js에 실제 슬롯을 넣고 enabled를 true로 변경한 뒤 배포합니다.
 
-유럽 경제 지역, 영국, 스위스 이용자에게 광고를 제공하려면 Google이 요구하는 인증된 동의 관리 플랫폼(CMP)을 사용해야 합니다. AdSense의 `개인정보 보호 및 메시지`에서 Google CMP 메시지를 설정하는 방법이 가장 간단합니다.
+```js
+window.MESOBOOK_ADS = {
+  enabled: true,
+  client: 'ca-pub-7107280230386162',
+  slot: 'AdSense에서_복사한_실제_숫자'
+};
+```
 
-- 공식 안내: [Google CMP 요구사항](https://support.google.com/adsense/answer/13554116?hl=ko)
-- 사이트 안내문: [`privacy.html`](privacy.html)
+위 예시 문자열은 광고 슬롯이 아닙니다. 실제 숫자가 아니면 로더가 요청을 중단합니다. 클라이언트와 슬롯은 공개 식별자이며 로그인·지급·세금 정보나 API 키를 저장소에 넣지 않습니다.
 
-## 운영 원칙
+- [Google CMP 요구사항](https://support.google.com/adsense/answer/13554116?hl=en-GB)
+- [개인정보·쿠키 안내](privacy.html)
 
-- AdSense의 자동 광고는 켜지 않는 것을 권장합니다.
-- 광고는 본문 맨 아래 한 곳에만 표시됩니다.
-- 로컬 실행과 Android 앱에서는 광고를 불러오지 않습니다.
-- 광고가 차단되거나 채워지지 않으면 광고 영역을 자동으로 숨깁니다.
-- 광고 클릭을 유도하는 문구나 버튼을 광고 가까이에 두지 않습니다.
+## 광고 위치와 동작
 
-## 배포 후 확인
+공통 로더 `assets/site-ads.js`는 세 계산 사례의 본문 뒤에 반응형 광고를 페이지당 1개 요청합니다. 개인 장부, 입력·설정 화면, 가이드 목록, 사이트 소개, API 안내, 개인정보 안내에는 광고를 요청하지 않습니다.
 
-1. 광고 차단 확장 프로그램을 잠시 끄고 사이트를 확인합니다.
-2. `https://maple-trackers.com/ads.txt`가 한 줄의 일반 텍스트와 HTTP 200으로 열리는지 확인합니다.
-3. PC와 모바일에서 하단 광고가 콘텐츠를 밀거나 가리지 않는지 확인합니다.
-4. 승인 직후에는 실제 광고가 보이기까지 시간이 더 걸릴 수 있습니다.
-5. 문제가 생기면 `ads-config.js`의 `enabled`를 `false`로 바꾸면 즉시 광고 로딩을 중단할 수 있습니다.
+- enabled가 false이거나 식별자가 없거나 잘못되면 Google 광고 로더도 요청하지 않습니다.
+- HTTPS의 실제 공개 도메인과 지정한 계산 사례 경로에서만 로드합니다. 로컬 주소와 Android에서는 중단합니다.
+- 광고 요청 시에는 표시 너비를 확보합니다. 미송출·실패 시 영역을 접고, 지연 후 정상 광고가 도착하면 다시 표시합니다.
+- 장부·localStorage·인증값·클라우드 기능에 접근하지 않습니다. 광고를 메뉴·다운로드·저장 버튼과 구분합니다.
+
+Google의 [미송출 광고 처리 안내](https://support.google.com/adsense/answer/10762946?hl=ko)를 참고했습니다. 실제 광고를 직접 클릭해서 테스트하지 않습니다. 모의 응답 검사는 실제 Google 송출을 검증한 것이 아닙니다.
+
+## 변경 범위와 복구
+
+수정 전 원본은 Git에서 제외되는 `backups/20260909-adsense-content/`에 보관했습니다. 재획·드랍·손익·강화 계산, 장부 저장·병합·복구와 Worker는 변경하지 않습니다. 광고 중단이 필요하면 enabled를 false로 되돌려 배포합니다. 사용자 장부를 복원하거나 초기화할 필요는 없습니다.

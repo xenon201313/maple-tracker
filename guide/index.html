@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
-     crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>나만의 메계부 사용 가이드 | 재획·보스 수익 기록</title>
 <meta name="description" content="재획 메소, 솔 에르다 조각, 일간·주간·월간 보스 결정석과 드랍 분배를 나만의 메계부에 정확히 기록하는 방법">
 <meta name="theme-color" content="#14161f">
@@ -12,7 +11,7 @@
 <link rel="canonical" href="https://maple-trackers.com/guide/">
 <link rel="icon" type="image/png" href="../assets/icon.png?v=20260908">
 <link rel="apple-touch-icon" href="../assets/icon.png?v=20260908">
-<link rel="stylesheet" href="../assets/public-pages.css?v=20260908-1">
+<link rel="stylesheet" href="../assets/public-pages.css?v=20260909-1">
 <link rel="stylesheet" href="../assets/typography.css?v=20260907-1">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
@@ -46,6 +45,13 @@
       </div>
     </section>
 
+    <section class="section" id="reading-guides">
+      <h2>계산 사례로 익히는 기록 요령</h2>
+      <p>입력 방법뿐 아니라 합계가 만들어지는 과정과 예외를 확인하세요. 실제 장부와 무관한 가상 금액으로 계산하므로, 가격을 그대로 따라 입력할 필요는 없습니다.</p>
+      <div class="reading-grid"><a class="reading-card" href="hunt-income/"><h3>재획 수익과 조각 판매를 중복 없이 기록하기</h3><p>회차별 가격 고정, 보유 조각과 판매 정산, 판매일로 이동하는 수익을 숫자로 비교합니다.</p><span>계산 사례 읽기 →</span></a>
+<a class="reading-card" href="boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>파티장·파티원 실수령액, 송금 수수료와 100메소 내림, 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
+<a class="reading-card" href="profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>미판매 결과물, 서로 다른 구매·판매일, API 추정 비용과 확정 지출을 구분합니다.</p><span>계산 사례 읽기 →</span></a></div>
+    </section>
     <section class="section">
       <h2>1. 처음 사용할 때</h2>
       <ol class="steps">
@@ -94,14 +100,15 @@
       <div class="grid">
         <article class="item">
           <h3>판매 수수료</h3>
-          <p>결정석을 제외한 아이템 판매에는 3% 또는 5% 수수료를 선택할 수 있습니다. 통계에는 입력한 판매가가 아니라 수수료를 제외한 실수령액이 반영됩니다.</p>
+          <p>보스 드랍 정산에는 0%·3%·5% 중 수수료를 선택할 수 있습니다. 실제 거래 조건에 맞게 설정하세요. 보스 드랍은 획득 체크와 판매가를 함께 입력하면 수익으로 집계됩니다. 미판매 아이템의 가격은 비워 두세요.</p>
         </article>
         <article class="item">
           <h3>파티 분배</h3>
-          <p>2인 이상에서는 파티장·파티원 역할과 1:1, 7:3, 10:0 같은 사용자 지정 분배율을 기록할 수 있습니다. 1인 격파에는 분배 설정을 적용하지 않습니다.</p>
+          <p>2인 이상에서는 파티장·파티원 역할과 1:1, 7:3, 10:0 같은 분배율을 기록합니다. 비율은 파티장과 파티원 1명 기준입니다. 현재 계산은 판매·송금에 선택한 수수료를 각각 적용하고 송금액을 100메소 단위로 내립니다. 1인 격파에는 파티 분배를 적용하지 않습니다.</p>
         </article>
       </div>
-      <div class="formula">내 드랍 수익 = 판매가 × (1 - 판매 수수료) × 내 분배 비율</div>
+      <div class="formula">1인: 판매가에서 수수료를 제외한 금액 · 2인 이상: 판매 후 금액에서 송금 수수료와 분배율, 100메소 내림을 반영한 내 몫</div>
+      <p><a href="boss-settlement/">10억 메소 판매 사례로 파티장·파티원 몫 검산하기</a></p>
     </section>
 
     <section class="section">
@@ -116,7 +123,7 @@
       <div class="grid">
         <article class="item">
           <h3>기간별 합계</h3>
-          <p>최근 14일 재획 메소는 사냥으로 직접 획득한 메소 흐름을 보여줍니다. 주간과 월간 결산에서는 보스 수익, 판매가 완료된 아이템, 손익 계산과 직접 지출을 구분해 확인할 수 있습니다.</p>
+          <p>최근 14일 재획 메소는 사냥으로 직접 획득한 메소 흐름을 보여줍니다. 주간과 월간 결산에서는 보스 수익, 판매가 입력된 드랍, 손익 계산과 직접 지출을 확인합니다. 월말에 걸친 주차는 홈 결산과 통계 화면의 집계 기준이 다르므로 <a href="boss-settlement/#period-close">월 경계 주차의 차이</a>도 확인하세요.</p>
         </article>
         <article class="item">
           <h3>아이템과 경험치</h3>
@@ -128,7 +135,7 @@
     <section class="section">
       <h2>7. 기록이 보이지 않을 때</h2>
       <ol class="steps">
-        <li>현재 접속 주소가 `maple-trackers.com`인지 확인합니다. 다른 도메인과 로컬 HTML은 서로 다른 브라우저 저장 공간을 사용합니다.</li>
+        <li>현재 접속 주소가 <code>maple-trackers.com</code>인지 확인합니다. 다른 도메인과 로컬 HTML은 서로 다른 브라우저 저장 공간을 사용합니다.</li>
         <li>기록 목록의 페이지 이동, 접기 상태와 선택된 캐릭터·기간을 확인합니다.</li>
         <li>클라우드 동기화를 사용했다면 같은 API 키를 저장한 뒤 클라우드 불러오기를 실행합니다.</li>
         <li>복원하기 전에는 현재 상태를 먼저 JSON으로 백업하고, 날짜가 가장 최근인 정상 백업 파일을 선택합니다.</li>

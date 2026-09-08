@@ -11,9 +11,9 @@ await mkdir(webDir, { recursive: true });
 const stripAdsenseLoader = (html) => html.replace(
   /\s*<script async src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-\d+"\s+crossorigin="anonymous"><\/script>\s*/,
   '\n',
-);
+).replace(/<script[^>]+src="[^"]*assets\/site-ads\.js[^"]*"[^>]*><\/script>/g, '');
 
-for (const relativePath of ['index.html', 'privacy.html', 'api/index.html', 'guide/index.html', 'about/index.html']) {
+for (const relativePath of ['index.html', 'privacy.html', 'api/index.html', 'guide/index.html', 'about/index.html', 'guide/hunt-income/index.html', 'guide/boss-settlement/index.html', 'guide/profit-expense/index.html']) {
   const source = join(root, relativePath);
   const target = join(webDir, relativePath);
   await mkdir(dirname(target), { recursive: true });

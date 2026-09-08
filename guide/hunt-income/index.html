@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
+<title>재획 수익과 조각 판매를 중복 없이 기록하기 | 나만의 메계부</title>
+<meta name="description" content="두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#14161f">
+<link rel="canonical" href="https://maple-trackers.com/guide/hunt-income/">
+<link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
+<link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="재획 수익과 조각 판매를 중복 없이 기록하기">
+<meta property="og:description" content="두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.">
+<meta property="og:url" content="https://maple-trackers.com/guide/hunt-income/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
+<script defer src="../../ads-config.js?v=20260909-1"></script>
+<script defer src="../../assets/site-ads.js?v=20260909-1"></script>
+</head>
+<body class="article-page">
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="../../"><img src="../../assets/icon.png?v=20260908" alt="">나만의 메계부</a>
+    <nav class="nav" aria-label="주요 페이지"><a href="../../">기록장</a><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../api/">API 연동</a></nav>
+  </header>
+  <main>
+    <header class="hero">
+      <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
+      <h1>재획 수익과 조각 판매를 중복 없이 기록하기</h1>
+      <p class="lead">두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.</p>
+      <p class="article-meta">작성: 나만의 메계부 · <time datetime="2026-09-09">2026년 9월 9일</time> · 가상 금액을 사용한 계산 예제</p>
+    </header>
+    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#record-boundary">사냥으로 번 메소와 아직 팔지 않은 조각을 나누세요</a></li><li><a href="#session-example">같은 날 두 회차를 기록하고 하루 합계를 검산하기</a></li><li><a href="#sell-in-session">회차에서 바로 판 조각은 저장 당시 조건으로 계산됩니다</a></li><li><a href="#settle-later">조각을 모아 팔았다면 판매일에 정산을 추가하세요</a></li><li><a href="#avoid-double-count">자동 중복 방지가 확인해 주지 못하는 부분</a></li><li><a href="#hunt-checklist">주간·월간 보고 전에 확인할 다섯 가지</a></li></ol></nav>
+    <article aria-label="계산 사례 본문">
+<section class="section" id="record-boundary">
+  <h2>1. 사냥으로 번 메소와 아직 팔지 않은 조각을 나누세요</h2>
+  <p>재획을 마친 뒤 늘어난 메소와 솔 에르다 조각의 예상 판매액을 한 칸에 넣으면, 조각을 실제로 판매하는 날 같은 수입을 다시 적기 쉽습니다. 나만의 메계부의 <a href="/?page=daily">재획 기록</a>은 이 둘을 구분합니다. <strong>획득 메소</strong>에는 사냥으로 직접 얻은 메소를, <strong>추가 부수입</strong>에는 그 회차에 함께 기록할 다른 판매 수입을, <strong>솔 에르다 조각</strong>에는 얻은 개수를 입력합니다. 조각 개수만 입력했다고 조각 값이 바로 수익에 더해지지는 않습니다.</p>
+  <p>조각을 그 회차에 판매했다면 계산기의 단가와 수수료를 확인하고 <strong>이 회차 조각 판매 수익 반영</strong>을 선택할 수 있습니다. 모아 두었다가 나중에 판매할 예정이면 선택하지 않은 채 저장하세요. 이때 장부의 메소 수익과 보유 아이템의 예상 가치는 서로 다른 숫자입니다. 보유 조각의 가격이 올랐다고 실제로 들어온 메소가 늘어난 것은 아닙니다.</p>
+  <p>다음 예제는 계산법을 설명하기 위한 <strong>가상의 수량·가격·수수료</strong>입니다. 현재 게임 시세나 적용 수수료를 안내하는 값이 아닙니다. 실제 기록에는 본인이 확인한 판매 조건을 사용하세요. 조각 판매액을 이미 획득 메소나 추가 부수입에 넣었다면, 별도의 조각 판매 수익까지 켜서 같은 금액을 더하지 않았는지 먼저 확인해야 합니다.</p>
+</section>
+<section class="section" id="session-example">
+  <h2>2. 같은 날 두 회차를 기록하고 하루 합계를 검산하기</h2>
+  <p>9월 1일에 두 번 사냥했다고 가정하겠습니다. 첫 회차는 직접 획득한 메소 1억 2,000만, 다른 아이템 판매로 받은 부수입 800만, 조각 12개입니다. 두 번째는 획득 메소 6,000만, 부수입 200만, 조각 7개입니다. 두 회차의 조각은 아직 판매하지 않았습니다. 날짜를 같게 두고 <strong>회차 / 메모</strong>에 구분할 이름을 적어 각각 저장하면 됩니다.</p>
+  <p class="table-hint">표가 잘리면 좌우로 밀어 전체 금액을 확인하세요.</p><div class="table-scroll" tabindex="0" role="region" aria-label="계산 예제 표"><table class="wide-table">
+    <caption>조각을 보유 중인 두 회차의 가상 기록 — 단위: 메소</caption>
+    <thead><tr><th scope="col">기록</th><th scope="col">획득 메소</th><th scope="col">추가 부수입</th><th scope="col">조각</th><th scope="col">수익 합계</th></tr></thead>
+    <tbody><tr><th scope="row">첫 회차</th><td class="amount">120,000,000</td><td class="amount">8,000,000</td><td>12개</td><td class="amount">128,000,000</td></tr><tr><th scope="row">두 번째 회차</th><td class="amount">60,000,000</td><td class="amount">2,000,000</td><td>7개</td><td class="amount">62,000,000</td></tr><tr><th scope="row">하루 합계</th><td class="amount">180,000,000</td><td class="amount">10,000,000</td><td>19개</td><td class="amount">190,000,000</td></tr></tbody>
+  </table></div>
+  <p><strong>일일 기록</strong>에서 해당 날짜의 회차를 펼친 뒤, 회차 합계 1억 2,800만과 6,200만을 더해 하루 합계 1억 9,000만이 되는지 확인합니다. 조각 19개는 개수로 남아 있고 판매액은 포함되지 않습니다. 하루 합계를 별도의 세 번째 회차로 다시 저장하면 1억 9,000만이 중복됩니다. 날짜별 요약은 저장한 회차를 사이트가 합산해 보여 주는 결과입니다.</p>
+  <p>캐릭터가 다르거나 서로 다른 판매 조건을 적용했다면 회차를 분리해 두는 편이 나중에 원인을 찾기 쉽습니다. 사냥 전후 메소 잔액의 차이를 가져올 때는 그 사이에 산 도핑이나 다른 지출도 확인하세요. 잔액 차이에 이미 반영된 지출을 별도 지출 기록에서 다시 빼면 수익이 과도하게 줄어듭니다. 획득과 지출을 따로 기록할지, 지출을 뺀 순액을 기록할지 기준을 먼저 정하고 섞지 않는 것이 핵심입니다.</p>
+</section>
+<section class="section" id="sell-in-session">
+  <h2>3. 회차에서 바로 판 조각은 저장 당시 조건으로 계산됩니다</h2>
+  <p>첫 회차의 조각 12개를 개당 200만 메소에 팔고 수수료가 5%였다고 가정해 보겠습니다. <strong>솔 에르다 조각 계산기</strong>의 조각 1개 가격을 2,000,000, 판매 수수료를 5%로 설정하고 해당 회차의 판매 수익 반영을 선택합니다. 판매액 계산은 <code>12 × 2,000,000 × 95 ÷ 100 = 22,800,000</code>입니다. 이 경우 첫 회차 합계는 <code>120,000,000 + 8,000,000 + 22,800,000 = 150,800,000</code>메소입니다.</p>
+  <p>둘째 회차 조각은 아직 보유 중이라면 판매 수익 반영을 끕니다. 두 회차를 합한 하루 수익은 2억 1,280만 메소가 됩니다. 같은 날 기록이라도 체크 여부가 서로 다를 수 있습니다. 날짜 전체에 하나의 판매 기준을 적용하는 방식이 아니라 회차별로 결정하는 방식이므로, 저장 전에 현재 회차의 상태를 확인하세요.</p>
+  <p>회차를 저장하면 그때의 조각 단가와 수수료가 함께 보존됩니다. 이후 계산기 단가를 250만으로 바꾸더라도 앞서 저장한 200만 기준 회차가 자동으로 재평가되지는 않습니다. 이것은 과거 수입을 현재 시세로 덮어쓰지 않기 위한 동작입니다. 현재 재획 수정 화면에서도 기존 회차의 저장 단가와 수수료를 유지하므로, 계산기 숫자만 바꾼 뒤 회차를 다시 저장하면 과거 단가까지 바뀐다고 생각하면 안 됩니다.</p>
+  <p>금액의 메소 미만 부분은 정수 계산 과정에서 버려집니다. 예제처럼 나누어떨어지는 값에서는 차이가 없지만, 직접 검산한 소수점 값과 화면의 정수 결과 사이에는 끝자리 차이가 날 수 있습니다. 큰 금액을 확인할 때는 억·만 단위 표현만 보지 말고 쉼표가 붙은 전체 숫자도 함께 확인하세요.</p>
+</section>
+<section class="section" id="settle-later">
+  <h2>4. 조각을 모아 팔았다면 판매일에 정산을 추가하세요</h2>
+  <p>이번에는 두 회차의 조각 19개를 모두 보관하다가 9월 3일에 판매했다고 가정합니다. 원래 두 회차의 판매 수익 반영은 꺼져 있어야 합니다. 9월 3일의 실제 판매 조건이 개당 220만 메소, 수수료 3%였다면 <strong>솔 에르다 조각 판매 정산</strong>에서 판매 날짜는 9월 3일, 정산 시작일과 종료일은 두 회차가 있는 9월 1일로 입력합니다. 계산기의 단가와 수수료도 이 판매 조건으로 맞춥니다.</p>
+  <p>정산 미리보기에는 대상 조각 19개와 예상 실수령 4,054만 6,000메소가 표시되어야 합니다. 계산은 <code>19 × 2,200,000 = 41,800,000</code>, 수수료는 <code>41,800,000 × 3% = 1,254,000</code>, 실수령은 <code>41,800,000 − 1,254,000 = 40,546,000</code>입니다. 이를 확인하고 <strong>선택 기간 정산 추가</strong>를 누르면 판매일에 별도 정산 기록이 생깁니다.</p>
+  <p>이 예제의 9월 1일 수익은 1억 9,000만, 9월 3일 정산 수익은 4,054만 6,000메소입니다. 두 날짜를 합한 수익은 2억 3,054만 6,000메소입니다. 정산 기록은 조각 판매로 생긴 수입이므로 새 사냥 회차 수로 계산하지 않습니다. 원래 회차의 조각은 정산 완료 수량으로 연결되어 이후 같은 기간을 다시 선택해도 그 수량을 다시 정산하지 않습니다.</p>
+  <p>다만 이 기능은 <strong>선택한 기간의 정산되지 않은 조각 전체</strong>를 현재 계산기의 단일 단가와 수수료로 처리합니다. 캐릭터 하나만 선택하는 필터나 일부 수량만 판매하는 입력칸은 없습니다. 19개 중 10개만 팔았거나 여러 가격으로 나누어 팔았다면 전체 19개를 한 가격으로 정산하지 마세요. 현재 화면이 표현할 수 있는 범위와 실제 거래가 일치하는지 먼저 살피고, 불일치하는 거래는 별도 메모와 검산 기록을 남겨 구분해야 합니다.</p>
+</section>
+<section class="section" id="avoid-double-count">
+  <h2>5. 자동 중복 방지가 확인해 주지 못하는 부분</h2>
+  <p>판매 정산은 원래 회차의 정산 완료 수량을 늘리고, 그 수량을 회차의 조각 환산 대상에서 제외합니다. 따라서 이미 회차 판매 수익 반영을 켠 조각을 나중에 정산하면, 원래 회차의 조각 수익이 빠지고 정산 조건으로 계산한 판매일 수입이 생길 수 있습니다. 장부 내부에서 같은 조각 가치를 두 곳에 남기지 않는 구조이지만, 사이트가 실제 거래 내역을 조회해서 이미 판매한 조각인지 판별하는 것은 아닙니다.</p>
+  <p>예를 들어 9월 1일에 이미 판 12개를 회차 수익으로 기록해 놓고, 9월 3일에 7개만 새로 팔았는데 9월 1일 전체를 정산 기간으로 고르면 의도와 달라질 수 있습니다. 정산 미리보기의 대상 개수가 실제 이번 판매 수량과 같은지 확인하세요. 수량이 맞지 않으면 판매 날짜를 옮기거나 버튼을 한 번 더 누르는 것으로 해결하지 말고, 어떤 원본 회차가 대상인지 먼저 찾아야 합니다.</p>
+  <ul><li><strong>부수입과 정산에 함께 적은 경우:</strong> 사이트는 부수입의 숫자가 조각 판매액인지 알 수 없습니다. 같은 4,054만 6,000메소를 두 곳에 넣었다면 사용자가 중복을 찾아야 합니다.</li><li><strong>현재 시세로 과거 수입을 비교한 경우:</strong> 회차는 저장 단가를 사용합니다. 지금 계산기 값과 결과가 다르다고 바로 오류로 판단하지 마세요.</li><li><strong>정산된 원본 수량을 줄이는 경우:</strong> 이미 정산한 수량보다 적게 수정하거나 날짜를 바꾸려 하면 제한됩니다. 정산과 원본의 연결을 함께 확인해야 합니다.</li></ul>
+  <p>수정이 필요할 때는 먼저 JSON 백업을 내려받고 현재 회차·정산 날짜·대상 수량을 따로 적어 두세요. 정산 기록을 삭제하면 연결된 원본 회차의 정산 완료 수량을 되돌리는 동작이 있으므로, 삭제 전후의 조각 수량과 총수입을 함께 검산해야 합니다. 전체 브라우저 저장소를 지우거나 오래된 백업을 무조건 복원하는 방법은 한 거래를 바로잡는 데 적합하지 않습니다.</p>
+</section>
+<section class="section" id="hunt-checklist">
+  <h2>6. 주간·월간 보고 전에 확인할 다섯 가지</h2>
+  <ol><li>각 회차의 획득 메소에 조각 판매액이나 다른 화면의 수입이 섞이지 않았는지 확인합니다.</li><li>판매하지 않은 조각 회차의 수익 반영 체크가 꺼져 있는지 확인합니다.</li><li>나중 판매한 조각은 정산 대상 수량과 실제 판매 수량이 일치하는지 확인합니다.</li><li>회차 합계의 합과 날짜별 합계가 같고, 정산 수입이 판매 날짜에 한 번만 존재하는지 확인합니다.</li><li>별도로 기록한 지출이 이미 차감된 순수입에 다시 적용되지 않았는지 확인합니다.</li></ol>
+  <p>재획 기록의 주간은 목요일부터 수요일까지이고, 재획 월간 합계는 기록 날짜의 달을 기준으로 합니다. 월말에 사냥해서 얻은 조각을 다음 달에 판매 정산하면 사냥 메소와 조각 판매 수입이 서로 다른 달에 들어갈 수 있습니다. 이는 오류가 아니라 입력한 판매 날짜에 따른 결과입니다. 비교하려는 것이 사냥 능률인지 실제 메소 유입인지 정한 뒤 숫자를 읽으면, 조각을 한꺼번에 판 달이 유난히 좋아 보이는 현상을 이해할 수 있습니다.</p>
+  <p><strong>경험치 추적</strong>의 레벨·경험치 변화는 메소 수익에 포함되지 않습니다. 경험치 효율과 메소 수익은 각각 확인해야 합니다. 또 이 장부는 입력한 수량과 가격으로 계산하는 도구이므로 사냥 누락이나 거래 누락을 자동으로 모두 찾아 주지는 않습니다. 회차 메모와 실제 판매 증빙을 짧게 남기는 습관이 숫자를 검산할 때 가장 도움이 됩니다.</p>
+</section>
+
+    </article>
+    <section class="section"><h2>함께 읽으면 좋은 안내</h2><div class="link-list"><a href="../boss-settlement/">보스 드랍 분배와 월말 결산 검산하기</a>
+<a href="../profit-expense/">판매 손익과 강화 지출을 구분해 기록하기</a><a href="../../privacy.html">데이터 저장과 개인정보 안내</a></div><p>설명과 화면이 다르거나 계산 예제에 오류가 있다면 <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">오류 제보</a>로 알려주세요. 공개 제보에 개인 장부나 API 키를 첨부하지 마세요.</p></section>
+  </main>
+  <aside class="site-ad-shell" data-content-ad hidden aria-label="광고"><div class="site-ad-label">광고</div><ins class="adsbygoogle site-ad-slot" data-ad-format="auto" data-full-width-responsive="true"></ins></aside>
+  <footer><a href="../">사용 가이드</a><a href="../../about/">사이트 소개·문의</a><a href="../../privacy.html">개인정보·쿠키 안내</a><span>크로아/얀보 제작 · NEXON의 비공식 서비스</span></footer>
+</div>
+</body>
+</html>

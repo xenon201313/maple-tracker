@@ -216,3 +216,33 @@ footer a{color:#cfe8ff;}
   .nav a { font-size:13px; }
   .hero,.section { padding-inline:0; }
 }
+
+.reading-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:20px; }
+.reading-card { display:block; min-width:0; padding:20px; border:1px solid var(--line); border-radius:8px; text-decoration:none; background:var(--panel-soft); }
+.reading-card:hover { border-color:var(--gold); }
+.reading-card h3 { color:var(--text); }
+.reading-card span { color:var(--gold); font-size:14px; }
+.article-page .shell { max-width:960px; }
+.article-page main > * { min-width:0; }
+.article-page .section { scroll-margin-top:20px; }
+.article-meta { margin-top:18px; font-size:14px; color:var(--sub); }
+.article-toc ol { margin:0; padding-left:24px; }
+.article-toc li { margin:8px 0; }
+.table-scroll { overflow-x:auto; margin:18px 0; }
+.table-scroll:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.table-scroll td.amount { white-space:nowrap; }
+.table-scroll .wide-table { min-width:660px; }
+.table-hint { display:none; }
+table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+caption { text-align:left; color:var(--text); font-weight:700; margin-bottom:10px; }
+th,td { padding:12px; border:1px solid var(--line); text-align:left; vertical-align:top; overflow-wrap:anywhere; }
+th { background:var(--panel-soft); color:var(--text); }
+td { color:var(--sub); }
+.article-page .formula { overflow-wrap:anywhere; }
+.article-page ul,.article-page ol { color:var(--sub); }
+.article-page li { margin-block:8px; }
+.site-ad-shell { margin:28px 0 16px; padding-top:20px; border-top:1px solid var(--line); }
+.site-ad-shell[hidden] { display:none!important; }
+.site-ad-label { color:var(--sub); font-size:12px; text-align:center; margin-bottom:8px; }
+.site-ad-slot { display:block; width:100%; min-height:100px; }
+@media(max-width:760px) { .reading-grid { grid-template-columns:1fr; } th,td { padding:9px; font-size:14px; } .table-hint { display:block; font-size:13px; } }

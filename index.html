@@ -7,8 +7,7 @@
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260907-5">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7107280230386162"
-     crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>나만의 메계부</title>
 <meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
 <meta name="theme-color" content="#14161f">
@@ -17,7 +16,7 @@
 <link rel="canonical" href="https://maple-trackers.com/">
 <link rel="manifest" href="site.webmanifest?v=20260908">
 <link rel="apple-touch-icon" href="assets/icon.png?v=20260908">
-<script src="ads-config.js"></script>
+
 <script>
   if(location.hostname==='localhost' && /Android/i.test(navigator.userAgent)) document.documentElement.classList.add('native-android');
 </script>
@@ -1010,7 +1009,7 @@
     .bimg{width:130px; height:78px;}
   }
 </style>
-<link rel="stylesheet" href="assets/workspace.css?v=20260908-2">
+<link rel="stylesheet" href="assets/workspace.css?v=20260909-1">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 </head>
 <body>
@@ -1034,7 +1033,7 @@
     <span class="nav-group-label">도움말</span>
     <button class="tab" type="button" data-page="intro"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>사용 설명</button>
   </nav>
-  <div class="sidebar-footer"><span>보스 초기화</span><dl><dt>주간</dt><dd>매주 목요일</dd><dt>월간</dt><dd>매월 1일</dd></dl><a href="api/">NEXON Open API 이용 안내</a></div>
+  <div class="sidebar-footer"><span>보스 초기화</span><dl><dt>주간</dt><dd>매주 목요일</dd><dt>월간</dt><dd>매월 1일</dd></dl><a href="guide/">사용 가이드·계산 사례</a><br><a href="about/">사이트 소개·문의</a><br><a href="api/">NEXON Open API 이용 안내</a></div>
 </aside>
 <button class="sidebar-scrim" type="button" data-menu-close aria-label="메뉴 닫기" hidden></button>
 <header class="workspace-header">
@@ -1045,6 +1044,7 @@
   <div class="workspace-header-actions"><span class="storage-badge" title="기록은 현재 브라우저에 저장됩니다.">브라우저 저장</span><button class="ghost workspace-backup" id="workspace-backup" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#download"></use></svg><span>백업</span></button></div>
 </header>
 <main class="workspace-main" id="workspace-main" tabindex="-1">
+<noscript><p class="card">기록장 입력 기능은 JavaScript가 필요합니다. <a href="guide/">사용 가이드와 계산 사례</a>는 JavaScript 없이도 읽을 수 있습니다.</p></noscript>
 <div class="nexon-api-disclosure" role="note" aria-label="NEXON Open API 이용 고지">
   <span><strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <div class="nexon-api-links">
@@ -1055,6 +1055,11 @@
 
 <!-- ══════════ 홈 ══════════ -->
 <div class="page active" id="page-home">
+  <section class="card home-welcome" aria-labelledby="home-welcome-title">
+    <h2 id="home-welcome-title">내 메소가 어디서 들어오고 나갔는지, 나만의 메계부</h2>
+    <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
+    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
+  </section>
   <div class="workspace-quick-actions" aria-label="빠른 기록">
     <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
     <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
@@ -1126,6 +1131,13 @@
       <div class="backup-status" id="home-backup"></div>
     </div>
   </div>
+  <section class="card home-reading" aria-labelledby="home-reading-title">
+    <h2 id="home-reading-title">합계가 달라질 때, 계산부터 확인해 보세요</h2>
+    <p>같은 판매가라도 수수료·분배·기록 날짜에 따라 내 몫은 달라집니다. 아래 예시는 실제 장부를 바꾸지 않고 계산 과정을 비교할 수 있는 공개 안내입니다.</p>
+    <div class="home-reading-grid"><a class="reading-card" href="guide/hunt-income/"><h3>재획 수익과 조각 판매를 중복 없이 기록하기</h3><p>회차별 가격 고정, 보유 조각과 판매 정산, 판매일로 이동하는 수익을 숫자로 비교합니다.</p><span>계산 사례 읽기 →</span></a>
+<a class="reading-card" href="guide/boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>파티장·파티원 실수령액, 송금 수수료와 100메소 내림, 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
+<a class="reading-card" href="guide/profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>미판매 결과물, 서로 다른 구매·판매일, API 추정 비용과 확정 지출을 구분합니다.</p><span>계산 사례 읽기 →</span></a></div>
+  </section>
 </div>
 
 <!-- ══════════ 설명 ══════════ -->
@@ -1785,16 +1797,11 @@
       </div>
     </div>
     <div class="ledger-principles">
-      <div class="guide-note">권장 방향: 지출·손실은 수입 입력 화면과 분리하고, 통계에서만 “총수입 / 총지출 / 순수익”으로 보여주면 사이트가 덜 복잡해집니다.</div>
-      <div class="guide-note">다음 단계로 확정하면 구분값은 강화, 큐브·주문서, 장비 구매, 거래 손실, 소비, 기타 정도가 적당합니다.</div>
+      <div class="guide-note">강화·구매 비용은 지출에 기록하고, 통계에서 수입과 함께 비교하세요. 이미 반영한 비용을 손익 계산기나 API 이력에서 다시 더하지 않도록 확인해 주세요.</div>
+      <div class="guide-note">강화 API의 비용은 추정값입니다. 내역을 검토하고 지출 반영을 확정한 항목만 통계에 포함됩니다.</div>
     </div>
   </div>
 </div>
-
-<aside class="site-ad-shell" id="site-ad-shell" hidden aria-label="광고">
-  <div class="site-ad-label">광고</div>
-  <ins class="adsbygoogle site-ad-slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
-</aside>
 
 <script>
 const IMG={
@@ -10594,75 +10601,9 @@ function renderAllPreservingViewport(){
     requestAnimationFrame(restore);
   });
 }
-function initSiteAd(){
-  const config=window.MESOBOOK_ADS || {};
-  const shell=document.getElementById('site-ad-shell');
-  const client=String(config.client || '').trim();
-  const slot=String(config.slot || '').trim();
-  const validClient=/^ca-pub-\d+$/.test(client);
-  const validSlot=/^\d+$/.test(slot);
-  const isWeb=/^https?:$/.test(location.protocol);
-  const isNative=document.documentElement.classList.contains('native-android') || location.hostname==='localhost';
-  if(!shell || !config.enabled || !validClient || !validSlot || !isWeb || isNative) return;
-
-  const ad=shell.querySelector('.adsbygoogle');
-  if(!ad) return;
-  ad.dataset.adClient=client;
-  ad.dataset.adSlot=slot;
-  shell.hidden=false;
-
-  const hideAd=()=>{ shell.hidden=true; };
-  const settleTimer=setTimeout(()=>{
-    if(ad.getAttribute('data-ad-status')!=='filled') hideAd();
-  },12000);
-  const statusObserver=new MutationObserver(()=>{
-    const status=ad.getAttribute('data-ad-status');
-    if(status==='filled'){
-      clearTimeout(settleTimer);
-      statusObserver.disconnect();
-    }else if(status==='unfilled'){
-      clearTimeout(settleTimer);
-      statusObserver.disconnect();
-      hideAd();
-    }
-  });
-  statusObserver.observe(ad,{attributes:true,attributeFilter:['data-ad-status']});
-
-  const requestAd=()=>{
-    try{
-      (window.adsbygoogle=window.adsbygoogle || []).push({});
-    }catch(error){
-      clearTimeout(settleTimer);
-      statusObserver.disconnect();
-      hideAd();
-    }
-  };
-  const handleLoadError=()=>{
-    clearTimeout(settleTimer);
-    statusObserver.disconnect();
-    hideAd();
-  };
-  const existingLoader=document.querySelector('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]');
-  if(existingLoader){
-    if(window.adsbygoogle) requestAd();
-    else existingLoader.addEventListener('load',requestAd,{once:true});
-    existingLoader.addEventListener('error',handleLoadError,{once:true});
-    return;
-  }
-
-  const loader=document.createElement('script');
-  loader.id='adsense-loader';
-  loader.async=true;
-  loader.crossOrigin='anonymous';
-  loader.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(client);
-  loader.onload=requestAd;
-  loader.onerror=handleLoadError;
-  document.head.appendChild(loader);
-}
 const initialPage=new URLSearchParams(location.search).get('page');
 if(initialPage && document.getElementById('page-'+initialPage)) openPage(initialPage);
 else renderAll();
-initSiteAd();
 </script>
 </main>
 <nav class="mobile-nav" aria-label="빠른 메뉴">
@@ -10692,7 +10633,7 @@ window.MapleEnhancementBridge={
 <script src="assets/workspace.js?v=20260908-1"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
-  <a href="guide/">사용 가이드</a>
+  <a href="guide/">사용 가이드·계산 사례</a>
   <a href="about/">사이트 소개</a>
   <a href="api/">API 연동 안내</a>
   <a href="privacy.html">개인정보·쿠키 안내</a>
