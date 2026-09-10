@@ -4,6 +4,9 @@
 <meta name="referrer" content="no-referrer">
 <script src="assets/enhancement-ledger.js?v=20260908-1"></script>
 <script src="assets/friends-expenses.js?v=20260908-1"></script>
+<script src="assets/september-expenses.js?v=20260911-1"></script>
+<link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
+<script src="assets/september-boss-rules.js?v=20260911-1"></script>
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260907-5">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -582,6 +585,7 @@
   .ledger-demo-value{color:var(--red); font-weight:bold; white-space:nowrap;}
   .ledger-principles{margin-top:12px; display:grid; gap:8px;}
   .ledger-principles .guide-note{margin-top:0;}
+  .drop-text-icon{display:inline-grid; place-items:center; flex:0 0 34px; min-width:34px; min-height:30px; padding:2px; border:1px solid var(--line); border-radius:5px; color:var(--sub); font-size:11px; line-height:1.3;}
   .expense-form{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(120px,auto); gap:10px; align-items:end;}
   .expense-form .wide{grid-column:span 2;}
   .expense-form input,.expense-form select{width:100%;}
@@ -1076,11 +1080,12 @@
     <div class="home-summary-grid" id="home-summary"></div>
   </div>
 
+  <div class="card"><h2>9월 17일 경제 패치 예정</h2><p class="muted">결정석 가격·주간 제한·신규 메소 지출을 기록 날짜에 맞춰 적용합니다. 검은 마법사는 10월 1일부터 변경합니다. <a href="updates/2026-09/">적용 일정과 기록 방법 보기</a></p></div>
   <div class="home-grid">
     <div class="card">
       <div class="home-section-head">
         <div><h2>👑 이번 주 보스 진행</h2></div>
-        <span class="muted">본서버 12개 · 챌린저스 13개 기준으로 확인합니다.</span>
+        <span class="muted" id="weekly-progress-rules">9월 17일 주차부터 캐릭터별 주간 12개 제한이 해제됩니다.</span>
       </div>
       <div class="weekly-progress-list" id="home-weekly-progress"></div>
       <div class="home-action-row"><button class="ghost" type="button" data-open-page="boss">주간 보스 보기</button></div>
@@ -1227,7 +1232,8 @@
     <ul class="guide-list">
       <li>먼저 캐릭터 이름을 등록하고, 본서버 또는 챌린저스 서버를 선택합니다.</li>
       <li>캐릭터 이름을 누르면 보스 카드가 열리고, 보스마다 난이도와 파티 인원수를 선택할 수 있습니다.</li>
-      <li>주간 보스는 본서버 12개, 챌린저스 서버 13개를 기준으로 표시합니다. 일반 주간 보스는 최대 12개이며, 챌린저스의 메이린은 별도로 기록됩니다.</li>
+      <li>9월 17일 주차부터 캐릭터별 주간 보스 12개 제한이 해제되며, 월드당 결정석 판매 한도 90개는 유지됩니다. 이전 주차는 당시의 12개 제한과 챌린저스 메이린 별도 기록 기준을 적용합니다.</li>
+      <li>메이린은 9월 16일 23시 59분, 챌린저스 시즌 4 육성 기간은 9월 17일 점검 전까지입니다. 기존 캐릭터와 과거 수익·드랍 기록은 보존되며, 월드 리프 후 캐릭터 정보를 갱신하면 실제 이동한 월드를 반영합니다.</li>
       <li>파티 인원수를 고르면 결정석 가격이 인원수로 나뉘어 “내 몫”으로 표시됩니다.</li>
     </ul>
   </div>
@@ -1350,6 +1356,7 @@
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
     <div class="muted" style="margin-top:8px;">주간/월간/일간 보스 메뉴에서 캐릭터의 '보스 펼치기'를 누르면 체크 목록이 열립니다.</div>
+    <div class="muted" style="margin-top:8px;">챌린저스 시즌 4 육성은 9월 17일 점검 전 종료됩니다. 리프 기간은 9월 17일 점검 후~9월 30일 23:59입니다. 월드를 옮긴 뒤 캐릭터 정보를 새로고침해 주세요. 기존 캐릭터·장부는 그대로 보존합니다. <a href="https://maplestory.nexon.com/News/Event/1349" target="_blank" rel="noopener noreferrer">시즌 4 공식 안내</a></div>
   </div>
 
   <div class="card">
@@ -1533,9 +1540,9 @@
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석 합계</h2>
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
-      ※ 결정석 판매 한도: 월드당 주간 90개 · 캐릭터당 주간 보스 12개 제한<br>
+      <span id="weekly-boss-limit-note">※ 9월 17일 주차부터 캐릭터당 주간 보스 12개 제한 해제 · 월드당 주간 결정석 판매 90개 유지</span><br>
       ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
-      ※ 결정석 가격 기준: KMS 1.2.416 패치 (2026-06-18) · 보스 일러스트: 넥슨/나무위키
+      ※ 결정석 가격: 선택한 기록 기간 기준 · 9월 17일 주간 / 10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/testworld/news/all/199" target="_blank" rel="noopener noreferrer">테스트월드 1.2.206(2)</a> 본서버 적용 예정 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
     </div>
   </div>
 </div>
@@ -1554,7 +1561,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석 합계</h2>
     <div class="totalbar" id="monthlyboss-total"></div>
     <div class="muted" style="margin-top:10px;">
-      ※ 검은 마법사는 주간 보스 12개 제한과 월드당 주간 90개 결정석 한도 표시에서 제외됩니다.
+      ※ 검은 마법사는 월드당 주간 90개 결정석 한도 표시에서 제외됩니다. 10월 기록부터 본서버 적용 예정 결정석 가격을 반영하며 9월 이전 기록은 기존 가격을 유지합니다.
     </div>
   </div>
 </div>
@@ -1628,8 +1635,9 @@
     <div id="manual-enhancement-calculator"></div>
   </div>
   <div class="card">
-    <h2>💳 구매 지출 입력</h2>
-    <p class="muted">장비, 조각, 펫 등 구매에 쓴 메소를 기록합니다.</p>
+    <h2>💳 메소 지출 입력</h2>
+    <p class="muted">장비·조각·펫 구매와 직접 소비한 메소를 기록합니다. 다른 입력 화면이나 API에서 이미 반영한 비용은 제외하세요.</p>
+    <details id="september-expense-helper" class="september-expense-helper"></details>
     <div class="expense-form" style="margin-top:14px;">
       <div>
         <label>날짜</label>
@@ -1842,7 +1850,7 @@ const IMG={
   "kaung": "assets/boss/normalized/kaung.webp"
 };
 
-const MAX_CHECK = 12;   // 일반 주간 보스 최대 체크 수 (메이린 제외)
+const MAX_CHECK = 12;   // 2026년 9월 17일 이전 주차의 일반 주간 보스 한도
 const MAX_PARTY = 6;
 const CRYSTAL_LIMIT = 90;
 
@@ -4114,6 +4122,17 @@ const DROP_ITEMS = {
   ]);
 }
 
+// 소울 에테르는 9월 17일 예정 드랍입니다. 원본 아이콘 확인 전에는 단계명을 표시합니다.
+[
+  [1,['nadv','hadv','xadv','nkali','hkali','xkali']],
+  [2,['nbellona','hbellona','nstar','hstar']],
+  [3,['nlimbo','hlimbo','nbal','hbal']],
+  [4,['njup','hjup']]
+].forEach(([stage,bossIds])=>bossIds.forEach(id=>{
+  if(!DROP_ITEMS[id]) DROP_ITEMS[id]=[];
+  DROP_ITEMS[id].push({id:'soul_ether_'+stage,name:stage+'단계 소울 에테르',img:'',availableFrom:'2026-09-17'});
+}));
+
 function bossParts(name){
   const m = name.match(/^(.*?)\s*\((.*?)\)$/);
   return m ? {base:m[1], diff:m[2]} : {base:name, diff:'기본'};
@@ -4128,13 +4147,25 @@ const BOSS_RELEASE_DATES = Object.freeze({
 });
 function charServer(c){ return c && c.server === 'challenger' ? 'challenger' : 'main'; }
 function serverLabel(c){ return charServer(c) === 'challenger' ? '챌린저스' : '본서버'; }
-function weeklyBossDisplayLimit(c){ return MAX_CHECK + (charServer(c) === 'challenger' ? 1 : 0); }
+function weeklyBossCheckLimit(period=currentWeekKey()){ return MapleSeptemberBossRules.weeklyLimit(period); }
+function bossCrystalPrice(b,period=currentWeekKey()){ return MapleSeptemberBossRules.crystalPrice(b,period); }
+function weeklyBossDisplayLimit(c,period=currentWeekKey()){
+  const limit=weeklyBossCheckLimit(period);
+  return Number.isFinite(limit)
+    ? limit+(charServer(c)==='challenger' ? 1 : 0)
+    : BOSS_GROUPS.w.filter(g=>g.bosses.some(b=>canUseBoss(c,b,period))).length;
+}
+function weeklyBossCountHtml(c,count,period){
+  const limit=weeklyBossCheckLimit(period), target=weeklyBossDisplayLimit(c,period);
+  return '<span class="cnt'+(Number.isFinite(limit) && count>=target?' full':'')+'">('+count+(Number.isFinite(limit)?'/'+target:'개 완료')+')</span>';
+}
 function isChallengerOnlyBoss(b){ return !!b && CHALLENGER_ONLY_BOSS_IDS.has(b[0]); }
 function isLimitFreeBoss(b){ return !!b && (b[3] === 'm' || LIMIT_FREE_BOSS_IDS.has(b[0])); }
 function bossReleaseDate(b){ return b && BOSS_RELEASE_DATES[b[0]] || ''; }
 function isBossReleased(b,date=todayStr()){ const release=bossReleaseDate(b); return !release || date>=release; }
 function bossLockReason(c,b,date=todayStr()){
   if(!isBossReleased(b,date)) return '8월 20일부터 선택 가능';
+  if(isChallengerOnlyBoss(b) && MapleSeptemberBossRules.challengerEnded(date)) return '메이린 종료 (9월 16일 23:59) · 과거 기록 보존';
   if(isChallengerOnlyBoss(b) && charServer(c) !== 'challenger') return '챌린저스 전용';
   return '';
 }
@@ -4959,7 +4990,8 @@ const EXPENSE_CATEGORIES=[
   {id:'pet', name:'펫 구매'},
   {id:'cosmetic', name:'코디템 구매'},
   {id:'doping', name:'도핑 구매'},
-  {id:'maplepoint', name:'메포 구매'}
+  {id:'maplepoint', name:'메포 구매'},
+  ...MapleSeptemberExpenses.categories
 ];
 const LEGACY_EXPENSE_CATEGORY_MAP={
   starforce:'equipment', potential:'equipment', scroll:'equipment', bonus:'equipment', ability:'equipment',
@@ -6952,22 +6984,22 @@ function monthlyReportData(month=selectedDashboardMonth()){
 function weeklyProgressForChar(c,week=currentWeekKey()){
   const store=bossStore(c,week);
   const summary=charSum(c,week);
-  const groups=BOSS_GROUPS.w.filter(g=>g.bosses.some(b=>canUseBoss(c,b)));
-  const target=weeklyBossDisplayLimit(c);
+  const groups=BOSS_GROUPS.w.filter(g=>g.bosses.some(b=>canUseBoss(c,b,week)));
+  const target=weeklyBossDisplayLimit(c,week);
   const regularCandidates=[];
   const specialCandidates=[];
   groups.forEach(g=>{
-    const allowed=g.bosses.filter(b=>canUseBoss(c,b));
-    const checked=allowed.find(b=>Object.prototype.hasOwnProperty.call(store,b[0]));
+    const allowed=g.bosses.filter(b=>canUseBoss(c,b,week));
+    const checked=g.bosses.find(b=>Object.prototype.hasOwnProperty.call(store,b[0]));
     if(checked) return;
     const pref=bossPreference(c,g);
     const boss=allowed.find(b=>b[0]===pref.bossId) || allowed[0];
     if(!boss) return;
-    const candidate={boss,value:share(boss[2],clampPartyForBoss(boss,pref.party))};
+    const candidate={boss,value:share(bossCrystalPrice(boss,week),clampPartyForBoss(boss,pref.party))};
     if(isLimitFreeBoss(boss)) specialCandidates.push(candidate);
     else regularCandidates.push(candidate);
   });
-  const remainingLimit=Math.max(0,MAX_CHECK-summary.limitCount);
+  const remainingLimit=Math.max(0,weeklyBossCheckLimit(week)-summary.limitCount);
   const sortByValue=(a,b)=>a.value===b.value ? 0 : (a.value>b.value ? -1 : 1);
   const expected=regularCandidates.sort(sortByValue).slice(0,remainingLimit).concat(specialCandidates.sort(sortByValue)).reduce((sum,x)=>sum+toMesoBig(x.value),0n);
   const actual=toMesoBig(summary.w)+dropPriceSumForCharWeek(c,week);
@@ -7558,6 +7590,10 @@ function renderHome(){
   renderHomeAutomation(currentMonthReport,goal);
 
   const progressEl=document.getElementById('home-weekly-progress');
+  const progressRules=document.getElementById('weekly-progress-rules');
+  if(progressRules) progressRules.textContent=Number.isFinite(weeklyBossCheckLimit(week))
+    ? '현재 주차: 본서버 12개 · 챌린저스 13개. 9월 17일 주차부터 캐릭터 한도 해제.'
+    : '캐릭터 한도 해제 · 도전 가능한 보스 종류 기준 진행률 · 월드당 결정석 판매 90개 유지';
   if(!db.chars.length){
     progressEl.innerHTML='<div class="empty-state">캐릭터 등록 탭에서 캐릭터를 추가하면 이번 주 보스 진행 현황이 표시됩니다.</div>';
   }else{
@@ -7565,9 +7601,10 @@ function renderHome(){
       const p=weeklyProgressForChar(c,week);
       const percent=p.target ? Math.round((p.completed/p.target)*100) : 0;
       const expected=p.remaining ? '기본 설정 기준 남은 예상 '+korMeso(p.expected) : '이번 주 보스를 모두 기록했습니다.';
-      return '<div class="weekly-progress-row"><div class="weekly-progress-top"><b>'+esc(c.name)+'</b><span>'+p.completed+' / '+p.target+' 완료</span></div>'+
+      const countText=Number.isFinite(weeklyBossCheckLimit(week)) ? p.completed+' / '+p.target+' 완료' : p.completed+'개 완료 · 도전 가능 '+p.target+'종';
+      return '<div class="weekly-progress-row"><div class="weekly-progress-top"><b>'+esc(c.name)+'</b><span>'+countText+'</span></div>'+
         '<div class="weekly-progress-track"><div class="weekly-progress-fill" style="width:'+percent+'%"></div></div>'+
-        '<div class="weekly-progress-meta"><span>주간 보스 '+p.completed+' / '+p.target+' · 현재 '+korMeso(p.actual)+'</span><span>'+expected+'</span></div></div>';
+        '<div class="weekly-progress-meta"><span>주간 보스 '+p.completed+'개 · 현재 '+korMeso(p.actual)+'</span><span>'+expected+'</span></div></div>';
     }).join('');
   }
 
@@ -8109,7 +8146,7 @@ function renderExpenses(){
   const recordsEl=document.getElementById('expense-records');
   if(!dateInput || !charInput || !categoryInput || !amountInput || !summary || !categories || !recordsEl) return;
   const today=todayStr();
-  if(!normalizeDateInput(dateInput.value) || dateInput.value>today) dateInput.value=today;
+  if(!dateInput.value.trim()) dateInput.value=today;
   const selectedChar=charInput.value;
   charInput.innerHTML='<option value="">전체 / 미지정</option>'+db.chars.map(c=>'<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>').join('');
   if(Array.from(charInput.options).some(option=>option.value===selectedChar)) charInput.value=selectedChar;
@@ -8164,6 +8201,8 @@ function saveExpenseRecord(){
   const date=normalizeDateInput(dateInput.value);
   if(!date){ alert('날짜를 입력하세요.'); return; }
   if(date>todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
+  const patchDateError=MapleSeptemberExpenses.validateRecordDate(categoryInput.value,date);
+  if(patchDateError){ alert(patchDateError); return; }
   const amount=mesoValueFromDigits(amountInput.value);
   if(toMesoBig(amount)<=0n){ alert('지출 메소를 입력하세요.'); return; }
   db.expenses=Array.isArray(db.expenses) ? db.expenses : [];
@@ -8191,7 +8230,7 @@ function initExpenseControls(){
   dateInput.value=todayStr();
   const normalizeExpenseDate=()=>{
     const date=normalizeDateInput(dateInput.value);
-    dateInput.value=!date || date>todayStr() ? todayStr() : date;
+    if(date) dateInput.value=date;
   };
   dateInput.addEventListener('blur',normalizeExpenseDate);
   dateInput.addEventListener('change',normalizeExpenseDate);
@@ -8200,6 +8239,7 @@ function initExpenseControls(){
     amountInput.value=digits ? formatDigits(digits) : '';
   });
   saveButton.addEventListener('click',saveExpenseRecord);
+  MapleSeptemberExpenses.mount({normalizeDate:normalizeDateInput,today:todayStr});
 }
 
 /* ───────── 보스 결정석 ───────── */
@@ -8838,13 +8878,13 @@ function applySchedulerBossCompletion(c, boss, scope, date){
   if(selected && selected[0]!==boss[0]){
     return {added:false,conflict:boss[1]+' (현재 '+selected[1]+' 선택)'};
   }
-  if(scope==='weekly' && !canUseBoss(c,boss)) return {added:false,conflict:boss[1]+' ('+bossLockReason(c,boss)+')'};
+  if(scope==='weekly' && !canUseBoss(c,boss,date)) return {added:false,conflict:boss[1]+' ('+bossLockReason(c,boss,date)+')'};
   if(scope==='weekly' && !(boss[0] in target.store) && !isLimitFreeBoss(boss)){
     const regularCount=Object.keys(target.store).filter(id=>{
       const picked=BOSS_MAP[id];
-      return picked && picked[3]==='w' && canUseBoss(c,picked) && !isLimitFreeBoss(picked);
+      return picked && picked[3]==='w' && !isLimitFreeBoss(picked);
     }).length;
-    if(regularCount>=MAX_CHECK) return {added:false,conflict:boss[1]+' (주간 12개 한도)'};
+    if(regularCount>=weeklyBossCheckLimit(target.period)) return {added:false,conflict:boss[1]+' (해당 주차는 주간 12개 한도)'};
   }
   let party=1;
   if(scope==='daily'){
@@ -9132,7 +9172,7 @@ function apiTimeText(value){
 }
 function characterSchedulerTrackingHtml(c){
   const sync=normalizeSchedulerSync(c.schedulerSync);
-  const hasWeeklyLimit=sync.weeklyClearLimitCount>0;
+  const hasWeeklyLimit=sync.weeklyClearLimitCount>0 && Number.isFinite(weeklyBossCheckLimit(mapleWeekStart(sync.date || todayStr())));
   let title='보스 상태 대기';
   let detail='API 갱신 시 주간·월간·일간 보스 완료 상태를 반영합니다.';
   if(hasWeeklyLimit){
@@ -9376,26 +9416,27 @@ document.getElementById('in-char').addEventListener('keydown',event=>{
 });
 function share(price, party){ return Math.floor(price/(party||1)); }
 function charSum(c, week=currentWeekKey()){
-  let w=0, wc=0, limitCount=0, freeCount=0;
+  let w=0, wc=0, limitCount=0, freeCount=0, crystalMeso=0, specialMeso=0;
   const bosses = bossStore(c, week, 'weekly');
   for(const id in bosses){
-    // Already-recorded challenger clears remain income after moving to another world.
-    const b=BOSS_MAP[id]; if(!b || (!isChallengerOnlyBoss(b) && !canUseBoss(c,b))) continue;
+    // 저장된 클리어는 시즌 종료·월드 리프 이후에도 해당 기록 주차의 수익으로 보존합니다.
+    const b=BOSS_MAP[id]; if(!b) continue;
     if(b[3]!=='w') continue;
     const party=clampPartyForBoss(b,bosses[id]);
-    const val=share(b[2], party);
+    const val=share(bossCrystalPrice(b,week), party);
     w+=val; wc++;
+    if(isChallengerOnlyBoss(b)) specialMeso+=val; else crystalMeso+=val;
     if(isLimitFreeBoss(b)) freeCount++; else limitCount++;
   }
-  return {w,m:0,wc,mc:0,count:limitCount,limitCount,freeCount,totalCount:limitCount+freeCount};
+  return {w,m:0,wc,mc:0,count:limitCount,limitCount,freeCount,totalCount:limitCount+freeCount,crystals:wc-freeCount,crystalMeso,specialMeso};
 }
 function monthlyCharSum(c, month=currentMonthKey()){
   let m=0, mc=0;
   const bosses=bossStore(c,month,'monthly');
   for(const id in bosses){
     const b=BOSS_MAP[id];
-    if(!b || b[3]!=='m' || !canUseBoss(c,b)) continue;
-    m+=share(b[2],clampPartyForBoss(b,bosses[id]));
+    if(!b || b[3]!=='m') continue;
+    m+=share(bossCrystalPrice(b,month),clampPartyForBoss(b,bosses[id]));
     mc++;
   }
   return {m,mc};
@@ -9419,8 +9460,8 @@ function monthlyBossTotalsForWeek(week=currentWeekKey()){
       const clears=ensureObj(ensureObj(c.monthBossClearWeeks)[month]);
       Object.keys(bosses).forEach(id=>{
         const b=BOSS_MAP[id];
-        if(!b || b[3]!=='m' || clears[id]!==week || !canUseBoss(c,b)) return;
-        crystalMeso+=share(b[2],clampPartyForBoss(b,bosses[id]));
+        if(!b || b[3]!=='m' || clears[id]!==week) return;
+        crystalMeso+=share(bossCrystalPrice(b,month),clampPartyForBoss(b,bosses[id]));
         crystals++;
       });
       const drops=ensureObj(ensureObj(c.monthDropMonths)[month]);
@@ -9436,14 +9477,28 @@ function monthlyBossTotalsForWeek(week=currentWeekKey()){
   return {meso:toMesoBig(crystalMeso)+dropMeso,crystalMeso,dropMeso,crystals};
 }
 function bossTotals(week=currentWeekKey()){
-  let crystalWeek=0, weeklyCrystals=0;
-  db.chars.forEach(c=>{ const s=charSum(c, week); crystalWeek+=s.w; weeklyCrystals+=s.wc; });
+  let crystalWeek=0, specialRewardWeek=0, weeklyCrystals=0;
+  const worlds=new Map();
+  db.chars.forEach(c=>{
+    const s=charSum(c,week);
+    crystalWeek+=s.crystalMeso; specialRewardWeek+=s.specialMeso; weeklyCrystals+=s.crystals;
+    if(!s.crystals) return;
+    const name=String(c.worldName || '').trim();
+    const unspecified=!name;
+    const key=charServer(c)+'|'+(name || '__unspecified__');
+    if(!worlds.has(key)) worlds.set(key,{key,label:name || serverLabel(c)+' · 월드 미지정 합산',unspecified,crystals:0});
+    worlds.get(key).crystals+=s.crystals;
+  });
+  const worldCrystals=Array.from(worlds.values()).map(world=>Object.assign(world,{overLimit:!world.unspecified && world.crystals>CRYSTAL_LIMIT}));
   const dropMeso = dropPriceSumForWeek(week);
   const monthly = monthlyBossTotalsForWeek(week);
   const daily = dailyBossTotalsForWeek(week);
   return {
-    week: toMesoBig(crystalWeek)+dropMeso,
+    week: toMesoBig(crystalWeek)+toMesoBig(specialRewardWeek)+dropMeso,
     crystalWeek,
+    specialRewardWeek,
+    worldCrystals,
+    overWorldLimit:worldCrystals.some(world=>world.overLimit),
     dropMeso,
     month: monthly.meso,
     monthCrystal: monthly.crystalMeso,
@@ -9456,6 +9511,17 @@ function bossTotals(week=currentWeekKey()){
     dailyCrystals: daily.crystals,
     weekCrystals: weeklyCrystals + daily.crystals
   };
+}
+function weeklyIncomeDetails(t){
+  return '결정석 '+korMeso(t.crystalWeek)+(t.specialRewardWeek?' + 메이린 황금 메소 주머니 '+korMeso(t.specialRewardWeek):'')+' + 아이템 '+korMeso(t.dropMeso);
+}
+function weeklyWorldLimitHtml(t){
+  if(!t.worldCrystals.length) return '';
+  const rows=t.worldCrystals.map(world=>{
+    if(world.unspecified) return '<span class="world-crystal-unknown">'+esc(world.label)+' '+world.crystals+'개 (월드 확인 필요)</span>';
+    return '<span class="'+(world.overLimit?'warn world-crystal-over':'world-crystal-count')+'">'+esc(world.label)+' '+world.crystals+' / '+CRYSTAL_LIMIT+'개'+(world.overLimit?' · 판매 한도 초과':'')+'</span>';
+  });
+  return '<div class="muted" style="margin-top:6px;">등록 월드별 주간 결정석: '+rows.join(' · ')+'<br>현재 등록된 월드를 기준으로 표시합니다. 월드 미지정 합산은 실제 월드별 초과 여부를 확정하지 않습니다.</div>';
 }
 function clearWeeklyDropData(c,week=currentWeekKey()){
   const stores=[dropStore(c,week),dropPriceStore(c,week),dropShareStore(c,week)];
@@ -9475,7 +9541,7 @@ function copyPreviousWeeklyBosses(c){
   const sourceBosses=[];
   BOSS_GROUPS.w.forEach(group=>{
     const boss=groupPickedBoss(group,source);
-    if(boss && canUseBoss(c,boss)) sourceBosses.push({group,boss,party:clampPartyForBoss(boss,source[boss[0]])});
+    if(boss && canUseBoss(c,boss,week)) sourceBosses.push({group,boss,party:clampPartyForBoss(boss,source[boss[0]])});
   });
   if(!sourceBosses.length){
     alert('지난주에 저장된 주간 보스 체크가 없습니다.');
@@ -9489,7 +9555,7 @@ function copyPreviousWeeklyBosses(c){
   BOSS_GROUPS.w.forEach(group=>group.bosses.forEach(boss=>delete current[boss[0]]));
   let limitCount=0, copied=0;
   sourceBosses.forEach(({group,boss,party})=>{
-    if(!isLimitFreeBoss(boss) && limitCount>=MAX_CHECK) return;
+    if(!isLimitFreeBoss(boss) && limitCount>=weeklyBossCheckLimit(week)) return;
     current[boss[0]]=party;
     setBossPreference(c,group,boss[0],party);
     if(!isLimitFreeBoss(boss)) limitCount++;
@@ -9507,7 +9573,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const newId=sel.value;
       const bosses=bossStore(c,period,scope);
       const newBoss=BOSS_MAP[newId];
-      if(!canUseBoss(c,newBoss)){ alert(bossLockReason(c,newBoss)); renderAll(); return; }
+      if(!canUseBoss(c,newBoss,scope==='monthly'?period+'-01':period)){ alert(bossLockReason(c,newBoss,period)); renderAll(); return; }
       bossDrafts.set(c.name+'|'+scope+'|'+period+'|'+sel.dataset.group, newId);
       const pref=bossPreference(c,group);
       const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
@@ -9535,14 +9601,14 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const alreadyOn = group ? group.bosses.some(b=>b[0] in bosses) : (id in bosses);
       if(chk.checked){
         const b=BOSS_MAP[id];
-        if(!canUseBoss(c,b)){
+        if(!canUseBoss(c,b,scope==='monthly'?period+'-01':period)){
           chk.checked=false;
-          alert(bossLockReason(c,b));
+          alert(bossLockReason(c,b,period));
           return;
         }
-        if(scope==='weekly' && !alreadyOn && !isLimitFreeBoss(b) && charSum(c,period).limitCount>=MAX_CHECK){
+        if(scope==='weekly' && !alreadyOn && !isLimitFreeBoss(b) && charSum(c,period).limitCount>=weeklyBossCheckLimit(period)){
           chk.checked=false;
-          alert('일반 주간 보스는 최대 '+MAX_CHECK+'개까지 체크할 수 있습니다. 챌린저스의 메이린은 별도로 기록됩니다.');
+          alert('이 주차의 일반 주간 보스는 최대 '+weeklyBossCheckLimit(period)+'개까지 체크할 수 있습니다. 챌린저스의 메이린은 별도로 기록됩니다.');
           return;
         }
         if(group){
@@ -9585,6 +9651,12 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const prices=dropPriceStore(c,recordPeriod,recordScope);
       const shares=dropShareStore(c,recordPeriod,recordScope);
       if(chk.checked){
+        const entry=visibleDropItemById(dropKeyItemId(chk.dataset.key));
+        if(entry && entry.availableFrom && recordPeriod<entry.availableFrom){
+          chk.checked=false;
+          alert('이 드랍은 '+entry.availableFrom+'부터 기록할 수 있습니다.');
+          return;
+        }
         drops[chk.dataset.key]=true;
         if(chk.dataset.parentKey){
           drops[chk.dataset.parentKey]=true;
@@ -9705,15 +9777,12 @@ function refreshBossAggregateSummary(c,period,scope='weekly'){
   const s=charSum(c,period);
   const itemMeso=dropPriceSumForCharWeek(c,period);
   const weekContext=period===currentWeekKey() ? '이번 주' : '과거 주차';
-  const weeklyTarget=weeklyBossDisplayLimit(c);
-  if(sum) sum.innerHTML=weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.wc>=weeklyTarget?' full':'')+'">('+s.wc+'/'+weeklyTarget+')</span>';
+  if(sum) sum.innerHTML=weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso || s.specialMeso?' <span class="muted">('+weeklyIncomeDetails({crystalWeek:s.crystalMeso,specialRewardWeek:s.specialMeso,dropMeso:itemMeso})+')</span>':'')+' '+weeklyBossCountHtml(c,s.wc,period);
   if(total){
     const t=bossTotals(period);
-    const over=t.weeklyCrystals>CRYSTAL_LIMIT;
     total.innerHTML=
-      crystalIcon('weekly')+'<b>'+weekContext+' 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(period)+')</span>'+
-      (over?' <span class="warn">⚠ 주간 판매 한도 '+CRYSTAL_LIMIT+'개 초과!</span>':'')+
-      '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+      crystalIcon('weekly')+'<b>'+weekContext+' 주간 보스 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">('+weeklyIncomeDetails(t)+' · '+fmtWeekRange(period)+')</span>'+
+      '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(전체 월드 결정석 '+t.weeklyCrystals+'개)</span>'+weeklyWorldLimitHtml(t);
   }
 }
 function weeklyDropItemCountForWeek(week){
@@ -9793,6 +9862,10 @@ function renderBoss(){
   const weeks=trackedWeeklyBossWeeks();
   if(!weeklyBossViewWeek || !weeks.includes(weeklyBossViewWeek)) weeklyBossViewWeek=currentWeekKey();
   const wk=weeklyBossViewWeek;
+  const limitNote=document.getElementById('weekly-boss-limit-note');
+  if(limitNote) limitNote.textContent=Number.isFinite(weeklyBossCheckLimit(wk))
+    ? '※ 선택한 주차: 캐릭터당 일반 주간 보스 12개 · 메이린 별도 · 월드당 주간 결정석 판매 90개'
+    : '※ 선택한 주차: 캐릭터별 주간 보스 한도 없음 · 월드당 주간 결정석 판매 90개 유지 · 메이린 신규 기록 종료';
   const isCurrentWeek=wk===currentWeekKey();
   const weekContext=isCurrentWeek ? '이번 주' : '과거 주차';
   const periodNote=document.getElementById('weeklyboss-period-note');
@@ -9819,8 +9892,7 @@ function renderBoss(){
     const itemMeso=dropPriceSumForCharWeek(c,wk);
     const box=document.createElement('div'); box.className='card'; box.dataset.charName=c.name;
     const head=document.createElement('div'); head.className='charhead';
-    const weeklyTarget=weeklyBossDisplayLimit(c);
-    head.innerHTML=charHeadHtml(c,weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(s.w)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt'+(s.wc>=weeklyTarget?' full':'')+'">('+s.wc+'/'+weeklyTarget+')</span>')+
+    head.innerHTML=charHeadHtml(c,weekContext+' '+korMeso(toMesoBig(s.w)+itemMeso)+(itemMeso || s.specialMeso?' <span class="muted">('+weeklyIncomeDetails({crystalWeek:s.crystalMeso,specialRewardWeek:s.specialMeso,dropMeso:itemMeso})+')</span>':'')+' '+weeklyBossCountHtml(c,s.wc,wk))+
       (isCurrentWeek?'<span class="charhead-actions"><button class="ghost copy-weekly-bosses" type="button">지난주 보스 불러오기</button></span>':'');
     const bl=document.createElement('div'); bl.className='bosslist'+(openChars.has(c.name)?' open':'');
     bindCharacterDisclosure(head,bl,c.name,openChars,'weekly');
@@ -9839,11 +9911,9 @@ function renderBoss(){
   });
 
   const t=bossTotals(wk);
-  const over = t.weeklyCrystals>CRYSTAL_LIMIT;
   document.getElementById('boss-total').innerHTML=
-    crystalIcon('weekly')+'<b>'+weekContext+' 주간 결정석 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+korMeso(t.crystalWeek)+' + 아이템 '+korMeso(t.dropMeso)+' · '+fmtWeekRange(wk)+')</span>'+
-    (over?' <span class="warn">⚠ 주간 판매 한도 '+CRYSTAL_LIMIT+'개 초과!</span>':'')+
-    '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(결정석 '+t.weeklyCrystals+'개 / 월드 '+CRYSTAL_LIMIT+'개)</span>';
+    crystalIcon('weekly')+'<b>'+weekContext+' 주간 보스 수익:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">('+weeklyIncomeDetails(t)+' · '+fmtWeekRange(wk)+')</span>'+
+    '<br>'+crystalIcon('weekly')+'<b>'+weekContext+' 주간 합산:</b> <span class="meso">'+korMeso(t.week)+'</span> <span class="muted">(전체 월드 결정석 '+t.weeklyCrystals+'개)</span>'+weeklyWorldLimitHtml(t);
 }
 function renderMonthlyBoss(){
   const list=document.getElementById('monthlyboss-list');
@@ -9882,6 +9952,10 @@ function selectedBossForGroup(g,c,period=currentWeekKey(),scope='weekly'){
   const bosses=bossStore(c,period,scope);
   const picked = groupPickedBoss(g,bosses);
   if(picked) return picked;
+  // 종료된 메이린의 클리어 없이 저장한 드랍도 당시 난이도로 열 수 있게 합니다.
+  const savedDrops=ensureObj(scope==='monthly' ? ensureObj(c.monthDropMonths)[period] : ensureObj(c.dropWeeks)[period]);
+  const savedChallengerBoss=g.bosses.find(b=>isChallengerOnlyBoss(b) && Object.keys(savedDrops).some(key=>savedDrops[key] && key.startsWith(b[0]+'|')));
+  if(savedChallengerBoss) return savedChallengerBoss;
   const pref=bossPreference(c,g);
   return g.bosses.find(b=>b[0]===pref.bossId) || g.bosses[0];
 }
@@ -10025,7 +10099,14 @@ function queueBossArtCleanup(root=document){
 function dropKey(b,item){ return b[0]+'|'+item.id; }
 function dailyDropKey(b,item){ return b[0]+'|'+item.id; }
 function legacyDropKeys(g,item){ return [g.key+'|'+item.id, g.name+'|'+item.id]; }
-function dropItemsForBoss(b){ return DROP_ITEMS[b[0]] || []; }
+function dropItemsForBoss(b,period='',stored={}){
+  return (DROP_ITEMS[b[0]] || []).filter(item=>!period || !item.availableFrom || period>=item.availableFrom || stored[dropKey(b,item)]);
+}
+function dropIconHtml(item){
+  if(item.img) return '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'">';
+  const stage=String(item.name||'').match(/^[1-4]단계/);
+  return '<span class="drop-text-icon" aria-hidden="true">'+(stage?stage[0]:'아이템')+'</span>';
+}
 function dailyDropItemsForBoss(b){ return DAILY_DROP_ITEMS[b[0]] || []; }
 function visibleDropItems(){
   const items=[];
@@ -10180,7 +10261,7 @@ function lootCellHtml(entries){
   const count=lootEntryCount(entries);
   if(!count) return '<span class="loot-empty">0개</span>';
   return '<span class="loot-cell" tabindex="0" onmouseenter="showLootTooltip(this)" onmousemove="positionLootTooltip(this)" onmouseleave="hideLootTooltip()" onfocus="showLootTooltip(this)" onblur="hideLootTooltip()">'+count+'개<span class="loot-tooltip">'+
-    entries.map(item=>'<span class="loot-row"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span class="loot-name">'+esc(item.name)+'</span><span class="loot-count">x'+item.count+'</span></span>').join('')+
+    entries.map(item=>'<span class="loot-row">'+dropIconHtml(item)+'<span class="loot-name">'+esc(item.name)+'</span><span class="loot-count">x'+item.count+'</span></span>').join('')+
     '</span></span>';
 }
 const dropPickerOpen=new Set();
@@ -10194,7 +10275,7 @@ function bindDropPickerToggles(scope){
   });
 }
 function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
-  const items=dropItemsForBoss(b);
+  const items=dropItemsForBoss(b,period,dropStore(c,period,scope));
   if(!items.length) return '';
   const isMonthly=scope==='monthly';
   const periodLabel=isMonthly ? '이번 달' : '이번 주';
@@ -10234,7 +10315,7 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
     const activeKey=effectiveDropKeyForParent(parentKey,item,drops);
     const price=dropPriceText(c,period,activeKey,scope);
     const label=child ? item.name+' · '+child.name : item.name;
-    return '<span class="drop-chip'+(child?' child':'')+'" data-drop-chip-key="'+esc(activeKey)+'" data-drop-chip-label="'+esc(label)+'"><img src="'+esc(shown.img)+'" alt="'+esc(shown.name)+'"><span data-drop-chip-copy>'+esc(label)+(price?' · '+price:'')+'</span></span>';
+    return '<span class="drop-chip'+(child?' child':'')+'" data-drop-chip-key="'+esc(activeKey)+'" data-drop-chip-label="'+esc(label)+'">'+dropIconHtml(shown)+'<span data-drop-chip-copy>'+esc(label)+(price?' · '+price:'')+'</span></span>';
   });
   const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">'+periodLabel+' 획득한 아이템 없음</span>';
   const pickerKey=dropPickerStateKey(isMonthly?'monthlyboss':'boss',c,b,period);
@@ -10244,14 +10325,14 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
       const childKeys=(item.children||[]).map(child=>childKey(item,child)).join(',');
       return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'">'+
         '<input class="drop-check" type="checkbox" data-period="'+esc(period)+'" data-scope="'+scope+'" data-kind="parent" data-key="'+esc(key)+'" data-legacy-key="'+esc(legacy && legacy!==key ? legacy : '')+'" data-child-keys="'+esc(childKeys)+'" '+(checked?'checked':'')+'>'+
-        '<img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+'</span></label>';
+        dropIconHtml(item)+'<span>'+esc(item.name)+'</span></label>';
     }).join('')+'</div></div></details>';
   const settlement=selectedTop.length ? '<div class="drop-settlement"><div class="drop-settlement-title"><span>선택 아이템 정산</span><small>가격·분배 조건은 여기에서 입력</small></div>'+
     selectedTop.map(item=>{
       const parentKey=dropKey(b,item);
       const children=item.children||[];
       if(!children.length){
-        return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>판매가와 수수료를 입력하세요.</span></div></div>'+splitFields(parentKey)+'</article>';
+        return '<article class="drop-settlement-item"><div class="drop-settlement-head">'+dropIconHtml(item)+'<div><b>'+esc(item.name)+'</b><span>판매가와 수수료를 입력하세요.</span></div></div>'+splitFields(parentKey)+'</article>';
       }
       const selectedChild=selectedChildForDrop(parentKey,item,drops);
       const siblingKeys=children.map(child=>childKey(item,child)).join(',');
@@ -10262,9 +10343,9 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
       const selectedHtml=selectedChild
         ? '<div class="drop-settlement-head"><img src="'+esc(selectedChild.img)+'" alt="'+esc(selectedChild.name)+'"><div><b>'+esc(selectedChild.name)+'</b><span>선택한 결과물의 가격으로 계산합니다.</span></div></div>'+splitFields(childKey(item,selectedChild))
         : (prices[parentKey]
-          ? '<div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>기존 상자 판매가</b><span>결과물을 선택하면 결과물 가격 기준으로 바뀝니다.</span></div></div>'+splitFields(parentKey)
+          ? '<div class="drop-settlement-head">'+dropIconHtml(item)+'<div><b>기존 상자 판매가</b><span>결과물을 선택하면 결과물 가격 기준으로 바뀝니다.</span></div></div>'+splitFields(parentKey)
           : '<div class="drop-settlement-empty">실제로 얻은 결과물을 한 개 선택하면 판매가와 분배 조건을 입력할 수 있습니다.</div>');
-      return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>상자는 결과물을 선택해 기록합니다.</span></div></div>'+choices+selectedHtml+'</article>';
+      return '<article class="drop-settlement-item"><div class="drop-settlement-head">'+dropIconHtml(item)+'<div><b>'+esc(item.name)+'</b><span>상자는 결과물을 선택해 기록합니다.</span></div></div>'+choices+selectedHtml+'</article>';
     }).join('')+'</div>' : '';
   return '<div class="drops"><div class="drop-title" data-drop-title-boss="'+esc(b[0])+'" data-drop-title-period="'+esc(period)+'" data-drop-title-scope="'+scope+'"><span data-drop-title-copy>'+periodLabel+' 획득 '+selectedTop.length+'개 · 가격 '+korMeso(dropPriceSumForBoss(c,b,period,scope))+'</span><span class="drop-week">'+rangeLabel+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
@@ -10276,29 +10357,31 @@ function dailyDropChecklistHtml(g,b,c,date){
   const selected=items.filter(item=>drops[dailyDropKey(b,item)]);
   const summary=selected.length ? selected.map(item=>{
     const key=dailyDropKey(b,item), price=dailyDropPriceText(c,date,key);
-    return '<span class="drop-chip"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+(price?' · '+price:'')+'</span></span>';
+    return '<span class="drop-chip">'+dropIconHtml(item)+'<span>'+esc(item.name)+(price?' · '+price:'')+'</span></span>';
   }).join('') : '<span class="drop-empty">오늘 획득한 아이템 없음</span>';
   const pickerKey=dropPickerStateKey('daily',c,b,date);
   const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selected.length+'개 선택</span></summary><div class="drop-picker-panel"><div class="drop-grid">'+
     items.map(item=>{
       const key=dailyDropKey(b,item), checked=!!drops[key];
-      return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'"><input class="daily-drop-check" type="checkbox" data-date="'+esc(date)+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><span>'+esc(item.name)+'</span></label>';
+      return '<label class="drop-item'+(checked?' done':'')+'" title="'+esc(item.name)+'"><input class="daily-drop-check" type="checkbox" data-date="'+esc(date)+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'>'+dropIconHtml(item)+'<span>'+esc(item.name)+'</span></label>';
     }).join('')+'</div></div></details>';
   const settlement=selected.length ? '<div class="drop-settlement"><div class="drop-settlement-title"><span>선택 아이템 정산</span><small>가격은 아래에서 입력</small></div>'+selected.map(item=>{
     const key=dailyDropKey(b,item);
-    return '<article class="drop-settlement-item"><div class="drop-settlement-head"><img src="'+esc(item.img)+'" alt="'+esc(item.name)+'"><div><b>'+esc(item.name)+'</b><span>'+((dailyBossPartyForDropKey(c,date,key)>1)?'파티 인원수로 자동 분배합니다.':'판매가를 입력하세요.')+'</span></div></div><div class="drop-settlement-fields"><label class="drop-settlement-field wide"><span>아이템 가격</span><input class="drop-price daily-drop-price" type="text" inputmode="numeric" autocomplete="off" data-date="'+esc(date)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 100,000,000"></label><div class="drop-split-result">'+(dailyDropPriceText(c,date,key)||'가격을 입력하면 내 몫을 계산합니다.')+'</div></div></article>';
+    return '<article class="drop-settlement-item"><div class="drop-settlement-head">'+dropIconHtml(item)+'<div><b>'+esc(item.name)+'</b><span>'+((dailyBossPartyForDropKey(c,date,key)>1)?'파티 인원수로 자동 분배합니다.':'판매가를 입력하세요.')+'</span></div></div><div class="drop-settlement-fields"><label class="drop-settlement-field wide"><span>아이템 가격</span><input class="drop-price daily-drop-price" type="text" inputmode="numeric" autocomplete="off" data-date="'+esc(date)+'" data-key="'+esc(key)+'" value="'+(prices[key]?esc(fmt(prices[key])):'')+'" placeholder="예: 100,000,000"></label><div class="drop-split-result">'+(dailyDropPriceText(c,date,key)||'가격을 입력하면 내 몫을 계산합니다.')+'</div></div></article>';
   }).join('')+'</div>' : '';
   return '<div class="drops"><div class="drop-title"><span>오늘 획득 <b>'+selected.length+'</b>개 · 가격 '+korMeso(dailyDropPriceSumForBoss(c,b,date))+'</span><span class="drop-week">'+fmtShort(date)+'</span></div><div class="drop-selected">'+summary+'</div>'+picker+settlement+'</div>';
 }
 function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const b=selectedBossForGroup(g,c,period,scope);
-  const id=b[0], price=b[2];
+  const id=b[0], price=bossCrystalPrice(b,period);
   const bosses=bossStore(c,period,scope);
   const pref=bossPreference(c,g);
   const img = IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
-  const lockReason = bossLockReason(c,b);
+  const lockReason = bossLockReason(c,b,scope==='monthly'?period+'-01':period);
   const allowed = !lockReason;
-  const on = allowed && (id in bosses);
+  const on = id in bosses;
+  const savedDrops=ensureObj(scope==='monthly' ? ensureObj(c.monthDropMonths)[period] : ensureObj(c.dropWeeks)[period]);
+  const hasSavedDrops=Object.keys(savedDrops).some(key=>savedDrops[key] && g.bosses.some(boss=>key.startsWith(boss[0]+'|')));
   const maxParty = bossPartyMax(b);
   const party = clampPartyForBoss(b,bosses[id]||pref.party);
   let diffOpts='';
@@ -10309,7 +10392,7 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
     ? '<div class="bdiff">난이도 <select class="diff" aria-label="'+esc(g.name)+' 난이도" data-group="'+g.key+'" data-current="'+id+'"'+disabled+'>'+diffOpts+'</select></div>'
     : '<div class="bmeta">난이도 '+bossDiff(b)+'</div>';
   const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
-  const dropHtml = allowed ? dropChecklistHtml(g,b,c,period,scope) : '';
+  const dropHtml = allowed || on || hasSavedDrops ? dropChecklistHtml(g,b,c,period,scope) : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+

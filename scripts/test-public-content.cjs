@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const pages=['index.html','guide/index.html','about/index.html','api/index.html','privacy.html',
-  'guide/hunt-income/index.html','guide/boss-settlement/index.html','guide/profit-expense/index.html'];
+  'guide/hunt-income/index.html','guide/boss-settlement/index.html','guide/profit-expense/index.html','updates/2026-09/index.html'];
 const htmls=new Map(pages.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
 let links=0;
 for(const [file,html] of htmls){

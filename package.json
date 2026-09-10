@@ -9,6 +9,7 @@
     "test:enhancements": "node scripts/test-enhancement-ledger.mjs && node scripts/test-enhancement-costs.mjs && node scripts/test-enhancement-ui.cjs",
     "test:ui": "node scripts/test-workspace-ui.cjs",
     "test:characters": "node scripts/test-character-world-transfer.cjs",
+    "test:september": "node scripts/test-september-boss-rules.cjs && node scripts/test-september-expenses.cjs && node scripts/test-september-drops.cjs",
     "test:data-safety": "node scripts/test-hunt-data-safety.cjs && node scripts/test-cloud-sync-history.mjs && node scripts/test-cloud-sync-races.cjs",
     "prepare:android-web": "node scripts/prepare-android-web.mjs",
     "sync:android": "npm run prepare:android-web && npx cap sync android",

@@ -14,7 +14,14 @@ const catalog = vm.runInNewContext(html.slice(html.indexOf('const DOMINATOR_PEND
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/drops/SOURCES.json'), 'utf8'));
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 // Image repairs must not rename stored item keys or change box/result relationships.
-assert.equal(hash(JSON.stringify(catalog, (key, value) => key === 'img' ? undefined : value)), '54d37e96003d3e15e6fa7dbf460c7859e79593ca6e8e2c1feda4c1de7557ba38');
+// 신규 에테르를 제외한 기존 69종의 저장 키와 상자 관계는 원본 그대로 유지합니다.
+const baselineCatalog=JSON.parse(JSON.stringify(catalog));
+for(const group of Object.values(baselineCatalog)) for(const key of Object.keys(group)) group[key]=group[key].filter(item=>!/^soul_ether_[1-4]$/.test(item.id));
+assert.equal(hash(JSON.stringify(baselineCatalog, (key, value) => key === 'img' ? undefined : value)), '54d37e96003d3e15e6fa7dbf460c7859e79593ca6e8e2c1feda4c1de7557ba38');
+const newItems=Object.values(catalog.DROP_ITEMS).flat().filter(item=>/^soul_ether_[1-4]$/.test(item.id));
+assert.equal(newItems.length,16);
+assert.equal(new Set(newItems.map(item=>item.id)).size,4);
+for(const item of newItems){ assert.equal(item.availableFrom,'2026-09-17'); assert.equal(item.img,'','미확인 원본 아이콘을 다른 그림으로 대체하지 않습니다.'); }
 const items = new Map();
 function visit(item) {
   assert.match(item.img, /^assets\//, item.id + ' must use a bundled icon');
@@ -22,7 +29,7 @@ function visit(item) {
   items.set(item.id, item);
   (item.children || []).forEach(visit);
 }
-Object.values(catalog).flatMap(group => Object.values(group).flat()).forEach(visit);
+Object.values(baselineCatalog).flatMap(group => Object.values(group).flat()).forEach(visit);
 assert.equal(items.size, 69);
 assert.equal(manifest.items.length, items.size);
 for (const item of items.values()) {

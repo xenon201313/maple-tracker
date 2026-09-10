@@ -1,0 +1,13 @@
+.september-expense-helper{margin-top:14px;padding:12px 14px;border:1px solid rgba(220,230,255,.2);border-radius:10px;background:rgba(6,10,18,.2);min-width:0;}
+.september-expense-helper summary{cursor:pointer;font-weight:700;line-height:1.5;}
+.september-expense-body{padding-top:6px;min-width:0;}
+.september-expense-body p{line-height:1.65;overflow-wrap:anywhere;}
+.september-expense-body a{color:var(--accent,#ffd24d);text-decoration:underline;}
+.september-expense-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.september-expense-grid label{display:grid;align-content:start;gap:6px;min-width:0;}
+.september-expense-grid input,.september-expense-grid select{width:100%;min-width:0;max-width:100%;min-height:42px;}
+.september-expense-grid [hidden]{display:none;}
+.september-expense-result{font-weight:700;color:var(--accent,#ffd24d);line-height:1.6;overflow-wrap:anywhere;}
+#september-expense-fill{min-height:42px;}
+#september-expense-fill-note:empty{display:none;}
+@media(max-width:600px){.september-expense-grid{grid-template-columns:minmax(0,1fr);}#september-expense-fill{width:100%;}.september-expense-helper{padding:10px;}}
