@@ -6,7 +6,7 @@
 <script src="assets/friends-expenses.js?v=20260908-1"></script>
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
-<script src="assets/september-boss-rules.js?v=20260917-1"></script>
+<script src="assets/september-boss-rules.js?v=20260917-2"></script>
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260907-5">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -355,6 +355,12 @@
   .bshare b{color:var(--green);}
   .bparty{display:flex; align-items:center; gap:4px; font-size:11px; color:var(--sub);}
   .bparty select{padding:3px 6px; font-size:12px; border-radius:6px;}
+  .crystal-sale-field{display:flex; flex-direction:column; align-items:stretch; gap:5px; width:100%; min-width:0; font-size:11px; color:var(--sub); text-align:center;}
+  .crystal-sale-timing{width:100%; min-width:0; max-width:100%; padding:6px 4px; font-size:12px; border-radius:6px;}
+  .crystal-sale-note{font-size:11px; line-height:1.5; overflow-wrap:anywhere;}
+  .crystal-sale-note.before-patch{color:var(--gold); font-weight:bold;}
+  .crystal-sale-guidance{margin-top:12px; padding:12px; border:1px solid rgba(255,210,77,.35); border-radius:10px; line-height:1.7; font-size:13px; color:var(--sub);}
+  .crystal-sale-guidance strong{color:var(--gold);}
   .bcheck{display:flex; align-items:center; gap:5px; font-size:12px; cursor:pointer; margin:2px 0 0; color:var(--sub); user-select:none;}
   .bcard.checked .bcheck{color:var(--gold); font-weight:bold;}
   .drops{width:100%; border-top:1px dashed var(--line); margin-top:4px; padding-top:7px; display:flex; flex-direction:column; gap:6px;}
@@ -1530,6 +1536,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
     <div class="period-history-nav" id="weeklyboss-period-nav" aria-label="주간 보스 기록 주차 선택"></div>
+    <div class="crystal-sale-guidance" id="weekly-crystal-sale-guidance" hidden><strong>9/17 점검 전에 판매한 결정석이 있나요?</strong><br>9/17 00:00~03:00에 판매했다면 보스 체크 후 해당 카드의 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 바꾸세요. 03:00~10:00 점검 후 판매분은 ‘점검 후 · 새 가격’을 선택합니다. <b>실제 판매 시점과 받은 금액</b>에 맞춰 선택하며, 같은 캐릭터도 보스별로 다르게 선택할 수 있습니다.<br>판매 시점을 지정하지 않은 기록은 기본 새 가격입니다. API로도 판매 시각을 자동 확인할 수 없으므로 점검 전 판매분만 직접 변경해 주세요. 선택은 가격이 바뀐 보스의 완료 카드에 표시되며, 이 주차에만 저장됩니다.</div>
     <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
     <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div></details>
   </div>
@@ -1542,7 +1549,7 @@
     <div class="muted" style="margin-top:10px;">
       <span id="weekly-boss-limit-note">※ 9월 17일 주차부터 캐릭터당 주간 보스 12개 제한 해제 · 월드당 주간 결정석 판매 90개 유지</span><br>
       ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
-      ※ 결정석 가격: 선택한 기록 기간 기준 · 9월 17일 주간 / 10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener noreferrer">본서버 1.2.419</a> 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
+      ※ 결정석 가격: 선택한 기록 기간 기준 · 9월 17일 주차는 보스별 점검 전·후 판매 시점 선택 · 10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener noreferrer">본서버 1.2.419</a> 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
     </div>
   </div>
 </div>
@@ -4148,7 +4155,18 @@ const BOSS_RELEASE_DATES = Object.freeze({
 function charServer(c){ return c && c.server === 'challenger' ? 'challenger' : 'main'; }
 function serverLabel(c){ return charServer(c) === 'challenger' ? '챌린저스' : '본서버'; }
 function weeklyBossCheckLimit(period=currentWeekKey()){ return MapleSeptemberBossRules.weeklyLimit(period); }
-function bossCrystalPrice(b,period=currentWeekKey()){ return MapleSeptemberBossRules.crystalPrice(b,period); }
+function bossCrystalSaleTiming(c,b,period){
+  const stored=ensureObj(ensureObj(c && c.bossCrystalPriceWeeks)[period]);
+  return b && stored[b[0]]==='before-patch' ? 'before-patch' : 'after-patch';
+}
+function bossCrystalPrice(b,period=currentWeekKey(),c){ return MapleSeptemberBossRules.crystalPrice(b,period,bossCrystalSaleTiming(c,b,period)); }
+function setBossCrystalSaleTiming(c,b,period,timing){
+  if(!MapleSeptemberBossRules.canSelectSaleTiming(b,period) || !['before-patch','after-patch'].includes(timing)) return false;
+  c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
+  c.bossCrystalPriceWeeks[period]=ensureObj(c.bossCrystalPriceWeeks[period]);
+  c.bossCrystalPriceWeeks[period][b[0]]=timing;
+  return true;
+}
 function weeklyBossDisplayLimit(c,period=currentWeekKey()){
   const limit=weeklyBossCheckLimit(period);
   return Number.isFinite(limit)
@@ -4382,6 +4400,7 @@ function normalizeChar(c){
   const week=currentWeekKey();
   const hasBossWeeks=c.bossWeeks && typeof c.bossWeeks==='object' && !Array.isArray(c.bossWeeks);
   c.bossWeeks=hasBossWeeks ? c.bossWeeks : {};
+  c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
   if(!hasBossWeeks && Object.keys(c.bosses).length) c.bossWeeks[week]=Object.assign({},c.bosses);
   if(!c.bossWeeks[week] || typeof c.bossWeeks[week]!=='object' || Array.isArray(c.bossWeeks[week])) c.bossWeeks[week]={};
   c.bosses=c.bossWeeks[week];
@@ -5891,7 +5910,7 @@ function trackedWeeks(){
 }
 function trackedWeeklyBossWeeks(){
   const set=new Set([currentWeekKey()]);
-  const storeNames=['bossWeeks','dropWeeks','dropPriceWeeks','dropShareWeeks'];
+  const storeNames=['bossWeeks','bossCrystalPriceWeeks','dropWeeks','dropPriceWeeks','dropShareWeeks'];
   db.chars.forEach(c=>{
     storeNames.forEach(name=>{
       const store=ensureObj(c[name]);
@@ -6995,7 +7014,7 @@ function weeklyProgressForChar(c,week=currentWeekKey()){
     const pref=bossPreference(c,g);
     const boss=allowed.find(b=>b[0]===pref.bossId) || allowed[0];
     if(!boss) return;
-    const candidate={boss,value:share(bossCrystalPrice(boss,week),clampPartyForBoss(boss,pref.party))};
+    const candidate={boss,value:share(bossCrystalPrice(boss,week,c),clampPartyForBoss(boss,pref.party))};
     if(isLimitFreeBoss(boss)) specialCandidates.push(candidate);
     else regularCandidates.push(candidate);
   });
@@ -9423,7 +9442,7 @@ function charSum(c, week=currentWeekKey()){
     const b=BOSS_MAP[id]; if(!b) continue;
     if(b[3]!=='w') continue;
     const party=clampPartyForBoss(b,bosses[id]);
-    const val=share(bossCrystalPrice(b,week), party);
+    const val=share(bossCrystalPrice(b,week,c), party);
     w+=val; wc++;
     if(isChallengerOnlyBoss(b)) specialMeso+=val; else crystalMeso+=val;
     if(isLimitFreeBoss(b)) freeCount++; else limitCount++;
@@ -9566,6 +9585,14 @@ function copyPreviousWeeklyBosses(c){
 }
 function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
   bindDropPickerToggles(bl);
+  bl.querySelectorAll('select.crystal-sale-timing').forEach(sel=>{
+    sel.onchange=()=>{
+      const boss=BOSS_MAP[sel.dataset.id];
+      if(scope!=='weekly' || !(sel.dataset.id in bossStore(c,period,scope))) return;
+      if(!setBossCrystalSaleTiming(c,boss,period,sel.value)) return;
+      save(); renderAllPreservingViewport();
+    };
+  });
   bl.querySelectorAll('select.diff').forEach(sel=>{
     sel.onchange=()=>{
       const group=BOSS_GROUP_MAP[sel.dataset.group];
@@ -9579,6 +9606,13 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
       setBossPreference(c,group,newId,party);
       if(oldId in bosses){
+        if(scope==='weekly' && period===MapleSeptemberBossRules.weeklyEffectiveDate){
+          // 난이도만 정정해도 사용자가 고른 판매 시점은 유지합니다.
+          const timing=bossCrystalSaleTiming(c,BOSS_MAP[oldId],period);
+          c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
+          c.bossCrystalPriceWeeks[period]=ensureObj(c.bossCrystalPriceWeeks[period]);
+          c.bossCrystalPriceWeeks[period][newId]=timing;
+        }
         rememberDropPartiesForBosses(c,period,group ? group.bosses : [BOSS_MAP[oldId]],scope);
         if(group) group.bosses.forEach(b=>{ delete bosses[b[0]]; });
         else delete bosses[oldId];
@@ -9862,6 +9896,8 @@ function renderBoss(){
   const weeks=trackedWeeklyBossWeeks();
   if(!weeklyBossViewWeek || !weeks.includes(weeklyBossViewWeek)) weeklyBossViewWeek=currentWeekKey();
   const wk=weeklyBossViewWeek;
+  const saleGuidance=document.getElementById('weekly-crystal-sale-guidance');
+  if(saleGuidance) saleGuidance.hidden=wk!==MapleSeptemberBossRules.weeklyEffectiveDate;
   const limitNote=document.getElementById('weekly-boss-limit-note');
   if(limitNote) limitNote.textContent=Number.isFinite(weeklyBossCheckLimit(wk))
     ? '※ 선택한 주차: 캐릭터당 일반 주간 보스 12개 · 메이린 별도 · 월드당 주간 결정석 판매 90개'
@@ -10373,7 +10409,7 @@ function dailyDropChecklistHtml(g,b,c,date){
 }
 function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const b=selectedBossForGroup(g,c,period,scope);
-  const id=b[0], price=bossCrystalPrice(b,period);
+  const id=b[0], price=bossCrystalPrice(b,period,c);
   const bosses=bossStore(c,period,scope);
   const pref=bossPreference(c,g);
   const img = IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
@@ -10393,11 +10429,16 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
     : '<div class="bmeta">난이도 '+bossDiff(b)+'</div>';
   const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
   const dropHtml = allowed || on || hasSavedDrops ? dropChecklistHtml(g,b,c,period,scope) : '';
+  const beforePatch=bossCrystalSaleTiming(c,b,period)==='before-patch';
+  const saleTimingHtml=scope==='weekly' && on && MapleSeptemberBossRules.canSelectSaleTiming(b,period)
+    ? '<label class="crystal-sale-field"><span>결정석 판매 시점</span><select class="crystal-sale-timing" data-id="'+id+'" aria-label="'+esc(g.name)+' 결정석 판매 시점"><option value="after-patch"'+(!beforePatch?' selected':'')+'>점검 후 · 새 가격</option><option value="before-patch"'+(beforePatch?' selected':'')+'>점검 전 · 기존 가격</option></select><span class="crystal-sale-note'+(beforePatch?' before-patch':'')+'">'+(beforePatch?'9/17 00:00~03:00 판매':'9/17 점검 종료 후 판매')+'</span></label>'
+    : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
+    saleTimingHtml+
     '<div class="bparty">파티 <select class="party" aria-label="'+esc(g.name)+' 파티 인원" data-id="'+id+'" data-group="'+g.key+'"'+disabled+'>'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
     '<label class="bcheck"><input class="boss-check" type="checkbox" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+disabled+'>'+(on?'다님':'체크')+'</label>'+
