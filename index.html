@@ -6,7 +6,7 @@
 <script src="assets/friends-expenses.js?v=20260908-1"></script>
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
-<script src="assets/september-boss-rules.js?v=20260917-2"></script>
+<script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260907-5">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1536,7 +1536,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</h2>
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
     <div class="period-history-nav" id="weeklyboss-period-nav" aria-label="주간 보스 기록 주차 선택"></div>
-    <div class="crystal-sale-guidance" id="weekly-crystal-sale-guidance" hidden><strong>9/17 점검 전에 판매한 결정석이 있나요?</strong><br>9/17 00:00~03:00에 판매했다면 보스 체크 후 해당 카드의 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 바꾸세요. 03:00~10:00 점검 후 판매분은 ‘점검 후 · 새 가격’을 선택합니다. <b>실제 판매 시점과 받은 금액</b>에 맞춰 선택하며, 같은 캐릭터도 보스별로 다르게 선택할 수 있습니다.<br>판매 시점을 지정하지 않은 기록은 기본 새 가격입니다. API로도 판매 시각을 자동 확인할 수 없으므로 점검 전 판매분만 직접 변경해 주세요. 선택은 가격이 바뀐 보스의 완료 카드에 표시되며, 이 주차에만 저장됩니다.</div>
+    <div class="crystal-sale-guidance" id="weekly-crystal-sale-guidance" hidden><strong>9/17 점검 전에 판매한 결정석이 있나요?</strong><br>9/17 00:00~03:00에 판매했다면 보스 체크 후 해당 카드의 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 바꾸세요. 03:00~10:00 점검 후 판매분은 ‘점검 후 · 새 가격’을 선택합니다. <b>실제 판매 시점과 받은 금액</b>에 맞춰 선택하며, 같은 캐릭터도 보스별로 다르게 선택할 수 있습니다.<br>판매 시점을 지정하지 않은 기록은 기본 새 가격입니다. API로도 판매 시각을 자동 확인할 수 없으므로 점검 전 판매분만 직접 변경해 주세요. 선택은 가격이 바뀐 보스의 완료 카드에 표시되며, 이 주차에만 저장됩니다. <b>9월 24일 00:00(한국 시간)에 선택란과 안내가 자동으로 사라지며, 저장한 판매 금액은 유지됩니다.</b></div>
     <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
     <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div></details>
   </div>
@@ -1549,7 +1549,7 @@
     <div class="muted" style="margin-top:10px;">
       <span id="weekly-boss-limit-note">※ 9월 17일 주차부터 캐릭터당 주간 보스 12개 제한 해제 · 월드당 주간 결정석 판매 90개 유지</span><br>
       ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
-      ※ 결정석 가격: 선택한 기록 기간 기준 · 9월 17일 주차는 보스별 점검 전·후 판매 시점 선택 · 10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener noreferrer">본서버 1.2.419</a> 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
+      ※ 결정석 가격: 선택한 기록 기간 기준 · <span id="weekly-crystal-sale-period-note">9월 17일 주차의 판매 시점 선택은 9월 24일 00:00(한국 시간)까지 · </span>10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener noreferrer">본서버 1.2.419</a> 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
     </div>
   </div>
 </div>
@@ -4160,6 +4160,26 @@ function bossCrystalSaleTiming(c,b,period){
   return b && stored[b[0]]==='before-patch' ? 'before-patch' : 'after-patch';
 }
 function bossCrystalPrice(b,period=currentWeekKey(),c){ return MapleSeptemberBossRules.crystalPrice(b,period,bossCrystalSaleTiming(c,b,period)); }
+let crystalSaleTimingExpiryTimer;
+function refreshCrystalSaleTimingUi(){
+  window.clearTimeout(crystalSaleTimingExpiryTimer);
+  const remaining=Date.parse(MapleSeptemberBossRules.saleTimingEndsAt)-Date.now();
+  if(remaining>0){
+    crystalSaleTimingExpiryTimer=window.setTimeout(refreshCrystalSaleTimingUi,Math.min(remaining,2147483647));
+    return;
+  }
+  // 기간이 지나면 화면만 정리하고 저장된 판매 시점·장부·복구 기록은 유지합니다.
+  document.querySelectorAll('.crystal-sale-field').forEach(field=>field.remove());
+  ['weekly-crystal-sale-guidance','weekly-crystal-sale-period-note'].forEach(id=>{
+    const note=document.getElementById(id);
+    if(note) note.hidden=true;
+  });
+}
+window.addEventListener('pageshow',refreshCrystalSaleTimingUi);
+window.addEventListener('focus',refreshCrystalSaleTimingUi);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) refreshCrystalSaleTimingUi();
+});
 function setBossCrystalSaleTiming(c,b,period,timing){
   if(!MapleSeptemberBossRules.canSelectSaleTiming(b,period) || !['before-patch','after-patch'].includes(timing)) return false;
   c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
@@ -9587,6 +9607,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
   bindDropPickerToggles(bl);
   bl.querySelectorAll('select.crystal-sale-timing').forEach(sel=>{
     sel.onchange=()=>{
+      if(!MapleSeptemberBossRules.saleTimingUiActive(period)){ refreshCrystalSaleTimingUi(); return; }
       const boss=BOSS_MAP[sel.dataset.id];
       if(scope!=='weekly' || !(sel.dataset.id in bossStore(c,period,scope))) return;
       if(!setBossCrystalSaleTiming(c,boss,period,sel.value)) return;
@@ -9896,8 +9917,9 @@ function renderBoss(){
   const weeks=trackedWeeklyBossWeeks();
   if(!weeklyBossViewWeek || !weeks.includes(weeklyBossViewWeek)) weeklyBossViewWeek=currentWeekKey();
   const wk=weeklyBossViewWeek;
+  refreshCrystalSaleTimingUi();
   const saleGuidance=document.getElementById('weekly-crystal-sale-guidance');
-  if(saleGuidance) saleGuidance.hidden=wk!==MapleSeptemberBossRules.weeklyEffectiveDate;
+  if(saleGuidance) saleGuidance.hidden=!MapleSeptemberBossRules.saleTimingUiActive(wk);
   const limitNote=document.getElementById('weekly-boss-limit-note');
   if(limitNote) limitNote.textContent=Number.isFinite(weeklyBossCheckLimit(wk))
     ? '※ 선택한 주차: 캐릭터당 일반 주간 보스 12개 · 메이린 별도 · 월드당 주간 결정석 판매 90개'
@@ -10430,7 +10452,7 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
   const dropHtml = allowed || on || hasSavedDrops ? dropChecklistHtml(g,b,c,period,scope) : '';
   const beforePatch=bossCrystalSaleTiming(c,b,period)==='before-patch';
-  const saleTimingHtml=scope==='weekly' && on && MapleSeptemberBossRules.canSelectSaleTiming(b,period)
+  const saleTimingHtml=scope==='weekly' && on && MapleSeptemberBossRules.saleTimingUiActive(period) && MapleSeptemberBossRules.canSelectSaleTiming(b,period)
     ? '<label class="crystal-sale-field"><span>결정석 판매 시점</span><select class="crystal-sale-timing" data-id="'+id+'" aria-label="'+esc(g.name)+' 결정석 판매 시점"><option value="after-patch"'+(!beforePatch?' selected':'')+'>점검 후 · 새 가격</option><option value="before-patch"'+(beforePatch?' selected':'')+'>점검 전 · 기존 가격</option></select><span class="crystal-sale-note'+(beforePatch?' before-patch':'')+'">'+(beforePatch?'9/17 00:00~03:00 판매':'9/17 점검 종료 후 판매')+'</span></label>'
     : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
@@ -10728,6 +10750,7 @@ function renderAllPreservingViewport(){
 const initialPage=new URLSearchParams(location.search).get('page');
 if(initialPage && document.getElementById('page-'+initialPage)) openPage(initialPage);
 else renderAll();
+refreshCrystalSaleTimingUi();
 </script>
 </main>
 <nav class="mobile-nav" aria-label="빠른 메뉴">

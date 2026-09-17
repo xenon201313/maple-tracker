@@ -44,6 +44,14 @@ for(const boss of bosses.filter(b=>!Object.hasOwn(rules.weeklyPrices,b[0]))){
 }
 assert.equal(rules.crystalPrice(bossMap.nbellona,'2026-09-17','before-patch'),850000000,'벨로나 점검 전 판매는 공식 구가격 사용');
 assert.equal(rules.crystalPrice(bossMap.nbellona,'2026-09-10','before-patch'),890000000,'기존 벨로나 과거 장부 단가 보존');
+const saleTimingExpiry=Date.parse('2026-09-24T00:00:00+09:00');
+assert.equal(rules.saleTimingEndsAt,'2026-09-24T00:00:00+09:00');
+assert.equal(rules.saleTimingUiActive('2026-09-17',saleTimingExpiry-1),true,'한국 시간 종료 1ms 전에는 표시');
+assert.equal(rules.saleTimingUiActive('2026-09-17',saleTimingExpiry),false,'한국 시간 종료 정각에는 숨김');
+assert.equal(rules.saleTimingUiActive('2026-09-17',saleTimingExpiry+86400000),false,'종료 다음 날에도 숨김');
+for(const period of ['2026-09-10','2026-09-24','2026-10-01','bad']){
+  assert.equal(rules.saleTimingUiActive(period,saleTimingExpiry-1),false,period+'에는 종료 전에도 표시하지 않음');
+}
 
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp','.ttf':'font/ttf'};
 const server=http.createServer((req,res)=>{
@@ -63,6 +71,81 @@ const ledgerSnapshot=page=>page.evaluate(()=>JSON.stringify({
   past:db.chars.map(c=>({bosses:c.bossWeeks['2026-09-10'],drops:c.dropWeeks['2026-09-10'],prices:c.dropPriceWeeks['2026-09-10'],shares:c.dropShareWeeks['2026-09-10']}))
 },(_,value)=>typeof value==='bigint'?value.toString():value));
 const saleSnapshot=page=>page.evaluate(()=>JSON.stringify(db.chars.map(c=>({name:c.name,selection:c.bossCrystalPriceWeeks,bosses:c.bossWeeks,total:charSum(c,'2026-09-17').w}))));
+const localSnapshot=page=>page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.keys(localStorage).sort().map(key=>[key,localStorage.getItem(key)]))));
+
+async function checkSaleTimingExpiry(browser,origin,timezoneId){
+  const context=await browser.newContext({timezoneId,viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  // 기존 렌더 정규화가 새 주차의 빈 버킷을 만드는 것은 허용하되 과거 기록과 모든 판매 선택은 그대로 비교합니다.
+  const expirySaleSnapshot=page=>page.evaluate(()=>JSON.stringify(db.chars.map(c=>({
+    name:c.name,selection:c.bossCrystalPriceWeeks,
+    bosses:Object.fromEntries(Object.entries(c.bossWeeks).filter(([week,bosses])=>week<='2026-09-17'||Object.keys(bosses).length)),
+    total:charSum(c,'2026-09-17').w
+  }))));
+  try{
+    await context.route('**/*',route=>{
+      const url=new URL(route.request().url());
+      return url.origin===origin || url.protocol==='data:' ? route.continue() : route.abort();
+    });
+    const page=await context.newPage(),errors=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    await page.clock.install({time:new Date(saleTimingExpiry-60000)});
+    await page.clock.pauseAt(new Date(saleTimingExpiry-1));
+    await page.goto(origin+'/?page=boss');
+    await page.evaluate(()=>{
+      const c=normalizeChar({name:'판매 시점 검증',server:'main',worldName:'크로아',
+        bossWeeks:{'2026-09-10':{czak:1},'2026-09-17':{czak:3,nsu:2}},
+        bossCrystalPriceWeeks:{'2026-09-17':{czak:'before-patch',nsu:'after-patch'}}});
+      db.chars=[c];
+      db.expenses=[normalizeExpenseRecord({id:'expiry-preserved-expense',date:'2026-09-10',category:'equipment',amount:'1234567',memo:'종료 후에도 보존'})];
+      openChars.add(c.name);weeklyBossViewWeek='2026-09-17';save();renderBoss();
+    });
+    const salesBefore=await expirySaleSnapshot(page),ledgerBefore=await ledgerSnapshot(page),storageBefore=await localSnapshot(page);
+    assert.equal(await timing(page,'czak').count(),1,timezoneId+' 종료 1ms 전 입력란');
+    assert.equal(await page.locator('#weekly-crystal-sale-guidance').isVisible(),true);
+    assert.equal(await page.locator('#weekly-crystal-sale-period-note').isVisible(),true);
+    assert.equal(await page.evaluate(()=>charSum(db.chars[0],'2026-09-17').w),6868333);
+
+    // API 키가 없는 채 열린 화면에서도 타이머만으로 정각에 종료합니다.
+    await page.clock.runFor(1);
+    const assertExpired=async label=>{
+      assert.equal(await page.locator('#charlist .crystal-sale-field').count(),0,timezoneId+' '+label+' 입력란 제거');
+      assert.equal(await page.locator('#weekly-crystal-sale-guidance').isVisible(),false,timezoneId+' '+label+' 안내 숨김');
+      assert.equal(await page.locator('#weekly-crystal-sale-period-note').isVisible(),false,timezoneId+' '+label+' 기간 안내 숨김');
+      assert.equal(await expirySaleSnapshot(page),salesBefore,timezoneId+' '+label+' 저장한 판매 시점·수익 보존');
+      assert.equal(await ledgerSnapshot(page),ledgerBefore,timezoneId+' '+label+' 과거 장부 보존');
+    };
+    await assertExpired('열린 탭 정각');
+    assert.equal(await localSnapshot(page),storageBefore,timezoneId+' UI 종료 타이머가 저장·복구 데이터를 변경했습니다.');
+    await page.evaluate(()=>renderBoss());
+    await assertExpired('과거 주차 재렌더');
+    await page.reload();
+    await page.evaluate(()=>{openChars.add(db.chars[0].name);weeklyBossViewWeek='2026-09-17';renderBoss();});
+    await assertExpired('새로고침');
+
+    // 절전·탭 복귀 등으로 타이머가 아직 실행되지 않았어도 현재 시각을 다시 확인합니다.
+    for(const eventName of ['pageshow','focus','visibilitychange']){
+      await page.clock.setSystemTime(new Date(saleTimingExpiry-1));
+      await page.reload();
+      await page.evaluate(()=>{openChars.add(db.chars[0].name);weeklyBossViewWeek='2026-09-17';renderBoss();});
+      assert.equal(await timing(page,'czak').count(),1,timezoneId+' '+eventName+' 검증 전 입력란');
+      const beforeResume=await localSnapshot(page);
+      await page.clock.setSystemTime(new Date(saleTimingExpiry));
+      await page.evaluate(name=>(name==='visibilitychange'?document:window).dispatchEvent(new Event(name)),eventName);
+      await assertExpired(eventName+' 복귀');
+      assert.equal(await localSnapshot(page),beforeResume,timezoneId+' '+eventName+' 복귀가 저장값을 변경했습니다.');
+    }
+    await page.evaluate(()=>{
+      const bundle=JSON.parse(JSON.stringify(exportBackupBundle()));
+      db=trackerDbFromData(bundle,'',db.backupSnapshots);
+      applyCloudSnapshot({data:JSON.parse(JSON.stringify(exportDb())),updatedAt:Date.now()});
+      openChars.add(db.chars[0].name);weeklyBossViewWeek='2026-09-17';renderBoss();
+    });
+    await assertExpired('종료 후 JSON·클라우드 복원');
+    assert.deepEqual(errors,[],timezoneId+' 종료 경계 브라우저 오류');
+  }finally{
+    await context.close();
+  }
+}
 
 (async()=>{
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -207,7 +290,8 @@ const saleSnapshot=page=>page.evaluate(()=>JSON.stringify(db.chars.map(c=>({name
     assert.equal(copied.total,5521666);
     assert.deepEqual(errors,[],'브라우저 오류');
     await context.close();
-    console.log('결정석 판매 시점 검증 완료: 공식 44종 점검 전후 단가, 캐릭터/보스별 선택·파티·합계, 체크/난이도 변경, API 갱신, 저장/JSON/클라우드 왕복, 과거 장부·드랍 보존, 주차·월간 경계, 지난주 복사, 3개 화면 너비.');
+    for(const timezoneId of ['Asia/Seoul','UTC']) await checkSaleTimingExpiry(browser,origin,timezoneId);
+    console.log('결정석 판매 시점 검증 완료: 공식 44종 점검 전후 단가, 캐릭터/보스별 선택·파티·합계, 체크/난이도 변경, API 갱신, 저장/JSON/클라우드 왕복, 과거 장부·드랍 보존, 주차·월간 경계, 지난주 복사, 3개 화면 너비, 한국 시간 종료 1ms 전·정각·열린 탭·복귀·복원 및 UTC 시간대.');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));

@@ -3,6 +3,7 @@
   // 2026-09-17 본서버 1.2.419 공지로 확인했습니다. 시행일 이전 가격표와 장부는 유지합니다.
   const source = 'https://maplestory.nexon.com/news/update/813';
   const weeklyEffectiveDate = '2026-09-17';
+  const saleTimingEndsAt = '2026-09-24T00:00:00+09:00';
   const monthlyEffectiveDate = '2026-10-01';
   const challengerEndDate = '2026-09-17';
   // 점검 전 판매 선택에만 쓰는 공식 변경 전 가격입니다. 이전 주차의 저장 기준은 유지합니다.
@@ -38,6 +39,10 @@
     return !!boss && boss[3] === 'w' && period === weeklyEffectiveDate
       && Object.prototype.hasOwnProperty.call(previousWeeklyPrices, boss[0]);
   }
+  // 과거 가격 판정과 표시 기한을 분리하여 저장된 판매 금액을 유지합니다.
+  function saleTimingUiActive(period, now = Date.now()) {
+    return period === weeklyEffectiveDate && now < Date.parse(saleTimingEndsAt);
+  }
   function crystalPrice(boss, period, timing) {
     if (!boss) return 0;
     if (timing === 'before-patch' && canSelectSaleTiming(boss, period)) return previousWeeklyPrices[boss[0]];
@@ -56,7 +61,7 @@
     return !!date && date >= challengerEndDate;
   }
   root.MapleSeptemberBossRules = Object.freeze({
-    source, weeklyEffectiveDate, monthlyEffectiveDate, challengerEndDate,
+    source, weeklyEffectiveDate, saleTimingEndsAt, saleTimingUiActive, monthlyEffectiveDate, challengerEndDate,
     weeklyPrices, previousWeeklyPrices, monthlyPrices, canSelectSaleTiming, crystalPrice, weeklyLimit, challengerEnded
   });
 })(globalThis);
