@@ -12,6 +12,19 @@ const rules=sandbox.MapleSeptemberBossRules;
 const bosses=JSON.parse(source.match(/const BOSSES = (\[[\s\S]*?\n\]);/)[1]);
 const bossMap=Object.fromEntries(bosses.map(b=>[b[0],b]));
 
+// 구현 가격표를 기대값으로 재사용하지 않고 공식 본서버 공지의 46행과 별도로 대조합니다.
+const official=JSON.parse(fs.readFileSync(path.join(root,'scripts/fixtures/kms-1.2.419-crystals.json'),'utf8'));
+const normalizeName=name=>name.replace(/선택받은 |감시자 |\s/g,'');
+assert.equal(official.rows.length,46);
+assert.equal(rules.source,official.source);
+for(const row of official.rows){
+  const boss=bosses.find(b=>normalizeName(b[1])===normalizeName(row.name));
+  assert(boss,'공식 보스가 목록에 없습니다: '+row.name);
+  assert.equal(rules.crystalPrice(boss,boss[3]==='m'?'2026-10':'2026-09-17'),row.new,row.name+' 본서버 가격');
+}
+assert.equal(rules.crystalPrice(bossMap.nstar,'2026-09-17'),576000000,'본서버에서 변경된 노멀 찬란한 흉성 가격');
+assert.equal(rules.crystalPrice(bossMap.nkali,'2026-09-17'),593000000,'본서버에서 변경된 노멀 카링 가격');
+
 // 원본 단가를 보존한 채 주간·월간 시행 경계와 표에 없는 보스의 단가를 확인합니다.
 assert.equal(Object.keys(rules.weeklyPrices).length,44);
 assert.equal(Object.keys(rules.monthlyPrices).length,2);
@@ -84,6 +97,10 @@ const server=http.createServer((req,res)=>{
         const meirinRecorded=Object.prototype.hasOwnProperty.call(c.bossWeeks[week],'nmeirin');
         const expectedIncome=normalBosses.slice(0,apiCount).reduce((sum,b)=>sum+bossCrystalPrice(b,week),0);
         const actualIncome=charSum(c,week).w-(meirinRecorded?BOSS_MAP.nmeirin[2]:0);
+        const changedPrices=normalizeChar({name:'본섭 가격 검산',server:'main',worldName:'크로아',
+          bossWeeks:{'2026-09-10':{nstar:3,nkali:2},'2026-09-17':{nstar:3,nkali:2}}});
+        const fixedPrices={past:charSum(changedPrices,'2026-09-10').w,current:charSum(changedPrices,'2026-09-17').w,
+          cards:['nstar','nkali'].map(id=>bossGroupCard(BOSS_GROUPS.w.find(g=>g.bosses.some(b=>b[0]===id)),changedPrices,'2026-09-17'))};
         const september=monthlyCharSum(c,'2026-09').m;
         const october=monthlyCharSum(c,'2026-10').m;
         const monthWeek=monthlyBossTotalsForWeek('2026-10-01').crystalMeso;
@@ -116,13 +133,17 @@ const server=http.createServer((req,res)=>{
         const thirteenth=normalBosses[12][0];
         window.patchTestChar=c;
         window.patchTestThirteenth=thirteenth;
-        return {apiCount,apiResults,meirinAllowed,meirinApi,meirinRecorded,expectedIncome,actualIncome,september,october,monthWeek,savedVisible,savedDisabled,preserved,copied,copiedMeirin,copyPreserved,storedServer,
+        return {apiCount,apiResults,meirinAllowed,meirinApi,meirinRecorded,expectedIncome,actualIncome,fixedPrices,september,october,monthWeek,savedVisible,savedDisabled,preserved,copied,copiedMeirin,copyPreserved,storedServer,
           monthlySeptemberCard,monthlyOctoberCard,thirteenth,postPatch:date>='2026-09-17'};
       },date);
       assert.equal(results.apiCount,results.postPatch?13:12,date+' API 주간 제한');
       assert.equal(results.meirinAllowed,!results.postPatch,date+' 메이린 입장 종료');
       assert.equal(results.meirinRecorded,!results.postPatch,date+' 종료 후 API 신규 메이린');
       assert.equal(results.actualIncome,results.expectedIncome,date+' 합계 단가');
+      assert.equal(results.fixedPrices.past,547333333,'본섭 가격 정정 전 주차의 수익 보존');
+      assert.equal(results.fixedPrices.current,488500000,'흉성 3인+카링 2인 본섭 수입');
+      assert(results.fixedPrices.cards[0].includes('5억 7,600만'),'노멀 흉성 카드 본섭 가격');
+      assert(results.fixedPrices.cards[1].includes('5억 9,300만'),'노멀 카링 카드 본섭 가격');
       assert.equal(results.september,665000000,'9월 월간 가격 보존');
       assert.equal(results.october,465000000,'10월 월간 새 가격');
       assert.equal(results.monthWeek,465000000,'월간 보스의 주차 귀속 가격');

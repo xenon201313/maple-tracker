@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
-  // 테스트월드 1.2.206(2)의 본서버 적용 예정값입니다. 기존 가격표와 장부는 변경하지 않습니다.
-  const source = 'https://maplestory.nexon.com/testworld/news/all/199';
+  // 2026-09-17 본서버 1.2.419 공지로 확인했습니다. 시행일 이전 가격표와 장부는 유지합니다.
+  const source = 'https://maplestory.nexon.com/news/update/813';
   const weeklyEffectiveDate = '2026-09-17';
   const monthlyEffectiveDate = '2026-10-01';
   const challengerEndDate = '2026-09-17';
@@ -12,8 +12,8 @@
     ndun:23700000, hdam:46400000, hsu:48900000, njhil:67600000, hluc:59700000,
     cdusk:66300000, cgas:71300000, hwill:73200000, hdun:89600000, hjhil:100000000,
     nser:167000000, ekal:238000000, eadv:261000000, hser:302000000, ekali:320000000,
-    ebellona:396000000, nkal:479000000, nadv:532000000, xsu:545000000, nkali:576000000,
-    nstar:593000000, nbellona:824000000, nlimbo:995000000, ckal:1230000000,
+    ebellona:396000000, nkal:479000000, nadv:532000000, xsu:545000000, nkali:593000000,
+    nstar:576000000, nbellona:824000000, nlimbo:995000000, ckal:1230000000,
     nbal:1320000000, hadv:1390000000, njup:1560000000, hkali:1560000000, xser:1840000000
   });
   const monthlyPrices = Object.freeze({hblack:465000000, xblack:5680000000});

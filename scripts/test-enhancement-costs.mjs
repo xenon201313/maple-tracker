@@ -79,6 +79,19 @@ assert.equal(E.reports({events:[cube]})[0].estimate,'36125000','Cubes use a clea
 assert.equal(E.reports({events:[cube]})[0].basis,'cube-equivalent');
 assert.deepEqual(E.profits({events:[cube]}),[],'A cube equivalent is not automatically a real expense');
 assert.equal(E.defaultUnit({...cube,cubeType:'알 수 없는 큐브'}),null);
+// 9/17 신규 API 이력은 일반 메소 재설정 비용으로 임의 환산하지 않습니다.
+for(const cubeType of ['프라임 큐브','프라임 에디셔널 큐브','펄스 인핸서']) {
+  const imported=E.event('cube',{...potRaw,id:'september-'+cubeType,date_create:'2026-09-17T14:00:00+09:00',cube_type:cubeType,before_additional_potential_option:[{grade:'유니크'}],after_additional_potential_option:[{grade:'레전드리'}]},'account');
+  assert.equal(E.reports({events:[imported]})[0].estimate,null,'신규 큐브 및 전용 재화의 실제 메소 지출은 자동으로 환산할 수 없습니다.');
+  assert.deepEqual(E.profits({events:[imported]}),[],'신규 API 이력을 조회해도 확인하지 않은 지출은 추가하지 않습니다.');
+}
+const pulseRingRaw={...raw,id:'september-pulse-ring',date_create:'2026-09-17T14:00:00+09:00',target_item:'어센던트 펄스 링',item_level:130,starforce_event_list:[]};
+const pulseStar=E.event('starforce',{...pulseRingRaw,upgrade_item:'펄스 인핸서'},'account');
+assert.equal(E.reports({events:[pulseStar]})[0].estimate,null,'펄스 인핸서를 사용한 스타포스는 일반 메소 비용으로 추정하지 않습니다.');
+assert.deepEqual(E.profits({events:[pulseStar]}),[],'펄스 인핸서 스타포스 조회는 실제 지출을 추가하지 않습니다.');
+const mesoRingStar=E.event('starforce',{...pulseRingRaw,id:'september-meso-ring',upgrade_item:''},'account');
+assert.equal(E.reports({events:[mesoRingStar]})[0].estimate,'23069100','펄스 링은 공식 공지상 일반 메소 강화도 가능하므로 장비명만으로 계산을 차단하지 않습니다.');
+assert.deepEqual(E.profits({events:[mesoRingStar]}),[],'일반 메소 강화 추정도 사용자의 지출 확인 전에는 장부에 추가하지 않습니다.');
 assert.equal(E.reports({events:[cube]})[0].count,1);
 assert.equal(E.reports({events:[cube,p1]}).length,2);
 const cubeReport=E.reports({events:[cube]})[0];

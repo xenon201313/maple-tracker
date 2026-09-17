@@ -1,9 +1,9 @@
 (function (root) {
   'use strict';
 
-  // 2026-09-10 테스트월드 1.2.206 기준. 장부 저장과 API 조회는 기존 화면에서만 수행합니다.
+  // 2026-09-17 본서버 1.2.419로 단가를 확인했습니다. 장부 저장과 API 조회는 기존 화면에서만 수행합니다.
   const effectiveDate = '2026-09-17';
-  const source = 'https://maplestory.nexon.com/testworld/news/all/199';
+  const source = 'https://maplestory.nexon.com/news/update/813';
   const modes = [
     {id:'advanced_ability',name:'어빌리티 고급 재설정',help:'레전드리 어빌리티의 고급 재설정 비용입니다. 3개 동시 변경 1번은 3회로 입력하세요. 명성치는 메소 지출에 합산하지 않습니다.',items:[
       {id:'lock0',name:'잠금 0개',meso:'2000000',fame:20000},
@@ -28,8 +28,8 @@
       {id:'positive100',name:'놀라운 긍정의 혼돈 주문서 100%',meso:'300000000'},
       {id:'pet_innocence',name:'펫장비 이노센트 주문서 100%',meso:'1000000000'},
       {id:'pet_clean_slate',name:'펫장비 순백의 주문서 100%',meso:'60000000'},
-      {id:'return',name:'리턴 주문서',meso:'400000000'},
-      {id:'pet_return',name:'펫장비 리턴 주문서',meso:'500000000'}
+      {id:'return',name:'리턴 스크롤',meso:'400000000'},
+      {id:'pet_return',name:'펫장비 리턴 스크롤',meso:'500000000'}
     ]},
     {id:'soul_amplification',name:'소울 증폭',help:'성공·실패를 모두 포함한 실제 시도 횟수입니다. 목표 단계별로 나눠 기록하세요. 소울 에테르는 실제로 구매한 경우에만 별도 지출로 기록합니다.',items:[
       {id:'stage1',name:'1단계로 증폭',meso:'500000000'},
@@ -49,10 +49,10 @@
       {id:'ether3',name:'3단계 소울 에테르'},
       {id:'ether4',name:'4단계 소울 에테르'}
     ]},
-    {id:'september_meso_shop',name:'아르고 메소샵 구매',manual:true,help:'아르고 호의 방문객 이벤트 메소샵입니다. 예정 운영 기간은 9/17 점검 후~11/18 23:59입니다. 공개 안내에 단가가 없어 실제 구매 단가를 직접 입력합니다. 품목은 아래 지출 메모에 남겨 주세요.',items:[
+    {id:'september_meso_shop',name:'아르고 메소샵 구매',manual:true,help:'아르고 호의 방문객 이벤트 메소샵입니다. 운영 기간은 9/17 점검 후~11/18 23:59입니다. 실제 구매 단가를 직접 입력합니다. 품목은 아래 지출 메모에 남겨 주세요.',items:[
       {id:'purchase',name:'메소샵에서 실제 구매한 품목'}
     ]},
-    {id:'arcane_symbol',name:'아케인심볼 강화',manual:true,legacy:true,help:'9/17 예정 패치에서 모든 지역의 강화 비용이 30% 감소합니다. 실제 강화창에 표시된 비용을 입력하세요. 이미 인하된 금액에서 30%를 다시 빼지 않습니다. 단계별 비용이 다르면 각각 기록하세요.',items:[
+    {id:'arcane_symbol',name:'아케인심볼 강화',manual:true,legacy:true,help:'9/17 패치에서 모든 지역의 강화 비용이 30% 감소했습니다. 실제 강화창에 표시된 비용을 입력하세요. 이미 인하된 금액에서 30%를 다시 빼지 않습니다. 단계별 비용이 다르면 각각 기록하세요.',items:[
       {id:'enhance',name:'실제 아케인심볼 강화 비용'}
     ]}
   ];
@@ -69,7 +69,7 @@
     if (!mode) return '';
     if (!validDate(date)) return '지출 날짜를 YYYY-MM-DD 형식으로 입력하세요.';
     if (!mode.legacy && date < effectiveDate) return mode.name + ' 지출은 2026-09-17 점검 후 사용분부터 기록할 수 있습니다. 미리 계산한 금액은 저장하지 마세요.';
-    if (category === 'september_meso_shop' && date > '2026-11-18') return '아르고 메소샵 구매 날짜는 예정 운영 기간인 2026-09-17~2026-11-18 안에서 선택하세요.';
+    if (category === 'september_meso_shop' && date > '2026-11-18') return '아르고 메소샵 구매 날짜는 운영 기간인 2026-09-17~2026-11-18 안에서 선택하세요.';
     return '';
   }
   function quote(category, itemId, rawCount, rawUnit) {
@@ -88,8 +88,8 @@
     const host = document.getElementById('september-expense-helper');
     if (!host || host.dataset.initialized) return;
     host.dataset.initialized = 'true';
-    host.innerHTML = '<summary>9/17 패치 예정 · 신규 메소 비용 계산</summary>' +
-      '<div class="september-expense-body"><p class="muted">9/10 테스트월드 기준이며 본서버 적용 시 달라질 수 있습니다. 실제 사용량을 계산한 뒤 아래 지출 입력칸에 채울 수 있습니다. 저장은 별도로 눌러야 장부에 반영됩니다. <a href="'+source+'" target="_blank" rel="noopener noreferrer">공식 안내</a></p>' +
+    host.innerHTML = '<summary>9/17 본서버 패치 · 신규 메소 비용 계산</summary>' +
+      '<div class="september-expense-body"><p class="muted">9/17 본서버 1.2.419 기준입니다. 실제 사용량을 계산한 뒤 아래 지출 입력칸에 채울 수 있습니다. 저장은 별도로 눌러야 장부에 반영됩니다. <a href="'+source+'" target="_blank" rel="noopener noreferrer">공식 안내</a></p>' +
       '<div class="september-expense-grid"><label>지출 종류<select id="september-expense-mode"></select></label>' +
       '<label>세부 항목<select id="september-expense-item"></select></label>' +
       '<label>실제 횟수 · 수량<input id="september-expense-count" type="text" inputmode="numeric" autocomplete="off" value="1"></label>' +
