@@ -1,6 +1,5 @@
-.manual-expense-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
-.manual-expense-tabs button { border:1px solid var(--line); background:var(--panel2); color:var(--text); padding:9px 14px; }
-.manual-expense-tabs button[aria-selected=true] { background:#ffda621a; border-color:var(--gold); color:var(--gold); }
+#manual-enhancement-panel { padding-top:20px; }
+#manual-enhancement-title { margin:0 0 10px; color:var(--gold); }
 .manual-enhancement-type[hidden] { display:none; }
 .manual-resource-notice { font-size:14px; line-height:1.8; margin:0 0 18px; color:var(--sub); }
 .manual-resource-notice strong { color:var(--gold); }
@@ -19,8 +18,6 @@
 .manual-cost-breakdown li span { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; overflow-wrap:anywhere; }
 .manual-cost-breakdown li small { color:var(--sub); }
 @media (max-width:540px) {
-  .manual-expense-tabs { gap:6px; }
-  .manual-expense-tabs button { flex:1 1 auto; padding:8px 10px; font-size:13px; }
   .resource-cost-guide { padding:10px; }
   .resource-cost-guide table { font-size:12px; }
 }

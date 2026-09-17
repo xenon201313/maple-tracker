@@ -70,7 +70,11 @@ const server=http.createServer((req,res)=>{
     const today=await page.evaluate(()=>todayStr());
     await page.fill('#enhancement-from',today);await page.fill('#enhancement-to',today);
     await page.click('#enhancement-refresh');
+    await page.click('[data-enhancement-tab="soul_ether"]');
     await page.waitForFunction(()=>document.querySelector('#enhancement-status').textContent.includes('조회 완료'));
+    assert.equal(await page.locator('[data-enhancement-tab="soul_ether"]').getAttribute('aria-selected'),'true','API 조회 완료가 선택한 수기 탭을 변경함');
+    assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
+    await page.click('[data-enhancement-tab="starforce"]');
     assert.equal(await page.locator('.enhancement-row').count(),1);
     assert.equal(await page.evaluate(()=>profitTotals(()=>true).cost.toString()),'1000000','Estimates changed existing totals');
     assert.match(await page.locator('.enhancement-row').innerText(),/2억 73만 9,300/);
@@ -91,6 +95,10 @@ const server=http.createServer((req,res)=>{
     assert.match(await potential.innerText(),/4,500만/);
     await potential.locator('.enhancement-details > summary').click();
     await potential.locator('[data-unit]').fill('100');
+    await page.click('[data-enhancement-tab="advanced_ability"]');
+    await page.click('[data-enhancement-tab="potential"]');
+    assert.equal(await potential.locator('[data-unit]').inputValue(),'100','수기 탭 왕복이 API 비용 초안을 삭제함');
+    assert.equal(await potential.locator('.enhancement-details').getAttribute('open'),'','수기 탭 왕복이 API 비용 상세를 닫음');
     await potential.locator('[data-calculate]').click();
     await potential.locator('[data-attempts]').selectOption('3');
     await potential.locator('[data-settings]').click();
@@ -159,8 +167,8 @@ const server=http.createServer((req,res)=>{
       await page.waitForTimeout(200);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Expanded costs overflow at '+width);
     }
-    await page.click('[data-enhancement-tab="cube"]');
-    const cube=page.locator('.enhancement-row');
+    await page.click('[data-enhancement-tab="potential"]');
+    const cube=page.locator('.enhancement-row[data-kind="cube"]');
     assert.match(await cube.innerText(),/수상한 큐브/);
     assert.match(await cube.locator('.enhancement-estimate').innerText(),/큐브 환산액/);
     await cube.locator('.enhancement-details > summary').click();
@@ -171,7 +179,7 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'An unconfirmed equivalent changed actual expenses');
     await cube.locator('[data-exclude]').click();
     await page.evaluate(()=>MapleEnhancementBridge.commit({events:Array.from({length:20},(_,i)=>MapleEnhancements.event('cube',{id:'karma-'+i,date_create:todayStr()+'T12:30:00+09:00',character_name:'테스트 캐릭터',target_item:'루즈 컨트롤 머신 마크',item_level:160,cube_type:'카르마 화이트 에디셔널 큐브',before_additional_potential_option:[{grade:'레전드리'}],after_additional_potential_option:[{grade:'레전드리'}]},'fixture-grouped'))}));
-    const karma=page.locator('.enhancement-row');
+    const karma=page.locator('.enhancement-row[data-kind="cube"]');
     assert.match(await karma.locator('.enhancement-estimate').innerText(),/16억 6,000만/);
     await karma.locator('.enhancement-details > summary').click();
     assert.equal(await karma.locator('[data-unit]').inputValue(),'83000000');
@@ -197,16 +205,20 @@ const server=http.createServer((req,res)=>{
       ]});
     });
     await page.click('[data-enhancement-tab="potential"]');
-    assert.equal(await page.locator('.enhancement-row').count(),1,'Cube usage must not appear in the meso tab');
-    const meso=page.locator('.enhancement-row');
+    assert.equal(await page.locator('[data-enhancement-tab="cube"]').count(),0,'별도 큐브 탭이 남음');
+    assert.equal(await page.locator('.enhancement-row[data-kind="potential"]').count(),1,'통합 잠재능력 탭에서 메소 재설정 누락');
+    assert.equal(await page.locator('.enhancement-row[data-kind="cube"]').count(),3,'통합 잠재능력 탭에서 큐브 사용 누락');
+    assert.equal(await page.locator('.enhancement-row').count(),4,'잠재능력 탭에서 두 사용 방식이 함께 표시되어야 함');
+    const meso=page.locator('.enhancement-row[data-kind="potential"]');
     assert.match(await meso.innerText(),/메소 · 에디셔널 잠재능력/);
-    assert.match(await page.locator('#enhancement-summary').innerText(),/8,300만/);
-    assert(!await page.locator('#enhancement-summary').innerText().then(t=>t.includes('환산')));
+    const potentialSummary=page.locator('#enhancement-summary');
+    assert.match(await potentialSummary.locator('div').filter({hasText:'메소 사용액 (추정)'}).innerText(),/8,300만/,'큐브 환산액을 실제 메소 합계에 더함');
+    assert.match(await potentialSummary.locator('div').filter({hasText:'메소 재설정 횟수'}).innerText(),/1회/);
+    assert.match(await potentialSummary.locator('div').filter({hasText:'사용한 큐브'}).innerText(),/44개/);
+    assert.match(await potentialSummary.innerText(),/큐브 환산액 · 메소 지출과 별도/,'큐브 환산액의 별도 안내가 없음');
     await meso.locator('.enhancement-details > summary').click();
     assert.equal(await meso.locator('[data-unit]').inputValue(),'83000000');
-    await page.click('[data-enhancement-tab="cube"]');
-    assert.equal(await page.locator('.enhancement-row').count(),3);
-    const astra=page.locator('.enhancement-row').filter({hasText:'아스트라 매그넘'});
+    const astra=page.locator('.enhancement-row[data-kind="cube"]').filter({hasText:'아스트라 매그넘'});
     await astra.locator('.enhancement-details > summary').click();
     await astra.locator('.enhancement-timeline > summary').click();
     assert.equal(await astra.locator('.enhancement-timeline-row').count(),20);
@@ -223,8 +235,8 @@ const server=http.createServer((req,res)=>{
     for(const width of [1440,768,390,320]) {
       await page.setViewportSize({width,height:1000});
       await page.waitForTimeout(350);
-      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Separated method history overflow at '+width);
-      if([1440,390].includes(width)) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'enhancement-methods-'+width+'.png')});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Combined potential history overflow at '+width);
+      if([1440,390,320].includes(width)) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'enhancement-methods-'+width+'.png')});
     }
     assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'Importing separate methods must not change confirmed spending');
     await page.evaluate(()=>{

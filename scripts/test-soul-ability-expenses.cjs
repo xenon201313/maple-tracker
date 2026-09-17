@@ -23,7 +23,7 @@ const server = http.createServer((req,res) => {
 const input=(form,key)=>form.locator('[data-profit-input="'+key+'"]');
 const costPrice=(form,key)=>form.locator('[data-profit-cost-price="'+key+'"]');
 const costCount=(form,key)=>form.locator('[data-profit-cost-count="'+key+'"]');
-const tab=(page,type)=>page.locator('[data-manual-expense-tab="'+type+'"]');
+const tab=(page,type)=>page.locator('[data-enhancement-tab="'+type+'"]');
 async function navigate(page,name) {
   await page.evaluate(name=>openPage(name),name);
   await page.evaluate(()=>document.fonts.ready);
@@ -97,13 +97,17 @@ async function checkLayout(page,label) {
     });
     const original=await preserved(page),before=await totals(page);
     const form=page.locator('#manual-enhancement-calculator');
-    assert.deepEqual(await page.locator('[data-manual-expense-tab]').evaluateAll(elements=>elements.map(el=>el.dataset.manualExpenseTab)),['legacy','soul_ether','advanced_ability']);
+    assert.deepEqual(await page.locator('[data-enhancement-tab]').evaluateAll(elements=>elements.map(el=>el.dataset.enhancementTab)),['starforce','potential','soul_ether','advanced_ability','legacy']);
+    assert.equal(await page.locator('[data-manual-expense-tab]').count(),0,'기존 별도 수기 탭이 중복으로 남음');
+    assert.equal(await page.locator('#enhancement-panel [role="tablist"]').count(),1,'강화 탭이 한 곳에 통합되지 않음');
+    assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),false,'API 탭에서 수기 입력이 함께 표시됨');
+    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),true);
     assert.deepEqual(await page.locator('#manual-enhancement-type option').evaluateAll(options=>options.map(o=>o.value)),['starforce','potential','scroll','bonus','ability']);
-    await tab(page,'legacy').focus();
-    for(const [key,selected] of [['ArrowRight','soul_ether'],['End','advanced_ability'],['ArrowLeft','soul_ether'],['Home','legacy']]) {
+    await tab(page,'starforce').focus();
+    for(const [key,selected] of [['ArrowRight','potential'],['ArrowRight','soul_ether'],['End','legacy'],['ArrowLeft','advanced_ability'],['Home','starforce'],['ArrowLeft','legacy']]) {
       await page.keyboard.press(key);
       assert.equal(await tab(page,selected).getAttribute('aria-selected'),'true','키보드 탭 선택 실패');
-      assert.equal(await page.evaluate(()=>document.activeElement.dataset.manualExpenseTab),selected,'키보드 탭 포커스 실패');
+      assert.equal(await page.evaluate(()=>document.activeElement.dataset.enhancementTab),selected,'키보드 탭 포커스 실패');
     }
     for(const type of ['soul_ether','advanced_ability']) {
       await tab(page,type).click();
@@ -121,6 +125,8 @@ async function checkLayout(page,label) {
     // 탭을 오가거나 새로 렌더링해도 작성 중인 각 지출은 유지해야 합니다.
     await input(form,'used').fill('4321');
     await tab(page,'soul_ether').click();
+    assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
+    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),false,'수기 탭에서 API 기록이 함께 표시됨');
     assert.equal(await page.locator('#manual-enhancement-type').isVisible(),false);
     await input(form,'date').fill('2026-09-17');
     await input(form,'itemName').fill('테스트 <소울 장비>');
@@ -131,6 +137,15 @@ async function checkLayout(page,label) {
     }
     await input(form,'soulAmplificationMeso').fill('7500000');
     await input(form,'soulPotentialMeso').fill('99999999');
+    await tab(page,'potential').click();
+    assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),false);
+    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),true);
+    await tab(page,'soul_ether').click();
+    assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999','API 탭 왕복 중 수기 초안 삭제');
+    await page.evaluate(()=>document.dispatchEvent(new CustomEvent('workspace:render')));
+    assert.equal(await tab(page,'soul_ether').getAttribute('aria-selected'),'true','API 화면 새로고침이 수기 탭 선택을 변경함');
+    assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
+    assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999','API 화면 새로고침이 수기 초안을 삭제함');
     await tab(page,'advanced_ability').click();
     await input(form,'itemName').fill('고급 어빌리티 테스트');
     await costPrice(form,'advanced_ability_honor_medal').fill('5000000');
@@ -235,6 +250,9 @@ async function checkLayout(page,label) {
         });
         assert.deepEqual(broken,[],type+' 아이콘 로딩 실패');
         await checkLayout(page,width+' '+type);
+        assert.equal(await page.locator('#enhancement-panel [role="tablist"]').count(),1);
+        assert(await page.locator('[data-enhancement-tab]').evaluateAll(buttons=>buttons.every(button=>{const r=button.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;})),width+' 통합 탭이 화면에서 잘림');
+        await page.locator('#enhancement-panel').screenshot({path:path.join(output,'unified-'+type+'-'+width+'.png')});
         await form.screenshot({path:path.join(output,type+'-'+width+'.png')});
         await form.locator('.resource-cost-guide summary').click();
         await checkLayout(page,width+' '+type+' 안내 펼침');

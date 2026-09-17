@@ -127,6 +127,7 @@ async function checkRows(page, label) {
     assert.equal(await form.locator('[data-profit-cost-subtotal="wonderberry"]').innerText(),'0 메소','Cleared cost kept stale subtotal');
 
     await navigate(page,'expense');
+    await page.click('[data-enhancement-tab="legacy"]');
     const manual=page.locator('#manual-enhancement-calculator');
     const yesterday=await page.evaluate(()=>addDays(todayStr(),-1));
     await manual.locator('[data-profit-input="date"]').fill(yesterday);
@@ -188,6 +189,7 @@ async function checkRows(page, label) {
         }
       }
       await navigate(page,'expense');
+      await page.click('[data-enhancement-tab="legacy"]');
       for (const type of ['starforce','scroll','ability']) {
         await page.selectOption('#manual-enhancement-type',type);
         await checkRows(page,width+' manual '+type);

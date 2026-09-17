@@ -166,6 +166,44 @@
   const priceLabel=g=>g.kind==='cube'?'큐브 환산액 · 지출 아님':'메소 사용액 (추정)';
   const labelFor=g=>g.kind==='starforce'?(g.stars??'?')+'성':g.grade||'등급 미상';
   const timeText=at=>new Date(at).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const apiTab=value=>value==='starforce' || value==='potential';
+  const matchesTab=(kind,value)=>kind===value || (value==='potential' && kind==='cube');
+  function renderTabs(all) {
+    const isApi=apiTab(tab);
+    document.querySelectorAll('[data-enhancement-tab]').forEach(button=>{
+      const value=button.dataset.enhancementTab, active=value===tab;
+      button.setAttribute('aria-selected',String(active));
+      button.tabIndex=active?0:-1;
+      button.setAttribute('aria-controls',apiTab(value)?'enhancement-api-panel':'manual-enhancement-panel');
+      const count=button.querySelector('span');
+      if(count) count.textContent=all.filter(g=>matchesTab(g.kind,value)).length;
+      if(active) $(isApi?'enhancement-api-panel':'manual-enhancement-panel')?.setAttribute('aria-labelledby',button.id);
+    });
+    if($('enhancement-api-panel')) $('enhancement-api-panel').hidden=!isApi;
+    if($('manual-enhancement-panel')) $('manual-enhancement-panel').hidden=isApi;
+    if($('enhancement-badge')) $('enhancement-badge').hidden=!isApi;
+  }
+  function selectTab(value) {
+    if(!document.querySelector('[data-enhancement-tab="'+value+'"]')) return;
+    if(apiTab(value) && value!==renderedTab) page=0;
+    tab=value;
+    if(!apiTab(tab)) window.MapleManualEnhancementTabs?.select(tab);
+    render();
+  }
+  function summaryHtml(groups) {
+    const total=rows=>rows.reduce((sum,g)=>sum+BigInt(g.subtotal),0n);
+    const count=rows=>rows.reduce((sum,g)=>sum+g.count,0).toLocaleString();
+    const missing=rows=>{const unknown=rows.filter(g=>g.estimate===null).length;return unknown?' · '+unknown+'개 미확인':'';};
+    if(tab==='potential') {
+      const meso=groups.filter(g=>g.kind==='potential'), cubes=groups.filter(g=>g.kind==='cube');
+      return '<div><span>메소 재설정 횟수</span><strong>'+count(meso)+'회</strong></div>'+
+        '<div><span>메소 사용액 (추정)'+missing(meso)+'</span><strong>'+bridge().money(String(total(meso)))+'</strong></div>'+
+        '<div><span>사용한 큐브</span><strong>'+count(cubes)+'개</strong></div>'+
+        '<div><span>큐브 환산액 · 메소 지출과 별도'+missing(cubes)+'</span><strong>'+bridge().money(String(total(cubes)))+'</strong></div>'+
+        '<p class="enhancement-summary-note">큐브 환산액은 메소 사용액과 별도로 표시합니다. 무료·캐시 큐브는 실제 메소 지출 여부를 확인한 뒤 반영하세요.</p>';
+    }
+    return '<div><span>확인할 장비</span><strong>'+groups.length+'개</strong></div><div><span>강화 시도</span><strong>'+count(groups)+'회</strong></div><div><span>메소 사용액 (추정)'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div>';
+  }
   function timelineHtml(g) {
     return '<details class="enhancement-timeline"><summary>사용 시각별 내역 '+g.events.length.toLocaleString()+'건</summary><div data-timeline-list></div><div class="enhancement-pagination"><button type="button" class="ghost" data-timeline-prev>이전</button><span data-timeline-page></span><button type="button" class="ghost" data-timeline-next>다음</button></div></details>';
   }
@@ -204,19 +242,18 @@
   function render() {
     if(!bridge() || !$('enhancement-list')) return;
     const source=bridge().get();
+    const state=E.normalize(source), all=E.reports(state);
+    renderTabs(all);
+    // 수기 입력 중에는 API 카드와 입력 초안을 다시 그리지 않습니다.
+    if(!apiTab(tab)) return;
     if(source===renderedState && renderedManual===bridge().manual() && renderedTab===tab && renderedPage===page) return;
-    const state=E.normalize(source), all=E.reports(state), groups=all.filter(g=>g.kind===tab);
+    const groups=all.filter(g=>matchesTab(g.kind,tab));
     page=Math.min(page,Math.max(0,Math.ceil(groups.length/10)-1));
     renderedState=source; renderedManual=bridge().manual(); renderedTab=tab; renderedPage=page;
     const visible=groups.slice(page*10,page*10+10);
     const open=new Set([...$('enhancement-list').querySelectorAll('article')].filter(r=>r.querySelector('details')?.open).map(r=>r.dataset.reportKey));
-    document.querySelectorAll('[data-enhancement-tab]').forEach(button=>{
-      const active=button.dataset.enhancementTab===tab;
-      button.setAttribute('aria-selected',String(active));
-      button.querySelector('span').textContent=all.filter(g=>button.dataset.enhancementTab===g.kind).length;
-    });
-    const total=groups.reduce((sum,g)=>sum+BigInt(g.subtotal),0n), unknown=groups.filter(g=>g.estimate===null).length;
-    $('enhancement-summary').innerHTML='<div><span>확인할 장비</span><strong>'+groups.length+'개</strong></div><div><span>'+({starforce:'강화 시도',potential:'메소 재설정',cube:'사용한 큐브'}[tab])+'</span><strong>'+groups.reduce((sum,g)=>sum+g.count,0).toLocaleString()+(tab==='cube'?'개':'회')+'</strong></div><div><span>'+(tab==='cube'?'큐브 환산액 · 메소 지출과 별도':'메소 사용액 (추정)')+(unknown?' · '+unknown+'개 미확인':'')+'</span><strong>'+bridge().money(String(total))+'</strong></div>';
+    $('enhancement-summary').classList.toggle('enhancement-summary--potential',tab==='potential');
+    $('enhancement-summary').innerHTML=summaryHtml(groups);
     $('enhancement-list').innerHTML=visible.length?visible.map((g,i)=>{
       const icon=window.resolveItemImage?.({name:g.item,img:g.icon}) || g.icon;
       const progress=g.kind==='starforce'?(g.firstStars??'?')+'성 → '+(g.lastStars??'?')+'성':(g.firstGrade||'등급 미상')+(g.lastGrade && g.lastGrade!==g.firstGrade?' → '+g.lastGrade:'');
@@ -288,7 +325,21 @@
     $('enhancement-to').max=today(); $('enhancement-from').max=today();
     if(!session && bridge().key()) $('enhancement-source').value='key';
     $('enhancement-source').onchange=controls;
-    document.querySelectorAll('[data-enhancement-tab]').forEach(button=>button.onclick=()=>{tab=button.dataset.enhancementTab;page=0;render();});
+    const tabs=[...document.querySelectorAll('[data-enhancement-tab]')];
+    tabs.forEach((button,index)=>{
+      button.onclick=()=>selectTab(button.dataset.enhancementTab);
+      button.onkeydown=event=>{
+        let next;
+        if(event.key==='ArrowRight') next=(index+1)%tabs.length;
+        else if(event.key==='ArrowLeft') next=(index+tabs.length-1)%tabs.length;
+        else if(event.key==='Home') next=0;
+        else if(event.key==='End') next=tabs.length-1;
+        else return;
+        event.preventDefault();
+        selectTab(tabs[next].dataset.enhancementTab);
+        tabs[next].focus();
+      };
+    });
     $('enhancement-connect').onclick=connect;
     $('enhancement-refresh').onclick=()=>sync();
     $('enhancement-cancel').onclick=()=>running?.abort();
