@@ -4129,7 +4129,7 @@ const DROP_ITEMS = {
   ]);
 }
 
-// 소울 에테르는 9월 17일 본서버 드랍 표 기준입니다. 원본 아이콘 확인 전에는 단계명을 표시합니다.
+// 소울 에테르는 9월 17일 본서버 드랍 표 기준이며, 공식 보상 그림과 대조한 단계별 원본 아이콘을 사용합니다.
 [
   [1,['nadv','hadv','xadv','nkali','hkali','xkali']],
   [2,['nbellona','hbellona','nstar','hstar']],
@@ -4137,7 +4137,7 @@ const DROP_ITEMS = {
   [4,['njup','hjup']]
 ].forEach(([stage,bossIds])=>bossIds.forEach(id=>{
   if(!DROP_ITEMS[id]) DROP_ITEMS[id]=[];
-  DROP_ITEMS[id].push({id:'soul_ether_'+stage,name:stage+'단계 소울 에테르',img:'',availableFrom:'2026-09-17'});
+  DROP_ITEMS[id].push({id:'soul_ether_'+stage,name:stage+'단계 소울 에테르',img:'assets/drops/soul_ether_'+stage+'.webp',availableFrom:'2026-09-17'});
 }));
 
 function bossParts(name){

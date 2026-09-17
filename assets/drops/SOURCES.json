@@ -1,5 +1,5 @@
 {
-  "verifiedOn": "2026-09-08",
+  "verifiedOn": "2026-09-18",
   "copyright": "Item artwork belongs to NEXON. Original pixels are preserved; no generated substitutes.",
   "note": "Local copies remove expiring third-party image URLs from the application.",
   "items": [
@@ -723,6 +723,62 @@
       "bytes": 1226,
       "sha256": "46afe2e5009ce044e7b6ea3731bafd89ea59fd96897fd3263ff60a4810f0a979",
       "source": "https://open.api.nexon.com/static/maplestory/item/icon/KEOAJEJF"
+    },
+    {
+      "id": "soul_ether_1",
+      "name": "1단계 소울 에테르",
+      "file": "assets/drops/soul_ether_1.webp",
+      "width": 36,
+      "height": 37,
+      "bytes": 1708,
+      "sha256": "0681e245268505d1ce29ef36c4084fee909cb59bf8d6d13c55df07ec824d43a4",
+      "source": "https://i.namu.wiki/i/-L0t3JCW8OOwbEZUOSbyAX2ePY-4FTt2-7fdXHkuPmnhML0Fy035BWmQ8Um2eBVKQfrOyFQgeq3eswO6bXD4ig.webp",
+      "sourcePage": "https://namu.wiki/w/소울웨폰",
+      "verifiedOn": "2026-09-18",
+      "verifiedAgainst": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+      "note": "단계별 이미지의 대체 텍스트와 넥슨 공식 보상 그림을 대조했습니다. 원본 WebP 파일을 수정 없이 보관합니다."
+    },
+    {
+      "id": "soul_ether_2",
+      "name": "2단계 소울 에테르",
+      "file": "assets/drops/soul_ether_2.webp",
+      "width": 36,
+      "height": 37,
+      "bytes": 1682,
+      "sha256": "8f8b8bd3ad54058e75209b9d3aa3d0492416bb65329b4fa20c07c1fdae552727",
+      "source": "https://i.namu.wiki/i/NJZvz62KLPIDYGqlGEKhYE1pmn7S0SnnmSMjf2frHTAPLjV8JVj-CLylAozhAVTpPNi1eHGq6eS2wSYEhcBSpA.webp",
+      "sourcePage": "https://namu.wiki/w/소울웨폰",
+      "verifiedOn": "2026-09-18",
+      "verifiedAgainst": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+      "note": "단계별 이미지의 대체 텍스트와 넥슨 공식 보상 그림을 대조했습니다. 원본 WebP 파일을 수정 없이 보관합니다."
+    },
+    {
+      "id": "soul_ether_3",
+      "name": "3단계 소울 에테르",
+      "file": "assets/drops/soul_ether_3.webp",
+      "width": 36,
+      "height": 37,
+      "bytes": 1640,
+      "sha256": "7c1a33ca105cecba5f24066f42bbeaa06921d415af37be26afc23d39073967ba",
+      "source": "https://i.namu.wiki/i/AdAOViYgyoOalbxciTrUxZlhiD-4_mjNWz0Q1uy6OUqk4FKTpsbn0mFnyC9NCVD_u05bRW7GYru_7I9k81cP2A.webp",
+      "sourcePage": "https://namu.wiki/w/소울웨폰",
+      "verifiedOn": "2026-09-18",
+      "verifiedAgainst": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+      "note": "단계별 이미지의 대체 텍스트와 넥슨 공식 보상 그림을 대조했습니다. 원본 WebP 파일을 수정 없이 보관합니다."
+    },
+    {
+      "id": "soul_ether_4",
+      "name": "4단계 소울 에테르",
+      "file": "assets/drops/soul_ether_4.webp",
+      "width": 36,
+      "height": 37,
+      "bytes": 1686,
+      "sha256": "7c6e1ff537e41f56c11979b27a7de0d0e7dd1bbd37d86f07eb1b085ec50ac662",
+      "source": "https://i.namu.wiki/i/fE2amMix7QLngMOoKUhQvrQNeN5B1MIK9xLAh7I1uA-_GKYIqbjNewM8JbxdLY1Oh77TYMMU0VSlkPDNuLWX2w.webp",
+      "sourcePage": "https://namu.wiki/w/소울웨폰",
+      "verifiedOn": "2026-09-18",
+      "verifiedAgainst": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+      "note": "단계별 이미지의 대체 텍스트와 넥슨 공식 보상 그림을 대조했습니다. 원본 WebP 파일을 수정 없이 보관합니다."
     }
   ]
 }

@@ -21,7 +21,7 @@ assert.equal(hash(JSON.stringify(baselineCatalog, (key, value) => key === 'img' 
 const newItems=Object.values(catalog.DROP_ITEMS).flat().filter(item=>/^soul_ether_[1-4]$/.test(item.id));
 assert.equal(newItems.length,16);
 assert.equal(new Set(newItems.map(item=>item.id)).size,4);
-for(const item of newItems){ assert.equal(item.availableFrom,'2026-09-17'); assert.equal(item.img,'','미확인 원본 아이콘을 다른 그림으로 대체하지 않습니다.'); }
+for(const item of newItems){ assert.equal(item.availableFrom,'2026-09-17'); assert.equal(item.img,'assets/drops/'+item.id+'.webp','소울 에테르 단계별 원본 아이콘'); }
 const items = new Map();
 function visit(item) {
   assert.match(item.img, /^assets\//, item.id + ' must use a bundled icon');
@@ -29,8 +29,8 @@ function visit(item) {
   items.set(item.id, item);
   (item.children || []).forEach(visit);
 }
-Object.values(baselineCatalog).flatMap(group => Object.values(group).flat()).forEach(visit);
-assert.equal(items.size, 69);
+Object.values(catalog).flatMap(group => Object.values(group).flat()).forEach(visit);
+assert.equal(items.size, 73);
 assert.equal(manifest.items.length, items.size);
 for (const item of items.values()) {
   const source = manifest.items.find(entry => entry.id === item.id);
