@@ -1,0 +1,26 @@
+.manual-expense-tabs { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+.manual-expense-tabs button { border:1px solid var(--line); background:var(--panel2); color:var(--text); padding:9px 14px; }
+.manual-expense-tabs button[aria-selected=true] { background:#ffda621a; border-color:var(--gold); color:var(--gold); }
+.manual-enhancement-type[hidden] { display:none; }
+.manual-resource-notice { font-size:14px; line-height:1.8; margin:0 0 18px; color:var(--sub); }
+.manual-resource-notice strong { color:var(--gold); }
+.resource-cost-guide { margin-top:20px; padding:14px; border:1px solid var(--line); border-radius:8px; }
+.resource-cost-guide summary { cursor:pointer; font-weight:700; }
+.resource-cost-guide p { line-height:1.8; }
+.resource-cost-guide table { width:100%; table-layout:fixed; font-size:13px; margin:12px 0; }
+.resource-cost-guide th,.resource-cost-guide td { padding:8px 6px; white-space:normal; overflow-wrap:anywhere; text-align:left; }
+.manual-resource-warning { margin:16px 0 0; font-size:13px; line-height:1.7; color:var(--sub); }
+[data-manual-type="soul_ether"] .profit-line-name span:last-child,
+[data-manual-type="advanced_ability"] .profit-line-name span:last-child { white-space:normal; overflow-wrap:anywhere; }
+.manual-cost-breakdown { grid-column:1 / -1; border-top:1px solid var(--line); padding-top:8px; min-width:0; }
+.manual-cost-breakdown summary { cursor:pointer; font-size:13px; color:var(--sub); }
+.manual-cost-breakdown ul { list-style:none; padding:0; margin:10px 0 0; display:grid; gap:8px; }
+.manual-cost-breakdown li { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; font-size:13px; }
+.manual-cost-breakdown li span { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; overflow-wrap:anywhere; }
+.manual-cost-breakdown li small { color:var(--sub); }
+@media (max-width:540px) {
+  .manual-expense-tabs { gap:6px; }
+  .manual-expense-tabs button { flex:1 1 auto; padding:8px 10px; font-size:13px; }
+  .resource-cost-guide { padding:10px; }
+  .resource-cost-guide table { font-size:12px; }
+}

@@ -2,11 +2,12 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20260918-1"></script>
+<script src="assets/patch-notes-data.js?v=20260918-2"></script>
 <script src="assets/patch-notes.js?v=20260918-1"></script>
 <script src="assets/enhancement-ledger.js?v=20260908-1"></script>
 <script src="assets/friends-expenses.js?v=20260908-1"></script>
 <script src="assets/september-expenses.js?v=20260917-1"></script>
+<script src="assets/soul-ability-expenses.js?v=20260918-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
@@ -1030,6 +1031,7 @@
 <link rel="stylesheet" href="assets/workspace.css?v=20260909-1">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260918-1">
+<link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-1">
 </head>
 <body>
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1289,7 +1291,7 @@
     <ul class="guide-list">
       <li>원더베리, 로얄스타일, 플래티넘 애플의 구입 비용과 판매 수익을 비교합니다.</li>
       <li>통계에는 실제 사용 메소와 판매 완료한 아이템의 수수료 차감 후 수익만 반영됩니다.</li>
-      <li>스타포스, 잠재능력, 주문서, 추가옵션, 어빌리티는 지출 기록에서 관리합니다.</li>
+      <li>스타포스, 잠재능력, 주문서, 추가옵션, 어빌리티, 소울 에테르와 고급 어빌리티는 지출 기록에서 관리합니다.</li>
     </ul>
     <div class="guide-note">아이템을 아직 판매하지 않았다면 순수 손실만 표시됩니다. 판매 여부를 체크하고 판매가와 수수료 3% 또는 5%를 선택하면 실수령액이 수익으로 잡힙니다.</div>
   </div>
@@ -1648,8 +1650,13 @@
   <div class="card">
     <h2>강화 지출 직접 입력</h2>
     <p class="muted">API 없이도 입력할 수 있습니다. API에서 이미 반영한 지출은 제외하세요.</p>
+    <div class="manual-expense-tabs" role="tablist" aria-label="직접 입력할 강화 지출">
+      <button type="button" role="tab" id="manual-expense-tab-legacy" data-manual-expense-tab="legacy" aria-selected="true" aria-controls="manual-enhancement-calculator">기존 강화</button>
+      <button type="button" role="tab" id="manual-expense-tab-soul_ether" data-manual-expense-tab="soul_ether" aria-selected="false" aria-controls="manual-enhancement-calculator" tabindex="-1">소울 에테르</button>
+      <button type="button" role="tab" id="manual-expense-tab-advanced_ability" data-manual-expense-tab="advanced_ability" aria-selected="false" aria-controls="manual-enhancement-calculator" tabindex="-1">고급 어빌리티</button>
+    </div>
     <label class="manual-enhancement-type">강화 종류<select id="manual-enhancement-type"></select></label>
-    <div id="manual-enhancement-calculator"></div>
+    <div id="manual-enhancement-calculator" role="tabpanel" aria-labelledby="manual-expense-tab-legacy"></div>
   </div>
   <div class="card">
     <h2>💳 메소 지출 입력</h2>
@@ -6850,6 +6857,7 @@ function spendingCategoryRows(pred){
     if(pred(r.date,r)){
       const category=profitCategory(r.type);
       add(category.id,category.title,profitRecordTotals(r).cost,'calculator');
+      if(MapleSoulAbilityExpenses.modes[r.type] && map.has(category.id)) map.get(category.id).name=category.title;
     }
   });
   return Array.from(map.values()).sort((a,b)=>a.total===b.total ? a.name.localeCompare(b.name,'ko') : (a.total>b.total ? -1 : 1));
@@ -7751,6 +7759,7 @@ const PROFIT_CATEGORIES=[
   {id:'scroll', icon:'📜', title:'주문서', tag:'주문서', desc:'주문서와 주문의 흔적 사용량을 지출로 기록합니다.'},
   {id:'bonus', icon:'🔥', title:'추가옵션', tag:'환불', desc:'추가옵션 재설정 1회당 300만 메소로 손실을 기록합니다.'},
   {id:'ability', icon:'🏅', title:'어빌리티', tag:'어빌', desc:'대형 보스 명예의 훈장 가격과 사용 개수를 지출로 기록합니다.'},
+  ...MapleSoulAbilityExpenses.categories,
   {id:'wonderberry', img:PROFIT_ASSET_BASE+'wonderberry.png', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
   {id:'royal', img:PROFIT_ASSET_BASE+'royal-style.png', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
   {id:'platinumapple', crop:'platinum-apple', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'},
@@ -7842,7 +7851,8 @@ const PROFIT_PLATINUM_OUTPUTS=[
   {id:'sol_erda', name:'솔 에르다의 기운', note:'3%', img:PROFIT_ASSET_BASE+'sol-erda-energy.png', sellable:false},
   {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png', sellable:false}
 ];
-const MANUAL_ENHANCEMENT_TYPES=new Set(['starforce','potential','scroll','bonus','ability']);
+const MANUAL_ENHANCEMENT_TYPES=new Set(['starforce','potential','scroll','bonus','ability','soul_ether','advanced_ability']);
+const manualEnhancementState={tab:'legacy',drafts:{}};
 const profitState={active:'wonderberry',teeniepingProduct:'goods',teeniepingDrafts:{}};
 const ITEM_ICON_LOOKUP=(()=>{
   const byId=new Map(),byName=new Map();
@@ -7858,6 +7868,7 @@ const ITEM_ICON_LOOKUP=(()=>{
     ...PROFIT_SCROLL_COSTS,...PROFIT_ABILITY_COSTS,
     ...PROFIT_WONDER_COSTS,...PROFIT_WONDER_OUTPUTS,
     ...PROFIT_ROYAL_COSTS,...PROFIT_ROYAL_OUTPUTS,...PROFIT_PLATINUM_OUTPUTS,
+    ...Object.values(MapleSoulAbilityExpenses.modes).flatMap(mode=>mode.costs),
     ...MapleTeeniepingProfit.products.flatMap(product=>product.costs.concat(product.outputs)),
     ...Object.values(DROP_ITEMS).flat(),...Object.values(DAILY_DROP_ITEMS).flat()
   ].forEach(add);
@@ -8194,6 +8205,7 @@ function renderProfitRecords(manual=false){
       (expenseOnly?'':'<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
       '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>')+
       (r.id.startsWith('enhancement:') ? '<a href="?page=expense" class="ghost">API 지출 관리</a>' : '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>')+
+      (manual && MapleSoulAbilityExpenses.modes[r.type] ? '<details class="manual-cost-breakdown"><summary>비용 내역 보기</summary><ul>'+r.costs.filter(line=>line.count>0).map(line=>'<li><span>'+profitIconHtml(line)+esc(line.name)+' <small>'+(MapleSoulAbilityExpenses.modes[r.type].moneyFields.some(field=>field.id===line.id)?'직접 사용액':formatDigits(String(line.count))+'개 × '+korMeso(line.price))+'</small></span><b>'+korMeso(profitLineValue(line))+'</b></li>').join('')+'</ul></details>' : '')+
     '</div>';
   }).join('');
   el.querySelectorAll('[data-profit-delete]').forEach(btn=>{
@@ -8208,17 +8220,38 @@ function renderProfitRecords(manual=false){
 
 function buildManualEnhancementRecord(showErrors=false){
   const box=document.getElementById('manual-enhancement-calculator');
-  const type=document.getElementById('manual-enhancement-type')?.value;
+  const type=currentManualEnhancementType();
   if(!box || !MANUAL_ENHANCEMENT_TYPES.has(type)) return null;
   const value=key=>profitInputValue(key,box);
   const date=normalizeDateInput(value('date'));
-  if(!date || date>todayStr()){
+  const resourceMode=MapleSoulAbilityExpenses.modes[type];
+  if(!date || date>(resourceMode?MapleSoulAbilityExpenses.today():todayStr())){
     if(showErrors) alert('오늘까지의 날짜를 올바르게 입력해 주세요.');
+    return null;
+  }
+  if(resourceMode && date<MapleSoulAbilityExpenses.effectiveDate){
+    if(showErrors) alert('소울 강화와 고급 어빌리티는 2026년 9월 17일 이후 사용분을 기록해 주세요.');
     return null;
   }
   const cat=profitCategory(type);
   const record={id:'profit_'+Date.now()+'_'+Math.random().toString(36).slice(2),date,type,title:cat.title,costs:[],outputs:[],expected:0,createdAt:new Date().toISOString()};
-  if(type==='starforce' || type==='potential'){
+  if(resourceMode){
+    record.itemName=String(value('itemName')).trim().slice(0,100);
+    record.costs=profitReadCostLines(resourceMode.costs,box);
+    for(const item of resourceMode.costs){
+      const price=mesoValueFromDigits(box.querySelector('[data-profit-cost-price="'+item.id+'"]').value);
+      const rawCount=box.querySelector('[data-profit-cost-count="'+item.id+'"]').value;
+      const count=Number(rawCount);
+      if((toMesoBig(price)>0n || count!==0) && (!Number.isSafeInteger(count) || count<=0 || toMesoBig(price)<=0n)){
+        if(showErrors) alert(item.name+'의 실제 구입 단가와 수량을 함께 입력해 주세요. 무료 획득분은 구입비에서 제외합니다.');
+        return null;
+      }
+    }
+    resourceMode.moneyFields.forEach(field=>{
+      const amount=mesoValueFromDigits(value(field.key));
+      if(toMesoBig(amount)>0n) record.costs.push({id:field.id,name:field.name,icon:'💰',price:amount,count:1});
+    });
+  }else if(type==='starforce' || type==='potential'){
     record.itemName=String(value('itemName')).trim();
     const item=profitEquipItemsForType(type).find(item=>item.name===record.itemName);
     record.itemId=item?.id || '';
@@ -8238,31 +8271,95 @@ function buildManualEnhancementRecord(showErrors=false){
 function renderManualEnhancementResult(){
   const box=document.getElementById('manual-enhancement-calculator');
   const record=buildManualEnhancementRecord();
-  if(!record) return;
+  if(!record){
+    if(box) {
+      box.querySelectorAll('[data-profit-cost-subtotal]').forEach(el=>el.textContent='입력 확인');
+      const total=box.querySelector('[data-manual-total]');
+      if(total) total.textContent='입력 확인';
+    }
+    return;
+  }
   updateProfitSubtotals(record,box);
   box.querySelector('[data-manual-total]').textContent=korMeso(profitRecordTotals(record).cost);
+}
+function currentManualEnhancementType(){
+  return manualEnhancementState.tab==='legacy' ? document.getElementById('manual-enhancement-type')?.value : manualEnhancementState.tab;
+}
+function captureManualEnhancementDraft(){
+  const box=document.getElementById('manual-enhancement-calculator');
+  const type=box?.dataset.manualType;
+  if(!type) return;
+  const values={};
+  box.querySelectorAll('input,select').forEach(input=>{
+    const attribute=Array.from(input.attributes).find(attr=>/^data-profit-(input|cost-price|cost-count)$/.test(attr.name));
+    if(attribute) values[attribute.name+':'+attribute.value]=input.value;
+  });
+  values.guideOpen=!!box.querySelector('.resource-cost-guide')?.open;
+  manualEnhancementState.drafts[type]=values;
+}
+function restoreManualEnhancementDraft(box,type){
+  const values=manualEnhancementState.drafts[type];
+  if(!values) return;
+  box.querySelectorAll('input,select').forEach(input=>{
+    const attribute=Array.from(input.attributes).find(attr=>/^data-profit-(input|cost-price|cost-count)$/.test(attr.name));
+    if(attribute && Object.prototype.hasOwnProperty.call(values,attribute.name+':'+attribute.value)) input.value=values[attribute.name+':'+attribute.value];
+  });
+  const guide=box.querySelector('.resource-cost-guide');
+  if(guide) guide.open=!!values.guideOpen;
+}
+function manualResourceGuideHtml(mode){
+  return '<details class="resource-cost-guide"><summary>시스템 · 기본 소모량 안내</summary><p>'+esc(mode.guide)+'</p>'+mode.guideGroups.map(group=>{
+    const items=MapleSeptemberExpenses.modes.find(item=>item.id===group.mode).items;
+    return '<h4>'+esc(group.title)+'</h4><table><thead><tr><th scope="col">구분</th><th scope="col">1회 메소</th><th scope="col">추가 소모</th></tr></thead><tbody>'+items.map(item=>'<tr><td>'+esc(item.name)+'</td><td>'+korMeso(item.meso)+'</td><td>'+esc(group.extra(item))+'</td></tr>').join('')+'</tbody></table>';
+  }).join('')+'<a href="'+esc(mode.source)+'" target="_blank" rel="noopener noreferrer">공식 시스템 안내</a></details>';
 }
 function renderManualEnhancementForm(reset=false){
   const select=document.getElementById('manual-enhancement-type');
   const box=document.getElementById('manual-enhancement-calculator');
   if(!select || !box) return;
   if(!select.options.length){
-    select.innerHTML=PROFIT_CATEGORIES.filter(c=>MANUAL_ENHANCEMENT_TYPES.has(c.id)).map(c=>'<option value="'+c.id+'">'+esc(c.title)+'</option>').join('');
+    select.innerHTML=PROFIT_CATEGORIES.filter(c=>MANUAL_ENHANCEMENT_TYPES.has(c.id) && !MapleSoulAbilityExpenses.modes[c.id]).map(c=>'<option value="'+c.id+'">'+esc(c.title)+'</option>').join('');
     select.onchange=()=>renderManualEnhancementForm(true);
   }
   // API refreshes and page navigation must not erase an unfinished manual entry.
   if(box.childElementCount && !reset) return;
-  const type=select.value;
-  let fields=profitDateBlock(),rows='';
-  if(type==='starforce' || type==='potential'){
+  captureManualEnhancementDraft();
+  const tabs=Array.from(document.querySelectorAll('[data-manual-expense-tab]'));
+  const chooseTab=button=>{manualEnhancementState.tab=button.dataset.manualExpenseTab;renderManualEnhancementForm(true);};
+  tabs.forEach((button,index)=>{
+    const selected=button.dataset.manualExpenseTab===manualEnhancementState.tab;
+    button.setAttribute('aria-selected',String(selected));
+    button.tabIndex=selected?0:-1;
+    button.onclick=()=>chooseTab(button);
+    button.onkeydown=event=>{
+      let next;
+      if(event.key==='ArrowRight') next=(index+1)%tabs.length;
+      else if(event.key==='ArrowLeft') next=(index+tabs.length-1)%tabs.length;
+      else if(event.key==='Home') next=0;
+      else if(event.key==='End') next=tabs.length-1;
+      if(next===undefined) return;
+      event.preventDefault(); chooseTab(tabs[next]); tabs[next].focus();
+    };
+  });
+  select.closest('.manual-enhancement-type').hidden=manualEnhancementState.tab!=='legacy';
+  box.setAttribute('aria-labelledby','manual-expense-tab-'+manualEnhancementState.tab);
+  const type=currentManualEnhancementType(),resourceMode=MapleSoulAbilityExpenses.modes[type];
+  let fields=profitDateBlock(resourceMode?MapleSoulAbilityExpenses.today():todayStr()),rows='',intro='';
+  if(resourceMode){
+    intro='<p class="manual-resource-notice"><strong>'+esc(resourceMode.title)+' · 수기 기록</strong><br>'+esc(resourceMode.description)+'</p>';
+    fields+='<div class="profit-field wide"><label for="manual-resource-name">기록 이름 (선택)</label><input id="manual-resource-name" data-profit-input="itemName" type="text" maxlength="100" placeholder="예: 캐릭터 이름 · 무기 이름"></div>';
+    rows='<h3>'+esc(resourceMode.costTitle)+'</h3>'+profitCostRowsHtml(resourceMode.costs,'구입 단가 (메소)')+'<h3>직접 사용한 메소</h3><div class="profit-entry-grid">'+resourceMode.moneyFields.map(field=>profitMoneyBlock(field.label,field.key)).join('')+'</div>'+manualResourceGuideHtml(resourceMode)+'<p class="manual-resource-warning">다른 지출 화면에서 이미 기록한 구입비나 사용 메소는 다시 입력하지 마세요. API 조회 여부와 관계없이 이 기록은 저장 즉시 지출에 반영됩니다.</p>';
+  }else if(type==='starforce' || type==='potential'){
     fields+='<div class="profit-field"><label for="manual-enhancement-item">아이템 (선택)</label><input id="manual-enhancement-item" data-profit-input="itemName" type="text" list="manual-enhancement-items" placeholder="아이템 이름"><datalist id="manual-enhancement-items">'+profitEquipItemsForType(type).map(item=>'<option value="'+esc(item.name)+'">').join('')+'</datalist></div>'+profitMoneyBlock('실제 사용 메소','used');
   }else if(type==='bonus'){
     fields+=profitNumberBlock('재설정 횟수','bonusCount')+'<div class="muted">1회 3,000,000 메소</div>';
   }else{
     rows=profitCostRowsHtml(type==='scroll'?PROFIT_SCROLL_COSTS:PROFIT_ABILITY_COSTS);
   }
-  box.innerHTML='<div class="profit-entry-grid">'+fields+'</div>'+rows+
+  box.dataset.manualType=type;
+  box.innerHTML=intro+'<div class="profit-entry-grid">'+fields+'</div>'+rows+
     '<div class="manual-enhancement-actions"><span>지출 합계 <b data-manual-total>0 메소</b></span><button type="button" id="manual-enhancement-save">지출 저장</button></div>';
+  restoreManualEnhancementDraft(box,type);
   box.querySelectorAll('input,select').forEach(input=>{
     input.addEventListener('input',()=>{
       if(input.classList.contains('profit-money')) input.value=formatDigits(onlyDigits(input.value));
@@ -8276,6 +8373,8 @@ function renderManualEnhancementForm(reset=false){
     // Retain the existing ledger stream so API duplicate checks and totals stay compatible.
     db.profits=normalizeProfitRecords([record,...(Array.isArray(db.profits)?db.profits:[])]);
     save();
+    delete manualEnhancementState.drafts[type];
+    delete box.dataset.manualType;
     renderManualEnhancementForm(true);
     renderAllPreservingViewport();
   };

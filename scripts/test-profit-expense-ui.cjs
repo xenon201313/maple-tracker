@@ -72,7 +72,8 @@ async function checkRows(page, label) {
     await page.goto(origin + '/?page=profit');
     await page.evaluate(() => {
       db.chars = [];
-      db.profits = normalizeProfitRecords(PROFIT_CATEGORIES.filter(cat=>cat.id!=='teenieping').map((cat,i) => ({
+      const legacyTypes=new Set(['starforce','potential','scroll','bonus','ability','wonderberry','royal','platinumapple']);
+      db.profits = normalizeProfitRecords(PROFIT_CATEGORIES.filter(cat=>legacyTypes.has(cat.id)).map((cat,i) => ({
         id:'legacy-'+cat.id, date:todayStr(), type:cat.id, title:cat.title,
         itemName:cat.id==='starforce'?'기존 판매 장비':'', expected:'200000000',
         costs:[{id:'cost',price:String(100000000+i),count:1}],
