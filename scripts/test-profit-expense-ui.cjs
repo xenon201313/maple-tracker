@@ -63,12 +63,14 @@ async function checkRows(page, label) {
       return url.startsWith(origin) || url.startsWith('data:') ? route.continue() : route.abort();
     });
     const page = await context.newPage(), errors = [];
+    // 한정 판매 시작 전 시점에 기존 8개 분류의 회귀 검증을 고정합니다.
+    await page.clock.setFixedTime(new Date('2026-09-16T12:00:00+09:00'));
     page.on('pageerror', error => errors.push(error.message));
     page.on('dialog', dialog => dialog.accept());
     await page.goto(origin + '/?page=profit');
     await page.evaluate(() => {
       db.chars = [];
-      db.profits = normalizeProfitRecords(PROFIT_CATEGORIES.map((cat,i) => ({
+      db.profits = normalizeProfitRecords(PROFIT_CATEGORIES.filter(cat=>cat.id!=='teenieping').map((cat,i) => ({
         id:'legacy-'+cat.id, date:todayStr(), type:cat.id, title:cat.title,
         itemName:cat.id==='starforce'?'기존 판매 장비':'', expected:'200000000',
         costs:[{id:'cost',price:String(100000000+i),count:1}],

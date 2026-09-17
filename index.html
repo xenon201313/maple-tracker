@@ -7,6 +7,7 @@
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
+<script src="assets/teenieping-profit.js?v=20260918-1"></script>
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260907-5">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -638,6 +639,11 @@
   .profit-note{margin-top:12px; padding:10px 12px; border-radius:10px; background:rgba(255,204,51,.12); border:1px solid rgba(255,204,51,.26); color:#f6e7ad; font-size:13px; line-height:1.45;}
   .profit-note a{color:#6ee7ff; font-weight:900; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px;}
   .profit-note a:hover{color:#a7f3ff;}
+  .teenieping-period{margin:12px 0; line-height:1.7;}
+  .teenieping-equipment{margin:14px 0;}
+  .teenieping-equipment summary{cursor:pointer; color:var(--gold);}
+  .profit-img-icon.teenieping-atlas-icon{display:inline-block; padding:0; background-repeat:no-repeat; image-rendering:pixelated;}
+  [data-teenieping-product] .profit-line-name span:last-child{white-space:normal; overflow-wrap:anywhere;}
   .profit-entry-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:end;}
   .profit-entry-grid .wide{grid-column:1 / -1;}
   .profit-entry-grid input,.profit-entry-grid select{width:100%;}
@@ -1608,7 +1614,7 @@
   </div>
   <div class="card">
     <h2>손익 기록</h2>
-    <div class="muted">원더베리 · 로얄스타일 · 플래티넘 애플의 저장된 기록입니다.</div>
+    <div class="muted">저장한 뽑기 손익 기록입니다. 기간 한정 상품도 종료 후 기록과 통계는 유지됩니다.</div>
     <div id="profit-records" class="profit-records"></div>
   </div>
 </div>
@@ -7743,7 +7749,8 @@ const PROFIT_CATEGORIES=[
   {id:'ability', icon:'🏅', title:'어빌리티', tag:'어빌', desc:'대형 보스 명예의 훈장 가격과 사용 개수를 지출로 기록합니다.'},
   {id:'wonderberry', img:PROFIT_ASSET_BASE+'wonderberry.png', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
   {id:'royal', img:PROFIT_ASSET_BASE+'royal-style.png', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
-  {id:'platinumapple', crop:'platinum-apple', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'}
+  {id:'platinumapple', crop:'platinum-apple', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'},
+  MapleTeeniepingProfit.category
 ];
 const PROFIT_EQUIP_ITEMS=[
   {id:'meister_ring', name:'마이스터링', note:'Lv.140', sprite:['-48px -120px']},
@@ -7832,7 +7839,7 @@ const PROFIT_PLATINUM_OUTPUTS=[
   {id:'dense_sol_erda', name:'짙은 솔 에르다의 기운', note:'1%', img:PROFIT_ASSET_BASE+'dense-sol-erda-energy.png', sellable:false}
 ];
 const MANUAL_ENHANCEMENT_TYPES=new Set(['starforce','potential','scroll','bonus','ability']);
-const profitState={active:'wonderberry'};
+const profitState={active:'wonderberry',teeniepingProduct:'goods',teeniepingDrafts:{}};
 const ITEM_ICON_LOOKUP=(()=>{
   const byId=new Map(),byName=new Map();
   const add=item=>{
@@ -7847,6 +7854,7 @@ const ITEM_ICON_LOOKUP=(()=>{
     ...PROFIT_SCROLL_COSTS,...PROFIT_ABILITY_COSTS,
     ...PROFIT_WONDER_COSTS,...PROFIT_WONDER_OUTPUTS,
     ...PROFIT_ROYAL_COSTS,...PROFIT_ROYAL_OUTPUTS,...PROFIT_PLATINUM_OUTPUTS,
+    ...MapleTeeniepingProfit.products.flatMap(product=>product.costs.concat(product.outputs)),
     ...Object.values(DROP_ITEMS).flat(),...Object.values(DAILY_DROP_ITEMS).flat()
   ].forEach(add);
   return {byId,byName};
@@ -7865,6 +7873,12 @@ function profitEquipItemsForType(type){
 function profitIconHtml(item){
   const label=item?.name || item?.title || '아이템';
   const imageUrl=resolveItemImage(item);
+  const region=MapleTeeniepingProfit.iconRegion(item);
+  if(region){
+    const scale=28/Math.max(region.w,region.h);
+    const x=(28-region.w*scale)/2-region.x*scale, y=(28-region.h*scale)/2-region.y*scale;
+    return '<span class="profit-img-icon teenieping-atlas-icon" role="img" aria-label="'+esc(label)+'" style="background-image:url(&quot;'+esc(region.img)+'&quot;);background-size:'+region.width*scale+'px '+region.height*scale+'px;background-position:'+x+'px '+y+'px"></span>';
+  }
   if(item?.crop==='platinum-apple') return '<span class="profit-img-icon profit-crop-icon platinum-apple-icon" role="img" aria-label="'+esc(label)+'"></span>';
   if(item?.crop==='starforce-18-250') return '<span class="profit-img-icon profit-crop-icon starforce-18-250-icon" role="img" aria-label="'+esc(label)+'"></span>';
   if(item?.crop==='pet-grade') return '<span class="profit-img-icon profit-crop-icon pet-grade-icon" style="background-image:url(&quot;'+esc(item.img)+'&quot;)" role="img" aria-label="'+esc(label)+'"></span>';
@@ -7883,18 +7897,18 @@ function profitMoneyBlock(label,key,value=''){
 function profitNumberBlock(label,key,value='',attrs=''){
   return '<div class="profit-field"><label>'+label+'</label><input data-profit-input="'+key+'" type="number" min="0" inputmode="numeric" value="'+esc(value)+'" '+attrs+'></div>';
 }
-function profitDateBlock(){
-  return '<div class="profit-field"><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+todayStr()+'" value="'+todayStr()+'"></div>';
+function profitDateBlock(date=todayStr()){
+  return '<div class="profit-field"><label>날짜</label><input data-profit-input="date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: '+date+'" value="'+date+'"></div>';
 }
 function profitFeeOptionsHtml(value=3){
   const selected=normalizeProfitFee(value,3);
   return PROFIT_SALE_FEES.map(fee=>'<option value="'+fee+'"'+(fee===selected?' selected':'')+'>'+fee+'%</option>').join('');
 }
-function profitCostRowsHtml(items){
+function profitCostRowsHtml(items,priceLabel='개당 가격'){
   return '<div class="profit-lines">'+items.map(item=>
     '<div class="profit-line" data-profit-line="'+esc(item.id)+'">'+
       '<div class="profit-line-name">'+profitIconHtml(item)+'<span>'+esc(item.name)+(item.note?'<small>'+esc(item.note)+'</small>':'')+'</span></div>'+
-      '<div><label>개당 가격</label><input data-profit-cost-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
+      '<div><label>'+esc(priceLabel)+'</label><input data-profit-cost-price="'+esc(item.id)+'" type="text" class="profit-money" inputmode="numeric" autocomplete="off"></div>'+
       '<div><label>개수</label><input data-profit-cost-count="'+esc(item.id)+'" type="number" min="0" inputmode="numeric"></div>'+
       '<div><label>지출</label><div class="profit-record-stat bad"><b data-profit-cost-subtotal="'+esc(item.id)+'">0 메소</b></div></div>'+
     '</div>'
@@ -7924,16 +7938,78 @@ function profitOutputRowsHtml(items){
 function renderProfitMenu(){
   const list=document.getElementById('profit-type-list');
   if(!list) return;
-  list.innerHTML=PROFIT_CATEGORIES.filter(c=>!MANUAL_ENHANCEMENT_TYPES.has(c.id)).map(c=>
+  list.innerHTML=PROFIT_CATEGORIES.filter(c=>!MANUAL_ENHANCEMENT_TYPES.has(c.id) && (c.id!=='teenieping' || MapleTeeniepingProfit.isActive())).map(c=>
     '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'" aria-pressed="'+(c.id===profitState.active)+'"><span>'+profitIconHtml(c)+'<span class="profit-type-label">'+esc(c.title)+'</span></span></button>'
   ).join('');
   list.querySelectorAll('[data-profit-type]').forEach(btn=>{
-    btn.onclick=()=>{ profitState.active=btn.dataset.profitType; renderProfitCalculator(); };
+    btn.onclick=()=>{ captureTeeniepingDraft(); profitState.active=btn.dataset.profitType; renderProfitCalculator(); };
   });
+}
+function teeniepingDraftFieldKey(el){
+  const attr=Array.from(el.attributes).find(attr=>/^data-profit-(input|cost-price|cost-count|out-price|out-count|out-fee|out-sold)$/.test(attr.name));
+  return attr ? attr.name+':'+attr.value : '';
+}
+function captureTeeniepingDraft(){
+  const box=document.getElementById('profit-calculator'), product=box?.dataset.teeniepingProduct;
+  if(!product) return;
+  const fields={};
+  fields.equipmentOpen=!!box.querySelector('.teenieping-equipment')?.open;
+  box.querySelectorAll('input,select').forEach(el=>{
+    const key=teeniepingDraftFieldKey(el);
+    if(key) fields[key]=el.type==='checkbox' ? el.checked : el.value;
+  });
+  profitState.teeniepingDrafts[product]=fields;
+}
+function restoreTeeniepingDraft(box){
+  const fields=profitState.teeniepingDrafts[box.dataset.teeniepingProduct];
+  if(!fields) return;
+  const equipment=box.querySelector('.teenieping-equipment');
+  if(equipment) equipment.open=!!fields.equipmentOpen;
+  box.querySelectorAll('input,select').forEach(el=>{
+    const key=teeniepingDraftFieldKey(el);
+    if(!Object.prototype.hasOwnProperty.call(fields,key)) return;
+    if(el.type==='checkbox') el.checked=fields[key]; else el.value=fields[key];
+  });
+}
+let teeniepingAvailabilityTimer;
+function refreshTeeniepingAvailability(){
+  window.clearTimeout(teeniepingAvailabilityTimer);
+  const now=Date.now(), start=Date.parse(MapleTeeniepingProfit.startsAt), end=Date.parse(MapleTeeniepingProfit.endsAt);
+  const next=now<start ? start : now<end ? end : 0;
+  if(next) teeniepingAvailabilityTimer=window.setTimeout(refreshTeeniepingAvailability,Math.min(next-now,2147483647));
+  const active=MapleTeeniepingProfit.isActive(now);
+  if(!active && profitState.active==='teenieping'){
+    captureTeeniepingDraft();
+    profitState.active='wonderberry';
+    renderProfitCalculator();
+  }else{
+    const button=document.querySelector('[data-profit-type="teenieping"]');
+    if(!active) button?.remove();
+    else if(!button) renderProfitMenu();
+  }
+}
+window.addEventListener('pageshow',refreshTeeniepingAvailability);
+window.addEventListener('focus',refreshTeeniepingAvailability);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) refreshTeeniepingAvailability();
+});
+function teeniepingProfitFormHtml(){
+  const product=MapleTeeniepingProfit.product(profitState.teeniepingProduct);
+  const required=product.costs.filter(item=>!item.optional), optional=product.costs.filter(item=>item.optional);
+  return '<div class="profit-note teenieping-period"><b>판매 기간: 2026.09.17~10.21 23:59 (한국 시간)</b><br>10월 22일 00:00부터 이 계산 항목은 자동으로 숨겨집니다. 저장한 기록과 통계는 유지됩니다.<br>'+
+    '금액 입력은 모두 <b>메소</b> 기준입니다. 캐시 정가는 안내용이며, 직접 구매했다면 적용할 메소 환산가를 입력해 주세요.</div>'+
+    '<div class="profit-entry-grid">'+profitDateBlock(MapleTeeniepingProfit.today())+'<div class="profit-field wide"><label for="teenieping-product">콜라보 상품</label><select id="teenieping-product">'+
+    MapleTeeniepingProfit.products.map(item=>'<option value="'+esc(item.id)+'"'+(item.id===product.id?' selected':'')+'>'+esc(item.title)+'</option>').join('')+'</select></div></div>'+
+    '<p class="muted">'+esc(product.description)+' <a href="'+esc(product.source)+'" target="_blank" rel="noopener noreferrer">공식 확률 안내</a></p>'+
+    '<h3>지출</h3>'+profitCostRowsHtml(required,'개당 매입가 (메소)')+
+    (optional.length?'<details class="teenieping-equipment"><summary>펫 장비 비용 추가 (선택)</summary><p class="muted">함께 구매한 장비 비용까지 계산할 때만 입력하세요.</p>'+profitCostRowsHtml(optional,'개당 매입가 (메소)')+'</details>':'')+
+    '<h3>획득 결과</h3><p class="muted">'+esc(product.tradeNote)+'</p>'+profitOutputRowsHtml(product.outputs);
 }
 function renderProfitCalculator(){
   const box=document.getElementById('profit-calculator');
   if(!box) return;
+  captureTeeniepingDraft();
+  if(profitState.active==='teenieping' && !MapleTeeniepingProfit.isActive()) profitState.active='wonderberry';
   renderProfitMenu();
   const type=profitState.active;
   const cat=profitCategory(type);
@@ -7942,13 +8018,24 @@ function renderProfitCalculator(){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
   }else if(type==='royal'){
     body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
+  }else if(type==='teenieping'){
+    body=teeniepingProfitFormHtml();
   }else{
     body='<div class="profit-entry-grid">'+profitDateBlock()+profitMoneyBlock('플래티넘 애플 개당 가격','platinumPrice')+profitNumberBlock('개수','platinumCount')+'</div><h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_PLATINUM_OUTPUTS);
   }
+  if(type==='teenieping') box.dataset.teeniepingProduct=profitState.teeniepingProduct;
+  else delete box.dataset.teeniepingProduct;
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+profitIconHtml(cat)+'<span>'+esc(cat.title)+'</span></h2><div class="muted">'+esc(cat.desc)+'</div></div></div>'+
     body+
     '<div class="profit-actions"><button type="button" id="profit-save">기록 저장</button></div>';
+  restoreTeeniepingDraft(box);
+  const productSelect=box.querySelector('#teenieping-product');
+  if(productSelect) productSelect.onchange=()=>{
+    captureTeeniepingDraft();
+    profitState.teeniepingProduct=productSelect.value;
+    renderProfitCalculator();
+  };
   bindProfitForm(box);
   renderProfitResult();
   renderProfitRecords();
@@ -7993,14 +8080,22 @@ function profitReadOutputLines(items){
 }
 function buildProfitRecord(showErrors){
   const type=profitState.active;
+  if(type==='teenieping' && !MapleTeeniepingProfit.isActive()){
+    if(showErrors) refreshTeeniepingAvailability();
+    return null;
+  }
   const cat=profitCategory(type);
   const date=normalizeDateInput(profitInputValue('date'));
   if(!date){
     if(showErrors) alert('날짜를 올바르게 입력해 주세요.');
     return null;
   }
-  if(date>todayStr()){
+  if(date>(type==='teenieping' ? MapleTeeniepingProfit.today() : todayStr())){
     if(showErrors) alert('미래 날짜는 기록할 수 없습니다.');
+    return null;
+  }
+  if(type==='teenieping' && (date<'2026-09-17' || date>'2026-10-21')){
+    if(showErrors) alert('콜라보 기록 날짜는 2026년 9월 17일~10월 21일 안에서 선택해 주세요.');
     return null;
   }
   const base={id:'profit_'+Date.now()+'_'+Math.random().toString(36).slice(2), date, type, title:cat.title, costs:[], outputs:[], expected:0, createdAt:new Date().toISOString()};
@@ -8015,6 +8110,12 @@ function buildProfitRecord(showErrors){
     const count=Math.max(0,Math.floor(Number(profitInputValue('platinumCount'))||0));
     base.costs=[{id:'platinum_apple', name:'플래티넘 애플', crop:'platinum-apple', price, count}];
     base.outputs=profitReadOutputLines(PROFIT_PLATINUM_OUTPUTS);
+  }else if(type==='teenieping'){
+    const product=MapleTeeniepingProfit.product(profitState.teeniepingProduct);
+    base.itemId=product.id;
+    base.itemName=product.title;
+    base.costs=profitReadCostLines(product.costs);
+    base.outputs=profitReadOutputLines(product.outputs);
   }
   const normalized=normalizeProfitRecord(base);
   const totals=profitRecordTotals(normalized);
@@ -8031,6 +8132,10 @@ function saveProfitRecord(){
   db.profits.unshift(record);
   db.profits=normalizeProfitRecords(db.profits);
   save();
+  if(record.type==='teenieping'){
+    delete profitState.teeniepingDrafts[profitState.teeniepingProduct];
+    delete document.getElementById('profit-calculator').dataset.teeniepingProduct;
+  }
   renderAll();
 }
 function renderProfitResult(){
@@ -10751,6 +10856,7 @@ const initialPage=new URLSearchParams(location.search).get('page');
 if(initialPage && document.getElementById('page-'+initialPage)) openPage(initialPage);
 else renderAll();
 refreshCrystalSaleTimingUi();
+refreshTeeniepingAvailability();
 </script>
 </main>
 <nav class="mobile-nav" aria-label="빠른 메뉴">

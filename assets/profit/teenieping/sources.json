@@ -1,0 +1,493 @@
+{
+  "verifiedOn": "2026-09-18",
+  "note": "게임 원본 이미지와 공식 안내 PNG를 변경 없이 저장했습니다. 공식 PNG는 CSS 표시 영역으로 해당 아이콘만 보여줍니다.",
+  "catalogSources": {
+    "update": "https://maplestory.nexon.com/News/Update/813",
+    "goodsSale": "https://maplestory.nexon.com/News/CashShop/Sale/648",
+    "lunaSale": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+    "goodsProbability": "https://maplestory.nexon.com/Guide/OtherProbability/Game/CatchTeeniepingGoodsCollection",
+    "lunaSweetProbability": "https://maplestory.nexon.com/Guide/CashShop/Probability/SpecialLunaCrystalSweet",
+    "lunaDreamProbability": "https://maplestory.nexon.com/Guide/CashShop/Probability/SpecialLunaCrystalDream",
+    "lunaGuide": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/438",
+    "goodsPromotionImage": "https://lwi.nexon.com/maplestory/2026/0917_board/260917_B7F72E745F7835D3.png",
+    "lunaPromotionImage": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png"
+  },
+  "salePeriod": {
+    "startsAfterMaintenance": "2026-09-17",
+    "endsAt": "2026-10-21T23:59:59+09:00",
+    "endExclusive": "2026-10-22T00:00:00+09:00",
+    "source": "https://maplestory.nexon.com/News/Update/813",
+    "note": "공식 본문 및 홍보 이미지의 10월 21일 오후 11시 59분 종료 기준. 캐시샵 게시판 머리말의 00시 표시는 사용하지 않음."
+  },
+  "cashPrices": [
+    {
+      "name": "캐치! 티니핑 굿즈 컬렉션",
+      "quantity": 1,
+      "cash": 9900,
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/648",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/260917_B7F72E745F7835D3.png"
+    },
+    {
+      "name": "캐치! 티니핑 굿즈 컬렉션",
+      "quantity": 10,
+      "cash": 99000,
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/648",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/260917_B7F72E745F7835D3.png",
+      "note": "공식 홍보 이미지의 원본 크기 확대에서 묶음 개수 x10 확인. 축소 이미지에서 x11로 오독한 초기 조사 값을 정정함."
+    },
+    {
+      "name": "스페셜 루나 크리스탈",
+      "quantity": 1,
+      "cash": 3900,
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png"
+    },
+    {
+      "name": "쁘띠 다이아나핑의 날개",
+      "quantity": 1,
+      "cash": 15900,
+      "type": "스페셜 루나 쁘띠 전용 펫장비",
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png"
+    },
+    {
+      "name": "쁘띠 이클립스핑의 날개",
+      "quantity": 1,
+      "cash": 15900,
+      "type": "스페셜 루나 쁘띠 전용 펫장비",
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png"
+    },
+    {
+      "name": "쁘띠 프린세스 하츄핑의 요술봉",
+      "quantity": 1,
+      "cash": 15900,
+      "type": "스페셜 루나 쁘띠 전용 펫장비",
+      "source": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+      "imageSource": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png"
+    }
+  ],
+  "images": [
+    {
+      "name": "쿨쿨 곰돌이",
+      "id": "sleepy_bear",
+      "source": "https://i.namu.wiki/i/oB10lUKbyMyUisMjE8t3RF81k7irxeyylgvqnPy337lx76SDx9TIukE6rmzfkTXyUUXAsTysgI4jcEUQs5X5Sw.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 35,
+      "height": 30,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/sleepy_bear.gif",
+      "bytes": 6509,
+      "sha256": "01f624005afe63abdea3b252e396903ae30c64f8b004104be1de61aeba681dc4",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "쿨쿨 다람쥐",
+      "id": "sleepy_squirrel",
+      "source": "https://i.namu.wiki/i/SbNiUaMDI4r3vTQFO8NwXPb4wkXL2YvYlUh2VEzb0MPNyZ7fMMhQjcTWzv3y777fHbZgpcKvxZwdJssv4Vfi_w.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 44,
+      "height": 28,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/sleepy_squirrel.gif",
+      "bytes": 5107,
+      "sha256": "268584a2b2a207266fc4e7a37c67891cfa94202603c9e19b0fe00594cd8d6a6c",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "쿨쿨 너구리",
+      "id": "sleepy_raccoon",
+      "source": "https://i.namu.wiki/i/l94KDTUyk_MwhHtK_70MAa1y-4kwlZrUZI38D6FPg5SMqbNNQV8a7ANOw_6CQ7vseOwM0zT4Rn9UqEl8nvxq9g.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 43,
+      "height": 28,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/sleepy_raccoon.gif",
+      "bytes": 6783,
+      "sha256": "f57ccb8a6b63bb01b22bd0700a29a01f2bceed1b97701e718df3b03e06e8ec64",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "프링",
+      "id": "pring",
+      "source": "https://i.namu.wiki/i/uqW0iy6aRoZGmmpcuG8S3dn2Oy-zDqeC_AcVSoi5wFGEdFjcfuzqQDMyfj_HQxRsnzCoxRk2hWdh0ujNM2dtjg.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 41,
+      "height": 40,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/pring.gif",
+      "bytes": 10757,
+      "sha256": "81418854fb79df68b85e411b1fb56aa19de1c9a137c715cf1597cacde342bb00",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "레옹",
+      "id": "leon",
+      "source": "https://i.namu.wiki/i/wGvuAejG_e-tVY2A4iI-eXunGBnD1ZmtbL0K8I3pez85rnH1UoDoIAIudJ6hsVP5fsvitA_06tyYh93zvdYjLw.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 41,
+      "height": 42,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 8,
+      "file": "assets/profit/teenieping/leon.gif",
+      "bytes": 10471,
+      "sha256": "a67e7b024535418109ed166f5e71083f330b8a142cb2eefd7217e030f310e842",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "주니",
+      "id": "juni",
+      "source": "https://i.namu.wiki/i/Ivd_i4bUgPoJvh2PcXQPXt5ukdBmGUogj_QWiPwDEjZjR1vy8aGSxX0E2qjXlMQw6FqvVFyBZJtXm4aG6c0bBg.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 42,
+      "height": 39,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 8,
+      "file": "assets/profit/teenieping/juni.gif",
+      "bytes": 10898,
+      "sha256": "7b0c4bdf713b25bb7226f57d4710217a3a6301deaa72f439c8f341f9b5a5e80c",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "토토 사원",
+      "id": "toto_employee",
+      "source": "https://i.namu.wiki/i/2CqTZHMzJ31Qb0gVKlf-_sIibFrtiIp3otlCfKck08fKGpTxS-lIw5vYH4njPvk8sbwPiP_PI97vx-EHTvK2Qg.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 37,
+      "height": 36,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 12,
+      "file": "assets/profit/teenieping/toto_employee.gif",
+      "bytes": 19147,
+      "sha256": "db28e9d2c05955fb84155ead500f0b49480aedb486c5f5b250c6cfe3c0df8a33",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "곰곰 사원",
+      "id": "gomgom_employee",
+      "source": "https://i.namu.wiki/i/VCYF_bEl8sw_971J7IygJhCo0xuR8J37CoKTcWdduUnp2U7FcX3Y6PAPxcE8rZFXIbFzoMrR_T7oio_RsLewEQ.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 41,
+      "height": 34,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/gomgom_employee.gif",
+      "bytes": 10714,
+      "sha256": "52e6563e94b8fdd9d8e18e0a74e5767711f60471d1c9d2db06e602f73db20c11",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "펭펭 사원",
+      "id": "pengpeng_employee",
+      "source": "https://i.namu.wiki/i/eojnffqMv7Fji3z3gz_8hxlFaX9ge24i2g-WipDvKLqqhfay99f_m0j8jb2Ord97qDdJoMynFoScgwPmQf4ddA.gif",
+      "sourcePage": "https://namu.wiki/w/원더 펫",
+      "width": 35,
+      "height": 33,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/pengpeng_employee.gif",
+      "bytes": 9290,
+      "sha256": "6e3d95860d3757dc6909b942ac5f7b22ec4b54ba3f2937ac161a7a0b9bfe0a5d",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "쁘띠 프린세스 하츄핑",
+      "id": "pet_princess_hachuping",
+      "source": "https://i.namu.wiki/i/Am5auvFZcCZ02agqbEF62QXqTLYZTxI089OR5oU0vLl9VYqW0sRnoOumppTMATrhmGavk6DBXOiO3TeA0ag0Rg.gif",
+      "sourcePage": "https://namu.wiki/w/루나 쁘띠 펫",
+      "width": 53,
+      "height": 52,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/pet_princess_hachuping.gif",
+      "bytes": 15938,
+      "sha256": "5ad725b7432db669f928ab3c74ccd362601fb08def1b49f5f99b720628adf9a4",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "쁘띠 이클립스핑",
+      "id": "pet_eclipseping",
+      "source": "https://i.namu.wiki/i/pInUlYNL9U0R1S1HeTeKtHu9TSrXrbMFPjJf71IyliCSCqLKaa1l4n6_2RSw54UeAmf2eSAyuQRC0_mcEjQ9rw.gif",
+      "sourcePage": "https://namu.wiki/w/루나 쁘띠 펫",
+      "width": 71,
+      "height": 73,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/pet_eclipseping.gif",
+      "bytes": 22066,
+      "sha256": "5694103579c32efd16311edb8f19d9a76217a6cc8f8b4a74520c69364845cd82",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    },
+    {
+      "name": "쁘띠 다이아나핑",
+      "id": "pet_dianaping",
+      "source": "https://i.namu.wiki/i/EksmcJrB6gvLeUwJE2BLVh4_1egAlX2ZljvIhEbzppk1-EEu0A2FDtSFwGzY8_Dub1e-I098VGV5zV251pGQcA.gif",
+      "sourcePage": "https://namu.wiki/w/루나 쁘띠 펫",
+      "width": 74,
+      "height": 70,
+      "format": "GIF",
+      "mode": "P",
+      "frames": 6,
+      "file": "assets/profit/teenieping/pet_dianaping.gif",
+      "bytes": 19027,
+      "sha256": "b25c143fef5de919d4dea2f225533e687255b54ba7ec302c918b7391ec1a75d4",
+      "verifiedOn": "2026-09-18",
+      "note": "이미지 대체 텍스트로 품목명을 확인한 원본 GIF를 변경 없이 저장했습니다."
+    }
+  ],
+  "atlases": {
+    "goods": {
+      "file": "assets/profit/teenieping/goods-official.png",
+      "source": "https://lwi.nexon.com/maplestory/2026/0917_board/260917_B7F72E745F7835D3.png",
+      "sourcePage": "https://maplestory.nexon.com/News/CashShop/Sale/648",
+      "width": 876,
+      "height": 8262,
+      "bytes": 2657315,
+      "sha256": "8438c55f8e1821bb0e38c51090d05aa46198878eef1fd57f5b7ee50d3d38913d"
+    },
+    "luna": {
+      "file": "assets/profit/teenieping/luna-official.png",
+      "source": "https://lwi.nexon.com/maplestory/2026/0917_board/B22EBBEEB5642155.png",
+      "sourcePage": "https://maplestory.nexon.com/News/CashShop/Sale/647",
+      "width": 876,
+      "height": 4250,
+      "bytes": 4542459,
+      "sha256": "0435fbeb6926eccff4be44ecccf16dd5ecc52b389a3f603282daea5476f84051"
+    }
+  },
+  "regions": {
+    "teenieping_goods_collection": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 189,
+      "y": 881,
+      "w": 88,
+      "h": 88
+    },
+    "teenieping_illusion_saekomping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 1978,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_dalkomping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 1978,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_auroraping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2140,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_princess_hachuping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2140,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_sappunping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2302,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_areumping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2302,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_pponiping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2464,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_chorongping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2464,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_kkangchongping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2626,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_pposongping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2626,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_shushuping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2788,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_illusion_yaongping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2788,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_name_dianaping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 2950,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_name_eclipseping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 2950,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_name_princess_hachuping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 3112,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_chat_dianaping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 3112,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_chat_eclipseping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 206,
+      "y": 3274,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_chat_princess_hachuping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 588,
+      "y": 3274,
+      "w": 80,
+      "h": 80
+    },
+    "teenieping_sol_hecate_teenieping": {
+      "img": "assets/profit/teenieping/goods-official.png",
+      "width": 876,
+      "height": 8262,
+      "x": 382,
+      "y": 3422,
+      "w": 112,
+      "h": 112
+    },
+    "teenieping_equipment_dianaping": {
+      "img": "assets/profit/teenieping/luna-official.png",
+      "width": 876,
+      "height": 4250,
+      "x": 168,
+      "y": 2527,
+      "w": 88,
+      "h": 88
+    },
+    "teenieping_equipment_eclipseping": {
+      "img": "assets/profit/teenieping/luna-official.png",
+      "width": 876,
+      "height": 4250,
+      "x": 394,
+      "y": 2527,
+      "w": 88,
+      "h": 88
+    },
+    "teenieping_equipment_princess_hachuping": {
+      "img": "assets/profit/teenieping/luna-official.png",
+      "width": 876,
+      "height": 4250,
+      "x": 619,
+      "y": 2527,
+      "w": 88,
+      "h": 88
+    }
+  }
+}
