@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
+<script src="assets/patch-notes-data.js?v=20260918-1"></script>
+<script src="assets/patch-notes.js?v=20260918-1"></script>
 <script src="assets/enhancement-ledger.js?v=20260908-1"></script>
 <script src="assets/friends-expenses.js?v=20260908-1"></script>
 <script src="assets/september-expenses.js?v=20260917-1"></script>
@@ -1027,6 +1029,7 @@
 </style>
 <link rel="stylesheet" href="assets/workspace.css?v=20260909-1">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
+<link rel="stylesheet" href="assets/patch-notes.css?v=20260918-1">
 </head>
 <body>
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1048,6 +1051,7 @@
     <button class="tab" type="button" data-page="stats"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#stats"></use></svg>통계</button>
     <span class="nav-group-label">도움말</span>
     <button class="tab" type="button" data-page="intro"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>사용 설명</button>
+    <button class="tab" type="button" id="patch-notes-open" hidden><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>패치노트</button>
   </nav>
   <div class="sidebar-footer"><span>보스 초기화</span><dl><dt>주간</dt><dd>매주 목요일</dd><dt>월간</dt><dd>매월 1일</dd></dl><a href="guide/">사용 가이드·계산 사례</a><br><a href="about/">사이트 소개·문의</a><br><a href="api/">NEXON Open API 이용 안내</a></div>
 </aside>
@@ -5955,14 +5959,14 @@ function dropCountForWeek(week){
 function openPage(page){
   const target=document.getElementById('page-'+page);
   if(!target) return;
-  document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.page===page));
+  document.querySelectorAll('.tab[data-page]').forEach(tab=>tab.classList.toggle('active',tab.dataset.page===page));
   document.querySelectorAll('.page').forEach(section=>section.classList.remove('active'));
   target.classList.add('active');
   renderAll();
   document.dispatchEvent(new CustomEvent('workspace:page',{detail:{page}}));
   window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
-document.querySelectorAll('.tab').forEach(t=>{ t.onclick=()=>openPage(t.dataset.page); });
+document.querySelectorAll('.tab[data-page]').forEach(t=>{ t.onclick=()=>openPage(t.dataset.page); });
 
 /* ───────── 재획 기록 ───────── */
 const inDate=document.getElementById('in-date'), inMeso=document.getElementById('in-meso'), inExtra=document.getElementById('in-extra'), inErda=document.getElementById('in-erda'), inHuntChar=document.getElementById('in-hunt-char'), inSessionLabel=document.getElementById('in-session-label');

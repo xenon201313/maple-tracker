@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 'use strict';
 
 const assert = require('node:assert/strict');
@@ -85,6 +86,7 @@ async function setMode(page,mode,item,count,unit) {
   try {
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     const context=await browser.newContext({viewport:{width:1440,height:1000},timezoneId:'Asia/Seoul',reducedMotion:'reduce'});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*',route=>route.request().url().startsWith(origin)||route.request().url().startsWith('data:')?route.continue():route.abort());
     const page=await context.newPage(), errors=[], dialogs=[];
     page.on('pageerror',error=>errors.push(error.message));

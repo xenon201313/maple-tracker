@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -49,6 +50,7 @@ async function seed(page){
   try{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     const context=await browser.newContext({viewport:{width:1280,height:900}});
+    await fixtureDismissPatchNotes(context);
     let mode='stale',calls=[];
     await context.route('**/*',async route=>{
       const url=new URL(route.request().url());

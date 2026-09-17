@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -127,6 +128,7 @@ async function checkReadability(page, width) {
   const browser = await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {})});
   try {
     const context = await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',acceptDownloads:true});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*', route => {
       const url = route.request().url();
       return url.startsWith(origin) || url.startsWith('data:') ? route.continue() : route.abort();

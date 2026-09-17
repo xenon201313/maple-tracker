@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -58,6 +59,7 @@ async function checkRows(page, label) {
   try {
     browser = await chromium.launch({headless:true, channel:process.env.PLAYWRIGHT_CHANNEL || 'chrome'});
     const context = await browser.newContext({viewport:{width:1440,height:1000}, reducedMotion:'reduce'});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*', route => {
       const url = route.request().url();
       return url.startsWith(origin) || url.startsWith('data:') ? route.continue() : route.abort();

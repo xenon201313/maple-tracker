@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 // 합성 장부만 사용하는 9월 신규 드랍의 기간·정산·복원 회귀 검사입니다.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -20,6 +21,7 @@ const server=http.createServer((req,res)=>{
   try{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     const context=await browser.newContext({viewport:{width:1280,height:900}});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*',route=>route.request().url().startsWith(origin)||route.request().url().startsWith('data:')?route.continue():route.abort());
     const page=await context.newPage(),errors=[];
     page.setDefaultTimeout(10000);

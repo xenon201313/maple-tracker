@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -65,6 +66,7 @@ const snapshot = page=>page.evaluate(()=>JSON.stringify({
 const localSnapshot = page=>page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.keys(localStorage).sort().map(key=>[key,localStorage.getItem(key)]))));
 async function contextFor(browser,origin,timezoneId='Asia/Seoul') {
   const context = await browser.newContext({timezoneId,viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  await fixtureDismissPatchNotes(context);
   await context.route('**/*',route=>{
     const url = route.request().url();
     return url.startsWith(origin+'/') || url.startsWith('data:') ? route.continue() : route.abort();

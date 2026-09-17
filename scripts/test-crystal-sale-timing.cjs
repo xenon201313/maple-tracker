@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -75,6 +76,7 @@ const localSnapshot=page=>page.evaluate(()=>JSON.stringify(Object.fromEntries(Ob
 
 async function checkSaleTimingExpiry(browser,origin,timezoneId){
   const context=await browser.newContext({timezoneId,viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  await fixtureDismissPatchNotes(context);
   // 기존 렌더 정규화가 새 주차의 빈 버킷을 만드는 것은 허용하되 과거 기록과 모든 판매 선택은 그대로 비교합니다.
   const expirySaleSnapshot=page=>page.evaluate(()=>JSON.stringify(db.chars.map(c=>({
     name:c.name,selection:c.bossCrystalPriceWeeks,
@@ -154,6 +156,7 @@ async function checkSaleTimingExpiry(browser,origin,timezoneId){
   try{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     const context=await browser.newContext({timezoneId:'Asia/Seoul',viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*',route=>{
       const url=new URL(route.request().url());
       return url.origin===origin || url.protocol==='data:' ? route.continue() : route.abort();

@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -76,6 +77,7 @@ async function snapshot(page) {
   const browser = await chromium.launch({headless:true, channel:process.env.PLAYWRIGHT_CHANNEL || 'chrome'});
   try {
     const context = await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+    await fixtureDismissPatchNotes(context);
     await context.route('**/*', route => route.request().url().startsWith(origin) || route.request().url().startsWith('data:') ? route.continue() : route.abort());
     const page = await context.newPage();
     const errors = [];

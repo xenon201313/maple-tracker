@@ -1,3 +1,4 @@
+const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -64,6 +65,7 @@ const server=http.createServer((req,res)=>{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
     for(const date of ['2026-09-16','2026-09-17','2026-10-01']){
       const context=await browser.newContext({timezoneId:'Asia/Seoul',viewport:{width:1280,height:900}});
+      await fixtureDismissPatchNotes(context);
       await context.route('**/*',route=>{
         const url=new URL(route.request().url());
         return url.origin===origin || url.protocol==='data:' ? route.continue() : route.abort();
