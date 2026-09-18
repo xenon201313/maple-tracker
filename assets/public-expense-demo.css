@@ -1,0 +1,32 @@
+/* 장부와 분리된 공개 계산 체험의 표시만 조정합니다. */
+[data-expense-demo] { min-width:0; }
+[data-expense-demo] [role="tablist"] { display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 16px; }
+[data-expense-demo] button { min-height:44px; padding:10px 14px; border:1px solid var(--line,#484e59); border-radius:8px; background:var(--panel-soft,#333740); color:var(--text,#f0f2f4); font:inherit; font-weight:700; line-height:1.5; cursor:pointer; }
+[data-expense-demo] [data-demo-mode] { flex:1 1 140px; min-width:0; }
+[data-expense-demo] [data-demo-mode][aria-selected="true"] { border-color:var(--gold,#ffda62); color:var(--gold,#ffda62); background:#ffda6215; }
+[data-expense-demo] :is(button,input,select):focus-visible { outline:2px solid var(--gold,#ffda62); outline-offset:3px; }
+[data-expense-demo] [data-demo-panel][hidden] { display:none!important; }
+[data-expense-demo] [data-demo-panel] { min-width:0; }
+[data-expense-demo] [data-demo-form] { min-width:0; margin:0; }
+[data-expense-demo] .demo-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:16px 0; }
+[data-expense-demo] label { display:grid; gap:6px; min-width:0; color:var(--text,#f0f2f4); font-weight:600; }
+[data-expense-demo] :is(input:not([type="checkbox"]),select) { box-sizing:border-box; display:block; width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid var(--line,#484e59); border-radius:7px; background:#1d2026; color:var(--text,#f0f2f4); font:inherit; font-variant-numeric:tabular-nums; }
+[data-expense-demo] input[aria-invalid="true"] { border-color:#ff9ca7; }
+[data-expense-demo] input[type="checkbox"] { width:20px; height:20px; margin:0; flex:none; accent-color:var(--gold,#ffda62); }
+[data-expense-demo] .demo-check { display:flex; align-items:center; gap:9px; min-height:44px; font-weight:400; }
+[data-expense-demo] .demo-results { margin:18px 0; padding:16px; border:1px solid #72dbb04d; border-radius:8px; background:#163d4840; }
+[data-expense-demo] :is(.demo-result-row,.demo-results>div) { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px 16px; margin:8px 0; }
+[data-expense-demo] .demo-results dd { margin:0; min-width:0; overflow-wrap:anywhere; }
+[data-expense-demo] output { min-width:0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+[data-expense-demo] :is([data-demo-cost],[data-demo-revenue],[data-demo-net]) { color:var(--gold,#ffda62); font-size:20px; font-weight:700; line-height:1.5; }
+[data-expense-demo] [data-demo-formula] { display:block; margin-top:12px; color:#d8faea; line-height:1.75; }
+[data-expense-demo] [data-demo-error] { display:block; color:#ffb9c1; font-weight:600; overflow-wrap:anywhere; }
+[data-expense-demo] [data-demo-error]:empty { display:none; }
+[data-expense-demo] .demo-actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:16px; }
+[data-expense-demo] .demo-actions p { margin:0; }
+@media(max-width:540px) {
+  [data-expense-demo] .demo-fields { grid-template-columns:minmax(0,1fr); }
+  [data-expense-demo] [data-demo-mode] { flex-basis:100%; }
+  [data-expense-demo] .demo-results { padding:12px; }
+  [data-expense-demo] :is([data-demo-cost],[data-demo-revenue],[data-demo-net]) { font-size:18px; }
+}

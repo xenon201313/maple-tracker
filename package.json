@@ -8,6 +8,8 @@
     "test:profit-expense": "node scripts/test-profit-expense-ui.cjs",
     "test:teenieping": "node scripts/test-teenieping-profit.cjs",
     "test:patch-notes": "node scripts/test-patch-notes.cjs",
+    "test:public-content": "node scripts/test-public-content.cjs",
+    "test:public-demo": "node scripts/test-public-expense-demo.cjs",
     "test:soul-ability": "node scripts/test-soul-ability-expenses.cjs",
     "test:enhancements": "node scripts/test-enhancement-ledger.mjs && node scripts/test-enhancement-costs.mjs && node scripts/test-enhancement-ui.cjs",
     "test:ui": "node scripts/test-workspace-ui.cjs",

@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>판매 손익과 강화 지출을 구분해 기록하기 | 나만의 메계부</title>
-<meta name="description" content="원더베리·로얄스타일·애플의 실제 판매 손익을 검산합니다. 구매일과 판매일 분리, 강화 API 추정·확정 비용, 중복 지출을 설명합니다.">
+<meta name="description" content="로그인 없이 판매 손익·소울 강화·고급 어빌리티 지출을 계산해 보세요. 구입비와 판매 수입, 강화 API 추정·확정 비용을 구분하고 중복 지출을 피하는 예제를 설명합니다.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#14161f">
 <link rel="canonical" href="https://maple-trackers.com/guide/profit-expense/">
 <link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
 <link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
 <link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
+<link rel="stylesheet" href="../../assets/public-expense-demo.css?v=20260919-1">
+<script defer src="../../assets/public-expense-demo.js?v=20260919-1"></script>
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
 <meta property="og:title" content="판매 손익과 강화 지출을 구분해 기록하기">
-<meta property="og:description" content="원더베리·로얄스타일·애플의 실제 판매 손익을 검산합니다. 구매일과 판매일 분리, 강화 API 추정·확정 비용, 중복 지출을 설명합니다.">
+<meta property="og:description" content="로그인 없이 판매 손익·소울 강화·고급 어빌리티 지출을 계산해 보세요. 구입비와 판매 수입, 강화 API 추정·확정 비용을 구분하고 중복 지출을 피하는 예제를 설명합니다.">
 <meta property="og:url" content="https://maple-trackers.com/guide/profit-expense/">
 <meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
 <script defer src="../../ads-config.js?v=20260909-1"></script>
@@ -31,11 +33,64 @@
     <header class="hero">
       <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
       <h1>판매 손익과 강화 지출을 구분해 기록하기</h1>
-      <p class="lead">원더베리·로얄스타일·애플의 실제 판매 손익을 검산합니다. 구매일과 판매일 분리, 강화 API 추정·확정 비용, 중복 지출을 설명합니다.</p>
-      <p class="article-meta">작성: 나만의 메계부 · <time datetime="2026-09-09">2026년 9월 9일</time> · 가상 금액을 사용한 계산 예제</p>
+      <p class="lead">판매 손익과 소울·고급 어빌리티 비용을 직접 바꿔 계산하고, 구입비와 판매 수입을 구분해 보세요. 구매일과 판매일 분리, 강화 API 추정·확정 비용, 중복 지출을 피하는 방법을 설명합니다.</p>
+      <p class="article-meta">작성: 나만의 메계부 · 2026년 9월 9일 작성 · <time datetime="2026-09-19">2026년 9월 19일 수정</time> · 가상 금액을 사용한 계산 예제</p>
+      <p><a href="#try-calculator">장부 없이 판매·강화 비용 계산해 보기</a> · <a href="#soul-ability-example">소울·고급 어빌리티 지출 예제</a></p>
     </header>
-    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#realized-profit">뽑기 결과의 예상 가치와 판매 완료 손익은 다릅니다</a></li><li><a href="#three-calculators">세 계산기 모두 투입 비용과 판매 실수령을 분리합니다</a></li><li><a href="#sales-date">구입한 날과 판매한 날이 다르면 기록도 나눌 수 있습니다</a></li><li><a href="#partial-sales">일부만 팔았거나 판매가가 다르면 줄 단위를 살펴보세요</a></li><li><a href="#enhancement-estimates">강화 API의 추정 비용은 확인 후 지출로 확정합니다</a></li><li><a href="#expense-reconcile">수동 지출·API 확정·손익 비용은 같은 거래를 한 번만 반영합니다</a></li></ol></nav>
+    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#try-calculator">장부 없이 판매·강화 비용 계산해 보기</a></li><li><a href="#realized-profit">뽑기 결과의 예상 가치와 판매 완료 손익은 다릅니다</a></li><li><a href="#three-calculators">상품별 계산기는 투입 비용과 판매 실수령을 분리합니다</a></li><li><a href="#sales-date">구입한 날과 판매한 날이 다르면 기록도 나눌 수 있습니다</a></li><li><a href="#partial-sales">일부만 팔았거나 판매가가 다르면 줄 단위를 살펴보세요</a></li><li><a href="#enhancement-estimates">강화 API의 추정 비용은 확인 후 지출로 확정합니다</a></li><li><a href="#expense-reconcile">수동 지출·API 확정·손익 비용은 같은 거래를 한 번만 반영합니다</a></li><li><a href="#soul-ability-example">소울·고급 어빌리티 지출 검산 예제</a></li></ol></nav>
     <article aria-label="계산 사례 본문">
+<section class="section" id="try-calculator" data-expense-demo>
+  <h2>숫자를 바꾸며 정산 방식 확인하기</h2>
+  <p>로그인이나 API 키 없이 사용할 수 있는 공개 계산 예제입니다. <strong>입력값과 결과를 장부에 저장하거나 서버로 보내지 않습니다.</strong> 기본값은 현재 시세나 평균 비용이 아닌 설명용 가상 금액입니다.</p>
+  <div class="demo-tabs" role="tablist" aria-label="체험할 계산">
+    <button type="button" role="tab" id="demo-tab-profit" data-demo-mode="profit" aria-controls="demo-panel-profit" aria-selected="true">판매 손익</button>
+    <button type="button" role="tab" id="demo-tab-soul" data-demo-mode="soul" aria-controls="demo-panel-soul" aria-selected="false" tabindex="-1">소울 강화</button>
+    <button type="button" role="tab" id="demo-tab-ability" data-demo-mode="ability" aria-controls="demo-panel-ability" aria-selected="false" tabindex="-1">고급 어빌리티</button>
+  </div>
+  <div id="demo-panel-profit" role="tabpanel" aria-labelledby="demo-tab-profit" data-demo-panel="profit">
+    <form data-demo-form="profit">
+      <div class="demo-fields">
+        <label>실제로 쓴 비용 합계 (메소)<input name="cost" type="text" inputmode="numeric" value="300000000"></label>
+        <label>판매가 합계 (메소)<input name="sale" type="text" inputmode="numeric" value="350000000"></label>
+        <label>판매 수수료<select name="fee"><option value="3">3%</option><option value="5">5%</option></select></label>
+        <label class="demo-check"><input name="sold" type="checkbox" checked>실제로 판매 완료</label>
+      </div>
+      <p>판매 완료를 해제해 보세요. 보유 아이템에 가격이 있어도 아직 판매하지 않았다면 실수령 수입은 0입니다.</p>
+      <dl class="demo-results"><div><dt>지출</dt><dd data-demo-cost>300,000,000 메소</dd></div><div><dt>판매 실수령</dt><dd data-demo-revenue>339,500,000 메소</dd></div><div><dt>판매 완료 기준 손익</dt><dd data-demo-net>+39,500,000 메소</dd></div></dl>
+      <p class="demo-formula" data-demo-formula>350,000,000 × 97% − 300,000,000 = +39,500,000 메소</p>
+      <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+    </form>
+  </div>
+  <div id="demo-panel-soul" role="tabpanel" aria-labelledby="demo-tab-soul" data-demo-panel="soul" hidden>
+    <form data-demo-form="soul">
+      <div class="demo-fields">
+        <label>에테르 실제 구입 단가 (메소)<input name="price" type="text" inputmode="numeric" value="20000000"></label>
+        <label>구입 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
+        <label>증폭에 직접 사용한 메소 합계<input name="direct" type="text" inputmode="numeric" value="1500000000"></label>
+        <label>잠재 재설정에 직접 사용한 메소 합계<input name="extra" type="text" inputmode="numeric" value="40000000"></label>
+      </div>
+      <p>무료로 얻은 에테르만 썼다면 구입 단가를 0으로 바꿔 보세요. 증폭과 잠재 재설정에 직접 사용한 메소만 남습니다. 단계별 단가가 다르면 나눠 계산합니다.</p>
+      <dl class="demo-results"><div><dt>소울 강화 실제 지출</dt><dd data-demo-cost>1,600,000,000 메소</dd></div></dl>
+      <p class="demo-formula" data-demo-formula>20,000,000 × 3 + 1,500,000,000 + 40,000,000 = 1,600,000,000 메소</p>
+      <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+    </form>
+  </div>
+  <div id="demo-panel-ability" role="tabpanel" aria-labelledby="demo-tab-ability" data-demo-panel="ability" hidden>
+    <form data-demo-form="ability">
+      <div class="demo-fields">
+        <label>명예의 훈장 실제 구입 단가 (메소)<input name="price" type="text" inputmode="numeric" value="5000000"></label>
+        <label>구입 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
+        <label>고급 재설정에 직접 사용한 메소 합계<input name="direct" type="text" inputmode="numeric" value="150000000"></label>
+      </div>
+      <p>보유 명성치로 재설정했다면 훈장 구입 수량은 0입니다. 명성치를 메소로 자동 환산하지 않고 실제 훈장 구입비와 직접 사용액만 더합니다.</p>
+      <dl class="demo-results"><div><dt>고급 어빌리티 실제 지출</dt><dd data-demo-cost>165,000,000 메소</dd></div></dl>
+      <p class="demo-formula" data-demo-formula>5,000,000 × 3 + 150,000,000 = 165,000,000 메소</p>
+      <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+    </form>
+  </div>
+  <noscript><p>숫자를 바꾸는 체험에는 JavaScript가 필요합니다. 아래 본문의 계산 표와 소울·고급 어빌리티 예제는 그대로 읽을 수 있습니다.</p></noscript>
+  <p>이곳은 계산만 하는 화면입니다. 실제 기록은 <a href="/?page=profit">손익 계산기</a> 또는 <a href="/?page=expense">지출 기록</a>에서 날짜와 함께 저장하세요.</p>
+</section>
 <section class="section" id="realized-profit">
   <h2>1. 뽑기 결과의 예상 가치와 판매 완료 손익은 다릅니다</h2>
   <p><a href="/?page=profit">손익 계산기</a>는 원더베리·로얄스타일·플래티넘 애플에 사용한 메소와 판매 완료한 결과물의 실수령액을 비교합니다. 결과물을 얻었다는 사실만으로 판매 수입을 기록하지 않습니다. 각 결과물의 <strong>판매 여부</strong>에서 판매를 선택해야 그 줄의 가격·개수·수수료가 수익 계산에 들어갑니다. 아직 팔지 않은 아이템에 예상 판매가를 입력해도 판매를 선택하지 않았다면 수익은 0입니다.</p>
@@ -43,7 +98,7 @@
   <p>이 문서의 가격·수량·수수료는 계산 설명용 가정값이며 현재 시세, 획득 확률, 미래 수익을 뜻하지 않습니다. 무료 지급품이나 다른 방식으로 얻은 재료에 임의의 시장가격을 붙여 지출에 넣으면 실제 지출과 가상 평가가 섞이므로 주의하세요.</p>
 </section>
 <section class="section" id="three-calculators">
-  <h2>2. 세 계산기 모두 투입 비용과 판매 실수령을 분리합니다</h2>
+  <h2>2. 상품별 계산기는 투입 비용과 판매 실수령을 분리합니다</h2>
   <p>원더베리의 투입 항목에는 <strong>위습의 원더베리</strong>와 <strong>루나 크리스탈</strong>, 로얄스타일에는 <strong>로얄스타일</strong>과 <strong>프리미엄 마스터피스</strong>가 있습니다. 사용한 항목의 개당 가격과 개수를 각각 입력합니다. 플래티넘 애플은 애플의 개당 가격과 개수로 기본 지출을 계산합니다. 비용은 <code>개당 가격 × 개수</code>를 항목별로 더한 값입니다.</p>
   <p>가령 원더베리 2억과 루나 크리스탈 1억을 사용하고 결과물을 총 3억 5,000만에 판매했다면, 수수료 3%의 실수령은 3억 3,950만입니다. 손익은 <code>339,500,000 − 300,000,000 = 39,500,000</code>메소입니다. 계산기의 지출에 루나 크리스탈을 빠뜨리면 이익이 1억 더 크게 보이므로, 마지막으로 산 재료만 적지 않았는지 확인해야 합니다.</p>
   <p class="table-hint">표가 잘리면 좌우로 밀어 전체 금액을 확인하세요.</p><div class="table-scroll" tabindex="0" role="region" aria-label="계산 예제 표"><table class="wide-table">
@@ -53,6 +108,7 @@
   </table></div>
   <p>로얄스타일 예제의 비용은 로얄스타일 1억 8,000만과 마스터피스 1억 2,000만, 애플은 개당 1,000만에 30개를 가정합니다. 표의 판매 총액은 실제 판매한 종류별 금액의 합입니다. 가격은 사용자가 직접 입력합니다.</p>
   <p>결과물을 본인이 사용했다면 판매로 체크하지 않습니다. 화면에서 판매 불가능으로 표시되는 결과물도 판매 수익에 들어가지 않습니다. 자가 사용의 만족도나 강화 재료를 대신 확보한 가치는 별도로 판단할 수 있지만, 실제 판매 수입과 합쳐 같은 손익 숫자로 읽어서는 안 됩니다.</p>
+  <p>2026년 9월 17일~10월 21일 23:59에는 프린세스 하츄핑 굿즈 컬렉션과 스페셜 루나 크리스탈 계산기도 제공합니다. 이 상품들도 실제 구입 비용과 판매 완료 수익을 구분합니다. 10월 22일 00:00 이후 입력 메뉴는 숨겨지지만 저장한 기록과 통계는 유지됩니다. 모든 시각은 한국 시간입니다.</p>
 </section>
 <section class="section" id="sales-date">
   <h2>3. 구입한 날과 판매한 날이 다르면 기록도 나눌 수 있습니다</h2>
@@ -75,6 +131,7 @@
 </section>
 <section class="section" id="enhancement-estimates">
   <h2>5. 강화 API의 추정 비용은 확인 후 지출로 확정합니다</h2>
+  <p>강화 메뉴는 <strong>스타포스 · 잠재능력 · 소울 에테르 · 고급 어빌리티 · 직접 입력</strong> 탭으로 모여 있습니다. 잠재능력 탭에서 메소 재설정과 큐브 사용 이력을 함께 확인하며, 두 종류의 금액은 따로 표시합니다. 소울·고급 어빌리티는 현재 직접 입력하는 방식입니다.</p>
   <p><a href="/?page=expense">지출 기록</a>의 강화 이력은 사용 횟수와 조건을 모아 비용을 추정하는 기능입니다. <strong>메소 사용액 (추정)</strong>에 숫자가 표시되거나 이력을 불러왔다는 사실만으로 전부 확정 지출이 되는 것은 아닙니다. <strong>상세 내역 · 비용 조정</strong>에서 조건을 확인하고 <strong>최종 반영 금액 (메소)</strong>을 정한 뒤 <strong>지출 반영</strong>을 눌러 확인한 항목이 통계에 들어갑니다.</p>
   <p>추정 1억 2,000만이 표시됐지만 실제 사용 메소를 따로 확인해 보니 1억 500만이었다고 가정합니다. 이때는 추정치의 근거를 확인하고 최종 반영 금액을 105,000,000으로 설정하여 확정합니다. 확정 후 장부에 들어가는 지출은 1억 500만이며, 추정 1억 2,000만을 추가로 또 차감하는 방식이 아닙니다. 확인 전 이력과 확인 후 지출을 나누어 볼 수 있어야 숫자의 의미가 분명해집니다.</p>
   <p>잠재능력의 <strong>이력당 재설정</strong>이 실제 사용 방식과 다른지도 확인하세요. 1회 비용을 가상으로 400만, 이력 10개로 두면 1회 설정일 때는 4,000만입니다. 실제로 각 이력에 3회 재설정을 사용했다면 같은 단가 가정에서 총 30회, 1억 2,000만입니다. 이는 횟수 차이를 보여 주는 산술 예제이며 실제 장비의 재설정 단가를 뜻하지 않습니다.</p>
@@ -90,6 +147,18 @@
   <p>월말에는 판매 날짜, 미판매 결과물, 중복 비용, 미확정 이력을 확인하고 JSON 백업을 보관하세요. 손익 계산기는 뽑기 거래를 자동 수집하거나 구매·판매 기록을 자동 연결하지 않습니다. 사용자가 거래 근거를 남겨야 판매 지연과 실제 비용 증가를 구분할 수 있습니다.</p>
 </section>
 
+<section class="section" id="soul-ability-example">
+  <h2>7. 소울·고급 어빌리티는 구입한 재료와 직접 쓴 메소를 더합니다</h2>
+  <p>에테르나 훈장으로 얻은 능력의 가치를 평가하는 표가 아닙니다. 실제 메소 지출만 확인하기 위해 <strong>재료 구입비</strong>와 <strong>게임에서 직접 소모한 메소</strong>를 분리합니다. 아래 단가와 수량은 가상 예제이며 실제 시세가 아닙니다.</p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="소울과 고급 어빌리티 가상 지출 예제"><table class="wide-table">
+    <caption>새 강화 기능의 지출 검산 — 단위: 메소</caption>
+    <thead><tr><th scope="col">항목</th><th scope="col">재료 구입비</th><th scope="col">직접 사용 메소</th><th scope="col">지출 합계</th></tr></thead>
+    <tbody><tr><th scope="row">소울 강화</th><td class="amount">20,000,000 × 3 = 60,000,000</td><td class="amount">1,500,000,000 + 40,000,000</td><td class="amount">1,600,000,000</td></tr><tr><th scope="row">고급 어빌리티</th><td class="amount">5,000,000 × 3 = 15,000,000</td><td class="amount">150,000,000</td><td class="amount">165,000,000</td></tr></tbody>
+  </table></div>
+  <p>소울 예제에서 에테르 3개를 전부 보스로 얻었다면 구입비 6,000만은 빼고 직접 사용한 15억 4,000만만 지출로 기록합니다. 소울 증폭과 소울 잠재능력 재설정은 별도 작업이므로 사용액도 나눠 확인합니다. 목표 단계와 재설정 전 등급에 따라 실제 사용액이 달라질 수 있습니다. <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/416" target="_blank" rel="noopener">공식 소울웨폰 안내</a></p>
+  <p>고급 어빌리티 예제에서 이미 가진 명성치만 사용하고 훈장을 사지 않았다면 지출은 1억 5,000만입니다. 명성치 자체에 임의 가격을 매기지 않습니다. 고급 재설정은 잠근 옵션 수에 따라 명성치와 메소 소모량이 달라지므로 실제 지불한 합계를 확인하세요. <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/392" target="_blank" rel="noopener">공식 어빌리티 안내</a></p>
+  <p>재료를 구입한 날에 이미 구매 지출로 저장했다면, 나중에 재료를 사용한 날에는 같은 구입비를 다시 적지 않습니다. 재료를 쓰면서 추가로 소모한 메소만 새로 기록합니다. 반대로 한 기록으로 묶어 정리할 때는 다른 구매 기록과 겹치지 않는지 확인해야 합니다. 현재 이 두 탭은 API 자동 수집을 하지 않으므로 수기 기록의 날짜·이름·단가·수량을 남기는 것이 기준입니다.</p>
+</section>
     </article>
     <section class="section"><h2>함께 읽으면 좋은 안내</h2><div class="link-list"><a href="../hunt-income/">재획 수익과 조각 판매를 중복 없이 기록하기</a>
 <a href="../boss-settlement/">보스 드랍 분배와 월말 결산 검산하기</a><a href="../../privacy.html">데이터 저장과 개인정보 안내</a></div><p>설명과 화면이 다르거나 계산 예제에 오류가 있다면 <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">오류 제보</a>로 알려주세요. 공개 제보에 개인 장부나 API 키를 첨부하지 마세요.</p></section>
