@@ -12,8 +12,9 @@
 <link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
 <link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
 <link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
-<link rel="stylesheet" href="../../assets/public-expense-demo.css?v=20260919-1">
-<script defer src="../../assets/public-expense-demo.js?v=20260919-1"></script>
+<link rel="stylesheet" href="../../assets/public-expense-demo.css?v=20260919-2">
+<script defer src="../../assets/september-expenses.js?v=20260919-2"></script>
+<script defer src="../../assets/public-expense-demo.js?v=20260919-2"></script>
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
 <meta property="og:title" content="판매 손익과 강화 지출을 구분해 기록하기">
@@ -33,7 +34,7 @@
     <header class="hero">
       <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
       <h1>판매 손익과 강화 지출을 구분해 기록하기</h1>
-      <p class="lead">판매 손익과 소울·고급 어빌리티 비용을 직접 바꿔 계산하고, 구입비와 판매 수입을 구분해 보세요. 구매일과 판매일 분리, 강화 API 추정·확정 비용, 중복 지출을 피하는 방법을 설명합니다.</p>
+      <p class="lead">판매 손익, 소울 증폭 단계·잠재 등급별 사용 메소, 고급 어빌리티의 메소·명성치를 계산합니다. 실제 시도 횟수로 비용을 확인하고, 재료 구입비를 중복 없이 기록하는 방법을 설명합니다.</p>
       <p class="article-meta">작성: 나만의 메계부 · 2026년 9월 9일 작성 · <time datetime="2026-09-19">2026년 9월 19일 수정</time> · 가상 금액을 사용한 계산 예제</p>
       <p><a href="#try-calculator">장부 없이 판매·강화 비용 계산해 보기</a> · <a href="#soul-ability-example">소울·고급 어빌리티 지출 예제</a></p>
     </header>
@@ -41,14 +42,16 @@
     <article aria-label="계산 사례 본문">
 <section class="section" id="try-calculator" data-expense-demo>
   <h2>숫자를 바꾸며 정산 방식 확인하기</h2>
-  <p>로그인이나 API 키 없이 사용할 수 있는 공개 계산 예제입니다. <strong>입력값과 결과를 장부에 저장하거나 서버로 보내지 않습니다.</strong> 기본값은 현재 시세나 평균 비용이 아닌 설명용 가상 금액입니다.</p>
+  <p>로그인이나 API 키 없이 사용할 수 있습니다. <strong>입력값과 결과를 장부에 저장하거나 서버로 보내지 않습니다.</strong> 재료 가격·수량·횟수의 기본값은 가상 예제이고, 강화 단가는 2026년 9월 17일 본서버 기준입니다. 성공 확률이나 성공까지의 기대 비용을 계산하는 도구가 아닙니다.</p>
+  <noscript><p>숫자를 바꾸는 체험에는 JavaScript가 필요합니다. 계산 입력은 잠겨 있지만 아래 본문의 계산 표와 소울·고급 어빌리티 예제는 그대로 읽을 수 있습니다.</p></noscript>
   <div class="demo-tabs" role="tablist" aria-label="체험할 계산">
-    <button type="button" role="tab" id="demo-tab-profit" data-demo-mode="profit" aria-controls="demo-panel-profit" aria-selected="true">판매 손익</button>
-    <button type="button" role="tab" id="demo-tab-soul" data-demo-mode="soul" aria-controls="demo-panel-soul" aria-selected="false" tabindex="-1">소울 강화</button>
-    <button type="button" role="tab" id="demo-tab-ability" data-demo-mode="ability" aria-controls="demo-panel-ability" aria-selected="false" tabindex="-1">고급 어빌리티</button>
+    <button type="button" role="tab" id="demo-tab-profit" disabled data-demo-mode="profit" aria-controls="demo-panel-profit" aria-selected="true">판매 손익</button>
+    <button type="button" role="tab" id="demo-tab-soul" disabled data-demo-mode="soul" aria-controls="demo-panel-soul" aria-selected="false" tabindex="-1">소울 강화</button>
+    <button type="button" role="tab" id="demo-tab-ability" disabled data-demo-mode="ability" aria-controls="demo-panel-ability" aria-selected="false" tabindex="-1">고급 어빌리티</button>
   </div>
   <div id="demo-panel-profit" role="tabpanel" aria-labelledby="demo-tab-profit" data-demo-panel="profit">
     <form data-demo-form="profit">
+      <fieldset data-demo-ready disabled>
       <div class="demo-fields">
         <label>실제로 쓴 비용 합계 (메소)<input name="cost" type="text" inputmode="numeric" value="300000000"></label>
         <label>판매가 합계 (메소)<input name="sale" type="text" inputmode="numeric" value="350000000"></label>
@@ -59,43 +62,65 @@
       <dl class="demo-results"><div><dt>지출</dt><dd data-demo-cost>300,000,000 메소</dd></div><div><dt>판매 실수령</dt><dd data-demo-revenue>339,500,000 메소</dd></div><div><dt>판매 완료 기준 손익</dt><dd data-demo-net>+39,500,000 메소</dd></div></dl>
       <p class="demo-formula" data-demo-formula>350,000,000 × 97% − 300,000,000 = +39,500,000 메소</p>
       <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+      </fieldset>
     </form>
   </div>
   <div id="demo-panel-soul" role="tabpanel" aria-labelledby="demo-tab-soul" data-demo-panel="soul" hidden>
     <form data-demo-form="soul">
-      <div class="demo-fields">
-        <label>에테르 실제 구입 단가 (메소)<input name="price" type="text" inputmode="numeric" value="20000000"></label>
-        <label>구입 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
+      <fieldset data-demo-ready disabled>
+      <label>계산 방식<select name="calculation"><option value="standard">공식 기본 단가 × 실제 횟수</option><option value="actual">실제 사용액 직접 입력</option></select></label>
+      <fieldset data-cost-input="standard"><legend>소울 증폭과 잠재 재설정</legend><div class="demo-fields">
+        <label>목표 증폭 단계<select name="stage"><option value="stage1">1단계 · 1회 5억 메소</option><option value="stage2">2단계 · 1회 10억 메소</option><option value="stage3">3단계 · 1회 17억 5,000만 메소</option><option value="stage4">4단계 · 1회 27억 5,000만 메소</option></select></label>
+        <label>실제 증폭 시도 횟수<input name="attempts" type="text" inputmode="numeric" value="3"></label>
+        <label>잠재 재설정 전 등급<select name="grade"><option value="rare">레어 · 1회 2,000만 메소</option><option value="epic">에픽 · 1회 4,000만 메소</option><option value="unique">유니크 · 1회 6,500만 메소</option><option value="legendary">레전드리 · 1회 8,800만 메소</option></select></label>
+        <label>실제 잠재 재설정 횟수<input name="resets" type="text" inputmode="numeric" value="2"></label>
+      </div></fieldset>
+      <fieldset data-cost-input="actual" hidden disabled><legend>게임에서 확인한 사용액</legend><div class="demo-fields">
         <label>증폭에 직접 사용한 메소 합계<input name="direct" type="text" inputmode="numeric" value="1500000000"></label>
         <label>잠재 재설정에 직접 사용한 메소 합계<input name="extra" type="text" inputmode="numeric" value="40000000"></label>
+      </div></fieldset>
+      <div class="demo-fields">
+        <label>에테르 실제 구입 단가 (메소)<input name="price" type="text" inputmode="numeric" value="20000000"></label>
+        <label>실제로 구입한 에테르 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
       </div>
-      <p>무료로 얻은 에테르만 썼다면 구입 단가를 0으로 바꿔 보세요. 증폭과 잠재 재설정에 직접 사용한 메소만 남습니다. 단계별 단가가 다르면 나눠 계산합니다.</p>
-      <dl class="demo-results"><div><dt>소울 강화 실제 지출</dt><dd data-demo-cost>1,600,000,000 메소</dd></div></dl>
-      <p class="demo-formula" data-demo-formula>20,000,000 × 3 + 1,500,000,000 + 40,000,000 = 1,600,000,000 메소</p>
+      <p>성공·실패를 모두 실제 시도 횟수에 포함하며, 하지 않은 작업은 0회로 입력합니다. 단계나 잠재 등급이 바뀌면 조건별로 나눠 계산하세요. 무료 에테르는 구입 수량 또는 단가를 0으로 입력합니다. 이벤트로 비용이 달라졌다면 <strong>실제 사용액 직접 입력</strong>을 선택하세요.</p>
+      <dl class="demo-results"><div><dt>에테르 구입비</dt><dd data-demo-materials>60,000,000 메소</dd></div><div><dt>증폭 사용 메소</dt><dd data-demo-direct>1,500,000,000 메소</dd></div><div><dt>잠재 재설정 메소</dt><dd data-demo-extra>40,000,000 메소</dd></div><div><dt>총 메소 지출</dt><dd data-demo-cost>1,600,000,000 메소</dd></div></dl>
+      <p class="demo-formula" data-demo-formula>1단계 증폭 500,000,000 × 3회 + 레어 재설정 20,000,000 × 2회 + 에테르 20,000,000 × 3개 = 1,600,000,000 메소</p>
       <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+      </fieldset>
     </form>
   </div>
   <div id="demo-panel-ability" role="tabpanel" aria-labelledby="demo-tab-ability" data-demo-panel="ability" hidden>
     <form data-demo-form="ability">
+      <fieldset data-demo-ready disabled>
+      <label>계산 방식<select name="calculation"><option value="standard">공식 기본 단가 × 실제 횟수</option><option value="actual">실제 사용액 직접 입력</option></select></label>
+      <fieldset data-cost-input="standard"><legend>레전드리 고급 어빌리티 재설정</legend><div class="demo-fields">
+        <label>잠근 옵션 수<select name="locks"><option value="lock0">0개 · 1회 200만 메소 / 명성치 2만</option><option value="lock1">1개 · 1회 600만 메소 / 명성치 3만</option><option value="lock2" selected>2개 · 1회 1,500만 메소 / 명성치 4만</option></select></label>
+        <label>실제 고급 재설정 횟수<input name="resets" type="text" inputmode="numeric" value="10"></label>
+      </div></fieldset>
+      <fieldset data-cost-input="actual" hidden disabled><legend>게임에서 확인한 사용량</legend><div class="demo-fields">
+        <label>고급 재설정에 직접 사용한 메소 합계<input name="direct" type="text" inputmode="numeric" value="150000000"></label>
+        <label>실제 사용한 명성치 합계<input name="fame" type="text" inputmode="numeric" value="400000"></label>
+      </div></fieldset>
       <div class="demo-fields">
         <label>명예의 훈장 실제 구입 단가 (메소)<input name="price" type="text" inputmode="numeric" value="5000000"></label>
-        <label>구입 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
-        <label>고급 재설정에 직접 사용한 메소 합계<input name="direct" type="text" inputmode="numeric" value="150000000"></label>
+        <label>실제로 구입한 훈장 수량<input name="count" type="text" inputmode="numeric" value="3"></label>
       </div>
-      <p>보유 명성치로 재설정했다면 훈장 구입 수량은 0입니다. 명성치를 메소로 자동 환산하지 않고 실제 훈장 구입비와 직접 사용액만 더합니다.</p>
-      <dl class="demo-results"><div><dt>고급 어빌리티 실제 지출</dt><dd data-demo-cost>165,000,000 메소</dd></div></dl>
-      <p class="demo-formula" data-demo-formula>5,000,000 × 3 + 150,000,000 = 165,000,000 메소</p>
+      <p><strong>3회 동시 변경 한 번은 3회</strong>로 입력합니다. 잠금 수가 달라지면 따로 계산하세요. 보유 명성치를 쓰고 훈장을 사지 않았다면 구입 수량은 0입니다. 명성치는 메소로 환산하지 않으며 훈장 필요 개수도 자동 추정하지 않습니다. 할인·무료 혜택은 적용 여부를 확인하고 실제 사용액을 직접 입력하세요.</p>
+      <dl class="demo-results"><div><dt>훈장 구입비</dt><dd data-demo-materials>15,000,000 메소</dd></div><div><dt>재설정 사용 메소</dt><dd data-demo-direct>150,000,000 메소</dd></div><div><dt>사용 명성치</dt><dd data-demo-fame>400,000 (메소 합산 제외)</dd></div><div><dt>총 메소 지출</dt><dd data-demo-cost>165,000,000 메소</dd></div></dl>
+      <p class="demo-formula" data-demo-formula>잠금 2개: 15,000,000 × 10회 = 150,000,000 메소, 명성치 40,000 × 10회 = 400,000. 훈장 구입비 5,000,000 × 3개를 더한 총지출은 165,000,000 메소.</p>
       <p data-demo-error role="status" aria-live="polite"></p><button type="reset">예제 금액으로 되돌리기</button>
+      </fieldset>
     </form>
   </div>
-  <noscript><p>숫자를 바꾸는 체험에는 JavaScript가 필요합니다. 아래 본문의 계산 표와 소울·고급 어빌리티 예제는 그대로 읽을 수 있습니다.</p></noscript>
+  <p class="demo-basis">단가 재확인: <time datetime="2026-09-19">2026년 9월 19일</time> · <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/416" target="_blank" rel="noopener">공식 소울웨폰 안내</a> · <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/392" target="_blank" rel="noopener">공식 어빌리티 안내</a> · <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener">1.2.419 본서버 단가표</a></p>
   <p>이곳은 계산만 하는 화면입니다. 실제 기록은 <a href="/?page=profit">손익 계산기</a> 또는 <a href="/?page=expense">지출 기록</a>에서 날짜와 함께 저장하세요.</p>
 </section>
 <section class="section" id="realized-profit">
   <h2>1. 뽑기 결과의 예상 가치와 판매 완료 손익은 다릅니다</h2>
   <p><a href="/?page=profit">손익 계산기</a>는 원더베리·로얄스타일·플래티넘 애플에 사용한 메소와 판매 완료한 결과물의 실수령액을 비교합니다. 결과물을 얻었다는 사실만으로 판매 수입을 기록하지 않습니다. 각 결과물의 <strong>판매 여부</strong>에서 판매를 선택해야 그 줄의 가격·개수·수수료가 수익 계산에 들어갑니다. 아직 팔지 않은 아이템에 예상 판매가를 입력해도 판매를 선택하지 않았다면 수익은 0입니다.</p>
   <p>3억 메소를 사용하고 예상 판매가 5억인 결과물을 보유 중이라면 판매 완료 기준 손익은 −3억입니다. 보유 아이템의 가치가 없다는 뜻이 아니라, 실제 판매 수입이 없다는 뜻입니다. 보유품의 현재 가치나 미래 기대수익과 구분해서 읽어야 합니다.</p>
-  <p>이 문서의 가격·수량·수수료는 계산 설명용 가정값이며 현재 시세, 획득 확률, 미래 수익을 뜻하지 않습니다. 무료 지급품이나 다른 방식으로 얻은 재료에 임의의 시장가격을 붙여 지출에 넣으면 실제 지출과 가상 평가가 섞이므로 주의하세요.</p>
+  <p>거래 예제의 구입·판매 가격과 수량·수수료는 설명용 가정값이며 현재 시세, 획득 확률, 미래 수익을 뜻하지 않습니다. 소울·고급 어빌리티의 기본 강화 단가는 아래에 공식 근거를 따로 표시했습니다. 무료 지급품이나 다른 방식으로 얻은 재료에 임의의 시장가격을 붙여 지출에 넣으면 실제 지출과 가상 평가가 섞이므로 주의하세요.</p>
 </section>
 <section class="section" id="three-calculators">
   <h2>2. 상품별 계산기는 투입 비용과 판매 실수령을 분리합니다</h2>
@@ -148,15 +173,28 @@
 </section>
 
 <section class="section" id="soul-ability-example">
-  <h2>7. 소울·고급 어빌리티는 구입한 재료와 직접 쓴 메소를 더합니다</h2>
-  <p>에테르나 훈장으로 얻은 능력의 가치를 평가하는 표가 아닙니다. 실제 메소 지출만 확인하기 위해 <strong>재료 구입비</strong>와 <strong>게임에서 직접 소모한 메소</strong>를 분리합니다. 아래 단가와 수량은 가상 예제이며 실제 시세가 아닙니다.</p>
+  <h2>7. 소울·고급 어빌리티는 실제 시도 횟수로 비용을 검산합니다</h2>
+  <p>위 계산기는 <strong>공식 기본 단가 × 실제 횟수 + 실제 재료 구입비</strong>로 사용 메소를 계산합니다. 강화에 성공했는지와 관계없이 지불한 횟수를 입력합니다. 아래 표는 2026년 9월 17일 본서버 기본 비용이며 <time datetime="2026-09-19">9월 19일</time> 재확인했습니다. 소울 증폭·잠재 등급이 바뀌거나 어빌리티 잠금 수가 달라지면 구간별로 나눠 계산합니다.</p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="소울 강화와 고급 어빌리티 공식 기본 단가"><table class="wide-table">
+    <caption>1회 기본 비용 — 메소와 명성치는 서로 다른 자원입니다</caption>
+    <thead><tr><th scope="col">종류</th><th scope="col">조건</th><th scope="col">1회 메소</th><th scope="col">1회 명성치</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">소울 증폭</th><td>목표 1 / 2 / 3 / 4단계</td><td class="amount">500,000,000 / 1,000,000,000 / 1,750,000,000 / 2,750,000,000</td><td>해당 없음</td></tr>
+      <tr><th scope="row">소울 잠재</th><td>변경 전 레어 / 에픽 / 유니크 / 레전드리</td><td class="amount">20,000,000 / 40,000,000 / 65,000,000 / 88,000,000</td><td>해당 없음</td></tr>
+      <tr><th scope="row">고급 어빌리티</th><td>잠금 0개</td><td class="amount">2,000,000</td><td class="amount">20,000</td></tr>
+      <tr><th scope="row">고급 어빌리티</th><td>잠금 1개</td><td class="amount">6,000,000</td><td class="amount">30,000</td></tr>
+      <tr><th scope="row">고급 어빌리티</th><td>잠금 2개</td><td class="amount">15,000,000</td><td class="amount">40,000</td></tr>
+    </tbody>
+  </table></div>
+  <p>근거: <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/416" target="_blank" rel="noopener">소울웨폰 가이드</a>, <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/392" target="_blank" rel="noopener">어빌리티 가이드</a>, <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener">1.2.419 업데이트의 소울 잠재 단가표</a>. 소울 잠재 단가는 증폭 단계가 아니라 재설정 전 잠재 등급을 기준으로 합니다. 어빌리티 고급 재설정은 레전드리에서 사용할 수 있고 3회 동시 변경도 비용은 3회분입니다. 할인이나 무료 혜택은 자동 적용하지 않으므로 게임 화면과 다르면 직접 입력 모드를 사용하세요.</p>
+  <p>계산 예제는 1단계 증폭 3회, 레어 잠재 재설정 2회, 잠금 2개인 어빌리티 10회를 가정합니다. 에테르 2,000만·훈장 500만이라는 구입 단가와 각 3개의 구입 수량은 가상값이며 실제 시세나 필요한 재료 개수를 뜻하지 않습니다. 성공까지의 기대 비용, 목표 옵션 등장 가능성, 증폭 게이지는 계산하지 않습니다.</p>
   <div class="table-scroll" tabindex="0" role="region" aria-label="소울과 고급 어빌리티 가상 지출 예제"><table class="wide-table">
     <caption>새 강화 기능의 지출 검산 — 단위: 메소</caption>
     <thead><tr><th scope="col">항목</th><th scope="col">재료 구입비</th><th scope="col">직접 사용 메소</th><th scope="col">지출 합계</th></tr></thead>
-    <tbody><tr><th scope="row">소울 강화</th><td class="amount">20,000,000 × 3 = 60,000,000</td><td class="amount">1,500,000,000 + 40,000,000</td><td class="amount">1,600,000,000</td></tr><tr><th scope="row">고급 어빌리티</th><td class="amount">5,000,000 × 3 = 15,000,000</td><td class="amount">150,000,000</td><td class="amount">165,000,000</td></tr></tbody>
+    <tbody><tr><th scope="row">소울 강화</th><td class="amount">20,000,000 × 3 = 60,000,000</td><td class="amount">500,000,000 × 3 + 20,000,000 × 2 = 1,540,000,000</td><td class="amount">1,600,000,000</td></tr><tr><th scope="row">고급 어빌리티</th><td class="amount">5,000,000 × 3 = 15,000,000</td><td class="amount">15,000,000 × 10 = 150,000,000</td><td class="amount">165,000,000</td></tr></tbody>
   </table></div>
   <p>소울 예제에서 에테르 3개를 전부 보스로 얻었다면 구입비 6,000만은 빼고 직접 사용한 15억 4,000만만 지출로 기록합니다. 소울 증폭과 소울 잠재능력 재설정은 별도 작업이므로 사용액도 나눠 확인합니다. 목표 단계와 재설정 전 등급에 따라 실제 사용액이 달라질 수 있습니다. <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/416" target="_blank" rel="noopener">공식 소울웨폰 안내</a></p>
-  <p>고급 어빌리티 예제에서 이미 가진 명성치만 사용하고 훈장을 사지 않았다면 지출은 1억 5,000만입니다. 명성치 자체에 임의 가격을 매기지 않습니다. 고급 재설정은 잠근 옵션 수에 따라 명성치와 메소 소모량이 달라지므로 실제 지불한 합계를 확인하세요. <a href="https://maplestory.nexon.com/Guide/N23GameInformation/Articles/392" target="_blank" rel="noopener">공식 어빌리티 안내</a></p>
+  <p>고급 어빌리티 예제에서는 명성치도 <code>40,000 × 10 = 400,000</code> 소모합니다. 이미 가진 명성치를 사용하고 훈장을 사지 않았다면 메소 지출은 1억 5,000만입니다. 소모한 명성치 40만을 메소 비용에 더하지 않습니다. 훈장을 3개 샀다는 가정은 명성치 40만을 훈장 3개로 모두 충당했다는 의미가 아닙니다. 명성치 잔액과 실제 훈장 구입 내역은 각각 확인하세요.</p>
   <p>재료를 구입한 날에 이미 구매 지출로 저장했다면, 나중에 재료를 사용한 날에는 같은 구입비를 다시 적지 않습니다. 재료를 쓰면서 추가로 소모한 메소만 새로 기록합니다. 반대로 한 기록으로 묶어 정리할 때는 다른 구매 기록과 겹치지 않는지 확인해야 합니다. 현재 이 두 탭은 API 자동 수집을 하지 않으므로 수기 기록의 날짜·이름·단가·수량을 남기는 것이 기준입니다.</p>
 </section>
     </article>

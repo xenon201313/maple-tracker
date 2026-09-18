@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20260919-1"></script>
-<script src="assets/patch-notes.js?v=20260918-1"></script>
+<script src="assets/patch-notes-data.js?v=20260919-2"></script>
+<script src="assets/patch-notes.js?v=20260919-2"></script>
 <script src="assets/enhancement-ledger.js?v=20260908-1"></script>
 <script src="assets/friends-expenses.js?v=20260918-1"></script>
 <script src="assets/september-expenses.js?v=20260917-1"></script>
@@ -571,30 +571,6 @@
   .goal-fill{height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#19c79b,#45e4b2); transition:width .25s ease;}
   .goal-scale{display:flex; justify-content:space-between; gap:12px; margin-top:8px; color:var(--sub); font-size:12px;}
   .goal-note{margin-top:8px; color:var(--sub); font-size:13px; line-height:1.55; overflow-wrap:anywhere;}
-  .ledger-draft-card{overflow:hidden;}
-  .ledger-draft-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px;}
-  .ledger-draft-copy{min-width:0;}
-  .ledger-draft-copy h2{margin-bottom:6px;}
-  .ledger-draft-copy p{margin:0;}
-  .ledger-draft-head button{flex:0 0 auto;}
-  .ledger-summary-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px;}
-  .ledger-summary{padding:12px; border:1px solid rgba(220,230,255,.16); border-radius:10px; background:rgba(6,10,18,.38);}
-  .ledger-summary span{display:block; color:var(--sub); font-size:13px; margin-bottom:5px;}
-  .ledger-summary b{display:block; color:var(--gold); font-size:18px; overflow-wrap:anywhere;}
-  .ledger-summary.loss b{color:var(--red);}
-  .ledger-modal-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,.8fr); gap:14px; align-items:start;}
-  .ledger-preview-box{border:1px solid rgba(220,230,255,.16); border-radius:12px; padding:13px; background:rgba(6,10,18,.42);}
-  .ledger-preview-title{color:var(--gold); font-weight:bold; margin-bottom:8px;}
-  .ledger-form-preview{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
-  .ledger-form-preview .wide{grid-column:1 / -1;}
-  .ledger-input-preview{min-height:40px; display:flex; align-items:center; border:1px solid rgba(220,230,255,.22); border-radius:8px; padding:9px 12px; background:rgba(18,23,38,.96); color:var(--sub);}
-  .ledger-demo-list{display:grid; gap:8px;}
-  .ledger-demo-item{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; padding:9px 10px; border:1px solid rgba(220,230,255,.14); border-radius:8px; background:rgba(18,23,38,.76);}
-  .ledger-demo-item b{display:block; color:var(--text); margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .ledger-demo-item span{display:block; color:var(--sub); font-size:13px;}
-  .ledger-demo-value{color:var(--red); font-weight:bold; white-space:nowrap;}
-  .ledger-principles{margin-top:12px; display:grid; gap:8px;}
-  .ledger-principles .guide-note{margin-top:0;}
   .drop-text-icon{display:inline-grid; place-items:center; flex:0 0 34px; min-width:34px; min-height:30px; padding:2px; border:1px solid var(--line); border-radius:5px; color:var(--sub); font-size:11px; line-height:1.3;}
   .expense-form{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) minmax(120px,auto); gap:10px; align-items:end;}
   .expense-form .wide{grid-column:span 2;}
@@ -1004,12 +980,6 @@
     .goal-wrap{padding:13px;}
     .goal-percent{font-size:24px;}
     .goal-head{align-items:center;}
-    .ledger-draft-head,.ledger-modal-grid{display:grid; grid-template-columns:1fr;}
-    .ledger-draft-head button{width:100%;}
-    .ledger-summary-grid,.ledger-form-preview{grid-template-columns:1fr;}
-    .ledger-form-preview .wide{grid-column:auto;}
-    .ledger-demo-item{grid-template-columns:1fr;}
-    .ledger-demo-value{white-space:normal;}
     .profit-layout,.profit-form,.profit-star-grid,.profit-result{grid-template-columns:1fr;}
     .profit-head{display:grid; grid-template-columns:1fr;}
     .site-ad-shell{margin-top:12px; padding:7px 8px 9px; border-radius:9px;}
@@ -1030,7 +1000,7 @@
 </style>
 <link rel="stylesheet" href="assets/workspace.css?v=20260909-1">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
-<link rel="stylesheet" href="assets/patch-notes.css?v=20260918-1">
+<link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
 </head>
 <body>
@@ -1080,14 +1050,14 @@
   <section class="card home-welcome" aria-labelledby="home-welcome-title">
     <h2 id="home-welcome-title">내 메소가 어디서 들어오고 나갔는지, 나만의 메계부</h2>
     <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
-    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/profit-expense/#try-calculator">장부 없이 계산 체험</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
+    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/boss-settlement/#try-settlement">보스 분배 계산</a><a href="guide/profit-expense/#try-calculator">판매 손익·강화 비용 계산</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
   </section>
   <section class="card home-reading" aria-labelledby="home-reading-title">
     <h2 id="home-reading-title">합계가 달라질 때, 계산부터 확인해 보세요</h2>
-    <p>같은 판매가라도 수수료·분배·기록 날짜에 따라 내 몫은 달라집니다. 아래 예시는 실제 장부를 바꾸지 않고 계산 과정을 비교할 수 있는 공개 안내입니다.</p>
+    <p>같은 판매가라도 수수료·분배·기록 날짜에 따라 내 몫은 달라집니다. 공개 계산기에서 내 조건으로 결과를 확인하고, 아래 가이드의 숫자 예시로 검산해 보세요. 로그인 없이 사용할 수 있으며 계산 입력은 저장하지 않습니다.</p>
     <div class="home-reading-grid"><a class="reading-card" href="guide/hunt-income/"><h3>재획 수익과 조각 판매를 중복 없이 기록하기</h3><p>회차별 가격 고정과 보유 조각·판매 정산의 차이를 숫자로 비교합니다.</p><span>계산 사례 읽기 →</span></a>
-<a class="reading-card" href="guide/boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>파티장·파티원 실수령액, 송금 수수료와 100메소 내림, 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
-<a class="reading-card" href="guide/profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>판매 수수료와 소울·고급 어빌리티 비용을 직접 바꿔 계산하고, 지출 기록의 중복을 피하는 방법을 확인합니다.</p><span>계산 사례 읽기 →</span></a></div>
+<a class="reading-card" href="guide/boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>판매가·인원·분배 비율을 입력해 송금액과 각자 실수령액을 계산하고, 100메소 내림과 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
+<a class="reading-card" href="guide/profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>판매 손익을 계산하고, 소울 단계·어빌리티 잠금 수와 실제 시도 횟수에서 필요한 메소·명성치를 구합니다.</p><span>계산 사례 읽기 →</span></a></div>
   </section>
   <div class="workspace-quick-actions" aria-label="빠른 기록">
     <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
@@ -1771,70 +1741,6 @@
     </div>
     <div class="stats-period-list" id="monthly-summary-list"></div>
     <div class="stats-period-pagination" id="monthly-summary-pagination"></div>
-  </div>
-</div>
-
-<div class="guide-modal" id="ledger-draft-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ledger-draft-title">
-  <div class="guide-modal-backdrop" data-ledger-close></div>
-  <div class="guide-modal-panel" role="document">
-    <div class="guide-modal-head">
-      <h2 id="ledger-draft-title">🧾 메소 가계부 초안</h2>
-      <button class="ghost guide-modal-close" type="button" data-ledger-close>닫기</button>
-    </div>
-    <p class="muted">가계부 기능은 수입 탭을 복잡하게 만들지 않도록 통계 안의 별도 기록 영역으로 두는 방향이 좋아 보입니다. 확정하면 아래 입력값이 주간·월간 순수익에서 차감되는 구조로 붙이면 됩니다.</p>
-    <div class="ledger-summary-grid">
-      <div class="ledger-summary loss"><span>이번 주 지출</span><b>-120억 메소</b></div>
-      <div class="ledger-summary loss"><span>이번 달 손실</span><b>-215억 메소</b></div>
-      <div class="ledger-summary"><span>예상 순수익</span><b>486억 메소</b></div>
-    </div>
-    <div class="guide-modal-section ledger-modal-grid">
-      <div class="ledger-preview-box">
-        <div class="ledger-preview-title">기록 입력 예시</div>
-        <div class="ledger-form-preview" aria-hidden="true">
-          <div>
-            <label>날짜</label>
-            <div class="ledger-input-preview">2026-07-10</div>
-          </div>
-          <div>
-            <label>캐릭터</label>
-            <div class="ledger-input-preview">얀보</div>
-          </div>
-          <div>
-            <label>구분</label>
-            <div class="ledger-input-preview">스타포스</div>
-          </div>
-          <div>
-            <label>금액</label>
-            <div class="ledger-input-preview">120억 메소</div>
-          </div>
-          <div class="wide">
-            <label>메모</label>
-            <div class="ledger-input-preview">장비 강화 비용</div>
-          </div>
-        </div>
-      </div>
-      <div class="ledger-preview-box">
-        <div class="ledger-preview-title">최근 지출 미리보기</div>
-        <div class="ledger-demo-list" aria-hidden="true">
-          <div class="ledger-demo-item">
-            <div><b>스타포스</b><span>얀보 · 장비 강화</span></div>
-            <div class="ledger-demo-value">-120억</div>
-          </div>
-          <div class="ledger-demo-item">
-            <div><b>장비 구매</b><span>부캐 세팅</span></div>
-            <div class="ledger-demo-value">-85억</div>
-          </div>
-          <div class="ledger-demo-item">
-            <div><b>거래 손실</b><span>시세 차이</span></div>
-            <div class="ledger-demo-value">-10억</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="ledger-principles">
-      <div class="guide-note">강화·구매 비용은 지출에 기록하고, 통계에서 수입과 함께 비교하세요. 이미 반영한 비용을 손익 계산기나 API 이력에서 다시 더하지 않도록 확인해 주세요.</div>
-      <div class="guide-note">강화 API의 비용은 추정값입니다. 내역을 검토하고 지출 반영을 확정한 항목만 통계에 포함됩니다.</div>
-    </div>
   </div>
 </div>
 
@@ -9589,28 +9495,6 @@ function initCharacterGuideModal(){
   });
 }
 initCharacterGuideModal();
-function initLedgerDraftModal(){
-  const modal=document.getElementById('ledger-draft-modal');
-  const openBtn=document.getElementById('btn-ledger-draft');
-  if(!modal || !openBtn) return;
-  const closeBtns=modal.querySelectorAll('[data-ledger-close]');
-  const open=()=>{
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('modal-open');
-  };
-  const close=()=>{
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden','true');
-    document.body.classList.remove('modal-open');
-  };
-  openBtn.onclick=open;
-  closeBtns.forEach(btn=>btn.addEventListener('click',close));
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape' && modal.classList.contains('open')) close();
-  });
-}
-initLedgerDraftModal();
 const addCharacter=async()=>{
   const nm=document.getElementById('in-char').value.trim();
   const server=document.querySelector('input[name="in-server"]:checked')?.value || 'main';

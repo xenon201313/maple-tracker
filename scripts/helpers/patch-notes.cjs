@@ -11,6 +11,7 @@ async function fixtureDismissPatchNotes(context) {
   const ids = Array.from(sandbox.MaplePatchNotesData.releases, release => release.id);
   await context.addInitScript(ids => {
     localStorage.setItem('maple_ui_patch_notes_hidden_v1', JSON.stringify(ids));
+    localStorage.setItem('maple_ui_patch_notes_seen_v1', ids[0]);
   }, ids);
 }
 

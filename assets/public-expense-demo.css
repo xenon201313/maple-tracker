@@ -8,6 +8,13 @@
 [data-expense-demo] [data-demo-panel][hidden] { display:none!important; }
 [data-expense-demo] [data-demo-panel] { min-width:0; }
 [data-expense-demo] [data-demo-form] { min-width:0; margin:0; }
+[data-expense-demo] fieldset { min-width:0; margin:18px 0; padding:14px; border:1px solid var(--line,#484e59); border-radius:8px; }
+[data-expense-demo] fieldset[hidden] { display:none!important; }
+[data-expense-demo] legend { max-width:100%; padding:0 6px; font-weight:700; }
+[data-expense-demo] fieldset .demo-fields { margin:4px 0; }
+[data-expense-demo] fieldset[data-demo-ready] { border:0; padding:0; margin:0; }
+[data-expense-demo] :is(button,input,select):disabled { cursor:not-allowed; opacity:.65; }
+[data-expense-demo] .demo-basis { font-size:14px; }
 [data-expense-demo] .demo-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:16px 0; }
 [data-expense-demo] label { display:grid; gap:6px; min-width:0; color:var(--text,#f0f2f4); font-weight:600; }
 [data-expense-demo] :is(input:not([type="checkbox"]),select) { box-sizing:border-box; display:block; width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid var(--line,#484e59); border-radius:7px; background:#1d2026; color:var(--text,#f0f2f4); font:inherit; font-variant-numeric:tabular-nums; }

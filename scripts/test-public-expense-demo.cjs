@@ -144,25 +144,85 @@ async function checkLayout(page, width, mode) {
     await reset('soul');
     pass('소울 3종 비용 합산·무료 재료·큰 정수 곱셈·수량 한도');
 
+    await form('soul').locator('[name="count"]').fill('0');
+    await form('soul').locator('[name="resets"]').fill('0');
+    await form('soul').locator('[name="attempts"]').fill('2');
+    for (const [stage, unit] of [['stage1',500000000n],['stage2',1000000000n],['stage3',1750000000n],['stage4',2750000000n]]) {
+      await form('soul').locator('[name="stage"]').selectOption(stage);
+      assert.equal(await amount('soul','cost'), String(unit*2n));
+      assert.equal(await amount('soul','direct'), String(unit*2n));
+    }
+    await form('soul').locator('[name="attempts"]').fill('0');
+    await form('soul').locator('[name="resets"]').fill('3');
+    for (const [grade, unit] of [['rare',20000000n],['epic',40000000n],['unique',65000000n],['legendary',88000000n]]) {
+      await form('soul').locator('[name="grade"]').selectOption(grade);
+      assert.equal(await amount('soul','cost'), String(unit*3n));
+      assert.equal(await amount('soul','extra'), String(unit*3n));
+    }
+    await form('soul').locator('[name="resets"]').fill('0');
+    assert.equal(await amount('soul','cost'), '0');
+    for (const name of ['attempts','resets']) {
+      await form('soul').locator('[name="' + name + '"]').fill('1000001');
+      assert.equal(await form('soul').locator('[data-demo-cost]').innerText(), '—');
+      assert.match(await form('soul').locator('[data-demo-error]').innerText(), /1,000,000/);
+      await form('soul').locator('[name="' + name + '"]').fill('0');
+    }
+    await form('soul').locator('[name="stage"]').evaluate(node => { node.value = ''; node.dispatchEvent(new Event('change',{bubbles:true})); });
+    assert.equal(await form('soul').locator('[data-demo-cost]').innerText(), '—');
+    assert.equal(await form('soul').locator('[name="stage"]').getAttribute('aria-invalid'), 'true');
+    await form('soul').locator('[name="calculation"]').selectOption('actual');
+    assert.equal(await form('soul').locator('[name="stage"]').isEnabled(), false);
+    await form('soul').locator('[name="direct"]').fill('1200000000');
+    await form('soul').locator('[name="extra"]').fill('30000000');
+    assert.equal(await amount('soul','cost'), '1230000000');
+    await reset('soul');
+    assert.equal(await form('soul').locator('[name="calculation"]').inputValue(), 'standard');
+    assert.equal(await form('soul').locator('[name="direct"]').isEnabled(), false);
+    pass('소울 4단계·4등급 공식 단가, 0회, 잘못된 조건, 직접 입력 모드와 초기화');
+
     await activate('ability');
     assert.equal(await amount('ability','cost'), '165000000');
     await form('ability').locator('[name="count"]').fill('0');
     assert.equal(await amount('ability','cost'), '150000000');
-    await form('ability').locator('[name="direct"]').fill('0');
+    assert.equal(await amount('ability','fame'), '400000');
+    await form('ability').locator('[name="resets"]').fill('0');
     assert.equal(await amount('ability','cost'), '0');
+    assert.equal(await amount('ability','fame'), '0');
+    await form('ability').locator('[name="resets"]').fill('3');
+    for (const [locks,unit,fame] of [['lock0',2000000n,20000n],['lock1',6000000n,30000n],['lock2',15000000n,40000n]]) {
+      await form('ability').locator('[name="locks"]').selectOption(locks);
+      assert.equal(await amount('ability','cost'), String(unit*3n));
+      assert.equal(await amount('ability','fame'), String(fame*3n));
+    }
+    await form('ability').locator('[name="resets"]').fill('1,000,000');
+    assert.equal(await amount('ability','direct'), '15000000000000');
+    assert.equal(await amount('ability','fame'), '40000000000');
+    for (const bad of ['', '-1', '1.5', '1e3', '1,00', '1000001']) {
+      await form('ability').locator('[name="resets"]').fill(bad);
+      assert.equal(await form('ability').locator('[data-demo-cost]').innerText(), '—');
+      assert.equal(await form('ability').locator('[data-demo-fame]').innerText(), '—');
+    }
+    await form('ability').locator('[name="calculation"]').selectOption('actual');
+    await form('ability').locator('[name="direct"]').fill('90000000');
+    await form('ability').locator('[name="fame"]').fill('200000');
+    assert.equal(await amount('ability','cost'), '90000000');
+    assert.equal(await amount('ability','fame'), '200000');
+    await form('ability').locator('[name="price"]').fill('0');
+    await form('ability').locator('[name="count"]').fill('100');
+    assert.equal(await amount('ability','cost'), '90000000');
     await reset('ability');
-    pass('어빌리티 훈장 구입비·직접 메소 합산, 보유 명성치는 추가 비용 없음');
+    pass('어빌리티 잠금 0·1·2개의 3회 비용, 명성치 별도, 무료·0회·직접 입력·횟수 검증');
 
     const url = page.url();
     await page.evaluate(() => { window.__demoPageSentinel = '로드 유지'; });
-    await form('ability').locator('[name="direct"]').press('Enter');
+    await form('ability').locator('[name="resets"]').press('Enter');
     const canceled = await form('ability').evaluate(node => !node.dispatchEvent(new Event('submit', { bubbles:true, cancelable:true })));
     assert.equal(canceled, true);
     assert.equal(page.url(), url);
     assert.equal(await page.evaluate(() => window.__demoPageSentinel), '로드 유지');
     pass('Enter와 form submit으로 페이지 이동·전송하지 않음');
 
-    await form('ability').locator('[name="direct"]').fill('12345');
+    await form('ability').locator('[name="resets"]').fill('12345');
     await activate('profit');
     await page.locator('#demo-tab-profit').focus();
     for (const [key,mode] of [['ArrowRight','soul'],['End','ability'],['ArrowRight','profit'],['ArrowLeft','ability'],['Home','profit']]) {
@@ -173,7 +233,7 @@ async function checkLayout(page, width, mode) {
       assert.equal(await page.locator('[data-demo-mode][tabindex="0"]').count(), 1);
     }
     await activate('ability');
-    assert.equal(await form('ability').locator('[name="direct"]').inputValue(), '12345');
+    assert.equal(await form('ability').locator('[name="resets"]').inputValue(), '12345');
     pass('탭 방향키·Home·End·포커스·탭 전환 입력 유지');
 
     for (const width of [1440,390,320]) for (const mode of ['profit','soul','ability']) await checkLayout(page,width,mode);
@@ -192,11 +252,15 @@ async function checkLayout(page, width, mode) {
     await staticPage.goto(origin + '/guide/profit-expense/');
     assert.equal(await staticPage.locator('h1').isVisible(), true);
     assert.equal(await staticPage.locator('#soul-ability-example').isVisible(), true);
+    assert.equal(await staticPage.locator('[data-expense-demo] :is(input,select,button):enabled').count(), 0, 'JavaScript 없이 결과를 갱신할 수 없는 입력은 잠급니다.');
     const text = await staticPage.locator('main').innerText();
     assert.match(text, /39,500,000/);
     assert.match(text, /소울/);
     assert.match(text, /어빌리티/);
     assert.match(text, /JavaScript/);
+    assert.match(text, /88,000,000/);
+    assert.match(text, /40,000 × 10 = 400,000/);
+    assert.match(text, /성공까지의 기대 비용/);
     await noJs.close();
     pass('JavaScript가 꺼져도 제목·계산 표·소울/어빌리티 본문 열람');
     await context.close();

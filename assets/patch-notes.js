@@ -2,6 +2,7 @@
 (() => {
   'use strict';
   const storageKey = 'maple_ui_patch_notes_hidden_v1';
+  const seenKey = 'maple_ui_patch_notes_seen_v1';
   const releases = window.MaplePatchNotesData?.releases || [];
   if (!releases.length) return;
   // 프렌즈 로그인 복귀 시 인증 화면을 가리지 않습니다. 인증 값은 저장하지 않습니다.
@@ -14,6 +15,14 @@
       const value = JSON.parse(localStorage.getItem(storageKey) || '[]');
       return Array.isArray(value) ? [...new Set(value.filter(id => typeof id === 'string'))] : [];
     } catch { return []; }
+  };
+  const readSeen = () => {
+    try { return localStorage.getItem(seenKey) || ''; }
+    catch { return ''; }
+  };
+  const rememberSeen = id => {
+    try { localStorage.setItem(seenKey,id); return true; }
+    catch { return false; }
   };
   function init() {
     const trigger = document.getElementById('patch-notes-open');
@@ -66,6 +75,7 @@
     }
     function open() {
       if (dialog.open) return;
+      rememberSeen(releases[0].id);
       returnFocus = document.activeElement;
       if (document.body.classList.contains('menu-open')) {
         document.querySelector('[data-menu-close]')?.click();
@@ -117,8 +127,50 @@
         event.preventDefault(); first.focus();
       }
     });
-    window.MaplePatchNotes = Object.freeze({open,latestId:releases[0].id,storageKey});
-    if (!authReturn && !readHidden().includes(releases[0].id) && !document.body.classList.contains('menu-open') && !document.querySelector('.guide-modal.open,dialog[open]')) open();
+    // 첫 방문에는 본문을 가리지 않는 안내만 표시합니다. 장부나 로그인 상태로 이용자를 판별하지 않습니다.
+    function showNotice() {
+      const welcome = document.querySelector('#page-home .home-welcome');
+      if (!welcome) return;
+      const notice = document.createElement('section');
+      notice.id = 'patch-notes-notice';
+      notice.className = 'patch-notes-notice';
+      notice.setAttribute('aria-label','최신 업데이트');
+      const text = document.createElement('p');
+      const label = document.createElement('span');
+      label.className = 'patch-notes-notice-label';
+      label.textContent = '최신 업데이트';
+      const title = document.createElement('span');
+      title.textContent = releases[0].date.replaceAll('-','.')+' · '+releases[0].title;
+      text.append(label,title);
+      const actions = document.createElement('div');
+      actions.className = 'patch-notes-notice-actions';
+      const details = document.createElement('button');
+      details.type = 'button'; details.textContent = '내용 보기';
+      details.setAttribute('data-patch-notes-details','');
+      details.addEventListener('click',open);
+      const dismiss = document.createElement('button');
+      dismiss.type = 'button'; dismiss.textContent = '닫기';
+      dismiss.className = 'ghost';
+      dismiss.setAttribute('aria-label','최신 업데이트 안내 닫기');
+      dismiss.addEventListener('click',() => {
+        rememberSeen(releases[0].id);
+        notice.remove();
+        document.getElementById('workspace-title')?.focus({preventScroll:true});
+      });
+      actions.append(details,dismiss); notice.append(text,actions);
+      welcome.after(notice);
+    }
+    window.MaplePatchNotes = Object.freeze({open,latestId:releases[0].id,storageKey,seenKey});
+    if (authReturn) return;
+    const hidden = readHidden(), seen = readSeen(), latestId = releases[0].id;
+    if (hidden.includes(latestId)) { rememberSeen(latestId); return; }
+    if (seen === latestId) return;
+    const returning = Boolean(seen || hidden.length);
+    // 저장소를 사용할 수 없으면 자동 팝업이 반복되지 않도록 안내 배너로만 알립니다.
+    const remembered = rememberSeen(latestId);
+    const mayOpen = !document.body.classList.contains('menu-open') && !document.querySelector('.guide-modal.open,dialog[open]');
+    if (returning && remembered && mayOpen) open();
+    else showNotice();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();

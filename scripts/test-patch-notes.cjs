@@ -9,6 +9,7 @@ const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
 const output = process.env.PATCH_NOTES_OUTPUT_DIR || path.join(root, '.tools', 'patch-notes-review');
 const storageKey = 'maple_ui_patch_notes_hidden_v1';
+const seenKey = 'maple_ui_patch_notes_seen_v1';
 const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.gif':'image/gif','.svg':'image/svg+xml','.ttf':'font/ttf'};
 const server = http.createServer((req,res)=>{
   let name = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -27,13 +28,13 @@ const isOpen = page => dialog(page).evaluate(el=>el.open);
 async function waitOpen(page) { await page.waitForFunction(()=>document.getElementById('patch-notes-dialog')?.open); }
 async function waitClosed(page) { await page.waitForFunction(()=>!document.getElementById('patch-notes-dialog')?.open); }
 const hiddenIds = page => page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'[]'),storageKey);
-const stateSnapshot = page => page.evaluate(key=>JSON.stringify({
+const stateSnapshot = page => page.evaluate(keys=>JSON.stringify({
   ledger:db,
   cloud:{ready:cloudSync.ready,initializing:cloudSync.initializing,syncing:cloudSync.syncing,pendingUpload:cloudSync.pendingUpload,runId:cloudSync.runId,syncId:cloudSync.syncId},
   recovery:cloudHuntRecoverySources,
-  local:Object.fromEntries(Object.keys(localStorage).filter(k=>k!==key).sort().map(k=>[k,localStorage.getItem(k)])),
+  local:Object.fromEntries(Object.keys(localStorage).filter(k=>!keys.includes(k)).sort().map(k=>[k,localStorage.getItem(k)])),
   session:Object.fromEntries(Object.keys(sessionStorage).sort().map(k=>[k,sessionStorage.getItem(k)]))
-},(_,value)=>typeof value==='bigint'?value.toString():value),storageKey);
+},(_,value)=>typeof value==='bigint'?value.toString():value),[storageKey,seenKey]);
 
 async function openManually(page) {
   if (await page.evaluate(()=>matchMedia('(max-width: 900px)').matches && !document.getElementById('workspace-sidebar').classList.contains('is-open'))) {
@@ -109,20 +110,27 @@ async function checkLayout(page,label) {
       }
       return route.continue();
     });
-    if (options.failure) await context.addInitScript(({key,failure})=>{
+    if (options.returning) await context.addInitScript(key=>{
+      if (!localStorage.getItem(key)) localStorage.setItem(key,'previous-test-release');
+    },seenKey);
+    if (options.legacyHidden) await context.addInitScript(key=>{
+      if (!localStorage.getItem(key)) localStorage.setItem(key,JSON.stringify(['previous-hidden-release']));
+    },storageKey);
+    if (options.failure) await context.addInitScript(({keys,failure})=>{
       const original=Storage.prototype[failure==='read'?'getItem':'setItem'];
       Storage.prototype[failure==='read'?'getItem':'setItem']=function(k,...args){
-        if (k===key) throw new DOMException('검증용 저장소 오류','SecurityError');
+        if (keys.includes(k)) throw new DOMException('검증용 저장소 오류','SecurityError');
         return original.call(this,k,...args);
       };
-    },{key:storageKey,failure:options.failure});
+    },{keys:[storageKey,seenKey],failure:options.failure});
     if (options.corrupt) await context.addInitScript(key=>localStorage.setItem(key,'{broken-json'),storageKey);
     const page=await context.newPage();
     page.on('pageerror',error=>errors.push(error.message));
     page.on('dialog',notice=>notice.accept());
     await page.clock.setFixedTime(new Date('2026-09-18T12:00:00+09:00'));
-    await page.goto(origin+(options.url||'/?page=profit'));
-    if (!options.skipAuto) await waitOpen(page);
+    await page.goto(origin+(options.url||'/?page=home'));
+    if (options.expectAuto) await waitOpen(page);
+    else await page.waitForFunction(()=>Boolean(window.MaplePatchNotes));
     await page.evaluate(()=>document.fonts.ready);
     return {context,page,variant};
   }
@@ -131,9 +139,27 @@ async function checkLayout(page,label) {
     const {page,variant}=await makeContext();
     assert.equal(await page.evaluate(()=>MaplePatchNotes.latestId),currentId);
     assert.equal(await page.evaluate(()=>MaplePatchNotes.storageKey),storageKey);
+    assert.equal(await page.evaluate(()=>MaplePatchNotes.seenKey),seenKey);
+    assert.equal(await isOpen(page),false,'첫 방문에서 팝업이 본문을 가립니다.');
+    assert.equal(await page.locator('#patch-notes-notice').isVisible(),true,'첫 방문에 비차단 안내가 없습니다.');
+    assert.equal(await page.evaluate(()=>document.body.classList.contains('patch-notes-open') || !!document.getElementById('page-home').closest('[inert]')),false,'첫 방문 본문이 차단되었습니다.');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),seenKey),currentId);
+    for (const [width,height] of [[1440,1000],[390,740],[320,568]]) {
+      await page.setViewportSize({width,height});
+      const fits=await page.locator('#patch-notes-notice').evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        return r.left>=-1 && r.right<=innerWidth+1 && el.scrollWidth<=el.clientWidth+1 && document.documentElement.scrollWidth<=innerWidth+1;
+      });
+      assert(fits,'첫 방문 안내가 '+width+'px 화면에서 가로로 넘칩니다.');
+      await page.screenshot({path:path.join(output,'first-visit-'+width+'.png'),fullPage:false});
+    }
+    await page.setViewportSize({width:1440,height:1000});
+    await page.locator('[data-patch-notes-details]').focus();
+    await page.keyboard.press('Enter');
+    await waitOpen(page);
     assert.match(await dialog(page).innerText(),/이 패치노트 다시 보지 않기/);
     assert.equal(await page.locator('#patch-notes-hide').isChecked(),false);
-    assert(await page.evaluate(()=>document.getElementById('patch-notes-dialog').contains(document.activeElement)),'자동 표시 포커스가 팝업 밖에 있습니다.');
+    assert(await page.evaluate(()=>document.getElementById('patch-notes-dialog').contains(document.activeElement)),'공지 내용보기 포커스가 팝업 밖에 있습니다.');
 
     // 공지 조작이 실제 장부/클라우드/복구/인증 저장을 덮어쓰지 않는지 확인합니다.
     await page.evaluate(()=>{
@@ -153,6 +179,10 @@ async function checkLayout(page,label) {
     await waitClosed(page);
     assert.deepEqual(await hiddenIds(page),[],'닫기만 했는데 다시 보지 않기가 저장되었습니다.');
     assert.equal(await stateSnapshot(page),before,'팝업 닫기가 기록이나 인증 정보를 변경했습니다.');
+    assert.equal(await page.locator('[data-patch-notes-details]').evaluate(el=>el===document.activeElement),true,'안내 내용보기 버튼으로 포커스가 복귀하지 않았습니다.');
+    await page.locator('[aria-label="최신 업데이트 안내 닫기"]').click();
+    assert.equal(await page.locator('#patch-notes-notice').count(),0,'안내 닫기가 작동하지 않습니다.');
+    assert.deepEqual(await hiddenIds(page),[],'안내 닫기가 다시 보지 않기 설정을 덮어썼습니다.');
     await openManually(page);
     await page.locator('#patch-notes-hide').check();
     await page.keyboard.press('Escape');
@@ -165,11 +195,14 @@ async function checkLayout(page,label) {
     await waitClosed(page);
     assert.deepEqual(await hiddenIds(page),[],'배경 닫기가 숨김 설정을 저장했습니다.');
     await page.reload();
-    await waitOpen(page);
+    await waitClosed(page);
+    assert.equal(await page.locator('#patch-notes-notice').count(),0,'이미 안내한 공지가 재방문에서 반복 표시됩니다.');
+    await openManually(page);
     await page.locator('#patch-notes-confirm').click();
     await waitClosed(page);
     await page.reload();
-    await waitOpen(page);
+    await waitClosed(page);
+    await openManually(page);
 
     // 처음/마지막에서 탭 이동이 팝업 밖으로 빠지면 안 됩니다.
     const focusable='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -202,7 +235,8 @@ async function checkLayout(page,label) {
     await page.locator('#patch-notes-confirm').click();
     assert.deepEqual(await hiddenIds(page),[],'숨김 해제가 해당 공지를 제거하지 않았습니다.');
     await page.reload();
-    await waitOpen(page);
+    await waitClosed(page);
+    await openManually(page);
     await page.locator('#patch-notes-hide').check();
     await page.locator('#patch-notes-confirm').click();
     await waitClosed(page);
@@ -224,6 +258,17 @@ async function checkLayout(page,label) {
     await page.locator('#patch-notes-hide').uncheck();
     await page.locator('#patch-notes-confirm').click();
     assert.deepEqual(await hiddenIds(page),[nextId],'과거 공지 숨김 해제가 다른 공지 설정까지 제거했습니다.');
+    await page.reload();
+    await waitClosed(page);
+
+    const {page:returning}=await makeContext({returning:true,expectAuto:true});
+    await returning.locator('[data-patch-notes-close]').click();
+    await returning.reload();
+    await waitClosed(returning);
+    assert.equal(await returning.locator('#patch-notes-notice').count(),0,'기존 이용자에게 같은 새 공지를 반복 안내합니다.');
+    const {page:legacy}=await makeContext({legacyHidden:true,expectAuto:true});
+    assert.deepEqual(await hiddenIds(legacy),['previous-hidden-release'],'이전 버전 숨김 설정이 유실되었습니다.');
+    await legacy.keyboard.press('Escape');
 
     // 모바일 전체 메뉴를 통해 열고 닫은 뒤 메뉴도 계속 작동해야 합니다.
     await page.setViewportSize({width:390,height:740});
@@ -237,7 +282,10 @@ async function checkLayout(page,label) {
     await page.keyboard.press('Escape');
 
     for (const failure of ['read','write']) {
-      const {page:failing}=await makeContext({failure});
+      const {page:failing}=await makeContext({failure,returning:failure==='write'});
+      assert.equal(await isOpen(failing),false,'공지 저장소 오류에서 자동 팝업이 본문을 가립니다.');
+      assert.equal(await failing.locator('#patch-notes-notice').isVisible(),true,'저장소 오류 때 비차단 안내가 없습니다.');
+      await openManually(failing);
       await failing.locator('#patch-notes-hide').check();
       await failing.locator('#patch-notes-confirm').click();
       if (failure==='write') {
@@ -251,17 +299,21 @@ async function checkLayout(page,label) {
       assert.equal(await failing.locator('#page-expense').evaluate(el=>el.classList.contains('active')),true,'공지 저장소 오류가 앱 탐색을 중단했습니다.');
     }
     const {page:corrupt}=await makeContext({corrupt:true});
+    assert.equal(await isOpen(corrupt),false,'손상된 UI 설정을 첫 방문 팝업으로 처리했습니다.');
+    await openManually(corrupt);
     await corrupt.locator('#patch-notes-confirm').click();
     await waitClosed(corrupt);
     for (const url of ['/?page=home&code=test-callback&state=test-state','/?page=home?code=test-nested&state=test-state','/?page=home%3Fcode%3Dtest-encoded%26state%3Dtest-state','/?page=home&error=access_denied&error_description=test-only']) {
-      const {page:callback}=await makeContext({url,skipAuto:true});
+      const {page:callback}=await makeContext({url,returning:true});
       assert.equal(await isOpen(callback),false,'로그인 복귀 URL에서 자동 팝업이 인증 흐름을 가립니다: '+url);
+      assert.equal(await callback.locator('#patch-notes-notice').count(),0,'로그인 복귀 URL에서 안내 배너가 표시됩니다.');
+      assert.equal(await callback.evaluate(key=>localStorage.getItem(key),seenKey),'previous-test-release','로그인 복귀에서 새 공지를 이미 본 것으로 기록합니다.');
       await openManually(callback);
       await callback.locator('[data-patch-notes-close]').click();
       await waitClosed(callback);
     }
     assert.deepEqual(errors,[],'브라우저 스크립트 오류');
-    console.log('패치노트 검증 통과: 자동 표시·공지별 숨김·새 공지·이력 조회·키보드/모바일·기록 및 인증 보존·저장소 오류');
+    console.log('패치노트 검증 통과: 첫 방문 비차단 안내·같은 공지 반복 방지·기존 이용자 새 공지·공지별 숨김·이력 조회·키보드/모바일·기록 및 인증 보존·저장소 오류·인증 복귀');
     console.log('검증 화면: '+output);
   } finally {
     for (const context of contexts) await context.close();

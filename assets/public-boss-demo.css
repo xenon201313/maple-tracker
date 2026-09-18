@@ -1,0 +1,25 @@
+/* 공개 정산 계산기의 입력과 결과를 좁은 화면에서도 읽을 수 있게 배치합니다. */
+[data-boss-demo] { min-width:0; }
+[data-boss-demo] fieldset { min-width:0; margin:0; padding:0; border:0; }
+[data-boss-demo] legend { padding:0; font-weight:700; }
+[data-boss-demo] .boss-demo-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:16px 0; }
+[data-boss-demo] label { display:grid; gap:6px; min-width:0; color:var(--text,#f0f2f4); font-weight:600; }
+[data-boss-demo] :is(input,select) { box-sizing:border-box; width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid var(--line,#484e59); border-radius:7px; background:#1d2026; color:var(--text,#f0f2f4); font:inherit; font-variant-numeric:tabular-nums; }
+[data-boss-demo] input[aria-invalid="true"] { border-color:#ff9ca7; }
+[data-boss-demo] [data-boss-ratio][hidden] { display:none!important; }
+[data-boss-demo] :is(button,input,select):focus-visible { outline:2px solid var(--gold,#ffda62); outline-offset:3px; }
+[data-boss-demo] :is(input,select):disabled { opacity:.6; }
+[data-boss-demo] button { min-height:44px; padding:10px 14px; border:1px solid var(--line,#484e59); border-radius:8px; background:var(--panel-soft,#333740); color:var(--text,#f0f2f4); font:inherit; font-weight:700; cursor:pointer; }
+[data-boss-demo] .boss-demo-results { margin:18px 0; padding:16px; border:1px solid #72dbb04d; border-radius:8px; background:#163d4840; }
+[data-boss-demo] .boss-demo-results>div { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 16px; margin:10px 0; }
+[data-boss-demo] .boss-demo-results dd { margin:0; min-width:0; overflow-wrap:anywhere; color:var(--gold,#ffda62); font-variant-numeric:tabular-nums; font-weight:700; }
+[data-boss-demo] .boss-demo-results .boss-demo-main { padding-bottom:10px; border-bottom:1px solid var(--line,#484e59); }
+[data-boss-demo] .boss-demo-main dd { font-size:21px; }
+[data-boss-demo] [data-boss-detail] { color:#d8faea; overflow-wrap:anywhere; }
+[data-boss-demo] [data-boss-error] { color:#ffb9c1; font-weight:600; overflow-wrap:anywhere; }
+[data-boss-demo] [data-boss-error]:empty { display:none; }
+@media(max-width:540px) {
+  [data-boss-demo] .boss-demo-fields { grid-template-columns:minmax(0,1fr); }
+  [data-boss-demo] .boss-demo-results { padding:12px; }
+  [data-boss-demo] .boss-demo-main dd { font-size:18px; }
+}
