@@ -1,0 +1,16 @@
+.account-sync .account-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.account-sync button{min-height:44px}
+.account-sync #account-login{padding:0;border:0;background:transparent;max-width:230px}
+.account-sync #account-login img{display:block;width:100%;height:auto}
+.account-sync p{line-height:1.7;overflow-wrap:anywhere}
+.account-sync .err{color:#ffb6c1}
+.account-sync [hidden]{display:none!important}
+.account-choice{padding:16px;margin:14px 0;border:1px solid var(--gold);border-radius:10px;background:#121a24}
+.account-sync details{margin-top:16px}
+.account-sync summary{cursor:pointer;padding:8px 0}
+.account-sync select{max-width:100%;min-width:0}
+#account-server-history{display:grid;gap:8px;margin-top:10px}
+.friends-character-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #ffffff22;flex-wrap:wrap}
+.account-stale{max-width:480px;width:calc(100% - 32px);box-sizing:border-box;background:#252b35;color:#fff;border:1px solid #ffe06b;border-radius:12px;padding:24px;line-height:1.7}
+.account-stale::backdrop{background:#000a}
+@media(max-width:540px){.account-sync .account-actions{flex-direction:column}.account-sync .account-actions button{width:100%}.account-sync #account-login{width:100%}}

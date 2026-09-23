@@ -11,6 +11,14 @@ class_name = "FriendsSession"
 tag = "friends-sessions-v1"
 new_sqlite_classes = ["FriendsSession"]
 
+[[durable_objects.bindings]]
+name = "FRIENDS_LEDGERS"
+class_name = "FriendsLedger"
+
+[[migrations]]
+tag = "friends-ledgers-v1"
+new_sqlite_classes = ["FriendsLedger"]
+
 [[kv_namespaces]]
 binding = "DATA"
 id = "a300687477cb4f45a35e6abb329bd367"

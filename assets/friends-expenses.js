@@ -11,7 +11,8 @@
   const offset=(day,n)=>new Date(Date.parse(day+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
   const read=key=>{try{return JSON.parse(sessionStorage.getItem(key)||'null');}catch{return null;}};
   const bridge=()=>window.MapleEnhancementBridge;
-  let session=read(sessionKey), ready=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
+  let session=read(sessionKey), ready=false, verified=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
+  let scopes=[], generation=0;
   let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const callback=new URL(location.href);
   // Normalize the separator before decoding so escaped +, %, and & in codes stay intact.
@@ -47,18 +48,29 @@
     $('enhancement-status').textContent=text;
     $('enhancement-status').classList.toggle('err',error);
   }
+  const getState=()=>({connected:!!(session && verified && !finishing),account:verified?session?.account||null:null,ready,finishing,scopes:[...scopes]});
+  const announce=()=>document.dispatchEvent(new CustomEvent('maple:friends-session',{detail:getState()}));
+  const sameSession=snapshot=>!!(snapshot && session && snapshot.state===session.state && snapshot.proof===session.proof && snapshot.account===session.account);
+  function clearSession() {
+    running?.abort(); generation++; session=null; verified=false; scopes=[];
+    try {sessionStorage.removeItem(sessionKey);} catch {}
+    announce(); controls();
+  }
   async function call(path,body,signal) {
     const timeout=AbortSignal.timeout(30000);
     const response=await fetch(endpoint+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'omit',redirect:'error',signal:signal?AbortSignal.any([signal,timeout]):timeout});
-    const data=await response.json();
+    let data;
+    try {data=await response.json();} catch {throw Object.assign(new Error('프렌즈 서버 응답을 확인할 수 없습니다.'),{status:response.status,httpStatus:response.status,errorCode:'INVALID_RESPONSE'});}
     if (!response.ok) {
-      if (response.status===401 && path!=='finish') { session=null; sessionStorage.removeItem(sessionKey); }
+      // 이전 계정에서 늦게 돌아온 401 응답으로 새 로그인 세션을 지우지 않습니다.
+      if (response.status===401 && path!=='finish' && body?.state===session?.state && body?.proof===session?.proof) clearSession();
       const code=typeof data.errorCode==='string' && /^[A-Z_]+(?: \/ (?:OPENAPI\d{5}|\d{3}|UNAVAILABLE))?$/.test(data.errorCode)?' ('+data.errorCode+')':'';
-      throw new Error((typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.')+code);
+      throw Object.assign(new Error((typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.')+code),{status:response.status,httpStatus:response.status,errorCode:data.errorCode||'',code:data.errorCode||''});
     }
     return data;
   }
   function controls() {
+    if(!$('enhancement-source')) return;
     const useFriends=$('enhancement-source').value==='friends';
     $('enhancement-connect').hidden=!useFriends || !!session;
     $('enhancement-connect').disabled=!ready || !!running || finishing;
@@ -72,44 +84,78 @@
     configured=true;
     try {
       ready=!!(await call('config')).ready;
-      if(session && ready) { const info=await call('status',session); session.account=info.account; }
+      if(session && ready) {
+        const snapshot=session, info=await call('status',{state:snapshot.state,proof:snapshot.proof});
+        if(info.connected!==true || typeof info.account!=='string' || !info.account) throw new Error('넥슨 계정 정보를 확인할 수 없습니다.');
+        if(sameSession(snapshot)) {
+          session={...snapshot,account:info.account}; verified=info.connected===true && typeof info.account==='string';
+          scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
+          try {sessionStorage.setItem(sessionKey,JSON.stringify(session));} catch {}
+        }
+      }
       if(!preserveStatus) status(ready?(session?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.');
-    } catch { if(!preserveStatus) status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
-    controls();
+    } catch { configured=false; if(!preserveStatus) status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
+    controls(); announce();
   }
-  async function connect() {
+  async function connect(returnPage='home') {
+    if(finishing) return;
+    finishing=true; running?.abort(); generation++; controls(); announce();
     try {
       const proof=hex(crypto.getRandomValues(new Uint8Array(32)));
       const result=await call('start',{challenge:await digest(proof)});
       const url=new URL(result.url);
       if(url.origin!=='https://openid.nexon.com' || url.pathname!=='/oauth2/authorize' || url.searchParams.get('state')!==result.state) throw new Error('로그인 주소 검증에 실패했습니다.');
-      sessionStorage.setItem(flowKey,JSON.stringify({state:result.state,proof,createdAt:Date.now()}));
+      sessionStorage.setItem(flowKey,JSON.stringify({state:result.state,proof,createdAt:Date.now(),returnPage:returnPage==='expense'?'expense':'home'}));
       location.assign(url.href);
-    } catch(error) {status(error.message,true);}
+    } catch(error) {finishing=false;controls();announce();status(error.message,true);throw error;}
   }
+  async function disconnect() {
+    const previous=session;
+    clearSession();
+    try {if(previous) await call('logout',{state:previous.state,proof:previous.proof});}
+    finally {status('넥슨 연결을 해제했습니다. 저장한 장부와 지출 기록은 유지됩니다.');}
+  }
+  async function request(path,body={},signal) {
+    if(!getState().connected) throw Object.assign(new Error('넥슨 계정을 먼저 연결해 주세요.'),{status:401,httpStatus:401,errorCode:'SESSION_REQUIRED'});
+    if(!/^[a-z][a-z0-9/-]*$/.test(path) || ['start','finish','config','logout'].includes(path)) throw new Error('지원하지 않는 요청입니다.');
+    const snapshot=session, before=generation;
+    const data=await call(path,{...body,state:snapshot.state,proof:snapshot.proof},signal);
+    signal?.throwIfAborted();
+    if(before!==generation || !sameSession(snapshot) || !verified) throw Object.assign(new Error('넥슨 계정이 변경되어 요청을 중단했습니다.'),{errorCode:'SESSION_CHANGED'});
+    return data;
+  }
+  window.MapleFriends=Object.freeze({connect,disconnect,request,getState});
+  document.addEventListener('maple:account-ledger-changing',()=>running?.abort());
   async function finish() {
     if(!callbackCode && !callbackError) return;
     status('넥슨 로그인 확인 중...');
     const flow=read(flowKey); sessionStorage.removeItem(flowKey);
     try {
-      if(!flow || flow.state!==callbackState || Date.now()-flow.createdAt>600000) throw new Error('로그인 요청이 만료되었거나 일치하지 않습니다. 다시 연결해 주세요.');
+      if(!flow || flow.state!==callbackState || !Number.isFinite(flow.createdAt) || flow.createdAt>Date.now()+60000 || Date.now()-flow.createdAt>600000) throw new Error('로그인 요청이 만료되었거나 일치하지 않습니다. 다시 연결해 주세요.');
       if(callbackError) throw new Error('넥슨 로그인이 완료되지 않았습니다.');
       const info=await call('finish',{state:flow.state,proof:flow.proof,code:callbackCode});
+      if(info.connected!==true || typeof info.account!=='string' || !info.account) throw new Error('넥슨 계정 정보를 확인할 수 없습니다. 다시 연결해 주세요.');
+      running?.abort(); generation++;
       session={state:flow.state,proof:flow.proof,account:info.account};
+      verified=info.connected===true && typeof info.account==='string';
+      scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
       sessionStorage.setItem(sessionKey,JSON.stringify(session));
-      $('enhancement-source').value='friends';
+      if($('enhancement-source')) $('enhancement-source').value='friends';
       ready=true; status('넥슨 계정이 연결되었습니다. 이력을 가져올 수 있습니다.');
     } catch(error) {status(error.message,true);}
-    document.querySelector('.tab[data-page="expense"]')?.click();
+    document.querySelector('.tab[data-page="'+(flow?.returnPage==='home'?'home':'expense')+'"]')?.click();
     finishing=false;
-    controls();
+    controls(); announce();
     await configure(true);
     controls();
   }
   async function sync(auto=false) {
     if(running) return;
     const source=$('enhancement-source').value, apiKey=bridge().key();
-    if(source==='friends' && !session) {status('먼저 넥슨 계정을 연결해 주세요.',true);return;}
+    if(source==='friends' && !getState().connected) {status('먼저 넥슨 계정을 연결해 주세요.',true);return;}
+    const originalSession=session, originalGeneration=generation;
+    const accountAllowed=()=>source!=='friends' || (sameSession(originalSession) && originalGeneration===generation && getState().connected && (!window.MapleAccountSync || window.MapleAccountSync.canUseAccount(originalSession.account)));
+    if(!accountAllowed()) {status('홈에서 넥슨 계정 장부를 먼저 선택해 주세요. 기존 장부는 유지됩니다.',true);return;}
     if(source==='key' && !apiKey) {status('캐릭터 등록에서 본인의 개인 API 키를 등록해 주세요. CLIENT ID는 API 키가 아닙니다.',true);return;}
     const from=auto?offset(today(),-1):$('enhancement-from').value, to=auto?today():$('enhancement-to').value;
     const length=Math.round((Date.parse(to+'T00:00:00Z')-Date.parse(from+'T00:00:00Z'))/86400000)+1;
@@ -125,32 +171,42 @@
       }
       if(source==='key' && apiKey!==bridge().key()) throw new Error('API 키가 변경되어 조회를 중단했습니다.');
       const fetchPage=async(kind,params,signal)=>{
-        const body=source==='friends'?await call('history',{...session,kind,...params},signal):await bridge().api('/history/'+kind,params,AbortSignal.any([signal,AbortSignal.timeout(20000)]));
+        const body=source==='friends'?await request('history',{kind,...params},signal):await bridge().api('/history/'+kind,params,AbortSignal.any([signal,AbortSignal.timeout(20000)]));
         signal.throwIfAborted();
         return body;
       };
-      const events=[];
+      const events=[], failures=new Set(), labels={starforce:'스타포스',potential:'잠재능력',cube:'큐브','soul-potential':'소울 잠재능력'};
+      const collectKinds=['starforce','potential','cube'];
+      if(source==='key' || scopes.includes('maplestory.soulpotential')) collectKinds.push('soul-potential');
+      else failures.add('소울 잠재능력: 추가 동의를 위해 넥슨 계정을 다시 연결해 주세요.');
       for(let day=from;day<=to;day=offset(day,1)) {
-        for(const kind of ['starforce','potential','cube']) {
-          status(day+' '+(kind==='starforce'?'스타포스':kind==='cube'?'큐브':'잠재능력')+' 조회 중...');
-          events.push(...await E.collect(fetchPage,kind,day,account,controller.signal));
+        for(const kind of collectKinds) {
+          if(kind==='soul-potential' && day<'2026-09-17') continue;
+          status(day+' '+labels[kind]+' 조회 중...');
+          try {events.push(...await E.collect(fetchPage,kind,day,account,controller.signal));}
+          catch(error) {
+            if(controller.signal.aborted || !accountAllowed() || error.status===401) throw error;
+            failures.add(day+' '+labels[kind]+': '+error.message);
+          }
         }
       }
       controller.signal.throwIfAborted();
       if(source==='key' && apiKey!==bridge().key()) throw new Error('API 키가 변경되었습니다. 저장하지 않았습니다.');
+      if(!accountAllowed()) throw new Error('넥슨 계정 또는 선택한 장부가 변경되었습니다. 조회 결과를 저장하지 않았습니다.');
       const before=E.normalize(bridge().get()).events.length;
-      bridge().commit({events});
+      if(events.length) bridge().commit({events});
       const added=E.normalize(bridge().get()).events.length-before;
       page=0; render();
-      status('조회 완료 · 새 이력 '+added.toLocaleString()+'건');
+      status('조회 완료 · 새 이력 '+added.toLocaleString()+'건'+(failures.size?' · 미조회: '+[...failures].join(' / '):''),failures.size>0);
     } catch(error) {status(controller.signal.aborted?'조회가 중단되었습니다. 기존 기록은 유지됩니다.':error.message,true);}
     finally {running=null;lastAuto=Date.now();controls();}
   }
   function hasManual(group) {
-    return bridge().manual().some(r=>r.date===group.date && r.type===(group.kind==='cube'?'potential':group.kind) && (r.costs||[]).some(c=>BigInt(String(c.price||0).replace(/,/g,''))>0n));
+    return bridge().manual().some(r=>r.date===group.date && r.type===(group.kind==='cube'?'potential':group.kind==='soul-potential'?'soul_ether':group.kind) && (r.costs||[]).some(c=>BigInt(String(c.price||0).replace(/,/g,''))>0n));
   }
   function conditionTags(g) {
     if(g.basis==='saved-rate') return '직접 입력한 단가';
+    if(g.kind==='soul-potential') return (g.soulStage==null?'증폭 단계 미상':'소울 '+g.soulStage+'단계')+' · 재설정 전 등급';
     if(g.kind!=='starforce') return g.basis==='cube-equivalent'?'동일 레벨·등급 메소 환산':g.kind==='cube'?g.cubeType:g.potentialType;
     const c=E.starConditions(g), tags=[];
     if(E.flag(c[0])) tags.push('슈페리얼');
@@ -162,38 +218,40 @@
     }
     return [...new Set(tags)].join(' · ')||'기본';
   }
-  const amountText=g=>g.estimate===null?(g.resolvedLevel===null?'장비 레벨 선택':g.details.some(d=>!d.grade && d.kind!=='starforce')?'등급 재조회 필요':'비용 확인 필요'):bridge().money(g.estimate);
+  const amountText=g=>g.estimate===null?(g.kind==='soul-potential'?'횟수·비용 확인 필요':g.resolvedLevel===null?'장비 레벨 선택':g.details.some(d=>!d.grade && d.kind!=='starforce')?'등급 재조회 필요':'비용 확인 필요'):bridge().money(g.estimate);
   const priceLabel=g=>g.kind==='cube'?'큐브 환산액 · 지출 아님':'메소 사용액 (추정)';
   const labelFor=g=>g.kind==='starforce'?(g.stars??'?')+'성':g.grade||'등급 미상';
   const timeText=at=>new Date(at).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const apiTab=value=>value==='starforce' || value==='potential';
-  const matchesTab=(kind,value)=>kind===value || (value==='potential' && kind==='cube');
+  const apiTab=value=>value==='starforce' || value==='potential' || value==='soul_ether';
+  const matchesTab=(kind,value)=>kind===value || (value==='potential' && kind==='cube') || (value==='soul_ether' && kind==='soul-potential');
   function renderTabs(all) {
     const isApi=apiTab(tab);
     document.querySelectorAll('[data-enhancement-tab]').forEach(button=>{
       const value=button.dataset.enhancementTab, active=value===tab;
       button.setAttribute('aria-selected',String(active));
       button.tabIndex=active?0:-1;
-      button.setAttribute('aria-controls',apiTab(value)?'enhancement-api-panel':'manual-enhancement-panel');
+      button.setAttribute('aria-controls',value==='soul_ether'?'enhancement-api-panel manual-enhancement-panel':apiTab(value)?'enhancement-api-panel':'manual-enhancement-panel');
       const count=button.querySelector('span');
       if(count) count.textContent=all.filter(g=>matchesTab(g.kind,value)).length;
       if(active) $(isApi?'enhancement-api-panel':'manual-enhancement-panel')?.setAttribute('aria-labelledby',button.id);
     });
     if($('enhancement-api-panel')) $('enhancement-api-panel').hidden=!isApi;
-    if($('manual-enhancement-panel')) $('manual-enhancement-panel').hidden=isApi;
+    if($('manual-enhancement-panel')) $('manual-enhancement-panel').hidden=isApi && tab!=='soul_ether';
+    if(tab==='soul_ether') $('manual-enhancement-panel')?.setAttribute('aria-labelledby','enhancement-tab-soul_ether');
     if($('enhancement-badge')) $('enhancement-badge').hidden=!isApi;
   }
   function selectTab(value) {
     if(!document.querySelector('[data-enhancement-tab="'+value+'"]')) return;
     if(apiTab(value) && value!==renderedTab) page=0;
     tab=value;
-    if(!apiTab(tab)) window.MapleManualEnhancementTabs?.select(tab);
+    if(!apiTab(tab) || tab==='soul_ether') window.MapleManualEnhancementTabs?.select(tab);
     render();
   }
   function summaryHtml(groups) {
     const total=rows=>rows.reduce((sum,g)=>sum+BigInt(g.subtotal),0n);
     const count=rows=>rows.reduce((sum,g)=>sum+g.count,0).toLocaleString();
     const missing=rows=>{const unknown=rows.filter(g=>g.estimate===null).length;return unknown?' · '+unknown+'개 미확인':'';};
+    if(tab==='soul_ether') return '<div><span>소울 잠재 이력</span><strong>'+groups.reduce((sum,g)=>sum+g.events.length,0).toLocaleString()+'건</strong></div><div><span>확인한 조건의 메소 추정'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div><p class="enhancement-summary-note">API는 소울 잠재 재설정 이력만 제공합니다. 이력당 1회·3회 여부와 최종 사용 메소를 확인한 뒤 지출에 반영하세요. 소울 증폭·에테르 구입비는 아래에서 직접 기록하며, 무료 에테르는 구입비에 넣지 않습니다. 조회에는 최대 30분의 지연이 있을 수 있습니다.</p>';
     if(tab==='potential') {
       const meso=groups.filter(g=>g.kind==='potential'), cubes=groups.filter(g=>g.kind==='cube');
       return '<div><span>메소 재설정 횟수</span><strong>'+count(meso)+'회</strong></div>'+
@@ -225,18 +283,18 @@
     draw();
   }
   function detailsHtml(g) {
-    const level=g.resolvedLevel??'', manual=hasManual(g), knownLevel=Number.isInteger(g.level);
+    const level=g.resolvedLevel??'', manual=hasManual(g), knownLevel=Number.isInteger(g.level), soul=g.kind==='soul-potential';
     return '<details class="enhancement-details"><summary>상세 내역 · 비용 조정</summary><div class="enhancement-detail-body">'+
       (g.details.some(d=>!d.grade && d.kind!=='starforce')?'<div class="enhancement-actions"><button type="button" class="ghost" data-reload-day>이 날짜 등급 다시 조회</button></div>':'')+
-      '<div class="enhancement-settings"><label>장비 레벨<input data-level type="number" min="1" max="300" step="1" list="enhancement-levels" value="'+level+'" '+(knownLevel?'disabled':'')+'></label>'+
+      '<div class="enhancement-settings"><label '+(soul?'hidden':'')+'>장비 레벨<input data-level type="number" min="1" max="300" step="1" list="enhancement-levels" value="'+level+'" '+(knownLevel?'disabled':'')+'></label>'+
       (g.kind==='starforce'?'<label>MVP 할인<select data-mvp>'+[[0,'없음'],[3,'실버 3%'],[5,'골드 5%'],[10,'다이아 이상 10%']].map(([value,label])=>'<option value="'+value+'" '+((g.profile.mvp||0)===value?'selected':'')+'>'+label+'</option>').join('')+'</select></label><label class="enhancement-check"><input type="checkbox" data-pc '+(g.profile.pc?'checked':'')+'>PC방 5%</label>':
-      g.kind==='potential'?'<label>이력당 재설정<select data-attempts><option value="1" '+(g.attempts===1?'selected':'')+'>1회</option><option value="3" '+(g.attempts===3?'selected':'')+'>3회</option></select></label>':'')+
+      g.kind==='potential' || soul?'<label>이력당 재설정<select data-attempts>'+(soul?'<option value="" '+(!g.profile.attempts?'selected':'')+'>실제 횟수 선택</option>':'')+'<option value="1" '+(g.attempts===1 && (!soul || g.profile.attempts)?'selected':'')+'>1회</option><option value="3" '+(g.attempts===3?'selected':'')+'>3회</option></select></label>':'')+
       '<button type="button" class="ghost" data-settings>계산 적용</button></div>'+
-      (g.kind==='starforce'?'<p class="enhancement-note">이력 당시 이벤트·파괴방지 적용. MVP·PC방 할인은 16성 이하에만 적용됩니다.</p>':g.kind==='cube'?'<p class="enhancement-note">동일 레벨·등급의 메소 재설정 비용으로 환산했습니다. 무료·캐시 큐브는 실제 메소 지출이 아닙니다.</p>':'<p class="enhancement-note">재설정 전 등급의 메소 비용입니다. 3회 재설정을 사용했다면 횟수를 변경하세요.</p>')+
+      (soul?'<p class="enhancement-note">API에 사용 메소와 확정 횟수가 없으므로 자동 지출로 처리하지 않습니다. 실제 사용한 1회·3회 조건을 선택하세요. 같은 날 두 방식을 섞었거나 이벤트 비용이 다르면 최종 반영 금액에 실제 합계를 입력하세요. 재료 구입비는 아래 수기 입력에서 별도로 기록합니다.</p>':g.kind==='starforce'?'<p class="enhancement-note">이력 당시 이벤트·파괴방지 적용. MVP·PC방 할인은 16성 이하에만 적용됩니다.</p>':g.kind==='cube'?'<p class="enhancement-note">동일 레벨·등급의 메소 재설정 비용으로 환산했습니다. 무료·캐시 큐브는 실제 메소 지출이 아닙니다.</p>':'<p class="enhancement-note">재설정 전 등급의 메소 비용입니다. 3회 재설정을 사용했다면 횟수를 변경하세요.</p>')+
       '<div class="enhancement-breakdown"><div class="enhancement-breakdown-head"><span>단계 / 조건</span><span>횟수</span><span>1회 메소</span><span>합계</span></div>'+g.details.map((d,i)=>'<div class="enhancement-breakdown-row" data-detail="'+i+'"><div><b>'+escape(labelFor(d))+'</b><small>'+escape(conditionTags(d))+'</small></div><span>'+d.count*d.attempts+'회</span><label><span class="enhancement-sr">'+escape(labelFor(d))+' 1회 비용</span><input data-unit inputmode="numeric" value="'+escape(d.unit??'')+'" placeholder="직접 입력"></label><strong>'+(d.estimate===null?'미확인':bridge().money(d.estimate))+'</strong></div>').join('')+'</div>'+
       '<div class="enhancement-actions"><button type="button" class="ghost" data-calculate>수정한 단가 적용</button>'+(g.details.some(d=>d.basis==='saved-rate')?'<button type="button" class="ghost" data-auto-rate>자동 단가로 복원</button>':'')+'</div>'+
       '<div class="enhancement-final"><label>최종 반영 금액 (메소)<input data-amount inputmode="numeric" value="'+escape(g.estimate??'')+'" placeholder="최종 금액"></label>'+
-      (g.kind==='cube'?'<label class="enhancement-duplicate"><input type="checkbox" data-actual-cost>이 금액을 실제 메소 지출로 확인했습니다.</label>':'')+
+      (g.kind==='cube' || soul?'<label class="enhancement-duplicate"><input type="checkbox" data-actual-cost>이 금액을 실제 메소 지출로 확인했습니다.</label>':'')+
       (manual?'<label class="enhancement-duplicate"><input type="checkbox" data-distinct>같은 날 수동 지출과 별개인 비용입니다.</label>':'')+'</div>'+timelineHtml(g)+'</div></details>';
   }
   function render() {
@@ -257,7 +315,7 @@
     $('enhancement-list').innerHTML=visible.length?visible.map((g,i)=>{
       const icon=window.resolveItemImage?.({name:g.item,img:g.icon}) || g.icon;
       const progress=g.kind==='starforce'?(g.firstStars??'?')+'성 → '+(g.lastStars??'?')+'성':(g.firstGrade||'등급 미상')+(g.lastGrade && g.lastGrade!==g.firstGrade?' → '+g.lastGrade:'');
-      return '<article class="enhancement-row" data-kind="'+g.kind+'" data-enhancement-row="'+i+'" data-report-key="'+escape(g.key)+'"><div class="enhancement-row-main"><div class="enhancement-item"><div class="enhancement-item-image"><img src="'+escape(icon||'assets/image-unavailable.svg')+'" alt="'+escape(g.item)+'" width="48" height="48" loading="lazy"></div><div class="enhancement-row-title"><strong>'+escape(g.item)+'</strong><span>'+escape(g.date+' · '+g.character+(g.world?' ('+g.world+')':''))+'</span><small>'+escape((g.resolvedLevel===null?'레벨 미확인':g.resolvedLevel+'제')+' · '+timeText(g.firstAt)+(g.lastAt!==g.firstAt?' ~ '+timeText(g.lastAt):'')+' (KST)')+'</small><span class="enhancement-method">'+escape(E.methodLabel(g))+'</span></div></div><div class="enhancement-result"><strong>'+g.count.toLocaleString()+(g.kind==='cube'?'개':'회')+'</strong><span>'+escape(g.kind==='starforce'?'성공 '+g.success+' · 파괴 '+g.destroyed:progress+' · 등급 상승 '+g.success)+'</span></div><div class="enhancement-estimate"><span>'+priceLabel(g)+'</span><strong>'+amountText(g)+'</strong></div><div class="enhancement-actions"><button type="button" data-confirm>지출 반영</button><button type="button" class="ghost" data-exclude>제외</button></div></div>'+detailsHtml(g)+'</article>';
+      return '<article class="enhancement-row" data-kind="'+g.kind+'" data-enhancement-row="'+i+'" data-report-key="'+escape(g.key)+'"><div class="enhancement-row-main"><div class="enhancement-item"><div class="enhancement-item-image"><img src="'+escape(icon||'assets/image-unavailable.svg')+'" alt="'+escape(g.item)+'" width="48" height="48" loading="lazy"></div><div class="enhancement-row-title"><strong>'+escape(g.item)+'</strong><span>'+escape(g.date+' · '+g.character+(g.world?' ('+g.world+')':''))+'</span><small>'+escape((g.kind==='soul-potential'?'소울 잠재':g.resolvedLevel===null?'레벨 미확인':g.resolvedLevel+'제')+' · '+timeText(g.firstAt)+(g.lastAt!==g.firstAt?' ~ '+timeText(g.lastAt):'')+' (KST)')+'</small><span class="enhancement-method">'+escape(E.methodLabel(g))+'</span></div></div><div class="enhancement-result"><strong>'+(g.kind==='soul-potential' && !g.profile.attempts?g.events.length.toLocaleString()+'건':g.count.toLocaleString()+(g.kind==='cube'?'개':'회'))+'</strong><span>'+escape(g.kind==='starforce'?'성공 '+g.success+' · 파괴 '+g.destroyed:progress+' · 등급 상승 '+g.success)+'</span></div><div class="enhancement-estimate"><span>'+priceLabel(g)+'</span><strong>'+amountText(g)+'</strong></div><div class="enhancement-actions"><button type="button" data-confirm>지출 반영</button><button type="button" class="ghost" data-exclude>제외</button></div></div>'+detailsHtml(g)+'</article>';
     }).join(''):'<p class="muted enhancement-empty">확인할 이력이 없습니다.</p>';
     $('enhancement-list').querySelectorAll('[data-enhancement-row]').forEach(row=>{
       const group=visible[Number(row.dataset.enhancementRow)];
@@ -270,6 +328,7 @@
       row.querySelector('[data-settings]').onclick=()=>{
         try {
           const rawLevel=row.querySelector('[data-level]').value, level=rawLevel===''?null:Number(rawLevel);
+          if(group.kind==='soul-potential' && !row.querySelector('[data-attempts]')?.value) throw new Error('실제 사용한 1회 또는 3회 재설정을 선택해 주세요.');
           if(level!==null && (!Number.isInteger(level)||level<1||level>300)) throw new Error('장비 레벨은 1~300으로 입력하세요.');
           bridge().commit({profiles:[{key:group.key,level,mvp:Number(row.querySelector('[data-mvp]')?.value||0),pc:!!row.querySelector('[data-pc]')?.checked,attempts:Number(row.querySelector('[data-attempts]')?.value||1),updatedAt:Date.now()}]});
           render();
@@ -292,7 +351,7 @@
       });
       row.querySelector('[data-confirm]').onclick=()=>{
         try {
-          if(group.kind==='cube' && !row.querySelector('[data-actual-cost]')?.checked) {row.querySelector('details').open=true;throw new Error('큐브 환산액입니다. 실제 메소로 지출한 금액인지 확인해 주세요.');}
+          if(['cube','soul-potential'].includes(group.kind) && !row.querySelector('[data-actual-cost]')?.checked) {row.querySelector('details').open=true;throw new Error(group.kind==='cube'?'큐브 환산액입니다. 실제 메소로 지출한 금액인지 확인해 주세요.':'소울 재설정에 실제 메소로 지출한 최종 금액인지 확인해 주세요.');}
           if(hasManual(group) && !row.querySelector('[data-distinct]')?.checked) {row.querySelector('details').open=true;throw new Error('같은 날 수동 기록이 있습니다. 별개 비용인지 확인해 주세요.');}
           const amount=row.querySelector('[data-amount]').value.replace(/,/g,'').trim();
           if(E.amount(amount)===null || BigInt(amount)<=0n) {row.querySelector('details').open=true;throw new Error('계산 조건 또는 최종 반영 금액을 확인하세요.');}
@@ -320,7 +379,7 @@
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    if(!$('enhancement-panel') || !bridge()) return;
+    if(!$('enhancement-panel') || !bridge()) {finish();configure();return;}
     $('enhancement-to').value=today(); $('enhancement-from').value=offset(today(),-1);
     $('enhancement-to').max=today(); $('enhancement-from').max=today();
     if(!session && bridge().key()) $('enhancement-source').value='key';
@@ -340,17 +399,15 @@
         tabs[next].focus();
       };
     });
-    $('enhancement-connect').onclick=connect;
+    $('enhancement-connect').onclick=()=>connect('expense').catch(()=>{});
     $('enhancement-refresh').onclick=()=>sync();
     $('enhancement-cancel').onclick=()=>running?.abort();
-    $('enhancement-disconnect').onclick=async()=>{
-      try {await call('logout',session);session=null;sessionStorage.removeItem(sessionKey);controls();status('연결을 해제했습니다. 저장한 지출 기록은 유지됩니다.');}catch(error){status(error.message,true);}
-    };
+    $('enhancement-disconnect').onclick=()=>disconnect().catch(error=>status(error.message,true));
     document.addEventListener('workspace:page',event=>{if(event.detail.page==='expense'){render();configure();}});
     document.addEventListener('workspace:render',()=>{if($('page-expense').classList.contains('active') && !document.querySelector('#enhancement-list :focus')) render();});
     setInterval(()=>{if($('enhancement-auto').checked && $('page-expense').classList.contains('active') && !document.hidden && !document.querySelector('#enhancement-list :focus') && Date.now()-lastAuto>=300000) sync(true);},30000);
     render(); controls();
-    if($('page-expense').classList.contains('active')) configure();
+    configure();
     finish();
   });
 })();

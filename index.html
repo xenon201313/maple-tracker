@@ -2,12 +2,15 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20260919-2"></script>
+<script src="assets/patch-notes-data.js?v=20260924-1"></script>
 <script src="assets/patch-notes.js?v=20260919-2"></script>
-<script src="assets/enhancement-ledger.js?v=20260908-1"></script>
-<script src="assets/friends-expenses.js?v=20260918-1"></script>
+<script src="assets/enhancement-ledger.js?v=20260924-1"></script>
+<script src="assets/friends-expenses.js?v=20260924-1"></script>
+<script src="assets/account-sync.js?v=20260924-1"></script>
+<script src="assets/friends-characters.js?v=20260924-1"></script>
+<link rel="stylesheet" href="assets/account-sync.css?v=20260924-1">
 <script src="assets/september-expenses.js?v=20260917-1"></script>
-<script src="assets/soul-ability-expenses.js?v=20260918-1"></script>
+<script src="assets/soul-ability-expenses.js?v=20260924-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
@@ -1052,6 +1055,31 @@
     <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
     <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/boss-settlement/#try-settlement">보스 분배 계산</a><a href="guide/profit-expense/#try-calculator">판매 손익·강화 비용 계산</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
   </section>
+  <section class="card account-sync" aria-labelledby="account-title">
+    <h2 id="account-title">넥슨 계정으로 장부 이어쓰기</h2>
+    <p>넥슨 로그인 후 같은 계정으로 다른 기기에서도 장부를 불러올 수 있습니다. 처음 연결할 때 사용할 장부를 선택하며, 전환 전 기록은 이 기기에 보관합니다.</p>
+    <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
+    <div class="account-actions">
+      <button type="button" id="account-login" disabled><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
+      <button type="button" class="ghost" id="account-save" hidden>계정에 지금 저장</button>
+      <button type="button" class="ghost" id="account-pull" hidden>최신 장부 확인</button>
+      <button type="button" class="ghost" id="account-logout" hidden>넥슨 로그아웃</button>
+      <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
+    </div>
+    <div id="account-choice" class="account-choice" hidden>
+      <h3>사용할 장부 선택</h3>
+      <p id="account-choice-current"></p><p id="account-choice-remote"></p>
+      <p>선택하기 전에는 계정에 저장하지 않습니다. 서로 다른 장부를 자동으로 합치지 않으며, 선택하지 않은 기기 기록도 전환 전 보관본으로 남깁니다.</p>
+      <div class="account-actions"><button type="button" id="account-use-local">이 기기 장부를 계정에 연결</button><button type="button" class="ghost" id="account-use-remote">넥슨 계정 장부 열기</button></div>
+    </div>
+    <details><summary>계정 저장과 전환 전 보관본</summary>
+      <p>변경은 이 기기에 먼저 저장합니다. 온라인으로 연결되면 계정에도 자동 저장하며, 다른 기기의 변경이 있으면 사용할 장부를 확인합니다. 로그아웃해도 장부는 삭제되지 않습니다. 공용 기기에서는 이용을 마친 뒤 백업 여부를 확인하고 브라우저의 사이트 데이터를 지워 주세요.</p>
+      <p>서버에는 최근 20세대의 보관본을 최대 45일 보존하고, 현재 장부는 별도로 유지합니다. 기존 API 키 보관함도 유지됩니다.</p>
+      <label>이 계정의 전환 전 기기 보관본 <select id="account-local-history"><option value="">전환 전 보관본 선택</option></select></label>
+      <div class="account-actions"><button type="button" class="ghost" id="account-local-download">선택한 보관본 JSON 백업</button><button type="button" class="ghost" id="account-history" hidden>서버 세대 보관본 조회</button></div>
+      <div id="account-server-history"></div>
+    </details>
+  </section>
   <section class="card home-reading" aria-labelledby="home-reading-title">
     <h2 id="home-reading-title">합계가 달라질 때, 계산부터 확인해 보세요</h2>
     <p>같은 판매가라도 수수료·분배·기록 날짜에 따라 내 몫은 달라집니다. 공개 계산기에서 내 조건으로 결과를 확인하고, 아래 가이드의 숫자 예시로 검산해 보세요. 로그인 없이 사용할 수 있으며 계산 입력은 저장하지 않습니다.</p>
@@ -1137,7 +1165,7 @@
 <div class="page" id="page-intro">
   <div class="card guide-hero">
     <h2>📖 나만의 메계부 사용 설명</h2>
-    <p class="guide-lead">재획 수익, 솔 에르다 조각, 추가 부수입, 주간/월간/일간 결정석, 보스 드랍 아이템 가격을 한 곳에서 기록하는 개인용 수익 기록장입니다. 기본 기록은 이 브라우저에 자동 저장되고, API 키를 등록하면 암호화된 클라우드 동기화로 다른 기기에서도 이어서 사용할 수 있습니다.</p>
+    <p class="guide-lead">재획 수익, 솔 에르다 조각, 추가 부수입, 주간/월간/일간 결정석, 보스 드랍 아이템 가격을 한 곳에서 기록하는 개인용 수익 기록장입니다. 기본 기록은 이 브라우저에 자동 저장됩니다. 홈에서 넥슨 로그인 후 계정 장부를 선택하면 다른 기기에서도 이어서 사용할 수 있으며, 기존 API 키 보관함도 유지됩니다.</p>
     <div class="guide-pills">
       <span class="guide-pill">자동 저장</span>
       <span class="guide-pill">주간 초기화 목요일</span>
@@ -1288,6 +1316,14 @@
 
 <!-- ══════════ 캐릭터 등록 ══════════ -->
 <div class="page" id="page-character">
+  <section class="card account-sync" aria-labelledby="friends-characters-title">
+    <h2 id="friends-characters-title">넥슨 계정 캐릭터 불러오기</h2>
+    <p>홈에서 넥슨 로그인과 장부 선택을 마치면 본인 캐릭터를 골라 등록하고 보스 완료 기록을 가져올 수 있습니다. 이미 체크한 보스·드랍·분배 정보는 유지합니다.</p>
+    <div class="account-actions"><button type="button" class="ghost" id="friends-characters-load">내 캐릭터 조회</button><button type="button" class="ghost" id="friends-scheduler-load">등록한 캐릭터 보스 완료 갱신</button></div>
+    <p id="friends-characters-status" role="status" aria-live="polite">로그인 후 홈에서 사용할 계정 장부를 선택해 주세요.</p>
+    <div id="friends-characters-list"></div>
+    <p class="muted">캐릭터 이미지·전투력·경험치 조회는 아래 개인 API 키 연동으로 이용할 수 있습니다.</p>
+  </section>
   <div class="card">
     <h2>👑 캐릭터 등록</h2>
     <div class="api-box">
@@ -1602,7 +1638,7 @@
     <div class="enhancement-tabs" role="tablist" aria-label="강화 종류">
       <button type="button" role="tab" id="enhancement-tab-starforce" data-enhancement-tab="starforce" aria-selected="true" aria-controls="enhancement-api-panel">스타포스 <span>0</span></button>
       <button type="button" role="tab" id="enhancement-tab-potential" data-enhancement-tab="potential" aria-selected="false" aria-controls="enhancement-api-panel" tabindex="-1">잠재능력 <span>0</span></button>
-      <button type="button" role="tab" id="enhancement-tab-soul_ether" data-enhancement-tab="soul_ether" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">소울 에테르</button>
+      <button type="button" role="tab" id="enhancement-tab-soul_ether" data-enhancement-tab="soul_ether" aria-selected="false" aria-controls="enhancement-api-panel manual-enhancement-panel" tabindex="-1">소울 에테르 <span>0</span></button>
       <button type="button" role="tab" id="enhancement-tab-advanced_ability" data-enhancement-tab="advanced_ability" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">고급 어빌리티</button>
       <button type="button" role="tab" id="enhancement-tab-legacy" data-enhancement-tab="legacy" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">직접 입력</button>
     </div>
@@ -4663,6 +4699,7 @@ function huntJournalEntries(){
 }
 function mergeHuntJournal(incoming){
   try{
+    globalThis.MapleAccountSync?.guard();
     let next=normalizeHuntJournal(huntJournalEntries().concat(Array.isArray(incoming)?incoming:[]));
     try{ localStorage.setItem(HUNT_JOURNAL_KEY,JSON.stringify(next)); }
     catch(error){
@@ -4701,6 +4738,7 @@ function huntRecoveryHistory(){
 }
 function mergeHuntRecoveryHistory(incoming){
   try{
+    globalThis.MapleAccountSync?.guard();
     const merged=new Map();
     huntRecoveryHistory().concat(Array.isArray(incoming)?incoming:[]).forEach(item=>{
       if(!item || !ensureObj(item.data).records) return;
@@ -4714,6 +4752,7 @@ function mergeHuntRecoveryHistory(incoming){
 }
 function storeHuntRecoveryPoint(source,reason='재획 기록 자동 보호'){
   try{
+    globalThis.MapleAccountSync?.guard();
     const compact=compactHuntRecoveryData(source);
     if(!huntRecordEntries(compact).length) return false;
     const entry={id:'hunt_recovery_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),createdAt:new Date().toISOString(),reason,data:compact};
@@ -5184,6 +5223,7 @@ function localWeeklyDropRecoverySources(){
   return sources;
 }
 function mergeWeeklyDropRecoveryHistory(incoming){
+  globalThis.MapleAccountSync?.guard();
   try{
     const merged=new Map();
     weeklyDropRecoveryHistory().concat(Array.isArray(incoming)?incoming:[]).forEach(item=>{
@@ -5361,6 +5401,7 @@ function maybeCreateMonthlyBackup(){
   return true;
 }
 function save(){
+  window.MapleAccountSync?.beforeSave();
   preserveWeeklyDropsBeforeWrite(db);
   preserveHuntRecordsBeforeWrite(db);
   storeHuntJournalFromSource(db);
@@ -5368,6 +5409,7 @@ function save(){
   db.huntTombstones=normalizeHuntTombstones(db.huntTombstones);
   db.updatedAt=Date.now();
   localStorage.setItem(LS_KEY,JSON.stringify(db));
+  window.MapleAccountSync?.changed();
   queueCloudSync();
   queueCommunityStats();
 }
@@ -7343,6 +7385,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
   };
 }
 function restoreBackupSnapshot(id){
+  globalThis.MapleAccountSync?.beforeSave();
   const snapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
   const snapshot=snapshots.find(item=>item.id===id);
   if(!snapshot || !snapshot.data) return;
@@ -7525,9 +7568,11 @@ function renderHome(){
   const summaryEl=document.getElementById('home-summary');
   if(!summaryEl) return;
   if(maybeCreateMonthlyBackup()){
+    window.MapleAccountSync?.beforeSave();
     preserveWeeklyDropsBeforeWrite(db);
     db.updatedAt=Date.now();
     localStorage.setItem(LS_KEY,JSON.stringify(db));
+    window.MapleAccountSync?.changed();
   }
   const today=todayStr();
   const week=currentWeekKey();
@@ -8545,6 +8590,7 @@ function finishCloudSync(sync){
   if(sync.pendingUpload) queueCloudSync();
 }
 async function uploadCloudSnapshot(silent=true){
+  if(globalThis.MapleAccountSync?.blocksLegacy()) return false;
   if(!cloudSync.ready || cloudSync.initializing || !cloudSync.syncId || !cloudSync.encryptionKey) return false;
   if(cloudSync.syncing){ cloudSync.pendingUpload=true; return false; }
   const sync=cloudSync,url=cloudUrl();
@@ -8576,6 +8622,7 @@ async function uploadCloudSnapshot(silent=true){
   }
 }
 function queueCloudSync(){
+  if(globalThis.MapleAccountSync?.blocksLegacy()) return;
   if(!cloudSync.ready || cloudSync.initializing || !nexonApiKey()) return;
   cloudSync.pendingUpload=true;
   clearTimeout(cloudSync.timer);
@@ -8736,6 +8783,7 @@ function queueCommunityStats(){
   },1100);
 }
 async function pullCloudSnapshot(manual=false){
+  if(globalThis.MapleAccountSync?.blocksLegacy()) return;
   if(!cloudSync.ready || cloudSync.initializing || cloudSync.syncing || !cloudSync.syncId) return false;
   const sync=cloudSync,localBefore=JSON.stringify(exportDb());
   sync.syncing=true;
@@ -8774,6 +8822,7 @@ function resetCloudSync(){
   refreshCloudSyncControls();
 }
 async function initializeCloudSync(){
+  if(globalThis.MapleAccountSync?.blocksLegacy()){resetCloudSync();cloudSyncStatus('넥슨 계정 장부는 홈에서 관리합니다. 기존 API 키 보관함은 유지됩니다.');return;}
   const apiKey=nexonApiKey();
   if(!apiKey){ resetCloudSync(); return; }
   const runId=cloudSync.runId+1;
@@ -9449,8 +9498,10 @@ function initNexonApiControls(){
   saveBtn.onclick=async()=>{
     const key=input.value.trim();
     if(!key){ alert(nexonApiKey() ? '새 API 키를 입력하면 기존 키가 변경됩니다.' : 'API 키를 입력하세요.'); return; }
+    window.MapleAccountSync?.beforeSave();
     db.settings.nexonApiKey=key;
     localStorage.setItem(LS_KEY,JSON.stringify(db));
+    window.MapleAccountSync?.changed();
     refresh();
     await initializeCloudSync();
     scheduleNexonAutoRefresh();
@@ -9458,9 +9509,11 @@ function initNexonApiControls(){
   clearBtn.onclick=()=>{
     if(!nexonApiKey()){ refresh(); return; }
     if(confirm('저장된 넥슨 Open API 키를 삭제할까요?')){
+      window.MapleAccountSync?.beforeSave();
       delete db.settings.nexonApiKey;
       resetCloudSync();
       localStorage.setItem(LS_KEY,JSON.stringify(db));
+      window.MapleAccountSync?.changed();
       refresh();
       scheduleNexonAutoRefresh();
     }
@@ -10767,6 +10820,7 @@ document.getElementById('file-import').onchange=(e)=>{
   const r=new FileReader();
   r.onload=()=>{
     try{
+      window.MapleAccountSync?.beforeSave();
       const data=JSON.parse(r.result);
       if(!data.records) throw new Error('형식 오류');
       const currentApiKey=nexonApiKey();
@@ -10848,6 +10902,44 @@ refreshTeeniepingAvailability();
   <button type="button" data-menu-toggle aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg><span>전체</span></button>
 </nav>
 <script>
+// 계정 전환은 병합하지 않고 저장소 전체를 교체한 뒤 새로 로드합니다.
+// 다른 계정의 시작 원본·복구 소스가 메모리에 남지 않도록 하기 위함입니다.
+window.MapleAccountBridge={
+  snapshot(){
+    return {version:1,updatedAt:Number(db.updatedAt)||Date.now(),data:{...exportDb(),backupSnapshots:normalizeBackupSnapshots(db.backupSnapshots)},weeklyDropRecovery:weeklyDropRecoveryHistory(),huntRecovery:huntRecoveryHistory(),huntJournal:huntJournalEntries()};
+  },
+  emptySnapshot(){return {version:1,updatedAt:Date.now(),data:{records:{},chars:[],settings:{},profits:[],expenses:[],enhancements:MapleEnhancements.normalize(),backupSnapshots:[],huntTombstones:[]},weeklyDropRecovery:[],huntRecovery:[],huntJournal:[]};},
+  storeFromSnapshot(snapshot){
+    if(snapshot?.version!==1 || !snapshot.data?.records || typeof snapshot.data.records!=='object' || Array.isArray(snapshot.data.records)) throw new Error('올바른 장부가 아닙니다.');
+    const data=JSON.parse(JSON.stringify(snapshot.data));
+    if(data.settings) delete data.settings.nexonApiKey;
+    return {[LS_KEY]:JSON.stringify(data),[DROP_RECOVERY_KEY]:JSON.stringify(snapshot.weeklyDropRecovery||[]),[HUNT_RECOVERY_KEY]:JSON.stringify(snapshot.huntRecovery||[]),[HUNT_JOURNAL_KEY]:JSON.stringify(snapshot.huntJournal||[])};
+  },
+  snapshotFromStore(values){
+    const raw=JSON.parse(values[LS_KEY]||values[LS_OLD]||'{"records":{}}');
+    const data=backupDataPayload(raw);
+    data.backupSnapshots=normalizeBackupSnapshots(raw.backupSnapshots);
+    return {version:1,updatedAt:Number(raw.updatedAt)||Date.now(),data,weeklyDropRecovery:JSON.parse(values[DROP_RECOVERY_KEY]||'[]'),huntRecovery:JSON.parse(values[HUNT_RECOVERY_KEY]||'[]'),huntJournal:JSON.parse(values[HUNT_JOURNAL_KEY]||'[]')};
+  },
+  stopLegacy(){resetCloudSync();cloudSyncStatus('넥슨 계정 장부는 홈에서 관리합니다. 기존 API 키 보관함은 유지됩니다.');clearInterval(nexonAutoRefresh.timer);clearTimeout(nexonAutoRefresh.timeout);nexonAutoRefresh.timer=0;nexonAutoRefresh.timeout=0;},
+  resumeLegacy(){if(!cloudSync.ready&&!cloudSync.initializing&&nexonApiKey())initializeCloudSync();}
+};
+window.MapleFriendsCharacterBridge={
+  registered:()=>db.chars.map(c=>({ocid:c.ocid,name:c.name})),
+  add(row){
+    window.MapleAccountSync.beforeSave();
+    const profile={name:row.character_name,ocid:row.ocid,worldName:row.world_name,characterClass:row.character_class,characterLevel:row.character_level,server:serverFromNexonWorld(row.world_name)};
+    const existing=db.chars.find(c=>c.ocid===row.ocid)||db.chars.find(c=>c.name===row.character_name&&(!c.worldName||c.worldName===row.world_name));
+    if(existing) applyCharacterProfile(existing,profile,existing.server);
+    else{const c=createEmptyChar(profile.name,profile.server);applyCharacterProfile(c,profile,profile.server);db.chars.push(c);}
+    save();renderAll();
+  },
+  scheduler(rows){
+    window.MapleAccountSync.beforeSave();let added=0,matched=0;
+    rows.forEach(row=>{const c=db.chars.find(c=>c.ocid===row.ocid);if(c){const result=applySchedulerData(c,row.data);added+=result.added;matched+=result.matched;}});
+    if(rows.length){save();renderAll();}return {added,matched};
+  }
+};
 window.MapleEnhancementBridge={
   get:()=>db.enhancements,
   key:()=>nexonApiKey(),

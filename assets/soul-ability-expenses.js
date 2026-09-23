@@ -12,7 +12,7 @@
   const modes = {
     soul_ether: {
       title:'소울 에테르', costs:etherCosts,
-      description:'현재 소울웨폰 기록은 직접 입력합니다. 에테르 구입비와 게임에서 직접 소모한 메소를 나눠 적어 주세요. 보스로 획득하거나 무료로 받은 에테르는 구입비에서 제외합니다.',
+      description:'에테르 구입비와 증폭에 소모한 메소는 직접 적어 주세요. 잠재 재설정은 위 API 이력에서 확인하여 반영하거나 여기에서 직접 기록합니다. 이미 반영한 비용과 보스로 획득·무료 지급된 에테르는 구입비에서 제외합니다.',
       costTitle:'에테르 구입 비용',
       moneyFields:[
         {key:'soulAmplificationMeso',id:'soul_amplification_meso',name:'소울 증폭 사용 메소',label:'증폭에 사용한 메소 합계'},

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-sync.cjs",
     "test:icons": "node scripts/test-item-icons.cjs",
     "test:profit-expense": "node scripts/test-profit-expense-ui.cjs",
     "test:teenieping": "node scripts/test-teenieping-profit.cjs",

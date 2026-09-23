@@ -50,6 +50,29 @@ await assert.rejects(E.collect(async()=>({potential_history:[raw]}),'potential',
 const controller=new AbortController();controller.abort();
 await assert.rejects(E.collect(async()=>{throw new Error('should not run');},'potential','2026-09-06','account',controller.signal));
 
+// 소울 API 원본에는 월드·장비 레벨·사용 메소·1회/3회 구분이 없습니다.
+const soulRaw={id:'soul-1',character_name:'소울 테스트',target_item:'제네시스 스태프',date_create:'2026-09-24T12:00:00+09:00',soul_potential_amplified_grade:3,soul_potential_grade:'레전드리',before_soul_potential_option:[{grade:'유니크',value:'이전 옵션'}],after_soul_potential_option:[{grade:'레전드리',value:'새 옵션'}],upgrade_guarantee:true};
+const soul=E.event('soul-potential',soulRaw,'soul-account');
+assert.equal(soul.world,'');
+assert.equal(soul.grade,'유니크','재설정 전 옵션 등급으로 비용을 산정해야 함');
+assert.equal(soul.beforeOptions[0].value,'이전 옵션');
+assert.equal(soul.options[0].value,'새 옵션');
+assert.equal(soul.soulStage,3);
+assert.equal(E.defaultUnit(soul),'65000000');
+assert.equal(E.defaultUnit({...soul,grade:''}),null,'최종 등급에서 이전 등급을 추측하지 않음');
+let soulState=E.merge({events:[soul,soul]});
+let soulReport=E.reports(soulState)[0];
+assert.equal(soulReport.estimate,null,'소울 이력의 실제 재설정 횟수 선택 전 추정액 미확정');
+assert.deepEqual(E.profits(soulState),[],'가져온 소울 이력은 지출 확정 전 통계에서 제외');
+soulState=E.merge(soulState,{profiles:[{key:soulReport.key,attempts:3,updatedAt:Date.now()}]});
+soulReport=E.reports(soulState)[0];
+assert.equal(soulReport.estimate,'195000000');
+const soulConfirmed=E.confirm(soulState,soulReport,'195000000','soul-batch');
+assert.equal(E.profits(soulConfirmed)[0].type,'soul_ether');
+assert.equal(E.profits(soulConfirmed)[0].costs[0].price,'195000000');
+assert.equal(E.reports(E.merge(soulConfirmed,{events:[soul]})).length,0,'소울 재조회로 중복 지출을 만들지 않음');
+assert.equal((await E.collect(async()=>({soul_potential_history:[soulRaw],next_cursor:''}),'soul-potential','2026-09-24','soul-account')).length,1);
+
 const originalFetch=globalThis.fetch;
 const stores=new Map();
 let exchanges=0,upstreamFailure=null,upstreamStatus=401;
@@ -87,7 +110,7 @@ try {
   const start=await (await friendsRoute(request('start',{challenge}),env)).json();
   const auth=new URL(start.url);
   assert.equal(auth.searchParams.get('state'),start.state);
-  assert.equal(auth.searchParams.get('scope'),'maplestory.characterlist,maplestory.starforce,maplestory.potential,maplestory.scheduler,maplestory.cube');
+  assert.equal(auth.searchParams.get('scope'),'maplestory.characterlist,maplestory.starforce,maplestory.potential,maplestory.scheduler,maplestory.cube,maplestory.soulpotential');
   assert.equal((await friendsRoute(request('finish',{state:start.state,proof:'b'.repeat(64),code:'code'}),env)).status,401);
   const finish=await friendsRoute(request('finish',{state:start.state,proof,code:'code'}),env);
   const connection=await finish.json();

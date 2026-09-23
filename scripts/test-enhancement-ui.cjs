@@ -49,6 +49,7 @@ const server=http.createServer((req,res)=>{
         if(url.pathname.endsWith('/starforce')) return fulfill({starforce_history:[{...common,target_item:'가디언 엔젤 링',id:date+'-sf',world_name:'크로아',before_starforce_count:17,after_starforce_count:18,destroy_defence:'적용',superior_item_flag:'미적용',starforce_event_list:[]}],next_cursor:''});
         if(url.pathname.endsWith('/potential')) return fulfill({potential_history:[{...common,id:date+'-p',item_level:200,potential_type:'잠재능력',before_potential_option:[{grade:'레전드리'}],after_potential_option:[{grade:'레전드리'}]}],next_cursor:''});
         if(url.pathname.endsWith('/cube')) return fulfill({cube_history:[],next_cursor:''});
+        if(url.pathname.endsWith('/soul-potential')) return fulfill({soul_potential_history:[],next_cursor:''});
       }
       return route.abort();
     });
@@ -261,6 +262,35 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'Grade repair changed confirmed spending');
     assert.equal(await page.evaluate(()=>JSON.stringify({records:db.records,profits:db.profits,expenses:db.expenses,chars:db.chars})),manualBefore,'Grade repair mutated manual records');
     assert(historyCalls>=4);
+    await page.evaluate(()=>MapleEnhancementBridge.commit({events:[MapleEnhancements.event('soul-potential',{id:'soul-usage',character_name:'테스트 캐릭터',target_item:'제네시스 스태프',date_create:todayStr()+'T14:00:00+09:00',soul_potential_amplified_grade:2,before_soul_potential_option:[{grade:'유니크',value:'이전 옵션'}],after_soul_potential_option:[{grade:'레전드리',value:'다음 옵션'}]},'fixture-soul')]}));
+    await page.click('[data-enhancement-tab="soul_ether"]');
+    assert(await page.locator('#enhancement-api-panel').isVisible(),'소울 탭에 API 이력 표시');
+    assert(await page.locator('#manual-enhancement-panel').isVisible(),'소울 증폭·에테르 구입비 수기 입력 유지');
+    const soulRow=page.locator('.enhancement-row[data-kind="soul-potential"]');
+    assert.match(await soulRow.innerText(),/횟수·비용 확인 필요/);
+    assert.match(await page.locator('#enhancement-summary').innerText(),/무료 에테르/);
+    await soulRow.locator('.enhancement-details > summary').click();
+    assert.equal(await soulRow.locator('[data-attempts]').inputValue(),'');
+    assert.equal(await soulRow.locator('[data-amount]').inputValue(),'');
+    await soulRow.locator('[data-settings]').click();
+    assert.match(await page.locator('#enhancement-status').innerText(),/1회 또는 3회/);
+    await soulRow.locator('[data-attempts]').selectOption('3');
+    await soulRow.locator('[data-settings]').click();
+    assert.equal(await soulRow.locator('[data-amount]').inputValue(),'195000000');
+    await soulRow.locator('[data-confirm]').click();
+    assert.match(await page.locator('#enhancement-status').innerText(),/실제 메소/);
+    assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'소울 추정액을 자동으로 통계에 더하지 않음');
+    for(const width of [1440,390,320]) {
+      await page.setViewportSize({width,height:1000});
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(250);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Soul API and manual panels overflow at '+width);
+      if(width!==320) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'soul-api-'+width+'.png')});
+    }
+    await soulRow.locator('[data-actual-cost]').check();
+    await soulRow.locator('[data-confirm]').click();
+    assert.equal(await page.evaluate(()=>MapleEnhancements.profits(db.enhancements).find(p=>p.type==='soul_ether').costs[0].price),'195000000');
+    assert.equal(await page.evaluate(()=>JSON.stringify({records:db.records,profits:db.profits,expenses:db.expenses,chars:db.chars})),manualBefore,'소울 API가 수기·무료 재료 기록을 변경함');
     oauthReady=true;
     await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));
     await page.goto(origin+'/?page=home&state='+'c'.repeat(64)+'&code=fixture-code');

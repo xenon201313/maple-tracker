@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const kinds = new Set(['starforce', 'potential', 'cube']);
+  const kinds = new Set(['starforce', 'potential', 'cube', 'soul-potential']);
   const grades = ['레어', '에픽', '유니크', '레전드리'];
   // Official cost tables: MapleStory updates 737 (2024-01-25) and 746 (2024-06-20).
   const potentialCosts = [[4000000,16000000,34000000,40000000],[4250000,17000000,36125000,42500000],[4500000,18000000,38250000,45000000],[5000000,20000000,42500000,50000000]];
@@ -105,6 +105,7 @@
     return '';
   }
   function methodLabel(e) {
+    if(e.kind==='soul-potential') return '소울 잠재능력 재설정';
     if(e.kind==='starforce') return '스타포스';
     if(e.kind==='cube') return '큐브 · '+(e.cubeType||'종류 미상');
     return '메소 · '+(potentialType(e.potentialType)||'잠재능력');
@@ -129,8 +130,8 @@
     const date = dateKst(raw.date_create);
     if (!date || !string(raw.target_item) || !string(raw.character_name)) throw new Error('강화 이력의 날짜 또는 장비 정보가 없습니다.');
     const additional = potentialType(raw.potential_type) === '에디셔널 잠재능력' || (kind==='cube' && /에디셔널/.test(raw.cube_type||''));
-    const before = additional ? raw.before_additional_potential_option : raw.before_potential_option;
-    const after = additional ? raw.after_additional_potential_option : raw.after_potential_option;
+    const before = kind==='soul-potential'?raw.before_soul_potential_option:additional ? raw.before_additional_potential_option : raw.before_potential_option;
+    const after = kind==='soul-potential'?raw.after_soul_potential_option:additional ? raw.after_additional_potential_option : raw.after_potential_option;
     const result = {
       key:key([account,kind,raw.id]), account:string(account), id:string(raw.id), kind, date,
       at:string(raw.date_create), character:string(raw.character_name), world:string(raw.world_name),
@@ -143,6 +144,7 @@
       stars:Number.isInteger(raw.before_starforce_count) ? raw.before_starforce_count : null,
       nextStars:Number.isInteger(raw.after_starforce_count) ? raw.after_starforce_count : null,
       conditions:kind === 'starforce' ? key([raw.superior_item_flag,raw.destroy_defence,raw.chance_time,raw.event_field_flag,raw.upgrade_item,raw.protect_shield,raw.bonus_stat_upgrade,(raw.starforce_event_list || []).map(e=>[e.cost_discount_rate,e.starforce_event_range,e.recovery_cost_discount_rate])]) : '',
+      ...(kind==='soul-potential'?{soulStage:Number.isInteger(raw.soul_potential_amplified_grade)?raw.soul_potential_amplified_grade:null,guaranteed:raw.upgrade_guarantee===true,beforeOptions:Array.isArray(before)?before.slice(0,9).map(o=>({value:string(o.value),grade:string(o.grade)})):[]}:{}),
       observedAt:Number(observedAt) || 0, schemaVersion:2
     };
     // Keep pre-fix manual rates addressable when an API reimport repairs the grade.
@@ -196,6 +198,7 @@
   function rateKey(e) {
     const parts=[e.account,e.date,e.kind,e.character,e.world,e.item,e.level,e.potentialType,e.grade,e.stars,e.conditions,e.multiResult];
     if(e.kind==='cube') parts.push(e.cubeType);
+    if(e.kind==='soul-potential') parts.push(e.soulStage);
     return key(parts);
   }
   const reportKey=e=>key(['item',e.account,e.date,e.kind,e.character,e.world,e.item,e.kind==='cube'?e.cubeType:e.potentialType]);
@@ -249,6 +252,8 @@
     return String(Math.round(base*(100-extra)*(100-discount)/10000+base*safeguard));
   }
   function defaultUnit(e) {
+    // 공식 가이드 416 (2026-09-17): 재설정 전 등급 기준. 에테르 구입비는 별도입니다.
+    if(e.kind==='soul-potential') return e.date>='2026-09-17' && grades.includes(e.grade)?String([20000000,40000000,65000000,88000000][grades.indexOf(e.grade)]):null;
     let type=potentialType(e.potentialType);
     if(e.kind==='cube') {
       const cube=String(e.cubeType||'').trim().replace(/^(?:카르마|대적자의)\s+/,'');
@@ -277,9 +282,10 @@
       const profile=profiles.get(reportKey(g))||{}, level=g.level??profile.level??itemInfo(g.item).level;
       const saved=[g.key,...(Array.isArray(g.rateAliases)?g.rateAliases:[])].map(k=>rates.get(k)).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)[0], rate=saved?.auto===true?undefined:saved;
       const attemptSettings=profile.updatedAt>=(rate?.updatedAt||0)?profile:rate;
-      const attempts=g.kind==='potential'?(attemptSettings?.attempts||rate?.attempts||profile.attempts||1):1;
+      const attempts=['potential','soul-potential'].includes(g.kind)?(attemptSettings?.attempts||rate?.attempts||profile.attempts||1):1;
       const resolved={...g,level,multiResult:g.multiResult && !profile.attempts};
-      const costs=g.events.map(e=>rate?.unit ?? (g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
+      // 소울 API에는 1회/3회 비용 구분이 없으므로 사용자가 조건을 확인하기 전에는 계산하지 않습니다.
+      const costs=g.events.map(e=>rate?.unit ?? (g.kind==='soul-potential' && !profile.attempts?null:g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
       const unit=costs.every(cost=>cost===costs[0])?costs[0]:null;
       const estimate=costs.some(cost=>cost===null)?null:String(costs.reduce((sum,cost)=>sum+BigInt(cost)*BigInt(attempts),0n));
       return {...g,resolvedLevel:level,profile,unit,attempts,estimate,basis:rate?'saved-rate':estimate===null?'needs-rate':g.kind==='starforce'?'star-formula':g.kind==='cube'?'cube-equivalent':'official-table'};
@@ -313,7 +319,7 @@
     return merge(state,{batches:[batch]});
   }
   function profits(state) {
-    return allocated(state).accepted.map(b=>({id:'enhancement:'+b.id,date:b.date,type:b.kind==='cube'?'potential':b.kind,title:'API 이력 확인 지출',itemName:b.item+' · '+b.character,itemId:'',expected:0,createdAt:b.createdAt,costs:[{id:'used',name:'확인한 사용 메소',price:b.amount,count:1}],outputs:[]}));
+    return allocated(state).accepted.map(b=>({id:'enhancement:'+b.id,date:b.date,type:b.kind==='cube'?'potential':b.kind==='soul-potential'?'soul_ether':b.kind,title:'API 이력 확인 지출',itemName:b.item+' · '+b.character,itemId:'',expected:0,createdAt:b.createdAt,costs:[{id:'used',name:'확인한 사용 메소',price:b.amount,count:1}],outputs:[]}));
   }
   async function collect(fetchPage, kind, date, account, signal) {
     if (!kinds.has(kind) || !validDay(date)) throw new Error('조회 조건을 확인해 주세요.');
@@ -321,7 +327,7 @@
     for (let page=0; page<200; page++) {
       signal?.throwIfAborted();
       const body=await fetchPage(kind,cursor?{count:1000,cursor}:{count:1000,date},signal);
-      const rows=body?.[kind+'_history'];
+      const rows=body?.[kind.replace(/-/g,'_')+'_history'];
       if (!Array.isArray(rows)) throw new Error('API 응답에 강화 이력이 없습니다. 기존 기록은 유지됩니다.');
       for (const raw of rows) {
         const row=event(kind,raw,account);

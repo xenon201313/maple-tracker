@@ -126,7 +126,7 @@ async function checkLayout(page,label) {
     await input(form,'used').fill('4321');
     await tab(page,'soul_ether').click();
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
-    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),false,'수기 탭에서 API 기록이 함께 표시됨');
+    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),true,'소울 탭에서 잠재 API와 증폭·재료비 수기를 함께 표시해야 함');
     assert.equal(await page.locator('#manual-enhancement-type').isVisible(),false);
     await input(form,'date').fill('2026-09-17');
     await input(form,'itemName').fill('테스트 <소울 장비>');
@@ -147,6 +147,7 @@ async function checkLayout(page,label) {
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
     assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999','API 화면 새로고침이 수기 초안을 삭제함');
     await tab(page,'advanced_ability').click();
+    assert.equal(await page.locator('#enhancement-api-panel').isVisible(),false,'고급 어빌리티 탭에는 지원하지 않는 API 이력을 표시하지 않음');
     await input(form,'itemName').fill('고급 어빌리티 테스트');
     await costPrice(form,'advanced_ability_honor_medal').fill('5000000');
     await costCount(form,'advanced_ability_honor_medal').fill('3');
