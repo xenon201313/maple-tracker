@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20260924-1"></script>
+<script src="assets/patch-notes-data.js?v=20260929-1"></script>
 <script src="assets/patch-notes.js?v=20260919-2"></script>
 <script src="assets/enhancement-ledger.js?v=20260924-1"></script>
 <script src="assets/friends-expenses.js?v=20260924-1"></script>
-<script src="assets/account-sync.js?v=20260924-1"></script>
-<script src="assets/friends-characters.js?v=20260924-1"></script>
+<script src="assets/account-sync.js?v=20260929-1"></script>
+<script src="assets/friends-characters.js?v=20260929-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20260924-1">
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <script src="assets/soul-ability-expenses.js?v=20260924-1"></script>
@@ -1322,16 +1322,16 @@
     <div class="account-actions"><button type="button" class="ghost" id="friends-characters-load">내 캐릭터 조회</button><button type="button" class="ghost" id="friends-scheduler-load">등록한 캐릭터 보스 완료 갱신</button></div>
     <p id="friends-characters-status" role="status" aria-live="polite">로그인 후 홈에서 사용할 계정 장부를 선택해 주세요.</p>
     <div id="friends-characters-list"></div>
-    <p class="muted">캐릭터 이미지·전투력·경험치 조회는 아래 개인 API 키 연동으로 이용할 수 있습니다.</p>
+    <p class="muted">넥슨 로그인만으로 본인 캐릭터 이미지·전투력·경험치와 보스 완료 기록을 갱신합니다. 개인 API 키를 추가로 등록할 필요가 없습니다.</p>
   </section>
   <div class="card">
     <h2>👑 캐릭터 등록</h2>
-    <div class="api-box">
+    <div class="api-box" id="character-personal-api">
       <div class="api-head">
         <div class="api-title">
           <span class="api-icon">🔑</span>
           <div class="api-copy">
-            <b>NEXON Open API 연동</b>
+            <b>개인 API 키로 연결하기 (넥슨 로그인 대신 선택)</b>
             <div class="muted">본 기능은 NEXON Open API를 이용하여 월드, 직업, 레벨, 캐릭터 이미지와 보스 완료·경험치 데이터를 조회합니다.</div>
           </div>
         </div>
@@ -1405,11 +1405,11 @@
       <h2 id="character-guide-title">👤 캐릭터 등록 방법</h2>
       <button class="ghost guide-modal-close" type="button" data-guide-close>닫기</button>
     </div>
-    <p class="guide-lead">캐릭터를 먼저 등록하면 주간, 월간, 일간 결정석 탭에서 같은 캐릭터 목록을 함께 사용합니다. API 키를 저장해두면 캐릭터명 입력만으로 프로필 정보와 캐릭터 이미지가 자동으로 들어오고, 보스 완료와 경험치 변화도 갱신됩니다. 경험치 그래프는 재획 기록 탭에서 확인합니다.</p>
+    <p class="guide-lead">넥슨 로그인 또는 개인 API 키 중 한 가지 방식으로 연결하면 캐릭터 이미지·전투력·경험치와 보스 완료 기록을 갱신합니다. 등록한 캐릭터는 주간·월간·일간 보스 탭에서 함께 사용하며, 경험치 그래프는 재획 기록 탭에서 확인합니다.</p>
     <div class="guide-grid">
       <div class="guide-item"><b>API 키가 있는 경우</b><p>NEXON Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다. 열린 페이지에서는 보스 완료 상태와 경험치가 주기적으로 갱신되며, 경험치 변화는 재획 기록 탭에서 확인합니다.</p></div>
-      <div class="guide-item"><b>API 키가 없는 경우</b><p>캐릭터명과 서버만 수동으로 등록할 수 있습니다. 나중에 API 키를 저장한 뒤 같은 이름을 추가하면 프로필 정보가 갱신됩니다.</p></div>
-      <div class="guide-item"><b>기기 변경</b><p>새 기기에서는 API 키를 다시 저장하고 캐릭터명을 등록하면 프로필은 다시 불러올 수 있습니다. 기존 수익 기록 이동은 백업 JSON을 사용해 주세요.</p></div>
+      <div class="guide-item"><b>넥슨 로그인으로 이용</b><p>홈에서 로그인과 사용할 장부 선택을 마친 뒤 내 캐릭터 조회에서 골라 등록하거나 본인 캐릭터 이름을 입력합니다. 개인 API 키를 추가로 등록할 필요가 없습니다. 기존 캐릭터는 전체 새로고침으로 정보를 갱신하세요.</p></div>
+      <div class="guide-item"><b>연결 없이 기록·기기 변경</b><p>로그인과 API 키 없이도 이름과 서버를 수동 등록할 수 있습니다. 새 기기에서는 같은 넥슨 계정으로 로그인해 계정 장부를 열거나, 개인 API 키 보관함 또는 백업 JSON으로 이전 기록을 불러옵니다.</p></div>
     </div>
 
     <div class="guide-modal-section">
@@ -8926,6 +8926,68 @@ function serverFromNexonWorld(world, fallback='main'){
   if(w.trim()) return 'main';
   return fallback === 'challenger' ? 'challenger' : 'main';
 }
+let characterQueryGeneration=0;
+const characterQueries=new Set();
+function characterLoginState(){return window.MapleFriends?.getState() || {};}
+function characterSource(){
+  const auth=characterLoginState();
+  if(auth.connected) return window.MapleAccountSync?.canUseAccount(auth.account) ? 'friends' : '';
+  if(window.MapleAccountSync?.blocksLegacy()) return '';
+  return nexonApiKey() ? 'key' : '';
+}
+function characterConnectionMessage(){
+  return characterLoginState().connected ? '홈에서 넥슨 계정 장부 연결과 사용할 장부 선택을 완료해 주세요.' : '넥슨 로그인 또는 개인 API 키 중 한 가지 방식으로 연결해 주세요.';
+}
+function invalidateCharacterQueries(){
+  characterQueryGeneration++;
+  characterQueries.forEach(controller=>controller.abort());
+  characterQueries.clear();
+}
+function characterQueryContext(target=null){
+  const source=characterSource(),account=characterLoginState().account,key=nexonApiKey(),generation=characterQueryGeneration;
+  if(!source) throw new Error(characterConnectionMessage());
+  const controller=new AbortController();characterQueries.add(controller);
+  const guard=()=>{
+    if(controller.signal.aborted || generation!==characterQueryGeneration || source!==characterSource() || (source==='friends' ? account!==characterLoginState().account : key!==nexonApiKey()) || (target && !db.chars.includes(target))) throw new DOMException('연결 또는 캐릭터가 변경되어 조회를 중단했습니다.','AbortError');
+    window.MapleAccountSync?.guard();
+  };
+  return {source,signal:controller.signal,guard,release:()=>characterQueries.delete(controller)};
+}
+async function collectFriendsCharacterProfile(c,ctx){
+  const koreaToday=new Date(Date.now()+9*3600000).toISOString().slice(0,10);
+  const dates=historicalExpDatesToFetch({...c,expHistoryFetchAttempts:{...c.expHistoryFetchAttempts}},koreaToday);
+  const result=await window.MapleFriends.request('character-profile',{ocid:c.ocid || undefined,characterName:c.name,dates},ctx.signal);ctx.guard();
+  if(!result.ocid || !result.basic?.character_name || !result.basic?.world_name) throw new Error('캐릭터의 최신 정보를 확인하지 못했습니다. 잠시 후 다시 갱신해 주세요.');
+  const profile=profileFromNexonBasic(result.basic,c.name,result.ocid,charServer(c));
+  if(result.basic.character_exp==null)delete profile.characterExp;
+  if(result.basic.character_exp_rate==null)delete profile.characterExpRate;
+  const combatPower=result.stat && combatPowerFromStat(result.stat);
+  if(combatPower) profile.combatPower=combatPower;
+  try{profile.schedulerData=await window.MapleFriends.request('scheduler',{ocid:result.ocid},ctx.signal);ctx.guard();}
+  catch(error){ctx.guard();if(error.status===401)throw error;profile.schedulerError=error.message;}
+  return {profile,history:result.history || [],dates,profileWarning:result.profileWarning || ''};
+}
+function applyCollectedCharacter(c,result){
+  window.MapleAccountSync?.beforeSave();
+  applyCharacterProfile(c,result.profile,charServer(c));
+  c.profileWarning=result.profileWarning || '';
+  c.expHistoryFetchAttempts=ensureObj(c.expHistoryFetchAttempts);
+  for(const date of result.dates || [])c.expHistoryFetchAttempts[date]=Date.now();
+  for(const row of result.history || [])recordHistoricalExpSnapshot(c,row.basic,row.date);
+}
+function mergeCharacterExpSnapshots(current,incoming){
+  const rows=new Map();
+  for(const row of [...(incoming||[]),...(current||[])])rows.set([row.at,row.level,row.exp,row.rate].join('|'),row);
+  return normalizeExpHistory([...rows.values()]);
+}
+document.addEventListener('maple:friends-session',()=>{invalidateCharacterQueries();scheduleNexonAutoRefresh();updateCharacterConnectionControls();});
+document.addEventListener('maple:account-ledger-changing',invalidateCharacterQueries);
+document.addEventListener('maple:account-ledger-ready',()=>{scheduleNexonAutoRefresh();updateCharacterConnectionControls();});
+function updateCharacterConnectionControls(){
+  const signedIn=!!characterLoginState().connected;
+  const keyBox=document.getElementById('character-personal-api');
+  if(keyBox)keyBox.hidden=signedIn;
+}
 async function resolveNexonCharacterOcid(name){
   const idData=await nexonFetch('/id',{character_name:name});
   const ocid=String(idData.ocid || '').trim();
@@ -9173,8 +9235,7 @@ function recordHistoricalExpSnapshot(c,basic,date){
   c.expHistory=normalizeExpHistory(c.expHistory);
   return true;
 }
-function historicalExpDatesToFetch(c){
-  const today=todayStr();
+function historicalExpDatesToFetch(c,today=todayStr()){
   const start=addDays(today,-(EXP_TRACKER_DAYS-1));
   const present=new Set(normalizeExpHistory(c.expHistory).map(snapshot=>expTrackerDate(snapshot.at)).filter(Boolean));
   const attempts=ensureObj(c.expHistoryFetchAttempts);
@@ -9187,26 +9248,35 @@ function historicalExpDatesToFetch(c){
   }
   return dates;
 }
-async function hydrateCharacterExpHistory(c){
+async function hydrateCharacterExpHistory(c,ctx=null){
   const ocid=String(c?.ocid || '').trim();
   if(!ocid || !nexonApiKey()) return false;
   const dates=historicalExpDatesToFetch(c);
   if(!dates.length) return false;
   let changed=false;
   for(const date of dates){
+    ctx?.guard();
     c.expHistoryFetchAttempts[date]=Date.now();
     changed=true;
     try{
       const basic=await fetchNexonCharacterHistoricalBasicByOcid(ocid,date);
+      ctx?.guard();
       changed=recordHistoricalExpSnapshot(c,basic,date) || changed;
     }catch(error){
+      ctx?.guard();
       // API 데이터가 없는 날짜는 그래프의 빈 구간으로 남깁니다.
     }
   }
   return changed;
 }
 async function refreshStoredCharacterProfile(c){
-  if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
+  const ctx=characterQueryContext(c);
+  try{
+  if(ctx.source==='friends'){
+    const result=await collectFriendsCharacterProfile(c,ctx);ctx.guard();
+    applyCollectedCharacter(c,result);
+    return c;
+  }
   const fallbackServer=charServer(c);
   const ocid=String(c.ocid || '').trim();
   let basic=null;
@@ -9226,38 +9296,50 @@ async function refreshStoredCharacterProfile(c){
     throw new Error('캐릭터의 최신 월드 정보가 아직 준비되지 않았습니다. 잠시 후 다시 갱신해 주세요.');
   }
   const profile=await fetchNexonCharacterProfileByOcid(currentOcid,name,fallbackServer,basic);
-  applyCharacterProfile(c,profile,fallbackServer);
-  await hydrateCharacterExpHistory(c);
+  ctx.guard();
+  const draft=JSON.parse(JSON.stringify(c));draft.ocid=profile.ocid;
+  await hydrateCharacterExpHistory(draft,ctx);ctx.guard();
+  applyCollectedCharacter(c,{profile,history:[]});
+  c.expHistory=mergeCharacterExpSnapshots(c.expHistory,draft.expHistory);
+  c.expHistoryFetchAttempts={...c.expHistoryFetchAttempts,...draft.expHistoryFetchAttempts};
   return c;
+  }finally{ctx.release();}
 }
 async function refreshStoredCharacterScheduler(c){
-  if(!nexonApiKey()) throw new Error('넥슨 Open API 키를 먼저 저장하세요.');
+  const ctx=characterQueryContext(c);
+  try{
   if(!String(c.ocid || '').trim()) throw new Error('캐릭터 식별자(ocid)가 없습니다. 전체 API 갱신을 먼저 실행하세요.');
   try{
-    return applySchedulerData(c,await fetchNexonCharacterSchedulerByOcid(c.ocid));
+    const data=ctx.source==='friends' ? await window.MapleFriends.request('scheduler',{ocid:c.ocid},ctx.signal) : await fetchNexonCharacterSchedulerByOcid(c.ocid);
+    ctx.guard();window.MapleAccountSync?.beforeSave();
+    return applySchedulerData(c,data);
   }catch(error){
+    ctx.guard();if(error.status===401)throw error;
     const message=String(error?.message || '스케줄러 정보를 불러오지 못했습니다.');
     const changed=c.schedulerError!==message;
     c.schedulerError=message;
     return {changed,error};
   }
+  }finally{ctx.release();}
 }
 function scheduleNexonAutoRefresh(){
   clearInterval(nexonAutoRefresh.timer);
   clearTimeout(nexonAutoRefresh.timeout);
   nexonAutoRefresh.timer=0;
   nexonAutoRefresh.timeout=0;
-  if(!nexonApiKey() || !db.chars.length) return;
+  if(!characterSource() || !db.chars.length) return;
   nexonAutoRefresh.timer=window.setInterval(runNexonAutoRefresh,NEXON_SCHEDULER_REFRESH_MS);
   nexonAutoRefresh.timeout=window.setTimeout(runNexonAutoRefresh,1800);
 }
 async function runNexonAutoRefresh(){
-  if(nexonAutoRefresh.running || cloudSync.initializing || cloudSync.syncing || document.hidden || !nexonApiKey() || !db.chars.length) return;
+  if(nexonAutoRefresh.running || cloudSync.initializing || cloudSync.syncing || document.hidden || !characterSource() || !db.chars.length) return;
+  const ctx=characterQueryContext();
   nexonAutoRefresh.running=true;
   let changed=false;
   const now=Date.now();
   try{
-    for(const c of db.chars){
+    for(const c of [...db.chars]){
+      ctx.guard();
       try{
         const profileDue=!Number(c.lastApiSyncAt) || now-Number(c.lastApiSyncAt)>=NEXON_PROFILE_REFRESH_MS;
         if(profileDue){
@@ -9268,6 +9350,7 @@ async function runNexonAutoRefresh(){
           changed=changed || !!result.changed;
         }
       }catch(error){
+        ctx.guard();if(error.name==='AbortError')continue;
         const message=String(error?.message || '자동 API 갱신에 실패했습니다.');
         if(c.schedulerError!==message){
           c.schedulerError=message;
@@ -9276,10 +9359,12 @@ async function runNexonAutoRefresh(){
       }
     }
     if(changed){
+      ctx.guard();
       save();
       if(['character','boss','monthlyboss','dailyboss'].includes(activePageName())) renderAll();
     }
-  }finally{
+  }catch(error){if(error.name!=='AbortError')updateNexonApiStatus(error.message,'err');}finally{
+    ctx.release();
     nexonAutoRefresh.running=false;
   }
 }
@@ -9351,7 +9436,7 @@ function characterMetaText(c){
   if(c.characterClass) parts.push(c.characterClass);
   if(c.characterLevel) parts.push('Lv.'+fmt(c.characterLevel));
   if(c.combatPower) parts.push('전투력 '+fmt(c.combatPower));
-  if(c.lastApiSync) parts.push('API '+c.lastApiSync);
+  if(c.lastApiSync) parts.push('갱신 '+c.lastApiSync);
   return parts.join(' · ');
 }
 function charProfileHtml(c){
@@ -9370,18 +9455,21 @@ function characterSchedulerTrackingHtml(c){
   const sync=normalizeSchedulerSync(c.schedulerSync);
   const hasWeeklyLimit=sync.weeklyClearLimitCount>0 && Number.isFinite(weeklyBossCheckLimit(mapleWeekStart(sync.date || todayStr())));
   let title='보스 상태 대기';
-  let detail='API 갱신 시 주간·월간·일간 보스 완료 상태를 반영합니다.';
+  let detail='정보 갱신 시 주간·월간·일간 보스 완료 상태를 반영합니다.';
   if(hasWeeklyLimit){
     title='이번 주 '+fmt(sync.weeklyClearCount)+' / '+fmt(sync.weeklyClearLimitCount)+' 완료';
     detail='넥슨 스케줄러 기준 · 완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
   }else if(sync.matchedBossCount>0){
     title='완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
     detail='넥슨 스케줄러 기준으로 카드 체크를 동기화했습니다.';
+  }else if(sync.updatedAt){
+    title='조회 완료 · 반영할 보스 없음';
+    detail='자동으로 반영할 완료 기록이 없습니다. 기존 체크는 유지합니다.';
   }
   const syncTime=apiTimeText(sync.updatedAt);
   if(syncTime) detail+=' · '+syncTime+' 갱신';
   if(c.schedulerError) detail=String(c.schedulerError);
-  return '<div class="character-api-card boss"><b>API 보스 진행</b><strong>'+esc(title)+'</strong><small'+(c.schedulerError?' class="api-error"':'')+'>'+esc(detail)+'</small></div>';
+  return '<div class="character-api-card boss"><b>넥슨 보스 진행</b><strong>'+esc(title)+'</strong><small'+(c.schedulerError?' class="api-error"':'')+'>'+esc(detail)+'</small></div>';
 }
 function characterApiTrackingHtml(c){
   return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+'</div>';
@@ -9397,27 +9485,34 @@ function renderRegisteredCharacters(){
     refreshAll.disabled=!db.chars.length;
     refreshAll.onclick=async()=>{
       if(!db.chars.length) return;
-      if(!nexonApiKey()){ alert('넥슨 Open API 키를 먼저 저장하세요.'); return; }
+      if(!characterSource()){ alert(characterConnectionMessage()); return; }
+      const ctx=characterQueryContext();
       const oldText=refreshAll.textContent;
       refreshAll.disabled=true;
       refreshAll.textContent='갱신 중...';
       const failed=[];
       let updated=0;
+      try{
       for(const c of [...db.chars]){
+        ctx.guard();
         try{
           await refreshStoredCharacterProfile(c);
           updated++;
         }catch(err){
+          ctx.guard();
           failed.push(c.name+': '+err.message);
         }
       }
-      save();
+      ctx.guard();save();
       updateNexonApiStatus(failed.length?'일부 갱신 실패':'캐릭터 정보 갱신 완료',failed.length?'err':'ok');
       renderAll();
       if(failed.length) alert('갱신 완료: '+updated+'명\n실패:\n'+failed.join('\n'));
       else alert('등록된 캐릭터 '+updated+'명의 최신 정보를 갱신했습니다.');
+      }catch(error){if(error.name!=='AbortError')alert(error.message);}finally{
+      ctx.release();
       refreshAll.disabled=false;
       refreshAll.textContent=oldText;
+      }
     };
   }
   list.innerHTML='';
@@ -9428,18 +9523,18 @@ function renderRegisteredCharacters(){
   db.chars.forEach((c,idx)=>{
     const card=document.createElement('div');
     card.className='registered-card';
-    const synced=c.lastApiSync ? '마지막 API 갱신: '+esc(c.lastApiSync) : 'API 정보 없음';
+    const synced=c.lastApiSync ? '마지막 정보 갱신: '+esc(c.lastApiSync) : '캐릭터 정보 갱신 전';
     card.innerHTML=
       charProfileHtml(c)+
       characterApiTrackingHtml(c)+
       '<div class="registered-actions">'+
-        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">API 갱신</button>'+
+        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">정보 갱신</button>'+
         '<button class="danger char-delete-btn" type="button" data-idx="'+idx+'">캐릭터 삭제</button>'+
-        '<span class="muted">'+synced+'</span>'+
+        '<span class="muted">'+synced+(c.profileWarning?' · '+esc(c.profileWarning):'')+'</span>'+
       '</div>';
     const btn=card.querySelector('.char-refresh-btn');
     btn.onclick=async()=>{
-      if(!nexonApiKey()){ alert('넥슨 Open API 키를 먼저 저장하세요.'); return; }
+      if(!characterSource()){ alert(characterConnectionMessage()); return; }
       const target=db.chars[idx];
       if(!target){ renderAll(); return; }
       const oldText=btn.textContent;
@@ -9499,6 +9594,7 @@ function initNexonApiControls(){
     const key=input.value.trim();
     if(!key){ alert(nexonApiKey() ? '새 API 키를 입력하면 기존 키가 변경됩니다.' : 'API 키를 입력하세요.'); return; }
     window.MapleAccountSync?.beforeSave();
+    invalidateCharacterQueries();
     db.settings.nexonApiKey=key;
     localStorage.setItem(LS_KEY,JSON.stringify(db));
     window.MapleAccountSync?.changed();
@@ -9508,7 +9604,8 @@ function initNexonApiControls(){
   };
   clearBtn.onclick=()=>{
     if(!nexonApiKey()){ refresh(); return; }
-    if(confirm('저장된 넥슨 Open API 키를 삭제할까요?')){
+      if(confirm('저장된 넥슨 Open API 키를 삭제할까요?')){
+      invalidateCharacterQueries();
       window.MapleAccountSync?.beforeSave();
       delete db.settings.nexonApiKey;
       resetCloudSync();
@@ -9554,16 +9651,30 @@ const addCharacter=async()=>{
   const addBtn=document.getElementById('btn-addchar');
   if(!nm){ alert('캐릭터 이름을 입력하세요. 넥슨 API도 캐릭터명 기준으로 조회합니다.'); return; }
   let profile=null;
-  if(nexonApiKey()){
+  let collected=null,ctx=null,historyDraft=null;
+  if(characterLoginState().connected && !characterSource()){alert(characterConnectionMessage());return;}
+  if(characterSource()){
+    ctx=characterQueryContext();
     try{
       addBtn.disabled=true;
       addBtn.textContent='API 조회 중...';
       updateNexonApiStatus('캐릭터 조회 중...','');
-      profile=await fetchNexonCharacterProfile(nm,server);
+      if(ctx.source==='friends'){
+        collected=await collectFriendsCharacterProfile({name:nm,server},ctx);
+        profile=collected.profile;
+      }else{
+        profile=await fetchNexonCharacterProfile(nm,server);ctx.guard();
+        historyDraft=createEmptyChar(profile.name,profile.server);historyDraft.ocid=profile.ocid;
+        await hydrateCharacterExpHistory(historyDraft,ctx);
+      }
+      ctx.guard();
       updateNexonApiStatus('API 조회 성공','ok');
     }catch(err){
+      ctx.release();
       updateNexonApiStatus('API 조회 실패','err');
+      if(ctx.source==='friends' || err.name==='AbortError'){if(err.name!=='AbortError')alert(err.message);return;}
       if(!confirm('넥슨 API 조회 실패: '+err.message+'\n수동 정보로 캐릭터를 등록할까요?')) return;
+      ctx=null;
     }finally{
       addBtn.disabled=false;
       addBtn.textContent='캐릭터 추가';
@@ -9573,18 +9684,21 @@ const addCharacter=async()=>{
     return;
   }
   if(!profile && db.chars.some(c=>c.name===nm)){ alert('이미 등록된 캐릭터입니다.'); return; }
+  try{
+  ctx?.guard();window.MapleAccountSync?.beforeSave();
   const result=addOrUpdateCharacter(nm,server,profile);
+  if(collected)applyCollectedCharacter(result.char,collected);
+  if(historyDraft){
+    result.char.expHistory=mergeCharacterExpSnapshots(result.char.expHistory,historyDraft.expHistory);
+    result.char.expHistoryFetchAttempts={...result.char.expHistoryFetchAttempts,...historyDraft.expHistoryFetchAttempts};
+  }
   openChars.add(result.char.name);
   monthlyOpenChars.add(result.char.name);
   dailyOpenChars.add(result.char.name);
-  if(profile && result.char.ocid){
-    updateNexonApiStatus('최근 7일 경험치 기록 확인 중...','');
-    await hydrateCharacterExpHistory(result.char);
-    updateNexonApiStatus('API 조회 성공','ok');
-  }
   document.getElementById('in-char').value='';
   save(); scheduleNexonAutoRefresh(); renderAll();
   if(profile && result.updated) alert('기존 캐릭터의 API 정보를 갱신했습니다.');
+  }catch(error){if(error.name!=='AbortError')alert(error.message);}finally{ctx?.release();}
 };
 document.getElementById('btn-addchar').onclick=addCharacter;
 document.getElementById('in-char').addEventListener('keydown',event=>{
@@ -10921,22 +11035,25 @@ window.MapleAccountBridge={
     data.backupSnapshots=normalizeBackupSnapshots(raw.backupSnapshots);
     return {version:1,updatedAt:Number(raw.updatedAt)||Date.now(),data,weeklyDropRecovery:JSON.parse(values[DROP_RECOVERY_KEY]||'[]'),huntRecovery:JSON.parse(values[HUNT_RECOVERY_KEY]||'[]'),huntJournal:JSON.parse(values[HUNT_JOURNAL_KEY]||'[]')};
   },
-  stopLegacy(){resetCloudSync();cloudSyncStatus('넥슨 계정 장부는 홈에서 관리합니다. 기존 API 키 보관함은 유지됩니다.');clearInterval(nexonAutoRefresh.timer);clearTimeout(nexonAutoRefresh.timeout);nexonAutoRefresh.timer=0;nexonAutoRefresh.timeout=0;},
-  resumeLegacy(){if(!cloudSync.ready&&!cloudSync.initializing&&nexonApiKey())initializeCloudSync();}
+  stopLegacy(){invalidateCharacterQueries();resetCloudSync();cloudSyncStatus('넥슨 계정 장부는 홈에서 관리합니다. 기존 API 키 보관함은 유지됩니다.');clearInterval(nexonAutoRefresh.timer);clearTimeout(nexonAutoRefresh.timeout);nexonAutoRefresh.timer=0;nexonAutoRefresh.timeout=0;},
+  resumeLegacy(){if(!cloudSync.ready&&!cloudSync.initializing&&nexonApiKey())initializeCloudSync();scheduleNexonAutoRefresh();}
 };
 window.MapleFriendsCharacterBridge={
   registered:()=>db.chars.map(c=>({ocid:c.ocid,name:c.name})),
-  add(row){
-    window.MapleAccountSync.beforeSave();
-    const profile={name:row.character_name,ocid:row.ocid,worldName:row.world_name,characterClass:row.character_class,characterLevel:row.character_level,server:serverFromNexonWorld(row.world_name)};
+  async add(row){
     const existing=db.chars.find(c=>c.ocid===row.ocid)||db.chars.find(c=>c.name===row.character_name&&(!c.worldName||c.worldName===row.world_name));
-    if(existing) applyCharacterProfile(existing,profile,existing.server);
-    else{const c=createEmptyChar(profile.name,profile.server);applyCharacterProfile(c,profile,profile.server);db.chars.push(c);}
-    save();renderAll();
+    const ctx=characterQueryContext(existing);
+    try{
+      if(ctx.source!=='friends')throw new Error('넥슨 계정으로 로그인해 주세요.');
+      const result=await collectFriendsCharacterProfile({...existing,name:row.character_name,ocid:row.ocid,server:serverFromNexonWorld(row.world_name)},ctx);ctx.guard();
+      const target=existing || createEmptyChar(result.profile.name,result.profile.server);
+      applyCollectedCharacter(target,result);if(!existing)db.chars.push(target);
+      save();scheduleNexonAutoRefresh();renderAll();
+    }finally{ctx.release();}
   },
   scheduler(rows){
     window.MapleAccountSync.beforeSave();let added=0,matched=0;
-    rows.forEach(row=>{const c=db.chars.find(c=>c.ocid===row.ocid);if(c){const result=applySchedulerData(c,row.data);added+=result.added;matched+=result.matched;}});
+    rows.forEach(row=>{db.chars.filter(c=>c.ocid===row.ocid).forEach(c=>{const result=applySchedulerData(c,row.data);added+=result.added;matched+=result.matched;});});
     if(rows.length){save();renderAll();}return {added,matched};
   }
 };

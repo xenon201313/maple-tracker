@@ -28,7 +28,7 @@
       const button=document.createElement('button');button.type='button';button.className='ghost';
       button.textContent=bridge().registered().some(c=>c.ocid===row.ocid)?'등록 정보 갱신':'장부에 추가';
       const account=auth().account;
-      button.onclick=()=>{try{if(!available()||account!==auth().account)throw new Error('홈에서 사용할 계정 장부를 확인해 주세요.');bridge().add(row);status(row.character_name+' 캐릭터를 반영했습니다.');renderRows();}catch(error){status(error.message,true);}};
+      button.onclick=()=>run(async(guard)=>{if(!available()||account!==auth().account)throw new Error('홈에서 사용할 계정 장부를 확인해 주세요.');button.disabled=true;try{await bridge().add(row);guard();status(row.character_name+' 캐릭터의 프로필과 보스 정보를 반영했습니다.');renderRows();}finally{button.disabled=false;}});
       line.append(label,button);list.append(line);
     });
   }

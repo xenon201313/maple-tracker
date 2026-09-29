@@ -24,7 +24,7 @@
     loadedOwner=meta.owner;
   } catch {fatal='장부 전환 중이거나 보관함을 읽지 못했습니다. 잠시 뒤 새로 열어 주세요. 계속되면 브라우저 저장 공간과 권한을 확인해 주세요.';meta=fresh();loadedOwner='blocked';}
   let context=null, pending=null, busy=false, timer=0, generation=0, statusText='', isError=false, started=false, stale=false;
-  let storedMain=localStorage.getItem('mapleTracker.v2');
+  let storedMain=localStorage.getItem('mapleTracker.v2'),ledgerVerified=false;
   const $=id=>document.getElementById(id);
   const bridge=()=>window.MapleAccountBridge;
   const auth=()=>window.MapleFriends?.getState()||{};
@@ -42,7 +42,7 @@
     if(loadedOwner!=='legacy'&&localStorage.getItem('mapleTracker.v2')!==storedMain){staleTab();throw new Error('다른 탭에서 장부가 변경되었습니다. 최신 기록을 새로 열어 주세요.');}
   }
   function beforeSave(){checkOwner();if(loadedOwner!=='legacy'){meta.dirty=true;persist();}}
-  function stop(){generation++;clearTimeout(timer);timer=0;context=null;pending=null;busy=false;bridge()?.stopLegacy();}
+  function stop(){ledgerVerified=false;generation++;clearTimeout(timer);timer=0;context=null;pending=null;busy=false;bridge()?.stopLegacy();}
   function valid(ctx){return context===ctx&&ctx.generation===generation&&auth().connected&&auth().account===ctx.account&&!stale;}
   function summary(data){return '캐릭터 '+(data.chars?.length||0)+'개 · 재획 '+Object.keys(data.records||{}).length+'일 · 손익 '+(data.profits?.length||0)+'건 · 직접 지출 '+(data.expenses?.length||0)+'건';}
   function archive(label,values=capture(),owner=loadedOwner){
@@ -90,7 +90,7 @@
     return valid(ctx)?{revision:result.revision,snapshot}:null;
   }
   function offer(ctx,value,kind){
-    pending={ctx,...value,kind};busy=false;
+    ledgerVerified=false;pending={ctx,...value,kind};busy=false;
     announce(kind==='connect'?'기존 기록을 보관한 뒤 사용할 장부를 선택해 주세요.':'다른 기기의 변경을 확인했습니다. 자동 덮어쓰기를 멈췄습니다.',kind!=='connect');
   }
   async function initialize(){
@@ -117,6 +117,7 @@
       if(loadedOwner!=='friends:'+ctx.account){offer(ctx,value,'connect');return;}
       if(before!==fingerprint()){offer(ctx,value,'conflict');return;}
       if(value.revision===meta.revision){
+        ledgerVerified=true;document.dispatchEvent(new CustomEvent('maple:account-ledger-ready'));
         busy=false;announce('넥슨 계정 장부 연결됨','');
         if(meta.dirty)await upload();
       } else if(!meta.dirty&&value.snapshot){
@@ -188,7 +189,7 @@
         await activate(capture(),next,'기존 기록을 계정으로 복사하기 전');return;
       }
       archive('계정 장부 연결 전 원본');bank();
-      meta.revision=value.revision;meta.dirty=true;persist();pending=null;await upload();
+      meta.revision=value.revision;meta.dirty=true;persist();pending=null;ledgerVerified=true;document.dispatchEvent(new CustomEvent('maple:account-ledger-ready'));await upload();
     }catch(error){announce('연결 준비 실패 · '+error.message,true);}
   }
   async function legacy(){
@@ -252,7 +253,7 @@
     blocksLegacy(){
       try{return !!fatal||meta.owner!=='legacy'||!!auth().connected||!!auth().finishing||!!sessionStorage.getItem('maple:friends:session');}catch{return true;}
     },
-    canUseAccount(account){return !stale&&loadedOwner==='friends:'+account&&auth().account===account&&auth().connected&&!pending;},
+    canUseAccount(account){return ledgerVerified&&!stale&&loadedOwner==='friends:'+account&&auth().account===account&&auth().connected&&!pending;},
     getState:()=>({owner:loadedOwner,connected:!!context,dirty:!!meta.dirty,pending:!!pending,busy,revision:meta.revision}),
     upload,pull,initialize
   });

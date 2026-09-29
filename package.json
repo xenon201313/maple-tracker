@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-sync.cjs",
+    "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-character-profile.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-sync.cjs",
     "test:icons": "node scripts/test-item-icons.cjs",
     "test:profit-expense": "node scripts/test-profit-expense-ui.cjs",
     "test:teenieping": "node scripts/test-teenieping-profit.cjs",
@@ -15,7 +15,7 @@
     "test:soul-ability": "node scripts/test-soul-ability-expenses.cjs",
     "test:enhancements": "node scripts/test-enhancement-ledger.mjs && node scripts/test-enhancement-costs.mjs && node scripts/test-enhancement-ui.cjs",
     "test:ui": "node scripts/test-workspace-ui.cjs",
-    "test:characters": "node scripts/test-character-world-transfer.cjs",
+    "test:characters": "node scripts/test-character-world-transfer.cjs && node scripts/test-character-login.cjs",
     "test:september": "node scripts/test-september-boss-rules.cjs && node scripts/test-crystal-sale-timing.cjs && node scripts/test-september-expenses.cjs && node scripts/test-september-drops.cjs",
     "test:data-safety": "node scripts/test-hunt-data-safety.cjs && node scripts/test-cloud-sync-history.mjs && node scripts/test-cloud-sync-races.cjs",
     "prepare:android-web": "node scripts/prepare-android-web.mjs",

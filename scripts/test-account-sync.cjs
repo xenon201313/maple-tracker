@@ -18,6 +18,10 @@ const fixture={records:{'2026-09-24':{sessions:[{id:'keep-hunt',meso:'123456789'
 async function context(seed,account=A){
   const c=await browser.newContext({viewport:{width:1360,height:1000},acceptDownloads:true});c.setDefaultTimeout(15000);await fixtureDismissPatchNotes(c);
   await c.addInitScript(({seed,account})=>{
+    window.fixtureAccountReadyEvents=[];
+    document.addEventListener('maple:account-ledger-ready',()=>setTimeout(()=>{
+      window.fixtureAccountReadyEvents.push({allowed:MapleAccountSync.canUseAccount(MapleFriends.getState().account),characters:db.chars.length,timer:nexonAutoRefresh.timer,timeout:nexonAutoRefresh.timeout});
+    },0));
     if(!sessionStorage.getItem('test-session-init')){sessionStorage.setItem('maple:friends:session',JSON.stringify({state:account,proof:'f'.repeat(64),account}));sessionStorage.setItem('test-session-init','1');}
     if(seed&&!localStorage.getItem('test-ledger-init')){localStorage.setItem('mapleTracker.v2',JSON.stringify(seed));localStorage.setItem('mapleTracker.legacyRecovery.fixture',JSON.stringify({records:{'2026-09-01':{sessions:[{id:'archive-only',meso:'99',runs:1}]}}}));localStorage.setItem('test-ledger-init','1');}
   },{seed,account});
@@ -40,6 +44,8 @@ async function context(seed,account=A){
     }
     if(action==='ledger-history')return send({account:acc.account,snapshots:acc.history,nextBeforeRevision:null});
     if(action==='character-list')return send({account_list:[{account_id:'fixture-only',character_list:[{ocid:'ocid-fixture',character_name:'계정캐릭터',world_name:'크로아',character_class:'아크',character_level:280}]}]});
+    // 선택 필드가 없는 정상 응답에도 기존 이미지·경험치·전투력은 유지되어야 합니다.
+    if(action==='character-profile')return send({ocid:'ocid-fixture',basic:{character_name:'계정캐릭터',world_name:'크로아',character_class:'아크',character_level:280},history:[]});
     if(action==='scheduler')return send({date:'2026-09-24T00:00+09:00',boss_contents:[]});
     return send({error:'Unknown fixture action '+action},404);
   });return c;
@@ -80,10 +86,17 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     if(await p1.evaluate(()=>MapleAccountSync.getState().pending))await p1.click('#account-use-remote');await synced(p1);
     assert.equal(await p1.evaluate(()=>db.records['2026-09-24'].sessions.some(x=>x.id==='first-device')),true);
     await p1.click('a.tab[data-page="character"], button.tab[data-page="character"]');
-    await p1.click('#friends-characters-load');await p1.locator('#friends-characters-list button').first().waitFor();await p1.locator('#friends-characters-list button').first().click();await synced(p1);
+    await p1.click('#friends-characters-load');await p1.locator('#friends-characters-list button').first().waitFor();await p1.locator('#friends-characters-list button').first().click();
+    await p1.waitForFunction(()=>db.chars.length===1&&!document.getElementById('friends-characters-load').disabled);await synced(p1);
     await p1.evaluate(()=>{const c=db.chars[0];c.combatPower='123';c.characterImage='fixture-image';c.characterExp='456';save();});await synced(p1);
-    await p1.locator('#friends-characters-list button').first().click();await synced(p1);
+    await p1.locator('#friends-characters-list button').first().click();
+    await p1.waitForFunction(()=>!document.getElementById('friends-characters-load').disabled);await synced(p1);
     assert.deepEqual(await p1.evaluate(()=>[db.chars.length,db.chars[0].combatPower,db.chars[0].characterImage,db.chars[0].characterExp]),[1,'123','fixture-image','456']);
+    await p1.reload();await synced(p1);
+    await p1.waitForFunction(()=>fixtureAccountReadyEvents.some(event=>event.allowed&&event.characters===1&&event.timer>0&&event.timeout>0));
+    assert.equal(await p1.evaluate(()=>characterSource()),'friends','계정 장부 검증 완료 뒤 개인 키 없이 자동 갱신 예약');
+    assert.equal(await p1.locator('#character-personal-api').isVisible(),false,'실제 계정 장부 준비 완료 이벤트 뒤 개인 키 입력 영역 숨김');
+    assert.equal(await p1.locator('#character-personal-api').evaluate(el=>el.hidden),true,'페이지 표시 여부와 무관하게 개인 키 입력 자체를 숨김');
     await p1.click('.tab[data-page="home"]');await p1.locator('.account-sync details summary').click();await p1.click('#account-history');await p1.locator('#account-server-history button').first().waitFor();
     const [download]=await Promise.all([p1.waitForEvent('download'),p1.locator('#account-server-history button').first().click()]);const bundle=JSON.parse(fs.readFileSync(await download.path(),'utf8'));assert(bundle.records);assert(Array.isArray(bundle.huntRecovery));assert(!JSON.stringify(bundle).includes('FIXTURE-SECRET-KEY'));
     const p3=await open(c1);await synced(p3);await change(p1,'same-browser-other-tab');await synced(p1);await p3.locator('dialog.account-stale').waitFor();
