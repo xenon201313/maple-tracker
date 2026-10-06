@@ -5,6 +5,10 @@
 - 서비스: [maple-trackers.com](https://maple-trackers.com)
 - 저장소: [xenon201313/maple-tracker](https://github.com/xenon201313/maple-tracker)
 
+## 운영 웹 배포
+
+2026-10-06부터 운영 화면은 `maple-tracker-web` Cloudflare Worker에서 제공합니다. **GitHub main에 push한 뒤 `npm run deploy:web`도 실행해야 운영 사이트에 반영됩니다.** 공개 파일 범위, 확인 절차와 복구 방법은 [WEB_HOSTING.md](WEB_HOSTING.md)를 참고하세요. 기존 장부 서버 `maple-tracker-sync`의 배포와 구분합니다.
+
 ## 주요 기능
 
 - 재획 회차별 메소·추가 부수입·솔 에르다 조각 기록 및 일일/주간/월간 통계
@@ -47,7 +51,7 @@ AI가 제안한 구현은 실제 사용 흐름과 메이플스토리 보스 규�
 
 ## 실행
 
-정적 사이트이므로 `index.html`을 브라우저에서 열거나 GitHub Pages 배포 주소로 접속하면 사용할 수 있습니다.
+정적 사이트이므로 로컬 웹 서버로 실행하거나 [운영 주소](https://maple-trackers.com)로 접속하면 사용할 수 있습니다. 기존 브라우저 장부와 넥슨 로그인은 같은 운영 주소를 사용하세요.
 
 ## UI 검증
 

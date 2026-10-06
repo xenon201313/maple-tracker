@@ -15,3 +15,6 @@ local.properties
 .env
 .env.*
 .wrangler/
+cloudflare-web/public/
+cloudflare-web/asset-manifest.json
+cloudflare-web/deployments/

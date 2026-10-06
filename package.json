@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare:web": "node scripts/prepare-worker-web.mjs",
+    "test:web-hosting": "node scripts/test-worker-web.mjs",
+    "deploy:web": "node scripts/deploy-worker-web.mjs",
     "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-character-profile.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-sync.cjs",
     "test:icons": "node scripts/test-item-icons.cjs",
     "test:profit-expense": "node scripts/test-profit-expense-ui.cjs",
