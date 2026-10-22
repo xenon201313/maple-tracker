@@ -1,0 +1,52 @@
+{
+  "verifiedOn": "2026-10-22",
+  "source": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+  "items": [
+    {
+      "id": "exceptional_hammer_pocket",
+      "name": "익셉셔널 해머 (포켓)",
+      "file": "assets/drops/october/exceptional-hammer-pocket.png",
+      "source": "https://dszw1qtcnsa5e.cloudfront.net/quickboard/20261015/306622e595e6440e84bbc00891f738e2/%EB%A6%BC%EB%B3%B4.png",
+      "crop": [
+        476,
+        50,
+        32,
+        32
+      ],
+      "sha256": "41789fa34f69120d647e761c002a781fca62d2ef464fe322b574b8095c96d18a"
+    },
+    {
+      "id": "exceptional_hammer_pendant",
+      "name": "익셉셔널 해머 (펜던트)",
+      "file": "assets/drops/october/exceptional-hammer-pendant.png",
+      "source": "https://dszw1qtcnsa5e.cloudfront.net/quickboard/20261015/dc1835a44c0d42ce916d5255835482f2/%EB%B0%9C%EB%93%9C%EB%A6%AD%EC%8A%A4.png",
+      "crop": [
+        478,
+        55,
+        32,
+        32
+      ],
+      "sha256": "d2cba2a690380bc8f279d28049729f6f4cf28ef9fca3f061edda3b01bc8dc99d"
+    }
+  ],
+  "noticeItems": [
+    {
+      "id": "origin_shadow_momong",
+      "itemId": 2833630,
+      "name": "근원의 그림자 모몽",
+      "file": "assets/drops/october/origin-shadow-momong-tooltip.png",
+      "source": "https://blog.naver.com/PostView.naver?blogId=44alice&logNo=224442931141",
+      "sourceImage": "https://postfiles.pstatic.net/MjAyNjEwMTVfMTU2/MDAxNzkyMDYwMzIxNTA1.W-ByuvrIETCMBZSO_E0OtH9ww_MI62yAhUo_IpJa8T8g.FfThDmXuvwy_B4ZoAm3-Aq-XFK8ycYVJxK7gbluFVRog.PNG/%EC%95%84%EC%9D%B4%ED%85%9C_2833630%EC%86%8C%EB%B9%84_%EC%B6%94%EA%B0%80.png?type=w966",
+      "sourceClass": "공식 본서버 신규 아이템 목록 + 공개 KMST 1.2.207 클라이언트 툴팁 추출 원본",
+      "crop": [
+        22,
+        62,
+        88,
+        130
+      ],
+      "tradeStatus": "교환 불가",
+      "dropCondition": null,
+      "sha256": "e77d5284f9c92fa9583a6e7ddd467a9c4ae8dbe5d9a1f1050acb31f7b2c8f1b5"
+    }
+  ]
+}

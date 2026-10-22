@@ -80,6 +80,7 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>profitTotals(()=>true).cost.toString()),'1000000','Estimates changed existing totals');
     assert.match(await page.locator('.enhancement-row').innerText(),/2억 73만 9,300/);
     assert.match(await page.locator('.enhancement-row').innerText(),/160제/);
+    await page.locator('.enhancement-row img').evaluate(img=>img.decode());
     assert.equal(await page.locator('.enhancement-row img').evaluate(img=>img.complete && img.naturalWidth>0),true);
     assert(!await page.locator('.enhancement-row').innerText().then(text=>text.includes('미적용')));
     for(const width of [1440,768,390,320]) {

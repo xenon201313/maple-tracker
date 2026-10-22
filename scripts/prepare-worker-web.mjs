@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 export const repository = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const rootFiles = ['index.html', 'privacy.html', 'ads-config.js', 'ads.txt', 'robots.txt', 'site.webmanifest', 'sitemap.xml', 'thumbnail.png'];
 const assetExtensions = new Set(['.js', '.css', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.ico', '.ttf', '.woff', '.woff2']);
-const assetMetadata = new Set(['assets/background-source.json', 'assets/boss/normalized/manifest.json', 'assets/drops/SOURCES.json', 'assets/enhancements/SOURCES.json', 'assets/profit/SOURCES.json', 'assets/profit/teenieping/sources.json', 'assets/fonts/NanumGothic-OFL.txt', 'assets/ui-icons-LICENSE.txt']);
+const assetMetadata = new Set(['assets/background-source.json', 'assets/boss/normalized/manifest.json', 'assets/drops/SOURCES.json', 'assets/drops/october/sources.json', 'assets/enhancements/SOURCES.json', 'assets/profit/SOURCES.json', 'assets/profit/teenieping/sources.json', 'assets/profit/october2026/sources.json', 'assets/profit/october2026/artisan-sources.json', 'assets/profit/october2026/event-loupe-sources.json', 'assets/fonts/NanumGothic-OFL.txt', 'assets/ui-icons-LICENSE.txt']);
 
 export function isPublicPath(path) {
   if (typeof path !== 'string' || path.includes('\\') || path.split('/').some(part => !part || part.startsWith('.'))) return false;

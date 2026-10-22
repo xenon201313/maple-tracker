@@ -1,0 +1,844 @@
+{
+  "verifiedOn": "2026-10-22",
+  "note": "공식 공지의 실제 아이콘/구매 버튼 크롭과, 기존 아이템의 한국 게임 데이터 PNG 추출 원본입니다. source별 출처를 구별하며 생성 이미지로 대체하지 않았습니다.",
+  "sources": {
+    "boutique": {
+      "path": "boutique-official.png",
+      "url": "https://lwi.nexon.com/maplestory/2026/1022_board/72A9B14JCF2H7AVP.png",
+      "page": "https://maplestory.nexon.com/News/CashShop/Sale/651",
+      "sha256": "cf17ad1d979206fa76f10f44c3d169f7433c0fd8f07e1de648b99cc8ec03ad1d",
+      "dimensions": [
+        876,
+        25201
+      ]
+    },
+    "royal": {
+      "path": "royal162-official.png",
+      "url": "https://lwi.nexon.com/maplestory/2026/1022_board/98SZ55920T5Y7V4H.png",
+      "page": "https://maplestory.nexon.com/News/CashShop/Sale/650",
+      "sha256": "503e578d84ad054a7ea2e1c5d8114808bb54cd7dea4ec4196c1781baf6dd472c",
+      "dimensions": [
+        876,
+        20071
+      ]
+    },
+    "momentum": {
+      "path": "momentum-official.png",
+      "url": "https://lwi.nexon.com/maplestory/2026/1022_board/261022_64CEB0D17A8EB039.png",
+      "page": "https://maplestory.nexon.com/News/Event/1402",
+      "sha256": "bdf411145ca3b08ee95588b7ddcc55b64edef8b25e841e9c6db333ab3864b6cf",
+      "dimensions": [
+        876,
+        9316
+      ]
+    },
+    "kms389LegacyRoyal": {
+      "url": "https://maplestory.io/api/KMS/389/item?count=100000",
+      "documentation": "https://maplestory.io/swagger/V3/swagger.json",
+      "sourceType": "extracted-game-pixels",
+      "officialDirectImages": false,
+      "region": "KMS",
+      "gameDataVersion": "389",
+      "officialCurrentCatalog": "https://maplestory.nexon.com/Guide/CashShop/Probability/RoyalStyle",
+      "verification": "전체 아이템 목록에서 공식 최신 확률표의 한국어 이름과 일치하는 단일 ID 확인. 이 14종은 기존 아이템의 원본 모양이며 가격·거래 속성·확률은 과거 게임 데이터로 추정하지 않음."
+    }
+  },
+  "images": {
+    "boutique_gift": {
+      "file": "assets/profit/october2026/boutique_gift.png",
+      "label": "부티크 기프트",
+      "source": "boutique",
+      "crop": [
+        222,
+        2037,
+        302,
+        2117
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "13cf7bb41e387e0bba81b23fe986fa193efaa0c1b9ab277a135927ad3d71fcc9"
+    },
+    "boutique_ticket": {
+      "file": "assets/profit/october2026/boutique_ticket.png",
+      "label": "부티크 티켓",
+      "source": "boutique",
+      "crop": [
+        570,
+        2038,
+        658,
+        2116
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "94e1873d397f539f15095457baeade1488ecdd74e02bdd290bd8cdbc98ecb108"
+    },
+    "boutique_title_90": {
+      "file": "assets/profit/october2026/boutique_title_90.png",
+      "label": "부티크 액션 칭호 교환권 (90일)",
+      "source": "boutique",
+      "crop": [
+        74,
+        5632,
+        122,
+        5680
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "970892d959ab713752a27afacc1d4352c2b1f70fe43450960109f53fba2ffa93"
+    },
+    "boutique_title_30": {
+      "file": "assets/profit/october2026/boutique_title_30.png",
+      "label": "부티크 액션 칭호 교환권 (30일)",
+      "source": "boutique",
+      "crop": [
+        74,
+        5690,
+        122,
+        5738
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "970892d959ab713752a27afacc1d4352c2b1f70fe43450960109f53fba2ffa93"
+    },
+    "boutique_title_select": {
+      "file": "assets/profit/october2026/boutique_title_select.png",
+      "label": "부티크 칭호 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        5748,
+        122,
+        5796
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "927847e5f7ba193cb9116a1d07fa462586171af030227c210bcae6389d4e72a0"
+    },
+    "boutique_estelle": {
+      "file": "assets/profit/october2026/boutique_estelle.png",
+      "label": "솔 헤카테 : 에스텔 스킨 교환권",
+      "source": "boutique",
+      "crop": [
+        74,
+        5806,
+        122,
+        5854
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "1883a09db49e7b0535a33a404ac3d0c11d337f3e08c76ecd80451f021d6793d5"
+    },
+    "boutique_crimson": {
+      "file": "assets/profit/october2026/boutique_crimson.png",
+      "label": "크림슨 팩트 세트",
+      "source": "boutique",
+      "crop": [
+        74,
+        5864,
+        122,
+        5912
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "72509190068cabe9ec976d80612bf8a7f2ce3b807643c6b522ec9032ee5a7f0f"
+    },
+    "boutique_hair": {
+      "file": "assets/profit/october2026/boutique_hair.png",
+      "label": "부티크 헤어 쿠폰",
+      "source": "boutique",
+      "crop": [
+        74,
+        5922,
+        122,
+        5970
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "fdf46d29abcd0b6cc09ba90aaa98925ac85f6070160436f9607bc7389eec9ea9"
+    },
+    "boutique_face": {
+      "file": "assets/profit/october2026/boutique_face.png",
+      "label": "홍조/발그레 냠냠! 얼굴장식 교환권",
+      "source": "boutique",
+      "crop": [
+        74,
+        5980,
+        122,
+        6028
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "dc79bfb43be71e839247b070c7f62c6351191355baae3f09768e2ff45b4e3419"
+    },
+    "boutique_skin": {
+      "file": "assets/profit/october2026/boutique_skin.png",
+      "label": "커스텀 스킨 쿠폰",
+      "source": "boutique",
+      "crop": [
+        74,
+        6038,
+        122,
+        6086
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "f67074bc24d05104748ce5f1b1ed361d3ed92e5e45176070a2db6542d27d63d7"
+    },
+    "boutique_prism": {
+      "file": "assets/profit/october2026/boutique_prism.png",
+      "label": "스킨 프리즘",
+      "source": "boutique",
+      "crop": [
+        74,
+        6096,
+        122,
+        6144
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "b31f230124c91a72bcf2049b6fac4969c352c512cd7f12421106ee5fdc77ed11"
+    },
+    "boutique_lavender": {
+      "file": "assets/profit/october2026/boutique_lavender.png",
+      "label": "뽀송/홍조 라벤더 스킨 교환권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6154,
+        122,
+        6202
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "571b00e5c6e7e16104d5d92ec78632a555cbdc15005dd9927be9102f16da40f1"
+    },
+    "boutique_wonder_ring": {
+      "file": "assets/profit/october2026/boutique_wonder_ring.png",
+      "label": "원더 블랙 21~25기 말풍선/명찰 반지 (영구) 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6212,
+        122,
+        6260
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "42f27be811174946da6d41629000f7a39a9410ede0c68d61adf9f89ec3b1a7ce"
+    },
+    "boutique_mix_select": {
+      "file": "assets/profit/october2026/boutique_mix_select.png",
+      "label": "커스텀 믹스염색 & 컬러렌즈 쿠폰 교환권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6270,
+        122,
+        6318
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "fea3c03f706d62dd2b5e9bccf1fbc61a9201cb8622cd66624ce0c443330cc782"
+    },
+    "boutique_mix_dye": {
+      "file": "assets/profit/october2026/boutique_mix_dye.png",
+      "label": "커스텀 믹스염색 쿠폰",
+      "source": "boutique",
+      "crop": [
+        74,
+        6328,
+        122,
+        6376
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "f9faca82b273c6e86ba189af7235c0f752e18c795cac2603e2b3053b840fdeb2"
+    },
+    "boutique_mix_lens": {
+      "file": "assets/profit/october2026/boutique_mix_lens.png",
+      "label": "커스텀 믹스 컬러렌즈 쿠폰",
+      "source": "boutique",
+      "crop": [
+        74,
+        6386,
+        122,
+        6434
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "4c91144fbaf19dcecbb917ea2813af538f65833f52c39cd8b69155cf21d7603a"
+    },
+    "boutique_love_set": {
+      "file": "assets/profit/october2026/boutique_love_set.png",
+      "label": "사랑으로 극복중 세트 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6444,
+        122,
+        6492
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "8158f2f13a7ca852fc53e76ee5636f1a17336a2e3b31c77b85332435d1c46bfc"
+    },
+    "boutique_cardigan_set": {
+      "file": "assets/profit/october2026/boutique_cardigan_set.png",
+      "label": "포근복닥 가디건 세트 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6502,
+        122,
+        6550
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "01591be02be15e63b653874639f300bb3026a29597f61b621d0cba23685051f8"
+    },
+    "boutique_puppy_set": {
+      "file": "assets/profit/october2026/boutique_puppy_set.png",
+      "label": "뭉게 퍼피 세트 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6560,
+        122,
+        6608
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "4b30bb162492ce0cb04ec6a42d2ebb1b9ac44f59875c0de9a3fbef08ebbf9873"
+    },
+    "boutique_invisible": {
+      "file": "assets/profit/october2026/boutique_invisible.png",
+      "label": "투명 의자/라이딩 선택권",
+      "source": "boutique",
+      "crop": [
+        74,
+        6618,
+        122,
+        6666
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "2c21fe65f9e17b322bdc0a8e3bfc079bdd70062812ff8c36eab0dd918ebfd940"
+    },
+    "boutique_face_box": {
+      "file": "assets/profit/october2026/boutique_face_box.png",
+      "label": "알쏭달쏭 표정 얼굴장식 상자",
+      "source": "boutique",
+      "crop": [
+        74,
+        6676,
+        122,
+        6724
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "516db067d5edc89e35ec622e788db3efebe1ad1186353344eef5d7d6f108c1e9"
+    },
+    "boutique_coordi_box": {
+      "file": "assets/profit/october2026/boutique_coordi_box.png",
+      "label": "알쏭달쏭 코디 상자",
+      "source": "boutique",
+      "crop": [
+        74,
+        6734,
+        122,
+        6782
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "804ed4868d202513e41065f65ea1b7e361896e2c5108288cfb276b0072341f92"
+    },
+    "royal162_wish_hat": {
+      "file": "assets/profit/october2026/royal162_wish_hat.png",
+      "label": "위시 셀러 햇",
+      "source": "royal",
+      "crop": [
+        155,
+        1696,
+        235,
+        1776
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "b24158481f3b98b9a7f8f7eee5ce8ad9cff0301b80c2f3161d13d0fd50b80973"
+    },
+    "royal162_dream_ribbon": {
+      "file": "assets/profit/october2026/royal162_dream_ribbon.png",
+      "label": "드림 셀러 리본",
+      "source": "royal",
+      "crop": [
+        317,
+        1696,
+        397,
+        1776
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "d47b375179f6c5174b107794a44e83982430d4679ced57dec4f87a8b72b0f6f5"
+    },
+    "royal162_mellow_wish": {
+      "file": "assets/profit/october2026/royal162_mellow_wish.png",
+      "label": "멜로우 위시 (남)",
+      "source": "royal",
+      "crop": [
+        479,
+        1696,
+        559,
+        1776
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "6103f01bad07d61017504686e1b4d8b2fa9a733aae5ea1d4aaa2d3d83dd74d67"
+    },
+    "royal162_mellow_dream": {
+      "file": "assets/profit/october2026/royal162_mellow_dream.png",
+      "label": "멜로우 드림 (여)",
+      "source": "royal",
+      "crop": [
+        641,
+        1696,
+        721,
+        1776
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "12b87d4f17458a5ae386913bd7ee748de9d4e723853a0a961f4127315c59fa4b"
+    },
+    "royal162_wish_shoes": {
+      "file": "assets/profit/october2026/royal162_wish_shoes.png",
+      "label": "위시 셀러 슈즈 (남)",
+      "source": "royal",
+      "crop": [
+        155,
+        1964,
+        235,
+        2044
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "f442bd5786c55ddebe058425fbc9db51fd8345f6077121246602b750482d7f7f"
+    },
+    "royal162_dream_shoes": {
+      "file": "assets/profit/october2026/royal162_dream_shoes.png",
+      "label": "드림 셀러 로퍼 (여)",
+      "source": "royal",
+      "crop": [
+        317,
+        1964,
+        397,
+        2044
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "cc2714dcb975a29e38c5bd6490581c8d367b6254870aeda7863c6540daa10470"
+    },
+    "royal162_heart": {
+      "file": "assets/profit/october2026/royal162_heart.png",
+      "label": "곰돌 하트 팡",
+      "source": "royal",
+      "crop": [
+        479,
+        1964,
+        559,
+        2044
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "0dc45f1fe4cfe68006e4f6432e327ffcdc25d99ea4c36124e962c74bc15f1c95"
+    },
+    "royal162_bell": {
+      "file": "assets/profit/october2026/royal162_bell.png",
+      "label": "리틀 드림 벨",
+      "source": "royal",
+      "crop": [
+        641,
+        1964,
+        721,
+        2044
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "4d8fc52104c278334f03ef8015bb91c32b5c2421aa6a9dc2157be0d49239516a"
+    },
+    "royal162_autumn_headset": {
+      "file": "assets/profit/october2026/royal162_autumn_headset.png",
+      "label": "어텀 튜닝 헤드셋",
+      "source": "royal",
+      "crop": [
+        99,
+        5861,
+        179,
+        5941
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "398ec21a10df457f2603cf4224af42477616f7a482079ac8b4f90188a1e0a7eb"
+    },
+    "royal162_dream_balloon": {
+      "file": "assets/profit/october2026/royal162_dream_balloon.png",
+      "label": "곰순 드림 벌룬",
+      "source": "royal",
+      "crop": [
+        298,
+        5861,
+        378,
+        5941
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "3403a5a25fd4023cacd65ac7b154a355a4460f24108fd6bca279669d42f1a09e"
+    },
+    "royal162_wish_cart": {
+      "file": "assets/profit/october2026/royal162_wish_cart.png",
+      "label": "곰돌 위시 카트",
+      "source": "royal",
+      "crop": [
+        498,
+        5861,
+        578,
+        5941
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "74eda802626abd3ec5b1020faf0b9d24cbbf2be8d67ebc71ea376cc7fed8b6c2"
+    },
+    "royal162_autumn_bag": {
+      "file": "assets/profit/october2026/royal162_autumn_bag.png",
+      "label": "어텀 캠핑 백",
+      "source": "royal",
+      "crop": [
+        698,
+        5861,
+        778,
+        5941
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "dbc5bb9159c0152c113ff40dbcc57eceb7072b614fb3ef074ad0a2de381582dc"
+    },
+    "royal162_autumn_wish": {
+      "file": "assets/profit/october2026/royal162_autumn_wish.png",
+      "label": "어텀 위스퍼 (남)",
+      "source": "royal",
+      "crop": [
+        99,
+        6122,
+        179,
+        6202
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "c2988d1ea31d61f4b2abe0dbaa52cb1f35d569944d9072d4b1e5b640544a5741"
+    },
+    "royal162_autumn_breeze": {
+      "file": "assets/profit/october2026/royal162_autumn_breeze.png",
+      "label": "어텀 브리즈 (여)",
+      "source": "royal",
+      "crop": [
+        298,
+        6122,
+        378,
+        6202
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "e7b20c8e2a0a8cc899574bc22cabfbafb2dbaa9e470b73653e03791bcbd3fd2b"
+    },
+    "royal162_autumn_shoes": {
+      "file": "assets/profit/october2026/royal162_autumn_shoes.png",
+      "label": "어텀 캠핑 슈즈",
+      "source": "royal",
+      "crop": [
+        498,
+        6122,
+        578,
+        6202
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "fae068ad2c7ef4b3522f908e43d42aa8ebc1702cccb4ba066a325188727f7541"
+    },
+    "royal162_autumn_weapon": {
+      "file": "assets/profit/october2026/royal162_autumn_weapon.png",
+      "label": "어텀 스위트 멜로우",
+      "source": "royal",
+      "crop": [
+        698,
+        6122,
+        778,
+        6202
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "c906ba66fa1dedb78211adf558c7b6b2b3b1d272e5f916fec282cc17ed412564"
+    },
+    "royal162_campfire": {
+      "file": "assets/profit/october2026/royal162_campfire.png",
+      "label": "캠프파이어 무드",
+      "source": "royal",
+      "crop": [
+        198,
+        6385,
+        278,
+        6465
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "c8226abbcccad8b630a11c17bb0e1c67b57556220d83e9b762730ba7e3435008"
+    },
+    "royal162_name_ring": {
+      "file": "assets/profit/october2026/royal162_name_ring.png",
+      "label": "꿈빛 리본 명찰 반지",
+      "source": "royal",
+      "crop": [
+        398,
+        6385,
+        478,
+        6465
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "0c80944a720bdfaa45526796337ceaf84c1d313bbb5917e205f2c480bf5bed17"
+    },
+    "royal162_chat_ring": {
+      "file": "assets/profit/october2026/royal162_chat_ring.png",
+      "label": "꿈빛 리본 말풍선 반지",
+      "source": "royal",
+      "crop": [
+        598,
+        6385,
+        678,
+        6465
+      ],
+      "role": "공식 게임 아이콘",
+      "sha256": "25fc97859754195f68c7cffb37697e570c1bc9f02afaa152a36cbbd9c2219020"
+    },
+    "momentum_premium": {
+      "file": "assets/profit/october2026/momentum_premium.png",
+      "label": "프리미엄 모멘텀 패스",
+      "source": "momentum",
+      "crop": [
+        139,
+        5027,
+        279,
+        5094
+      ],
+      "role": "공식 상품 구매 버튼 이미지",
+      "sha256": "d252e356137865bc40f8927b1e39251cfe6dda9a8aba34e09752d7f6059a08b9"
+    },
+    "momentum_prime": {
+      "file": "assets/profit/october2026/momentum_prime.png",
+      "label": "프라임 모멘텀 패스",
+      "source": "momentum",
+      "crop": [
+        139,
+        5147,
+        279,
+        5214
+      ],
+      "role": "공식 상품 구매 버튼 이미지",
+      "sha256": "bff16754e2f1c62b0924ebb428c6990ffa2ae73d3eaa5ce0cc2912fe7bb2b1dc"
+    },
+    "momentum_points": {
+      "file": "assets/profit/october2026/momentum_points.png",
+      "label": "모멘텀 포인트 보충",
+      "source": "momentum",
+      "crop": [
+        511,
+        4445,
+        594,
+        4470
+      ],
+      "role": "공식 포인트 구매 버튼 이미지",
+      "sha256": "297fd5460dfd149baffe4daae84033a6cb2bbdc582ff0775db3ffddee98ad55d"
+    },
+    "royal162_prisoner_clothes": {
+      "id": "royal162_prisoner_clothes",
+      "name": "죄수복",
+      "gameItemId": 1053315,
+      "file": "assets/profit/october2026/royal162_prisoner_clothes.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1053315/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "fba86b3be69718b475512b527a4a3b8b2c5e3fdf68575695a844b650dd42b699",
+      "dimensions": [
+        31,
+        29
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_prisoner_hat": {
+      "id": "royal162_prisoner_hat",
+      "name": "죄수 모자",
+      "gameItemId": 1005167,
+      "file": "assets/profit/october2026/royal162_prisoner_hat.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1005167/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "f1753a67e5ff8f8a45e0d4331be2d983d15505a353272adb2f0cfd7e71f1a8ec",
+      "dimensions": [
+        30,
+        26
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_depressed": {
+      "id": "royal162_depressed",
+      "name": "우울하다",
+      "gameItemId": 1103102,
+      "file": "assets/profit/october2026/royal162_depressed.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1103102/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "2d8089d03318664af900d682122eb3af0748136c7f002f36ef789bf1b9a6047c",
+      "dimensions": [
+        37,
+        35
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_cannot_go": {
+      "id": "royal162_cannot_go",
+      "name": "못가",
+      "gameItemId": 1073282,
+      "file": "assets/profit/october2026/royal162_cannot_go.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1073282/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "2246a7d93a23931c4e87b960ae7555aed8dae71b61b98fd71525c8b595ea3ce2",
+      "dimensions": [
+        32,
+        22
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_spoon": {
+      "id": "royal162_spoon",
+      "name": "숟가락 탈옥범",
+      "gameItemId": 1702838,
+      "file": "assets/profit/october2026/royal162_spoon.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1702838/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "23b42d4c45988247f0b1b47e9c54e5f999192dfcad1d5ebaf78be8206727d39f",
+      "dimensions": [
+        35,
+        37
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_lace": {
+      "id": "royal162_dark_lace",
+      "name": "암흑 레이스",
+      "gameItemId": 1006075,
+      "file": "assets/profit/october2026/royal162_dark_lace.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1006075/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "5df5effb6743cc7b7314493722ba5e614d924922fdddd1c54d09dc9f253b055d",
+      "dimensions": [
+        30,
+        28
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_silkhat": {
+      "id": "royal162_dark_silkhat",
+      "name": "암흑 실크햇",
+      "gameItemId": 1006074,
+      "file": "assets/profit/october2026/royal162_dark_silkhat.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1006074/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "822952bf564257dafd0a3994456b74883b622c622195bc096620f9b80b17ef33",
+      "dimensions": [
+        30,
+        27
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_noble_dark": {
+      "id": "royal162_noble_dark",
+      "name": "고결한 암흑",
+      "gameItemId": 1050673,
+      "file": "assets/profit/october2026/royal162_noble_dark.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1050673/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "cab842dc48e647972966ad90c86c15c9f3847cc7178a61dec19b0506181fb4c5",
+      "dimensions": [
+        32,
+        30
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_elegant_dark": {
+      "id": "royal162_elegant_dark",
+      "name": "우아한 암흑",
+      "gameItemId": 1051746,
+      "file": "assets/profit/october2026/royal162_elegant_dark.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1051746/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "322dc754246292216a93c923de9215b3fba32fe6bf4fb512318090e6383e927c",
+      "dimensions": [
+        35,
+        30
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_steps_female": {
+      "id": "royal162_dark_steps_female",
+      "name": "암흑 사뿐",
+      "gameItemId": 1071175,
+      "file": "assets/profit/october2026/royal162_dark_steps_female.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1071175/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "ea6c40f6933ef3742f9c475547610af0a256db04d30352952733b148b018696c",
+      "dimensions": [
+        30,
+        30
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_crack": {
+      "id": "royal162_dark_crack",
+      "name": "암흑의 균열",
+      "gameItemId": 1103496,
+      "file": "assets/profit/october2026/royal162_dark_crack.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1103496/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "fda08da48dbdd1086aeb4ea03b2e19d54b94079ec28554cb08d4601e13471b4e",
+      "dimensions": [
+        35,
+        35
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_steps_male": {
+      "id": "royal162_dark_steps_male",
+      "name": "암흑 사박",
+      "gameItemId": 1070159,
+      "file": "assets/profit/october2026/royal162_dark_steps_male.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1070159/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "2db5a1c5eb5c0830bc58999b0904a3e676c0d91654c337fda2931ab33cd53e39",
+      "dimensions": [
+        30,
+        24
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_dark_watcher": {
+      "id": "royal162_dark_watcher",
+      "name": "암흑 감시자",
+      "gameItemId": 1703248,
+      "file": "assets/profit/october2026/royal162_dark_watcher.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/1703248/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "f32275b4cdd31443e33bd6403723559b734a97368e1704f118a9562b84343c66",
+      "dimensions": [
+        35,
+        34
+      ],
+      "unmodifiedPng": true
+    },
+    "royal162_reaper_throne": {
+      "id": "royal162_reaper_throne",
+      "name": "사신의 옥좌",
+      "gameItemId": 5204033,
+      "file": "assets/profit/october2026/royal162_reaper_throne.png",
+      "source": "kms389LegacyRoyal",
+      "imageSource": "https://maplestory.io/api/KMS/389/item/5204033/icon",
+      "role": "한국 게임 데이터의 기존 아이템 PNG 원본",
+      "sourceType": "extracted-game-pixels",
+      "sha256": "4d7ec47f97955a6c5a2cf65f4e436d50279e64e89bd9da1d7420a75da1726e9c",
+      "dimensions": [
+        35,
+        35
+      ],
+      "unmodifiedPng": true
+    }
+  }
+}

@@ -139,6 +139,8 @@
       level:Number.isInteger(raw.item_level) ? raw.item_level : null,
       potentialType:string(raw.potential_type), grade:string(before?.[0]?.grade),
       cubeType:string(raw.cube_type), nextGrade:string(after?.[0]?.grade),
+      // 10/22 추가된 소울 미라클 여부도 보존합니다. 누락된 과거 응답을 미적용으로 단정하지 않습니다.
+      miracleTimeFlag:string(raw.miracle_time_flag),
       options:Array.isArray(after)?after.slice(0,9).map(o=>({value:string(o.value),grade:string(o.grade)})):[],
       multiResult:Array.isArray(after) && after.length > 3,
       stars:Number.isInteger(raw.before_starforce_count) ? raw.before_starforce_count : null,

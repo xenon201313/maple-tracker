@@ -1,0 +1,6 @@
+.october-product-note{line-height:1.8;overflow-wrap:anywhere}
+.october-product-prices{margin:10px 0 18px;padding-left:22px;color:var(--sub);line-height:1.8;font-size:12px}
+.october-fever,.october-exchange,.october-ticket-check{margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.1)}
+.october-fever>summary,.october-exchange>summary,.october-ticket-check>summary{color:var(--gold);font-weight:700;cursor:pointer}
+.october-fever [data-october-fever-result]{line-height:1.7;color:var(--gold)}
+.october-fever details p{font-size:12px;line-height:1.8;overflow-wrap:anywhere}

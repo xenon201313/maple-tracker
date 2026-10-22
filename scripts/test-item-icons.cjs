@@ -13,16 +13,29 @@ fs.mkdirSync(output, {recursive:true});
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const catalog = vm.runInNewContext(html.slice(html.indexOf('const DOMINATOR_PENDANT_IMG ='), html.indexOf('function bossParts(')) + ';({DROP_ITEMS,DAILY_DROP_ITEMS})');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/drops/SOURCES.json'), 'utf8'));
+const octoberManifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/drops/october/sources.json'), 'utf8'));
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 // Image repairs must not rename stored item keys or change box/result relationships.
-// 신규 에테르를 제외한 기존 69종의 저장 키와 상자 관계는 원본 그대로 유지합니다.
+// 10월 신규 난이도를 분리하여 기존 69종의 저장 키와 상자 관계 검증을 그대로 유지합니다.
 const baselineCatalog=JSON.parse(JSON.stringify(catalog));
+delete baselineCatalog.DROP_ITEMS.xlimbo;
+delete baselineCatalog.DROP_ITEMS.xbal;
 for(const group of Object.values(baselineCatalog)) for(const key of Object.keys(group)) group[key]=group[key].filter(item=>!/^soul_ether_[1-4]$/.test(item.id));
 assert.equal(hash(JSON.stringify(baselineCatalog, (key, value) => key === 'img' ? undefined : value)), '54d37e96003d3e15e6fa7dbf460c7859e79593ca6e8e2c1feda4c1de7557ba38');
-const newItems=Object.values(catalog.DROP_ITEMS).flat().filter(item=>/^soul_ether_[1-4]$/.test(item.id));
+const existingGroups=Object.entries(catalog.DROP_ITEMS).filter(([id])=>!['xlimbo','xbal'].includes(id));
+const newItems=existingGroups.flatMap(([,items])=>items).filter(item=>/^soul_ether_[1-4]$/.test(item.id));
 assert.equal(newItems.length,16);
 assert.equal(new Set(newItems.map(item=>item.id)).size,4);
 for(const item of newItems){ assert.equal(item.availableFrom,'2026-09-17'); assert.equal(item.img,'assets/drops/'+item.id+'.webp','소울 에테르 단계별 원본 아이콘'); }
+assert.equal(Object.values(catalog.DROP_ITEMS).flat().filter(item=>/^soul_ether_[1-4]$/.test(item.id)).length,18,'신규 익스트림 2개 그룹의 3단계 에테르도 포함');
+for(const [id,base,slot] of [['xlimbo','hlimbo','pocket'],['xbal','hbal','pendant']]){
+  const list=catalog.DROP_ITEMS[id];
+  assert.equal(list.length,8,id+'의 기존 하드 보상 7개와 신규 해머 1개');
+  assert.equal(JSON.stringify(list.slice(0,-1)),JSON.stringify(catalog.DROP_ITEMS[base]),id+'는 기존 하드 보상의 아이콘·저장 키를 보존');
+  assert.equal(list.at(-1).id,'exceptional_hammer_'+slot);
+  assert.equal(list.at(-1).availableFrom,'2026-10-22');
+  assert.equal(list.filter(item=>item.id==='soul_ether_3').length,1);
+}
 const items = new Map();
 function visit(item) {
   assert.match(item.img, /^assets\//, item.id + ' must use a bundled icon');
@@ -31,10 +44,25 @@ function visit(item) {
   (item.children || []).forEach(visit);
 }
 Object.values(catalog).flatMap(group => Object.values(group).flat()).forEach(visit);
-assert.equal(items.size, 73);
-assert.equal(manifest.items.length, items.size);
+assert.equal(items.size, 75,'기존 73종과 10월 신규 해머 2종');
+assert.equal(manifest.items.length, 73,'기존 원본 아이콘 출처 73종 유지');
+assert.equal(octoberManifest.source,'https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459');
+assert.equal(octoberManifest.verifiedOn,'2026-10-22');
+assert.deepEqual(octoberManifest.items.map(item=>item.id).sort(),['exceptional_hammer_pendant','exceptional_hammer_pocket']);
+for(const source of octoberManifest.items){
+  assert.match(source.source,/^https:\/\/dszw1qtcnsa5e\.cloudfront\.net\/quickboard\/20261015\//,'공식 보상표 원본');
+  assert.equal(source.crop.length,4);
+  assert.deepEqual(source.crop.slice(2),[32,32],'공식 보상표에서 자른 실제 아이콘 크기');
+  const bytes=fs.readFileSync(path.join(root,source.file));
+  assert.equal(bytes.subarray(1,4).toString(),'PNG');
+  assert.equal(bytes.readUInt32BE(16),32);
+  assert.equal(bytes.readUInt32BE(20),32);
+}
+const allSources=[...manifest.items,...octoberManifest.items];
+assert.equal(new Set(allSources.map(item=>item.id)).size,items.size);
+assert(![...items.values()].some(item=>item.name==='근원의 그림자 모몽'),'드랍 조건 미확정 모몽을 보스 판매 목록에 연결하지 않음');
 for (const item of items.values()) {
-  const source = manifest.items.find(entry => entry.id === item.id);
+  const source = allSources.find(entry => entry.id === item.id);
   assert.equal(source?.file, item.img, item.id + ' source manifest');
   const bytes = fs.readFileSync(path.join(root, item.img));
   assert.equal(hash(bytes), source.sha256, item.id + ' original pixels changed');
@@ -184,7 +212,7 @@ async function snapshot(page) {
         image.src = origin + '/' + item.file; image.alt = item.name; caption.textContent = item.name;
         figure.append(image, caption); return figure;
       }));
-    }, {items:manifest.items,origin});
+    }, {items:allSources,origin});
     await assertImages(gallery, 'img');
     await gallery.screenshot({path:path.join(output,'drop-icon-catalog.png'),fullPage:true});
     console.log('Item icons passed:',items.size,'drop IDs,',icons.length,'bundled icons,',coverage.icons,'rendered drop/settlement images; records unchanged.');

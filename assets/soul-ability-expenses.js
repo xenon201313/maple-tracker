@@ -31,7 +31,7 @@
       description:'명예의 훈장 구입비와 고급 어빌리티 재설정에 직접 사용한 메소를 합산합니다. 이미 보유한 명성치나 무료로 받은 훈장은 메소 비용으로 환산하지 않습니다.',
       costTitle:'명예의 훈장 구입 비용',
       moneyFields:[{key:'advancedAbilityMeso',id:'advanced_ability_meso',name:'고급 어빌리티 재설정 사용 메소',label:'고급 재설정에 사용한 메소 합계'}],
-      guide:'레전드리 등급에서 명성치와 메소를 함께 소모합니다. 아래는 기본 1회 비용이며, 3회 동시 변경은 3회분입니다. 이벤트나 실제 사용량이 다르면 실제 지불한 메소를 입력하세요. 명성치 자체는 지출에 더하지 않습니다.',
+      guide:'레전드리 등급에서 명성치와 메소를 함께 소모합니다. 아래는 기본 1회 비용이며, 3회 동시 변경은 3회분입니다. 2026년 10월 22일부터 고정한 두 번째·세 번째 옵션이 모두 유니크 이하이면 고급 재설정을 사용할 수 없습니다. 실제 지불한 메소와 훈장 구입비만 적고, 명성치 자체는 지출에 더하지 않습니다.',
       guideGroups:[{title:'고급 어빌리티 재설정',mode:'advanced_ability',extra:item=>'명성치 '+item.fame.toLocaleString('ko-KR')}],
       source:'https://maplestory.nexon.com/Guide/N23GameInformation/Articles/392'
     }

@@ -1,0 +1,46 @@
+{
+  "verifiedOn": "2026-10-22",
+  "officialEvent": "https://maplestory.nexon.com/News/Event/1403",
+  "source": "https://lwi.nexon.com/maplestory/2026/1022_board/261022_8VXP47F6W37520T5.png",
+  "imageFormat": "공식 본서버 이벤트 안내 그림에 포함된 실제 아이콘 영역을 원본 픽셀 그대로 크롭",
+  "items": [
+    {
+      "id": "event_suspicious_loupe",
+      "name": "수상한 돋보기",
+      "itemId": 2833631,
+      "file": "assets/profit/october2026/event-suspicious-loupe.png",
+      "crop": [
+        137,
+        4343,
+        70,
+        70
+      ],
+      "usageLimit": "캐릭터당 일일 최대 10회",
+      "trade": "1회 교환 가능. 거래 후 월드 내 나의 캐릭터 간 이동만 가능.",
+      "source": "https://lwi.nexon.com/maplestory/2026/1022_board/261022_8VXP47F6W37520T5.png",
+      "sha256": "35cc17c6c84858d511421946e85e7ecfd96fd2284fea28442ee2a1a55a3936df"
+    },
+    {
+      "id": "event_detective_yeti_loupe",
+      "name": "탐정예티의 수상한 돋보기",
+      "itemId": 2833632,
+      "file": "assets/profit/october2026/event-detective-yeti-loupe.png",
+      "crop": [
+        471,
+        4343,
+        74,
+        72
+      ],
+      "usageLimit": "거래 가능 여부와 상관없이 메이플ID당 일일 최대 3회",
+      "trade": "1회 교환 가능. 거래 후 월드 내 나의 캐릭터 간 이동만 가능.",
+      "source": "https://lwi.nexon.com/maplestory/2026/1022_board/261022_8VXP47F6W37520T5.png",
+      "sha256": "02c552beef39c80d70aff835bc4e61e26ffc0573fc7490d66057c1ad0900b6f3"
+    }
+  ],
+  "availableFrom": "2026-10-22",
+  "dropUntil": "2026-11-18T23:59:00+09:00",
+  "useUntil": "2026-11-19T02:00:00+09:00",
+  "missionRewardNote": "일일 수집 미션 보상 돋보기는 월드 내 이동만 가능. 거래 가능한 드랍 아이템과 구분해야 함.",
+  "secondaryItemIdReference": "https://blog.naver.com/PostView.naver?blogId=44alice&logNo=224442931141",
+  "warning": "10월 15일 테스트 클라이언트 툴팁과 실제 본서버의 일일 제한·사용 기간이 다르므로 본 JSON은 10월 22일 공식 이벤트 안내의 조건을 사용함."
+}

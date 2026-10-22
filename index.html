@@ -2,18 +2,22 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20260929-1"></script>
+<script src="assets/patch-notes-data.js?v=20261022-1"></script>
 <script src="assets/patch-notes.js?v=20260919-2"></script>
-<script src="assets/enhancement-ledger.js?v=20260924-1"></script>
-<script src="assets/friends-expenses.js?v=20260924-1"></script>
+<script src="assets/enhancement-ledger.js?v=20261022-1"></script>
+<script src="assets/friends-expenses.js?v=20261022-1"></script>
 <script src="assets/account-sync.js?v=20260929-1"></script>
 <script src="assets/friends-characters.js?v=20260929-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20260924-1">
 <script src="assets/september-expenses.js?v=20260917-1"></script>
-<script src="assets/soul-ability-expenses.js?v=20260924-1"></script>
+<script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
+<script src="assets/october-boss-rules.js?v=20261022-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
+<script src="assets/october-profit.js?v=20261022-1"></script>
+<script src="assets/october-profit-ui.js?v=20261022-1"></script>
+<link rel="stylesheet" href="assets/october-profit.css?v=20261022-1">
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260918-1">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1103,7 +1107,7 @@
     <div class="home-summary-grid" id="home-summary"></div>
   </div>
 
-  <div class="card"><h2>9월 17일 본서버 경제 패치 반영</h2><p class="muted">본서버 1.2.419 기준으로 확인했습니다. 노멀 찬란한 흉성은 5억 7,600만, 노멀 카링은 5억 9,300만 메소입니다. 검은 마법사는 10월 1일부터 변경합니다. <a href="updates/2026-09/">변경 사항과 기록 방법 보기</a></p></div>
+  <div class="card"><h2>10월 22일 본서버 업데이트 반영</h2><p class="muted">본서버 1.2.420의 결정석 변경과 신규 익스트림 보스·드랍, 부티크 기프트·로얄스타일 162기를 반영했습니다. 신규 보스는 10월 23일 저녁부터 개방되며, 상품 판매와 티켓 사용 종료일은 서로 다릅니다. <a href="updates/2026-10/">10월 변경 사항과 기록 방법 보기</a></p></div>
   <div class="home-grid">
     <div class="card">
       <div class="home-section-head">
@@ -1374,13 +1378,13 @@
         <label>서버</label>
         <div class="server-choice">
           <label><input type="radio" name="in-server" value="main" checked> 본서버</label>
-          <label><input type="radio" name="in-server" value="challenger"> 챌린저스 서버</label>
+          <label><input type="radio" name="in-server" value="challenger"> 과거 챌린저스 기록</label>
         </div>
       </div>
       <div><button id="btn-addchar">캐릭터 추가</button></div>
     </div>
     <div class="muted" style="margin-top:8px;">주간/월간/일간 보스 메뉴에서 캐릭터의 '보스 펼치기'를 누르면 체크 목록이 열립니다.</div>
-    <div class="muted" style="margin-top:8px;">챌린저스 시즌 4 육성은 9월 17일 점검 전 종료됩니다. 리프 기간은 9월 17일 점검 후~9월 30일 23:59입니다. 월드를 옮긴 뒤 캐릭터 정보를 새로고침해 주세요. 기존 캐릭터·장부는 그대로 보존합니다. <a href="https://maplestory.nexon.com/News/Event/1349" target="_blank" rel="noopener noreferrer">시즌 4 공식 안내</a></div>
+    <div class="muted" style="margin-top:8px;">챌린저스 시즌 4 육성과 9월 리프는 종료되었습니다. ‘과거 챌린저스 기록’은 이전 장부를 정리할 때만 선택하세요. 10월 22일~11월 5일 오전 10시에는 별도의 일반 월드 리프가 진행됩니다. 이동한 캐릭터는 기존 기록을 지우거나 중복 등록하지 말고 정보를 새로고침해 주세요. <a href="https://maplestory.nexon.com/News/Event/1401" target="_blank" rel="noopener noreferrer">현재 월드 리프 안내</a></div>
   </div>
 
   <div class="card">
@@ -1555,6 +1559,7 @@
     <div class="period-note" id="weeklyboss-period-note">주간 결정석</div>
     <div class="period-history-nav" id="weeklyboss-period-nav" aria-label="주간 보스 기록 주차 선택"></div>
     <div class="crystal-sale-guidance" id="weekly-crystal-sale-guidance" hidden><strong>9/17 점검 전에 판매한 결정석이 있나요?</strong><br>9/17 00:00~03:00에 판매했다면 보스 체크 후 해당 카드의 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 바꾸세요. 03:00~10:00 점검 후 판매분은 ‘점검 후 · 새 가격’을 선택합니다. <b>실제 판매 시점과 받은 금액</b>에 맞춰 선택하며, 같은 캐릭터도 보스별로 다르게 선택할 수 있습니다.<br>판매 시점을 지정하지 않은 기록은 기본 새 가격입니다. API로도 판매 시각을 자동 확인할 수 없으므로 점검 전 판매분만 직접 변경해 주세요. 선택은 가격이 바뀐 보스의 완료 카드에 표시되며, 이 주차에만 저장됩니다. <b>9월 24일 00:00(한국 시간)에 선택란과 안내가 자동으로 사라지며, 저장한 판매 금액은 유지됩니다.</b></div>
+    <div class="crystal-sale-guidance" id="october-crystal-sale-guidance" hidden><strong>10/22 점검 전에 카링·유피테르 결정석을 판매했나요?</strong><br>10/22 00:00~04:00에 익스트림 카링 또는 하드 유피테르 결정석을 판매했다면, 해당 보스 체크 후 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 선택하세요. 점검 후 판매분은 기본 새 가격을 사용합니다. API는 실제 판매 시각을 제공하지 않으므로 받은 금액에 맞춰 직접 선택합니다.<br><b>10월 29일 00:00(한국 시간)에 선택란과 안내가 사라지며, 선택한 가격과 과거 기록은 유지됩니다.</b></div>
     <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
     <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div></details>
   </div>
@@ -2188,6 +2193,20 @@ const BOSSES = [
     5387000000,
     "w",
     "kaling"
+  ],
+  [
+    "xlimbo",
+    "림보 (익스트림)",
+    7500000000,
+    "w",
+    "limbo"
+  ],
+  [
+    "xbal",
+    "발드릭스 (익스트림)",
+    9600000000,
+    "w",
+    "baldrix"
   ],
   [
     "nmeirin",
@@ -4102,6 +4121,12 @@ const DROP_ITEMS = {
   DROP_ITEMS[id].push({id:'soul_ether_'+stage,name:stage+'단계 소울 에테르',img:'assets/drops/soul_ether_'+stage+'.webp',availableFrom:'2026-09-17'});
 }));
 
+// 공식 보스 보상표의 익스트림 열을 대조했습니다. 기존 하드 드랍과 저장 키는 유지합니다.
+[['xlimbo','hlimbo','pocket'],['xbal','hbal','pendant']].forEach(([id,base,slot])=>{
+  DROP_ITEMS[id]=JSON.parse(JSON.stringify(DROP_ITEMS[base] || []));
+  DROP_ITEMS[id].push({id:'exceptional_hammer_'+slot,name:'익셉셔널 해머 ('+(slot==='pocket'?'포켓':'펜던트')+')',img:'assets/drops/october/exceptional-hammer-'+slot+'.png',availableFrom:'2026-10-22'});
+});
+
 function bossParts(name){
   const m = name.match(/^(.*?)\s*\((.*?)\)$/);
   return m ? {base:m[1], diff:m[2]} : {base:name, diff:'기본'};
@@ -4121,29 +4146,47 @@ function bossCrystalSaleTiming(c,b,period){
   const stored=ensureObj(ensureObj(c && c.bossCrystalPriceWeeks)[period]);
   return b && stored[b[0]]==='before-patch' ? 'before-patch' : 'after-patch';
 }
-function bossCrystalPrice(b,period=currentWeekKey(),c){ return MapleSeptemberBossRules.crystalPrice(b,period,bossCrystalSaleTiming(c,b,period)); }
+function crystalSaleRules(period){return period===MapleOctoberBossRules.effectiveDate ? MapleOctoberBossRules : MapleSeptemberBossRules;}
+function bossCrystalPrice(b,period=currentWeekKey(),c){
+  const timing=bossCrystalSaleTiming(c,b,period);
+  return MapleOctoberBossRules.crystalPrice(b,period,timing,MapleSeptemberBossRules.crystalPrice(b,period,timing));
+}
 let crystalSaleTimingExpiryTimer;
 function refreshCrystalSaleTimingUi(){
   window.clearTimeout(crystalSaleTimingExpiryTimer);
-  const remaining=Date.parse(MapleSeptemberBossRules.saleTimingEndsAt)-Date.now();
-  if(remaining>0){
-    crystalSaleTimingExpiryTimer=window.setTimeout(refreshCrystalSaleTimingUi,Math.min(remaining,2147483647));
-    return;
-  }
+  const future=[MapleSeptemberBossRules.saleTimingEndsAt,MapleOctoberBossRules.saleTimingEndsAt].map(Date.parse).filter(time=>time>Date.now());
+  if(future.length) crystalSaleTimingExpiryTimer=window.setTimeout(refreshCrystalSaleTimingUi,Math.min(Math.min(...future)-Date.now(),2147483647));
   // 기간이 지나면 화면만 정리하고 저장된 판매 시점·장부·복구 기록은 유지합니다.
-  document.querySelectorAll('.crystal-sale-field').forEach(field=>field.remove());
+  document.querySelectorAll('.crystal-sale-field').forEach(field=>{
+    const period=field.dataset.period || MapleSeptemberBossRules.weeklyEffectiveDate;
+    if(!crystalSaleRules(period).saleTimingUiActive(period)) field.remove();
+  });
   ['weekly-crystal-sale-guidance','weekly-crystal-sale-period-note'].forEach(id=>{
     const note=document.getElementById(id);
-    if(note) note.hidden=true;
+    if(note && !MapleSeptemberBossRules.saleTimingUiActive(MapleSeptemberBossRules.weeklyEffectiveDate)) note.hidden=true;
   });
+  const octoberNote=document.getElementById('october-crystal-sale-guidance');
+  if(octoberNote && !MapleOctoberBossRules.saleTimingUiActive(MapleOctoberBossRules.effectiveDate)) octoberNote.hidden=true;
 }
 window.addEventListener('pageshow',refreshCrystalSaleTimingUi);
 window.addEventListener('focus',refreshCrystalSaleTimingUi);
 document.addEventListener('visibilitychange',()=>{
   if(!document.hidden) refreshCrystalSaleTimingUi();
 });
+let octoberBossOpeningTimer,octoberBossOpeningState='';
+function refreshOctoberBossAvailability(){
+  window.clearTimeout(octoberBossOpeningTimer);
+  const now=Date.now(),times=Object.values(MapleOctoberBossRules.openings).map(Date.parse);
+  const state=times.map(time=>now>=time?'1':'0').join('');
+  if(octoberBossOpeningState && octoberBossOpeningState!==state && document.getElementById('page-boss')?.classList.contains('active')) renderBoss();
+  octoberBossOpeningState=state;
+  const future=times.filter(time=>time>now);
+  if(future.length) octoberBossOpeningTimer=window.setTimeout(refreshOctoberBossAvailability,Math.min(Math.min(...future)-now,2147483647));
+}
+window.addEventListener('focus',refreshOctoberBossAvailability);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden) refreshOctoberBossAvailability();});
 function setBossCrystalSaleTiming(c,b,period,timing){
-  if(!MapleSeptemberBossRules.canSelectSaleTiming(b,period) || !['before-patch','after-patch'].includes(timing)) return false;
+  if(!crystalSaleRules(period).canSelectSaleTiming(b,period) || !['before-patch','after-patch'].includes(timing)) return false;
   c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
   c.bossCrystalPriceWeeks[period]=ensureObj(c.bossCrystalPriceWeeks[period]);
   c.bossCrystalPriceWeeks[period][b[0]]=timing;
@@ -4163,13 +4206,15 @@ function isChallengerOnlyBoss(b){ return !!b && CHALLENGER_ONLY_BOSS_IDS.has(b[0
 function isLimitFreeBoss(b){ return !!b && (b[3] === 'm' || LIMIT_FREE_BOSS_IDS.has(b[0])); }
 function bossReleaseDate(b){ return b && BOSS_RELEASE_DATES[b[0]] || ''; }
 function isBossReleased(b,date=todayStr()){ const release=bossReleaseDate(b); return !release || date>=release; }
-function bossLockReason(c,b,date=todayStr()){
+function bossLockReason(c,b,date=todayStr(),exactDate=false){
+  const octoberLock=MapleOctoberBossRules.lockReason(b,date,Date.now(),exactDate);
+  if(octoberLock) return octoberLock;
   if(!isBossReleased(b,date)) return '8월 20일부터 선택 가능';
   if(isChallengerOnlyBoss(b) && MapleSeptemberBossRules.challengerEnded(date)) return '메이린 종료 (9월 16일 23:59) · 과거 기록 보존';
   if(isChallengerOnlyBoss(b) && charServer(c) !== 'challenger') return '챌린저스 전용';
   return '';
 }
-function canUseBoss(c,b,date=todayStr()){ return !bossLockReason(c,b,date); }
+function canUseBoss(c,b,date=todayStr(),exactDate=false){ return !bossLockReason(c,b,date,exactDate); }
 function bossPartyMax(b){
   const base = bossParts(b[1]).base;
   if(base === '메이린') return 1;
@@ -5039,7 +5084,8 @@ function normalizeProfitLine(line){
 }
 function normalizeProfitRecord(record){
   const o=ensureObj(record);
-  return {id:String(o.id || ('profit_'+Date.now()+'_'+Math.random().toString(36).slice(2))).trim(),date:normalizeDateInput(o.date) || todayStr(),type:String(o.type || o.category || 'starforce').trim(),title:String(o.title || '').trim(),itemId:String(o.itemId || '').trim(),itemName:String(o.itemName || '').trim(),expected:mesoValueFromDigits(o.expected),costs:Array.isArray(o.costs) ? o.costs.map(normalizeProfitLine) : [],outputs:Array.isArray(o.outputs) ? o.outputs.map(normalizeProfitLine) : [],createdAt:String(o.createdAt || new Date().toISOString()).trim()};
+  const context=globalThis.MapleOctoberProfitUI?.normalizeContext(o.context);
+  return {id:String(o.id || ('profit_'+Date.now()+'_'+Math.random().toString(36).slice(2))).trim(),date:normalizeDateInput(o.date) || todayStr(),type:String(o.type || o.category || 'starforce').trim(),title:String(o.title || '').trim(),itemId:String(o.itemId || '').trim(),itemName:String(o.itemName || '').trim(),expected:mesoValueFromDigits(o.expected),costs:Array.isArray(o.costs) ? o.costs.map(normalizeProfitLine) : [],outputs:Array.isArray(o.outputs) ? o.outputs.map(normalizeProfitLine) : [],createdAt:String(o.createdAt || new Date().toISOString()).trim(),...(context?{context}:{})};
 }
 function normalizeProfitRecords(records){ return Array.isArray(records) ? records.map(normalizeProfitRecord).filter(record=>record.date) : []; }
 let enhancementProfitCacheSource, enhancementProfitCache=[];
@@ -7717,7 +7763,8 @@ const PROFIT_CATEGORIES=[
   {id:'wonderberry', img:PROFIT_ASSET_BASE+'wonderberry.png', title:'원더베리', tag:'뽑기', desc:'원더베리/루나 크리스탈은 지출, 판매 완료한 결과물만 수익으로 기록합니다.'},
   {id:'royal', img:PROFIT_ASSET_BASE+'royal-style.png', title:'로얄스타일', tag:'뽑기', desc:'로얄스타일/마스터피스는 지출, 판매 완료한 라벨/쿠폰만 수익으로 기록합니다.'},
   {id:'platinumapple', crop:'platinum-apple', title:'플래티넘 애플', tag:'뽑기', desc:'플래티넘 애플에서 나온 아이템과 판매 여부를 기록합니다.'},
-  MapleTeeniepingProfit.category
+  MapleTeeniepingProfit.category,
+  ...MapleOctoberProfit.categories
 ];
 const PROFIT_EQUIP_ITEMS=[
   {id:'meister_ring', name:'마이스터링', note:'Lv.140', sprite:['-48px -120px']},
@@ -7822,6 +7869,7 @@ const ITEM_ICON_LOOKUP=(()=>{
     ...PROFIT_SCROLL_COSTS,...PROFIT_ABILITY_COSTS,
     ...PROFIT_WONDER_COSTS,...PROFIT_WONDER_OUTPUTS,
     ...PROFIT_ROYAL_COSTS,...PROFIT_ROYAL_OUTPUTS,...PROFIT_PLATINUM_OUTPUTS,
+    ...MapleOctoberProfitUI.allItems(),
     ...Object.values(MapleSoulAbilityExpenses.modes).flatMap(mode=>mode.costs),
     ...MapleTeeniepingProfit.products.flatMap(product=>product.costs.concat(product.outputs)),
     ...Object.values(DROP_ITEMS).flat(),...Object.values(DAILY_DROP_ITEMS).flat()
@@ -7907,7 +7955,7 @@ function profitOutputRowsHtml(items){
 function renderProfitMenu(){
   const list=document.getElementById('profit-type-list');
   if(!list) return;
-  list.innerHTML=PROFIT_CATEGORIES.filter(c=>!MANUAL_ENHANCEMENT_TYPES.has(c.id) && (c.id!=='teenieping' || MapleTeeniepingProfit.isActive())).map(c=>
+  list.innerHTML=PROFIT_CATEGORIES.filter(c=>!MANUAL_ENHANCEMENT_TYPES.has(c.id) && (c.id!=='teenieping' || MapleTeeniepingProfit.isActive()) && MapleOctoberProfitUI.available(c.id)).map(c=>
     '<button type="button" class="profit-type-btn '+(c.id===profitState.active?'active':'')+'" data-profit-type="'+c.id+'" aria-pressed="'+(c.id===profitState.active)+'"><span>'+profitIconHtml(c)+'<span class="profit-type-label">'+esc(c.title)+'</span></span></button>'
   ).join('');
   list.querySelectorAll('[data-profit-type]').forEach(btn=>{
@@ -7962,6 +8010,19 @@ window.addEventListener('focus',refreshTeeniepingAvailability);
 document.addEventListener('visibilitychange',()=>{
   if(!document.hidden) refreshTeeniepingAvailability();
 });
+let octoberProfitExpiryTimer;
+function refreshOctoberProfitAvailability(){
+  window.clearTimeout(octoberProfitExpiryTimer);
+  const now=Date.now();
+  const next=[MapleOctoberProfit.startsAt,...MapleOctoberProfit.catalogs.map(c=>c.endsAt)].filter(Boolean).map(Date.parse).filter(t=>t>now).sort((a,b)=>a-b)[0];
+  if(next)octoberProfitExpiryTimer=window.setTimeout(refreshOctoberProfitAvailability,Math.min(next-now,2147483647));
+  if(!MapleOctoberProfitUI.available(profitState.active)){
+    profitState.active='wonderberry';renderProfitCalculator();
+  }else renderProfitMenu();
+}
+window.addEventListener('pageshow',refreshOctoberProfitAvailability);
+window.addEventListener('focus',refreshOctoberProfitAvailability);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOctoberProfitAvailability();});
 function teeniepingProfitFormHtml(){
   const product=MapleTeeniepingProfit.product(profitState.teeniepingProduct);
   const required=product.costs.filter(item=>!item.optional), optional=product.costs.filter(item=>item.optional);
@@ -7977,16 +8038,18 @@ function teeniepingProfitFormHtml(){
 function renderProfitCalculator(){
   const box=document.getElementById('profit-calculator');
   if(!box) return;
+  MapleOctoberProfitUI.capture(box);
   captureTeeniepingDraft();
   if(profitState.active==='teenieping' && !MapleTeeniepingProfit.isActive()) profitState.active='wonderberry';
+  if(!MapleOctoberProfitUI.available(profitState.active)) profitState.active='wonderberry';
   renderProfitMenu();
   const type=profitState.active;
   const cat=profitCategory(type);
   let body='';
   if(type==='wonderberry'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
-  }else if(type==='royal'){
-    body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><h3>지출</h3>'+profitCostRowsHtml(PROFIT_ROYAL_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_ROYAL_OUTPUTS);
+    body='<div class="profit-entry-grid">'+profitDateBlock()+'</div><p class="muted">10월 22일부터 옥션에서 구입한 펫장비·원더 블랙·루나 쁘띠 펫장비 교환권으로 획득한 장비는 장착 전 1회 교환할 수 있습니다. 교환권과 장비를 같은 판매로 두 번 기록하지 마세요. <a href="updates/2026-10/#items">거래 조건 보기</a></p><h3>지출</h3>'+profitCostRowsHtml(PROFIT_WONDER_COSTS)+'<h3>획득 결과</h3>'+profitOutputRowsHtml(PROFIT_WONDER_OUTPUTS);
+  }else if(type==='royal' || MapleOctoberProfit.catalog(type)){
+    body=MapleOctoberProfitUI.form(type,{esc,profitDateBlock,profitCostRowsHtml,profitOutputRowsHtml,royalCosts:PROFIT_ROYAL_COSTS,royalLegacyOutputs:PROFIT_ROYAL_OUTPUTS,records:db.profits});
   }else if(type==='teenieping'){
     body=teeniepingProfitFormHtml();
   }else{
@@ -7994,11 +8057,13 @@ function renderProfitCalculator(){
   }
   if(type==='teenieping') box.dataset.teeniepingProduct=profitState.teeniepingProduct;
   else delete box.dataset.teeniepingProduct;
+  box.dataset.octoberDraftKey=MapleOctoberProfitUI.draftKey(type);
   box.innerHTML=
     '<div class="profit-head"><div><h2>'+profitIconHtml(cat)+'<span>'+esc(cat.title)+'</span></h2><div class="muted">'+esc(cat.desc)+'</div></div></div>'+
     body+
     '<div class="profit-actions"><button type="button" id="profit-save">기록 저장</button></div>';
   restoreTeeniepingDraft(box);
+  MapleOctoberProfitUI.bind(box,type,renderProfitCalculator);
   const productSelect=box.querySelector('#teenieping-product');
   if(productSelect) productSelect.onchange=()=>{
     captureTeeniepingDraft();
@@ -8049,6 +8114,10 @@ function profitReadOutputLines(items){
 }
 function buildProfitRecord(showErrors){
   const type=profitState.active;
+  if(!MapleOctoberProfitUI.available(type)){
+    if(showErrors) renderProfitCalculator();
+    return null;
+  }
   if(type==='teenieping' && !MapleTeeniepingProfit.isActive()){
     if(showErrors) refreshTeeniepingAvailability();
     return null;
@@ -8073,7 +8142,15 @@ function buildProfitRecord(showErrors){
     base.outputs=profitReadOutputLines(PROFIT_WONDER_OUTPUTS);
   }else if(type==='royal'){
     base.costs=profitReadCostLines(PROFIT_ROYAL_COSTS);
-    base.outputs=profitReadOutputLines(PROFIT_ROYAL_OUTPUTS);
+    base.outputs=profitReadOutputLines(MapleOctoberProfitUI.royalOutputs(PROFIT_ROYAL_OUTPUTS));
+    base.itemId=MapleOctoberProfitUI.state.royalSeries==='162'?'royal162':'';
+    base.itemName=base.itemId?'로얄스타일 162기 · 품목별':'기존 라벨 등급별';
+  }else if(MapleOctoberProfit.catalog(type)){
+    const product=MapleOctoberProfit.catalog(type);
+    base.itemId=product.id;
+    base.itemName=product.title;
+    base.costs=profitReadCostLines(product.costs);
+    base.outputs=profitReadOutputLines(product.outputs);
   }else if(type==='platinumapple'){
     const price=mesoValueFromDigits(profitInputValue('platinumPrice'));
     const count=Math.max(0,Math.floor(Number(profitInputValue('platinumCount'))||0));
@@ -8086,9 +8163,19 @@ function buildProfitRecord(showErrors){
     base.costs=profitReadCostLines(product.costs);
     base.outputs=profitReadOutputLines(product.outputs);
   }
+  if(MapleOctoberProfitUI.supported(type)){
+    const box=document.getElementById('profit-calculator');
+    const error=MapleOctoberProfitUI.validation(type,date,base,box);
+    if(error){if(showErrors) alert(error);return null;}
+    base.context=MapleOctoberProfitUI.context(type,box);
+    if(type==='boutique' && base.context){
+      const info=MapleOctoberProfit.feverInfo(base.context.beforeUses,base.context.usedCount);
+      base.itemName+=' · 사용 '+info.currentUsed+'회 (피버 '+info.feverUses+'회)';
+    }
+  }
   const normalized=normalizeProfitRecord(base);
   const totals=profitRecordTotals(normalized);
-  const hasRecordedCount=normalized.costs.some(line=>line.count>0) || normalized.outputs.some(line=>line.count>0);
+  const hasRecordedCount=normalized.costs.some(line=>line.count>0) || normalized.outputs.some(line=>line.count>0) || normalized.context?.usedCount>0;
   if(showErrors && totals.cost===0n && totals.revenue===0n && !hasRecordedCount){
     alert('지출 또는 판매 수익을 하나 이상 입력해 주세요.');
     return null;
@@ -8098,6 +8185,7 @@ function buildProfitRecord(showErrors){
 function saveProfitRecord(){
   const record=buildProfitRecord(true);
   if(!record) return;
+  MapleOctoberProfitUI.clear(document.getElementById('profit-calculator'));
   db.profits.unshift(record);
   db.profits=normalizeProfitRecords(db.profits);
   save();
@@ -9136,7 +9224,7 @@ function applySchedulerBossCompletion(c, boss, scope, date){
   if(selected && selected[0]!==boss[0]){
     return {added:false,conflict:boss[1]+' (현재 '+selected[1]+' 선택)'};
   }
-  if(scope==='weekly' && !canUseBoss(c,boss,date)) return {added:false,conflict:boss[1]+' ('+bossLockReason(c,boss,date)+')'};
+  if(scope==='weekly' && !canUseBoss(c,boss,date,true)) return {added:false,conflict:boss[1]+' ('+bossLockReason(c,boss,date,true)+')'};
   if(scope==='weekly' && !(boss[0] in target.store) && !isLimitFreeBoss(boss)){
     const regularCount=Object.keys(target.store).filter(id=>{
       const picked=BOSS_MAP[id];
@@ -9860,7 +9948,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
   bindDropPickerToggles(bl);
   bl.querySelectorAll('select.crystal-sale-timing').forEach(sel=>{
     sel.onchange=()=>{
-      if(!MapleSeptemberBossRules.saleTimingUiActive(period)){ refreshCrystalSaleTimingUi(); return; }
+      if(!crystalSaleRules(period).saleTimingUiActive(period)){ refreshCrystalSaleTimingUi(); return; }
       const boss=BOSS_MAP[sel.dataset.id];
       if(scope!=='weekly' || !(sel.dataset.id in bossStore(c,period,scope))) return;
       if(!setBossCrystalSaleTiming(c,boss,period,sel.value)) return;
@@ -9880,7 +9968,7 @@ function bindBossListHandlers(bl,c,period=currentWeekKey(),scope='weekly'){
       const party=clampPartyForBoss(newBoss,(oldId in bosses ? bosses[oldId] : pref.party));
       setBossPreference(c,group,newId,party);
       if(oldId in bosses){
-        if(scope==='weekly' && period===MapleSeptemberBossRules.weeklyEffectiveDate){
+        if(scope==='weekly' && [MapleSeptemberBossRules.weeklyEffectiveDate,MapleOctoberBossRules.effectiveDate].includes(period)){
           // 난이도만 정정해도 사용자가 고른 판매 시점은 유지합니다.
           const timing=bossCrystalSaleTiming(c,BOSS_MAP[oldId],period);
           c.bossCrystalPriceWeeks=ensureObj(c.bossCrystalPriceWeeks);
@@ -10173,6 +10261,8 @@ function renderBoss(){
   refreshCrystalSaleTimingUi();
   const saleGuidance=document.getElementById('weekly-crystal-sale-guidance');
   if(saleGuidance) saleGuidance.hidden=!MapleSeptemberBossRules.saleTimingUiActive(wk);
+  const octoberGuidance=document.getElementById('october-crystal-sale-guidance');
+  if(octoberGuidance) octoberGuidance.hidden=!MapleOctoberBossRules.saleTimingUiActive(wk);
   const limitNote=document.getElementById('weekly-boss-limit-note');
   if(limitNote) limitNote.textContent=Number.isFinite(weeklyBossCheckLimit(wk))
     ? '※ 선택한 주차: 캐릭터당 일반 주간 보스 12개 · 메이린 별도 · 월드당 주간 결정석 판매 90개'
@@ -10696,7 +10786,10 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const maxParty = bossPartyMax(b);
   const party = clampPartyForBoss(b,bosses[id]||pref.party);
   let diffOpts='';
-  g.bosses.forEach(x=>{ diffOpts+='<option value="'+x[0]+'"'+(x[0]===id?' selected':'')+'>'+bossDiff(x)+'</option>'; });
+  g.bosses.forEach(x=>{
+    const openingLock=MapleOctoberBossRules.lockReason(x,period);
+    diffOpts+='<option value="'+x[0]+'"'+(x[0]===id?' selected':'')+(openingLock?' disabled':'')+'>'+bossDiff(x)+(openingLock?' · '+esc(openingLock):'')+'</option>';
+  });
   let partyOpts=''; for(let i=1;i<=maxParty;i++){ partyOpts+='<option value="'+i+'"'+(i===party?' selected':'')+'>'+i+'인</option>'; }
   const disabled = allowed ? '' : ' disabled';
   const diffHtml = g.bosses.length>1
@@ -10705,14 +10798,17 @@ function bossGroupCard(g,c,period=currentWeekKey(),scope='weekly'){
   const shareTxt = !allowed ? esc(lockReason) : (maxParty===1 ? '1인 전용' : (on && party>1 ? '내 몫 <b>'+korShort(share(price,party))+'</b>' : (on?'혼자 전부':'&nbsp;')));
   const dropHtml = allowed || on || hasSavedDrops ? dropChecklistHtml(g,b,c,period,scope) : '';
   const beforePatch=bossCrystalSaleTiming(c,b,period)==='before-patch';
-  const saleTimingHtml=scope==='weekly' && on && MapleSeptemberBossRules.saleTimingUiActive(period) && MapleSeptemberBossRules.canSelectSaleTiming(b,period)
-    ? '<label class="crystal-sale-field"><span>결정석 판매 시점</span><select class="crystal-sale-timing" data-id="'+id+'" aria-label="'+esc(g.name)+' 결정석 판매 시점"><option value="after-patch"'+(!beforePatch?' selected':'')+'>점검 후 · 새 가격</option><option value="before-patch"'+(beforePatch?' selected':'')+'>점검 전 · 기존 가격</option></select><span class="crystal-sale-note'+(beforePatch?' before-patch':'')+'">'+(beforePatch?'9/17 00:00~03:00 판매':'9/17 점검 종료 후 판매')+'</span></label>'
+  const saleDate=period===MapleOctoberBossRules.effectiveDate ? '10/22' : '9/17';
+  const beforeHours=period===MapleOctoberBossRules.effectiveDate ? '00:00~04:00' : '00:00~03:00';
+  const saleTimingHtml=scope==='weekly' && on && crystalSaleRules(period).saleTimingUiActive(period) && crystalSaleRules(period).canSelectSaleTiming(b,period)
+    ? '<label class="crystal-sale-field" data-period="'+esc(period)+'"><span>결정석 판매 시점</span><select class="crystal-sale-timing" data-id="'+id+'" aria-label="'+esc(g.name)+' 결정석 판매 시점"><option value="after-patch"'+(!beforePatch?' selected':'')+'>점검 후 · 새 가격</option><option value="before-patch"'+(beforePatch?' selected':'')+'>점검 전 · 기존 가격</option></select><span class="crystal-sale-note'+(beforePatch?' before-patch':'')+'">'+(beforePatch?saleDate+' '+beforeHours+' 판매':saleDate+' 점검 종료 후 판매')+'</span></label>'
     : '';
   return '<div class="bcard'+(on?' checked':'')+(!allowed?' locked':'')+'"'+(!allowed?' aria-disabled="true" title="'+esc(lockReason)+'"':'')+'>'+
     '<div class="bimg-wrap"><img class="bimg boss-img-'+imageKeyClass(g.imgKey)+'" loading="lazy" decoding="async" src="'+img+'" alt="'+esc(g.name)+'"></div>'+
     '<div class="bname">'+esc(g.name)+'</div>'+
     diffHtml+
     '<div class="bprice">'+korShort(price)+'</div>'+
+    (['xlimbo','xbal'].includes(id)?'<div class="muted" style="font-size:11px"><a href="updates/2026-10/#crystal-sources">결정석 참고 가격 · 출처</a></div>':'')+
     saleTimingHtml+
     '<div class="bparty">파티 <select class="party" aria-label="'+esc(g.name)+' 파티 인원" data-id="'+id+'" data-group="'+g.key+'"'+disabled+'>'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
@@ -11005,7 +11101,9 @@ const initialPage=new URLSearchParams(location.search).get('page');
 if(initialPage && document.getElementById('page-'+initialPage)) openPage(initialPage);
 else renderAll();
 refreshCrystalSaleTimingUi();
+refreshOctoberBossAvailability();
 refreshTeeniepingAvailability();
+refreshOctoberProfitAvailability();
 </script>
 </main>
 <nav class="mobile-nav" aria-label="빠른 메뉴">

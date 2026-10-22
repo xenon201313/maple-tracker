@@ -1,0 +1,240 @@
+{
+  "verifiedOn": "2026-10-22",
+  "copyright": "아이템 이미지의 저작권은 NEXON에 있습니다. 생성 이미지나 이모지를 사용하지 않고 내려받은 PNG 원본을 그대로 보관합니다.",
+  "sourceType": "extracted-game-pixels",
+  "officialDirectImages": false,
+  "service": "https://maplestory.io/",
+  "documentation": "https://maplestory.io/swagger/V3/swagger.json",
+  "region": "KMS",
+  "gameDataVersion": "389",
+  "officialItemList": "https://maplestory.nexon.com/Guide/OtherProbability/game/gameMasterPresent",
+  "notes": [
+    "이 12종은 공식 웹페이지에서 직접 받은 아이콘이 아니라 한국 게임 WZ 데이터의 공개 추출 아이콘입니다.",
+    "서비스가 제공하는 KMS 389 데이터에서 한국어 이름을 확인했습니다. 2026년 신상품 이미지를 과거 데이터로 임의 대체한 것이 아니라 기존 아이템의 원본 모양입니다.",
+    "같은 이름의 아이템 ID가 여러 개 있는 경우, 실제 PNG를 디코딩해 투명 영역을 제외한 RGBA 픽셀이 같은 것을 확인했습니다. 판매·교환 가능 속성은 이 이미지 ID로 추정하지 않으며 공식 최신 문구를 별도로 따릅니다.",
+    "크기 조정, 배경 합성, 색 보정 또는 재인코딩 없이 원본 PNG 바이트를 복사했습니다."
+  ],
+  "items": [
+    {
+      "id": "artisan_anvil",
+      "name": "신비의 모루",
+      "gameItemId": 5062400,
+      "file": "assets/profit/october2026/artisan-anvil.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/5062400/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/5062400/name",
+      "width": 35,
+      "height": 32,
+      "bytes": 1415,
+      "sha256": "5830731f9d82eef40e9e3603c3825c25fc939e10024aa0048cce020ec45cd849",
+      "visiblePixelsSha256": "010865d016d904179738f5bd3334fb54141c29f5fce147aebd4abb1cdc224090",
+      "equivalentNamedVariants": [
+        5062400
+      ]
+    },
+    {
+      "id": "artisan_medal_anvil",
+      "name": "훈장 신비의 모루",
+      "gameItemId": 5062402,
+      "file": "assets/profit/october2026/artisan-medal-anvil.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/5062402/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/5062402/name",
+      "width": 34,
+      "height": 32,
+      "bytes": 1503,
+      "sha256": "75734130e342e4c7518f1cd13be8fd0e49b586cfc240ebf709767a23fb9c8e29",
+      "visiblePixelsSha256": "0f77af54fa0dae4705e9d796e3aeeda1e00999c2831ec27876abc42275916384",
+      "equivalentNamedVariants": [
+        5062402
+      ]
+    },
+    {
+      "id": "artisan_pink_bean_hat",
+      "name": "핑크빈 모자",
+      "gameItemId": 1003695,
+      "file": "assets/profit/october2026/artisan-pink-bean-hat.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/1003695/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/1003695/name",
+      "width": 31,
+      "height": 27,
+      "bytes": 1126,
+      "sha256": "10eeb629d33c6d5c728f8a849cfea7535ad4a58ed0da64718f5638795b4d0d28",
+      "visiblePixelsSha256": "0ad9f2ac9e2ce56d1440dcfe3e00c02b2cd64b2526dfa199ce9bbb8b097934be",
+      "equivalentNamedVariants": [
+        1002971,
+        1003450,
+        1003695
+      ]
+    },
+    {
+      "id": "artisan_traveler_wing_glasses",
+      "name": "여행자의 윙글래스",
+      "gameItemId": 1022141,
+      "file": "assets/profit/october2026/artisan-traveler-wing-glasses.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/1022141/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/1022141/name",
+      "width": 31,
+      "height": 26,
+      "bytes": 903,
+      "sha256": "684a125d392e3a9089c59a41bd996c9fb79243cb87e68bab299770089630664d",
+      "visiblePixelsSha256": "9bd0b539662afaea2848cace815127ad3ffd5a24765cbc3c4c71d5b3e1faf3e8",
+      "equivalentNamedVariants": [
+        1022120,
+        1022141,
+        1022146,
+        1022162
+      ]
+    },
+    {
+      "id": "artisan_maple_sword",
+      "name": "메이플 소드",
+      "gameItemId": 1302020,
+      "file": "assets/profit/october2026/artisan-maple-sword.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/1302020/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/1302020/name",
+      "width": 30,
+      "height": 31,
+      "bytes": 763,
+      "sha256": "d0489df0d6bbf41e759c3ba16766a89ce1fbc133d838f20a699f2afac25d5c59",
+      "visiblePixelsSha256": "8fee64ee55499c9a89045dd177f3b9796164efe1cb6494d556c1b5a671a762fd",
+      "equivalentNamedVariants": [
+        1302020,
+        1302211
+      ]
+    },
+    {
+      "id": "artisan_elixir",
+      "name": "엘릭서",
+      "gameItemId": 2000004,
+      "file": "assets/profit/october2026/artisan-elixir.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2000004/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2000004/name",
+      "width": 32,
+      "height": 32,
+      "bytes": 1191,
+      "sha256": "c228a9cd55739a6d72910a6a3209a49d7a538ee2b3fcb62463d5e9ac0be1824d",
+      "visiblePixelsSha256": "5e939599ed0c35ab2061b955ab3ba46ce6dad13e123ba83db2fbae4cd588f161",
+      "equivalentNamedVariants": [
+        2000004,
+        2000012,
+        2000031,
+        2001504
+      ]
+    },
+    {
+      "id": "artisan_power_elixir",
+      "name": "파워 엘릭서",
+      "gameItemId": 2000005,
+      "file": "assets/profit/october2026/artisan-power-elixir.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2000005/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2000005/name",
+      "width": 32,
+      "height": 32,
+      "bytes": 1178,
+      "sha256": "c989857fb2813e9e16db19ac0db3f8925bed654924be4f600f43cece6e1a4f02",
+      "visiblePixelsSha256": "c4b7c03df67f2d07c5213263f42c80f7302ac6c07b68347c085c0b7c8e34815e",
+      "equivalentNamedVariants": [
+        2000005,
+        2000019,
+        2000032,
+        2001505
+      ]
+    },
+    {
+      "id": "artisan_buffalo_mount",
+      "name": "버팔로 라이딩 이용쿠폰",
+      "gameItemId": 2430506,
+      "file": "assets/profit/october2026/artisan-buffalo-mount.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2430506/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2430506/name",
+      "width": 32,
+      "height": 32,
+      "bytes": 1270,
+      "sha256": "a20475756faae6d06975f8a28dd53f70808eef0bc8d0ec7b7c442876c7974deb",
+      "visiblePixelsSha256": "985c2db86480b098161cc12cbbbf958dea42da1905936fdeac130e18cd086d02",
+      "equivalentNamedVariants": [
+        2430506
+      ]
+    },
+    {
+      "id": "artisan_rabbit_cart_mount",
+      "name": "토끼수레 라이딩 이용쿠폰",
+      "gameItemId": 2430507,
+      "file": "assets/profit/october2026/artisan-rabbit-cart-mount.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2430507/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2430507/name",
+      "width": 32,
+      "height": 32,
+      "bytes": 1239,
+      "sha256": "8756d4bb00fee2355425195bf29e767c7c3e120a36afceb5c5d535465ffbd2e6",
+      "visiblePixelsSha256": "1d3391bbbb883b0f71b7625a73291ad3127d2b53f713c0c6542f904fc1d88c54",
+      "equivalentNamedVariants": [
+        2430507
+      ]
+    },
+    {
+      "id": "artisan_giant_potion",
+      "name": "자이언트 비약",
+      "gameItemId": 2003516,
+      "file": "assets/profit/october2026/artisan-giant-potion.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2003516/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2003516/name",
+      "width": 26,
+      "height": 32,
+      "bytes": 1076,
+      "sha256": "43619bfe4236d9dcfd25ea0510edb37078428e96577af87aa01a5f790a3cbe98",
+      "visiblePixelsSha256": "ba5b2dbf5de02da115b414fe6cadd931c4ebba79d934efaa9a9776989e3364fc",
+      "equivalentNamedVariants": [
+        2003516,
+        2431269,
+        2003566,
+        2003572
+      ]
+    },
+    {
+      "id": "artisan_invincibility_potion",
+      "name": "무적의 비약",
+      "gameItemId": 2003549,
+      "file": "assets/profit/october2026/artisan-invincibility-potion.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/2003549/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/2003549/name",
+      "width": 32,
+      "height": 32,
+      "bytes": 1842,
+      "sha256": "5b92c7078ae1036a7158a64e3c081f9d58ee20d2cef608403b125fe00bbc5973",
+      "visiblePixelsSha256": "84303c8fb905c13f5bea1257510d062d0242a13bf96ac527277abd0739328bf2",
+      "equivalentNamedVariants": [
+        2003573,
+        2003549,
+        2003567
+      ]
+    },
+    {
+      "id": "artisan_spell_trace",
+      "name": "주문의 흔적",
+      "gameItemId": 4001832,
+      "file": "assets/profit/october2026/artisan-spell-trace.png",
+      "sourceType": "extracted-game-pixels",
+      "source": "https://maplestory.io/api/KMS/389/item/4001832/icon",
+      "nameSource": "https://maplestory.io/api/KMS/389/item/4001832/name",
+      "width": 33,
+      "height": 33,
+      "bytes": 1823,
+      "sha256": "a6a86af6b61b94f188eb7e0a09d392457bbe2e47d754f507c7dacab430c197ce",
+      "visiblePixelsSha256": "d775791bb1367a7d0d50821c764f6bf003feab3e69846b08d6ed3651adb58b45",
+      "equivalentNamedVariants": [
+        4001832
+      ]
+    }
+  ]
+}

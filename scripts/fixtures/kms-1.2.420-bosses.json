@@ -1,0 +1,75 @@
+{
+  "checkedAtKST": "2026-10-22 10:22",
+  "officialPatch": "https://maplestory.nexon.com/news/update/815",
+  "officialRewardGuide": "https://maplestory.nexon.com/Guide/N23GameInformation/Articles/459",
+  "effectiveDate": "2026-10-22",
+  "changedPrices": [
+    {
+      "id": "xkali",
+      "name": "카링 (익스트림)",
+      "old": 5387000000,
+      "new": 4845000000,
+      "sourceClass": "official-patch-table"
+    },
+    {
+      "id": "hjup",
+      "name": "유피테르 (하드)",
+      "old": 4845000000,
+      "new": 5387000000,
+      "sourceClass": "official-patch-table"
+    }
+  ],
+  "newBosses": [
+    {
+      "id": "xlimbo",
+      "name": "림보 (익스트림)",
+      "opening": "2026-10-23T19:00:00+09:00",
+      "partyMax": 3,
+      "crystal": 7500000000,
+      "priceSourceClass": "independent-community-cross-check-not-official-price-table",
+      "priceSources": [
+        "https://everymaple.com/boss",
+        "https://m.namu.moe/w/%EB%A6%BC%EB%B3%B4%28%EB%A9%94%EC%9D%B4%ED%94%8C%EC%8A%A4%ED%86%A0%EB%A6%AC%29/%EB%B3%B4%EC%8A%A4%20%EB%AA%AC%EC%8A%A4%ED%84%B0"
+      ],
+      "officialRewardImage": "https://dszw1qtcnsa5e.cloudfront.net/quickboard/20261015/306622e595e6440e84bbc00891f738e2/%EB%A6%BC%EB%B3%B4.png",
+      "soulEtherStage": 3,
+      "newHammer": "익셉셔널 해머 (포켓)",
+      "hammerCrop": [
+        476,
+        50,
+        32,
+        32
+      ]
+    },
+    {
+      "id": "xbal",
+      "name": "발드릭스 (익스트림)",
+      "opening": "2026-10-23T20:00:00+09:00",
+      "partyMax": 3,
+      "crystal": 9600000000,
+      "priceSourceClass": "independent-community-cross-check-not-official-price-table",
+      "priceSources": [
+        "https://everymaple.com/boss",
+        "https://m.namu.moe/w/%EB%B0%9C%EB%93%9C%EB%A6%AD%EC%8A%A4/%EB%B3%B4%EC%8A%A4%20%EB%AA%AC%EC%8A%A4%ED%84%B0"
+      ],
+      "officialRewardImage": "https://dszw1qtcnsa5e.cloudfront.net/quickboard/20261015/dc1835a44c0d42ce916d5255835482f2/%EB%B0%9C%EB%93%9C%EB%A6%AD%EC%8A%A4.png",
+      "soulEtherStage": 3,
+      "newHammer": "익셉셔널 해머 (펜던트)",
+      "hammerCrop": [
+        478,
+        55,
+        32,
+        32
+      ]
+    }
+  ],
+  "limits": {
+    "weeklySameBossAcrossDifficulties": 1,
+    "worldWeeklyCrystalSales": 90,
+    "sourceClass": "official-reward-guide-and-existing-1.2.419-policy"
+  },
+  "unresolved": [
+    "근원의 그림자 모몽은 공개 클라이언트 툴팁에서 교환 불가·몬스터 컬렉션 등록용과 실제 아이콘을 확인했다. 난이도별 드랍 조건과 확률은 미확인으로, 특정 보스 드랍이나 메소 판매 수익에 연결하지 않는다.",
+    "신규 보스 결정석 2개는 공식 숫자 표가 아닌 커뮤니티 2곳의 동일값이다. 공식 확정 가격으로 표시하지 않는다."
+  ]
+}

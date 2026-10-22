@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:october": "node scripts/test-october-api.mjs && node scripts/test-october-profit.cjs && node scripts/test-october-boss-rules.cjs && node scripts/test-october-ui.cjs",
     "prepare:web": "node scripts/prepare-worker-web.mjs",
     "test:web-hosting": "node scripts/test-worker-web.mjs",
     "deploy:web": "node scripts/deploy-worker-web.mjs",

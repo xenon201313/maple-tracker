@@ -206,7 +206,10 @@
   }
   function conditionTags(g) {
     if(g.basis==='saved-rate') return '직접 입력한 단가';
-    if(g.kind==='soul-potential') return (g.soulStage==null?'증폭 단계 미상':'소울 '+g.soulStage+'단계')+' · 재설정 전 등급';
+    if(g.kind==='soul-potential') {
+      const applied=g.events.filter(e=>e.miracleTimeFlag && E.flag(e.miracleTimeFlag)).length;
+      return (g.soulStage==null?'증폭 단계 미상':'소울 '+g.soulStage+'단계')+' · 재설정 전 등급'+(applied?' · 미라클 타임 '+applied+'건':'');
+    }
     if(g.kind!=='starforce') return g.basis==='cube-equivalent'?'동일 레벨·등급 메소 환산':g.kind==='cube'?g.cubeType:g.potentialType;
     const c=E.starConditions(g), tags=[];
     if(E.flag(c[0])) tags.push('슈페리얼');
@@ -272,7 +275,8 @@
       row.querySelector('[data-timeline-list]').innerHTML=events.slice(position*20,position*20+20).map(e=>{
         const d=details.get(e.key), stars=e.kind==='starforce', change=stars?(e.stars??'?')+'성 → '+(e.nextStars??'?')+'성':(e.grade||'등급 미상')+' → '+(e.nextGrade||'등급 미상');
         const unit=stars && d.basis!=='saved-rate'?E.starCost({...e,level:d.resolvedLevel},d.profile):d.unit;
-        return '<div class="enhancement-timeline-row"><time datetime="'+escape(e.at)+'">'+escape(e.date+' '+timeText(e.at))+'</time><span>'+escape(E.methodLabel(e))+'</span><span>'+escape(change)+'</span><strong>'+(unit==null?'비용 미확인':bridge().money(String(BigInt(unit)*BigInt(d.attempts))))+(e.kind==='cube'?' <small>환산</small>':'')+'</strong></div>';
+        const miracle=e.kind==='soul-potential'?(e.miracleTimeFlag?' · 미라클 '+(E.flag(e.miracleTimeFlag)?'적용':'미적용'):' · 미라클 여부 미확인'):'';
+        return '<div class="enhancement-timeline-row"><time datetime="'+escape(e.at)+'">'+escape(e.date+' '+timeText(e.at))+'</time><span>'+escape(E.methodLabel(e)+miracle)+'</span><span>'+escape(change)+'</span><strong>'+(unit==null?'비용 미확인':bridge().money(String(BigInt(unit)*BigInt(d.attempts))))+(e.kind==='cube'?' <small>환산</small>':'')+'</strong></div>';
       }).join('');
       row.querySelector('[data-timeline-page]').textContent=(position+1)+' / '+pages;
       row.querySelector('[data-timeline-prev]').disabled=position===0;

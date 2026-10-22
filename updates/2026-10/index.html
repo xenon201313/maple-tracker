@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
+<title>10월 업데이트와 메계부 기록 기준 | 나만의 메계부</title>
+<meta name="description" content="2026년 10월 22일 본서버 1.2.420 기준 신규 익스트림 보스, 부티크 기프트·로얄스타일과 이벤트별 기록 방법을 안내합니다.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://maple-trackers.com/updates/2026-10/">
+<link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
+<link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10월 업데이트와 메계부 기록 기준">
+<meta property="og:description" content="신규 보스·상품은 적용 시점에 맞춰 기록하고 과거 장부는 이어서 사용하세요.">
+<meta property="og:url" content="https://maple-trackers.com/updates/2026-10/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
+<style>
+.october-bosses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.october-bosses .item{min-width:0}.october-bosses img{display:block;width:132px;height:132px;object-fit:contain;margin:0 auto 12px}.october-bosses h3{text-align:center}.october-links{display:flex;gap:10px 20px;flex-wrap:wrap}.october-icon{width:32px;height:32px;object-fit:contain;vertical-align:middle;margin-right:8px;image-rendering:pixelated}@media(max-width:540px){.october-bosses{grid-template-columns:1fr}.october-bosses img{width:108px;height:108px}}
+</style>
+</head>
+<body class="article-page">
+<div class="shell">
+<header class="topbar"><a class="brand" href="../../"><img src="../../assets/icon.png?v=20260908" alt="">나만의 메계부</a><nav class="nav" aria-label="주요 페이지"><a href="../../">기록장</a><a href="../../guide/">사용 가이드</a><a href="../../api/">API 연동</a></nav></header>
+<main>
+<header class="hero"><p class="eyebrow">게임 업데이트와 기록 기준</p><h1>10월 업데이트, 새 수입과 지출 기록하기</h1><p class="lead">새로운 익스트림 보스와 기간 한정 상품을 실제 격파·구입·판매 날짜에 맞춰 기록합니다. 지난 주차와 종료된 이벤트의 장부도 이어서 확인할 수 있습니다.</p><p class="article-meta">게임 기준: 2026년 10월 22일 본서버 1.2.420 · 안내 최종 수정: <time datetime="2026-10-22">2026년 10월 22일</time></p><p class="callout"><strong>공식 본서버 공지와 보상 안내를 기준으로 정리했습니다.</strong> 신규 익스트림 결정석 두 가격의 별도 참고 출처는 아래에 구분했습니다. 익스트림 보스의 실제 입장 가능 시각, 상품의 판매 종료, 티켓의 사용 종료는 서로 다릅니다. 아래 한국 시간 일정을 확인하고 실제 거래 금액을 입력하세요.</p></header>
+<nav class="section article-toc" aria-label="이 글의 목차"><ol><li><a href="#bosses">새 익스트림 보스와 드랍</a></li><li><a href="#profit">부티크·로얄 손익</a></li><li><a href="#items">아이템의 거래 조건</a></li><li><a href="#events">이벤트와 월드 리프</a></li><li><a href="#preserve">과거 기록과 API 연결</a></li></ol></nav>
+<article aria-label="10월 패치 반영 안내">
+<section class="section" id="bosses"><h2>익스트림 림보·발드릭스는 입장 시각부터 확인하세요</h2>
+<div class="october-bosses"><article class="item"><img src="../../assets/boss/normalized/limbo.webp" alt="림보" width="132" height="132"><h3>림보 · 익스트림</h3><p>공식 최초 입장 가능 시각은 <strong>10월 23일 19:00</strong>입니다.</p></article><article class="item"><img src="../../assets/boss/normalized/baldrix.webp" alt="발드릭스" width="132" height="132"><h3>발드릭스 · 익스트림</h3><p>공식 최초 입장 가능 시각은 <strong>10월 23일 20:00</strong>입니다.</p></article></div>
+<p>게임 패치는 10월 22일에 적용되지만 신규 익스트림 도전은 다음 날 시작합니다. 공식 안내에서 도전 시각이 변경되면 실제 게임의 안내를 우선하세요. <a href="../../?page=boss">주간 보스</a>에서 기록 주차와 실제 난이도를 선택하고, 파티 인원을 입력해 내 결정석 몫을 확인합니다.</p>
+<p>신규 보상인 <strong>익셉셔널 해머 (포켓) · 익셉셔널 해머 (펜던트)</strong>는 획득한 보스의 드랍에 기록합니다. 소울 에테르도 해당 난이도의 보상 목록에서 확인하세요. 획득과 판매는 서로 다른 일이므로, 획득만 한 아이템에 예상 시세를 넣어 실제 판매 수익으로 계산하지 않도록 주의합니다.</p>
+<aside class="item" aria-labelledby="momong-title"><h3 id="momong-title"><img class="october-icon" src="../../assets/drops/october/origin-shadow-momong-tooltip.png" alt="근원의 그림자 모몽 실제 아이콘" width="32" height="32">근원의 그림자 모몽은 판매 수익에 포함하지 않습니다</h3><p><strong>교환 불가 · 몬스터 컬렉션 등록용</strong> 아이템입니다. 판매가를 넣거나 메소 판매 수익·파티 판매 분배에 합산하지 않습니다. 획득 보스와 난이도는 확인된 공식 보상표가 없어 이 안내에서 특정하지 않습니다.</p></aside>
+<div class="callout" id="crystal-sources"><strong>새 익스트림 결정석 가격의 출처</strong><p>림보 익스트림 <strong>75억 메소</strong>, 발드릭스 익스트림 <strong>96억 메소</strong>는 공식 숫자 표에서 확인한 가격이 아니라 <a href="https://everymaple.com/boss" target="_blank" rel="noopener">에브리메이플 보스 표</a>와 독립 커뮤니티의 <a href="https://m.namu.moe/w/%EB%A6%BC%EB%B3%B4%28%EB%A9%94%EC%9D%B4%ED%94%8C%EC%8A%A4%ED%86%A0%EB%A6%AC%29/%EB%B3%B4%EC%8A%A4%20%EB%AA%AC%EC%8A%A4%ED%84%B0" target="_blank" rel="noopener">림보</a>·<a href="https://m.namu.moe/w/%EB%B0%9C%EB%93%9C%EB%A6%AD%EC%8A%A4/%EB%B3%B4%EC%8A%A4%20%EB%AA%AC%EC%8A%A4%ED%84%B0" target="_blank" rel="noopener">발드릭스</a> 자료의 동일 수치를 대조한 참고값입니다. 실제 게임의 판매 금액도 함께 확인하세요. 파티 전체 가격이며 장부에서는 선택한 인원수로 내 몫을 계산합니다.</p></div>
+<p>판매한 드랍은 실제 판매가와 수수료, 파티 분배를 입력합니다. 이전 주차의 난이도·파티 인원·완료 체크·드랍 가격을 새 난이도로 일괄 바꾸지 않습니다. <a href="../../guide/boss-settlement/">드랍 판매와 분배 계산 사례 보기</a></p>
+</section>
+<section class="section" id="profit"><h2>부티크 티켓과 로얄 결과물은 실제 판매 수익으로 정산합니다</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="상품 일정"><table><caption>10월 상품의 서로 다른 종료 시점</caption><thead><tr><th scope="col">항목</th><th scope="col">공식 일정</th><th scope="col">기록할 내용</th></tr></thead><tbody>
+<tr><th scope="row">부티크 기프트 판매</th><td>10/22 점검 후~11/18 23:59</td><td>실제 구입비·사용 수·획득 티켓·교환 결과</td></tr>
+<tr><th scope="row">부티크 티켓 사용</th><td>11/30 23:59까지</td><td>티켓 판매와 교환 결과물 판매를 구분</td></tr>
+<tr><th scope="row">로얄스타일 162기</th><td>10/22 점검 후~11/19 점검 전</td><td>해당 기수의 품목·수량·실제 판매가</td></tr>
+</tbody></table></div>
+<p><a href="../../?page=profit">손익 계산기</a>에서 부티크 기프트에 투입한 실제 비용과 결과물을 기록합니다. 캐시·크레딧·메소의 단위를 구분하고, 메소로 환산할 때는 본인이 실제로 사용한 금액을 기준으로 합니다. 무료 보상을 받은 것만으로 메소를 지출한 것으로 잡지 않습니다.</p>
+<p>티켓을 바로 팔았으면 티켓 판매 수익을, 티켓을 교환해 결과물을 팔았으면 그 결과물 판매 수익을 기록합니다. <strong>교환에 쓴 티켓과 교환 결과물을 동시에 판매 수익으로 넣지 마세요.</strong> 피버 사용 횟수는 이번 판매 회차의 실제 사용 내역과 비교합니다. 계산된 기대값은 확정 수익과 구분합니다.</p>
+<p>로얄스타일 162기의 스페셜라벨은 <strong>꿈빛 마법 상점 세트</strong>입니다. 일반 결과물, 기간제 교환권과 영구 아이템을 구별하고 실제 판매 완료한 결과물만 정산합니다. 과거 로얄·하츄핑 기록의 품목이나 판매 금액을 이번 기수로 바꾸지 않습니다.</p>
+<p>하츄핑 판매는 10월 21일 23:59에 종료되어 10월 22일부터 새 입력에서 숨깁니다. 종료 전에 저장한 손익과 통계는 기록 목록에서 계속 확인합니다.</p>
+</section>
+<section class="section" id="items"><h2>판매 가능 여부와 무료 획득품을 구분하세요</h2>
+<p><strong>펫 장비:</strong> 옥션에서 구입한 펫장비·원더 블랙·루나 쁘띠 펫장비 교환권으로 받은 장비는 장착 전 다른 사람과 1회 교환할 수 있도록 변경됐습니다. 교환권 자체를 판 내역과 장비로 교환한 뒤 판 내역을 구분하고, 장착했거나 교환 횟수가 소진된 물품을 새 판매 수익으로 예상하지 않습니다.</p>
+<p><strong>장인의 선물:</strong> 신비의 모루 또는 훈장 신비의 모루를 사용하면 얻는 결과물입니다. 한손무기 공격력·한손무기 마력·두손무기 공격력 100% 주문서 3종은 결과 목록에서 제외됐습니다. 별도 메소 상점의 신규 구입품으로 간주하지 않고, 실제 모루 구입비와 실제 판매 결과를 기준으로 기록합니다.</p>
+<p><strong>사냥 이벤트 돋보기:</strong> 몬스터 드랍으로 얻은 수상한 돋보기와 탐정예티의 수상한 돋보기는 1회 거래가 가능하지만, 일일 수집 미션 보상은 월드 내 이동만 가능합니다. <a href="../../?page=profit">손익 계산기의 사냥 이벤트 돋보기</a>에서 실제 구입비와 판매한 수량·금액을 기록합니다. 직접 획득한 드랍의 구입비는 0으로 두고, 미션 보상은 판매로 입력하지 않습니다. 획득 기간은 11월 18일 23:59까지이며 사용은 11월 19일 02:00까지입니다.</p>
+</section>
+<section class="section" id="events"><h2>일정이 끝나도 과거 기록은 남습니다</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="이벤트 일정"><table><caption>한국 시간 기준 비용·사용 일정</caption><thead><tr><th scope="col">항목</th><th scope="col">일정 또는 비용</th><th scope="col">기록 시 확인</th></tr></thead><tbody>
+<tr><th scope="row">모멘텀 패스 PLUS</th><td>10/22 점검 후~11/18 23:59</td><td>참여 회차와 캐릭터 변경 조건 확인</td></tr>
+<tr><th scope="row">프리미엄·프라임 패스 판매</th><td>11/18 23:00까지 · 각각 29,800 / 39,800 넥슨캐시</td><td>현금성 구입비와 메소 지출의 단위 구분</td></tr>
+<tr><th scope="row">놓친 모멘텀 포인트 구매</th><td>100점당 1,000 메이플포인트</td><td>실제 구매한 점수와 사용 포인트만 기록</td></tr>
+<tr><th scope="row">유니온 챔피언 무료 해제</th><td>10/22 점검 후~11/5 10:00</td><td>무료 해제에 기존 유료 비용을 더하지 않음</td></tr>
+<tr><th scope="row">일반 월드 리프</th><td>10/22 점검 후~11/5 10:00</td><td>실제 리프 후 기존 캐릭터 정보 갱신</td></tr>
+</tbody></table></div>
+<p>모멘텀 패스 PLUS에서 이전 회차의 프리미엄·프라임을 모두 활성화했거나 둘 다 활성화하지 않았다면 같은 메이플ID의 다른 대상 캐릭터로 참여할 수 있습니다. 이전에 프리미엄만 활성화했다면 기존 참여 캐릭터로 진행합니다. 이번 회차의 참여 대상을 고른 뒤에는 변경할 수 없으므로 게임 화면에서 조건을 먼저 확인하세요.</p>
+<p>10월 일반 월드 리프와 종료된 챌린저스 시즌4 리프는 별개입니다. 이동한 캐릭터를 무조건 새로 등록하거나 지난 캐릭터를 지우기보다 기존 캐릭터의 정보를 갱신해 기록을 이어갑니다. 월드 이름이 바뀌어도 이미 입력한 드랍 판매가와 수기 지출을 임의로 변경하지 않습니다.</p>
+</section>
+<section class="section" id="preserve"><h2>새 API 정보와 기존 장부를 함께 확인하세요</h2>
+<p>본서버 1.2.420의 스케줄러 API에는 익스트림 림보·발드릭스가 추가됐습니다. <a href="../../?page=character">캐릭터 등록</a>에서 넥슨 로그인 또는 개인 API 키 중 연결한 방식으로 보스 완료 상태를 갱신할 수 있습니다. API의 보스 완료는 실제 아이템 판매나 판매가를 뜻하지 않으므로 드랍과 정산 금액은 직접 확인합니다.</p>
+<p>소울 잠재능력 API에 미라클 타임 여부가 추가됐지만, 해당 표시가 모든 시도를 무료 지출로 바꾸는 것은 아닙니다. <a href="../../?page=expense">지출 기록</a>에서 이력의 실제 비용을 검토하고 반영하세요. 소울 증폭·에테르 구입비와 고급 어빌리티는 실제 사용 내역을 기록하며, 이미 수기로 반영한 동일 비용을 API에서 다시 확정하지 않습니다.</p>
+<p>새 보스와 상품은 새 항목으로 연결합니다. 기존 장부·인증 세션·클라우드 저장소·복구 기록을 초기화하거나 과거 수입을 새 시세로 다시 계산하지 않습니다. 기기를 옮기기 전에는 <a href="../../?page=home">홈의 백업</a>도 함께 보관하세요. <a href="../2026-09/">9월 경제 패치와 과거 기록 기준 보기</a></p>
+</section>
+<section class="section"><h2>확인한 공식 원문</h2><div class="link-list"><a href="https://maplestory.nexon.com/news/update/815" target="_blank" rel="noopener">본서버 1.2.420 업데이트 — 10월 22일</a><a href="https://maplestory.nexon.com/News/Event/1401" target="_blank" rel="noopener">10월 일반 월드 리프 — 11월 5일 10:00까지</a><a href="https://maplestory.nexon.com/News/Event/1402" target="_blank" rel="noopener">모멘텀 패스 PLUS — 10월 회차</a><a href="https://maplestory.nexon.com/News/CashShop" target="_blank" rel="noopener">캐시샵 상품별 판매 안내</a><a href="https://openapi.nexon.com/ko/game/maplestory/" target="_blank" rel="noopener">NEXON Open API — 제공 항목과 이력 기준</a></div></section>
+</article>
+</main>
+<footer><a href="../../guide/">사용 가이드</a><a href="../../privacy.html">개인정보·쿠키 안내</a><span>크로아/얀보 제작 · NEXON의 비공식 서비스</span></footer>
+</div>
+</body>
+</html>

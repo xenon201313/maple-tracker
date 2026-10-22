@@ -9,7 +9,7 @@ import { isPublicPath, prepareAssets, repository, rootFiles } from './prepare-wo
 import { uploadedVersion, versionCommands } from './deploy-worker-web.mjs';
 
 test('공개 허용 목록이 운영 파일, 백업, 비밀 파일, 소스 맵을 차단한다', () => {
-  for (const path of ['index.html', 'assets/friends-characters.js', 'assets/drops/soul_ether_1.webp', 'guide/profit-expense/index.html', 'downloads/mesobook-android-beta.apk']) assert.equal(isPublicPath(path), true, path);
+  for (const path of ['index.html', 'assets/friends-characters.js', 'assets/drops/soul_ether_1.webp', 'assets/drops/october/sources.json', 'assets/profit/october2026/sources.json', 'assets/profit/october2026/artisan-sources.json', 'updates/2026-10/index.html', 'guide/profit-expense/index.html', 'downloads/mesobook-android-beta.apk']) assert.equal(isPublicPath(path), true, path);
   for (const path of ['.env', 'assets/.env', 'assets/secrets/key.js', 'assets/../index.html', '/index.html', 'assets\\a.js', 'assets/token.json', 'assets/debug.js.map', 'assets/a.js.bak', 'backups/index.html', 'cloudflare-worker/maple-tracker-sync.mjs', 'cloudflare-web/worker.mjs', 'scripts/test.js', 'WEB_HOSTING.md', 'package.json', 'downloads/private.zip', 'guide/.private/index.html']) assert.equal(isPublicPath(path), false, path);
 });
 
