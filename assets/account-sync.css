@@ -14,3 +14,18 @@
 .account-stale{max-width:480px;width:calc(100% - 32px);box-sizing:border-box;background:#252b35;color:#fff;border:1px solid #ffe06b;border-radius:12px;padding:24px;line-height:1.7}
 .account-stale::backdrop{background:#000a}
 @media(max-width:540px){.account-sync .account-actions{flex-direction:column}.account-sync .account-actions button{width:100%}.account-sync #account-login{width:100%}}
+
+/* 홈의 첫 기록 영역에서 계정 연결을 찾을 수 있게 배치합니다. */
+.home-account-panel{border-color:var(--gold)}
+.account-entry-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.account-entry-copy{min-width:0;flex:1 1 320px}
+.account-entry-copy h2{margin:0 0 6px}
+.account-entry-copy p{margin:0;color:var(--sub);font-size:14px;max-width:60ch}
+.account-entry-head>.account-actions{flex:0 1 530px;justify-content:flex-end;margin-top:0}
+.home-account-panel #account-status{margin:12px 0 0;font-size:14px}
+.home-account-panel details{padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.home-account-panel details p{max-width:90ch}
+.home-account-panel #account-title{scroll-margin-top:120px}
+.home-account-panel .account-actions>button{white-space:normal}
+@media(max-width:900px){.account-entry-head{align-items:flex-start;flex-direction:column;gap:14px}.account-entry-copy{flex-basis:auto}.account-entry-head>.account-actions{flex-basis:auto;justify-content:flex-start}}
+@media(max-width:540px){.home-account-panel{padding:18px}.account-entry-head>.account-actions{width:100%}.home-account-panel #account-title{font-size:20px}.home-account-panel #account-login{max-width:230px}}

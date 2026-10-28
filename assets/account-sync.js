@@ -7,27 +7,63 @@
   const fresh=()=>({owner:'legacy',revision:0,dirty:false});
   const read=key=>{const text=localStorage.getItem(key);return text?JSON.parse(text):null;};
   const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+  const preserved=()=>window.MapleAccountStorage;
+  const storageMessage=error=>error?.name==='QuotaExceededError'
+    ?'브라우저 저장 공간이 부족합니다. 장부는 유지됩니다. 상단 백업으로 기록을 내려받은 뒤 저장 공간을 확인하고 다시 시도해 주세요.'
+    :/^STORAGE_/.test(error?.code||'')?error.message:(error?.message||'저장 상태를 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
   const capture=()=>Object.fromEntries(Object.keys(localStorage).filter(isLedgerKey).map(key=>[key,localStorage.getItem(key)]));
   function replaceStore(values) {
-    for(const [key,value] of Object.entries(values)) if(isLedgerKey(key)&&typeof value==='string') localStorage.setItem(key,value);
-    for(const key of Object.keys(localStorage)) if(isLedgerKey(key)&&!(key in values)) localStorage.removeItem(key);
+    if(!values||typeof values!=='object'||Array.isArray(values))throw new Error('전환할 장부 형식을 확인하지 못했습니다. 보관본은 유지됩니다.');
+    const entries=Object.entries(values).filter(([key])=>isLedgerKey(key));
+    if(entries.some(([,value])=>typeof value!=='string'))throw new Error('전환할 장부 값을 확인하지 못했습니다. 보관본은 유지됩니다.');
+    // 이 함수는 원본과 전환 표식을 보관한 뒤에만 호출합니다. 구 장부와
+    // 새 장부가 잠시 합쳐져 한도를 넘지 않게 비우고, 실패하면 원본을 복구합니다.
+    for(const key of Object.keys(localStorage))if(isLedgerKey(key))localStorage.removeItem(key);
+    for(const [key,value] of entries)localStorage.setItem(key,value);
   }
-  let fatal='',meta,loadedOwner;
+  let fatal='',meta,loadedOwner,interrupted=null,switching=false;
   try {
-    const interrupted=read(TX);
-    if(interrupted){
+    interrupted=read(TX);
+    if(interrupted&&interrupted.storage!=='indexedDB'){
       if(Date.now()-Number(interrupted.createdAt||0)<15000)throw new Error('장부 전환 진행 중');
       replaceStore(interrupted.before.values);write(META,interrupted.before.meta);localStorage.removeItem(TX);
+      interrupted=null;
     }
     meta=read(META)||fresh();
     if(!validOwner(meta.owner)) throw new Error('장부 연결 정보가 올바르지 않습니다.');
     loadedOwner=meta.owner;
+    if(interrupted){fatal='중단된 장부 전환을 복구하고 있습니다. 복구가 끝나면 자동으로 다시 엽니다.';loadedOwner='blocked';}
   } catch {fatal='장부 전환 중이거나 보관함을 읽지 못했습니다. 잠시 뒤 새로 열어 주세요. 계속되면 브라우저 저장 공간과 권한을 확인해 주세요.';meta=fresh();loadedOwner='blocked';}
   let context=null, pending=null, busy=false, timer=0, generation=0, statusText='', isError=false, started=false, stale=false;
-  let storedMain=localStorage.getItem('mapleTracker.v2'),ledgerVerified=false;
+  let storedMain=localStorage.getItem('mapleTracker.v2'),ledgerVerified=false,archiveRender=0;
+  const vaultOwners=new Set();
   const $=id=>document.getElementById(id);
   const bridge=()=>window.MapleAccountBridge;
   const auth=()=>window.MapleFriends?.getState()||{};
+  // 큰 보관본은 IndexedDB에 둡니다. 작은 전환 표식만 localStorage에 남겨
+  // 새 탭에서도 장부를 쓰기 전에 중단된 전환을 발견할 수 있게 합니다.
+  const storageReady=(async()=>{
+    if(!preserved())throw new Error('장부 보관 기능을 불러오지 못했습니다. 새로고침해 주세요.');
+    await preserved().ready();
+    for(const row of await preserved().list(VAULT,{metadataOnly:true}))vaultOwners.add(row.key.slice(VAULT.length));
+    if(!interrupted)return;
+    const recover=async()=>{
+      const current=read(TX);
+      if(!current){location.reload();return;}
+      if(current.storage!=='indexedDB'||current.key!==interrupted.key)throw new Error('다른 탭에서 장부를 전환하고 있습니다. 잠시 뒤 새로 열어 주세요.');
+      const remaining=15000-(Date.now()-Number(current.createdAt||0));
+      if(remaining>0)await new Promise(resolve=>setTimeout(resolve,remaining));
+      const row=await preserved().get(current.key);
+      // Web Locks가 없는 브라우저에서도 다른 탭이 완료한 전환을 되돌리지 않습니다.
+      const latest=read(TX);if(!latest){location.reload();return;}
+      if(latest.storage!=='indexedDB'||latest.key!==current.key||latest.createdAt!==current.createdAt)throw new Error('다른 탭에서 장부 전환을 변경했습니다. 새로 열어 주세요.');
+      if(!row?.values||!validOwner(current.beforeMeta?.owner))throw new Error('전환 전 보관본을 확인하지 못했습니다. 현재 기록과 복구본은 유지됩니다.');
+      replaceStore(row.values);write(META,current.beforeMeta);localStorage.removeItem(TX);location.reload();
+    };
+    if(navigator.locks)await navigator.locks.request('maple-account-ledger-switch',recover);else await recover();
+  })();
+  // 연결 작업에서 다시 안내하며, 초기 로딩 중에는 거부된 Promise를 방치하지 않습니다.
+  storageReady.catch(error=>{if(interrupted){fatal='장부 전환 복구를 완료하지 못했습니다. '+storageMessage(error);render();}});
   // 변경 감지용 지문입니다. 암호화에는 별도의 AES-GCM 키를 사용합니다.
   function mark(value){
     const text=JSON.stringify(value);let a=0x811c9dc5,b=0x9e3779b9,c=0x85ebca6b,d=0xc2b2ae35;
@@ -37,7 +73,9 @@
   const fingerprint=()=>mark(bridge().snapshot().data);
   function persist(){write(META,meta);}
   function announce(text,error=false){statusText=text;isError=error;render();}
-  function checkOwner(){
+  function checkOwner(allowSwitch=false){
+    if(switching&&!allowSwitch)throw new Error('장부 전환 중입니다. 전환이 끝난 뒤 기록해 주세요.');
+    if(read(TX))throw new Error(fatal||'다른 탭에서 장부 전환 중입니다. 잠시 뒤 새로 열어 주세요.');
     if(fatal||stale||((read(META)||fresh()).owner!==loadedOwner)) throw new Error(fatal||'다른 탭에서 장부가 전환되었습니다. 이 탭을 새로 열어 주세요.');
     if(loadedOwner!=='legacy'&&localStorage.getItem('mapleTracker.v2')!==storedMain){staleTab();throw new Error('다른 탭에서 장부가 변경되었습니다. 최신 기록을 새로 열어 주세요.');}
   }
@@ -45,33 +83,36 @@
   function stop(){ledgerVerified=false;generation++;clearTimeout(timer);timer=0;context=null;pending=null;busy=false;bridge()?.stopLegacy();}
   function valid(ctx){return context===ctx&&ctx.generation===generation&&auth().connected&&auth().account===ctx.account&&!stale;}
   function summary(data){return '캐릭터 '+(data.chars?.length||0)+'개 · 재획 '+Object.keys(data.records||{}).length+'일 · 손익 '+(data.profits?.length||0)+'건 · 직접 지출 '+(data.expenses?.length||0)+'건';}
-  function archive(label,values=capture(),owner=loadedOwner){
+  async function archive(label,values=capture(),owner=loadedOwner){
     const id=ARCHIVE+owner+':'+Date.now()+':'+crypto.randomUUID();
-    write(id,{owner,label,createdAt:Date.now(),values});
+    await preserved().put(id,{owner,label,createdAt:Date.now(),values});
     return id;
   }
-  function bank(){checkOwner();write(VAULT+loadedOwner,{meta:{...meta},values:capture()});}
+  async function bank(){checkOwner();const owner=loadedOwner;await preserved().put(VAULT+owner,{meta:{...meta},values:capture()});vaultOwners.add(owner);}
   async function activate(values,nextMeta,label){
     document.dispatchEvent(new CustomEvent('maple:account-ledger-changing'));
-    const perform=()=>{
+    const perform=async()=>{
     checkOwner();
     const before={meta:{...meta},values:capture()};
-    archive(label,before.values);
-    write(VAULT+loadedOwner,before);
-    write(TX,{before,createdAt:Date.now()});
+    switching=true;busy=true;render();let journaled=false;
     try {
+      const key=await archive(label,before.values);
+      await preserved().put(VAULT+loadedOwner,before);
+      checkOwner(true);
+      if(mark(capture())!==mark(before.values))throw new Error('보관 중 장부가 변경되었습니다. 최신 기록을 새로 열어 주세요.');
+      write(TX,{storage:'indexedDB',key,beforeMeta:before.meta,createdAt:Date.now()});journaled=true;
       bridge().stopLegacy();
       replaceStore(values);
       write(META,nextMeta);
       localStorage.removeItem(TX);
     } catch(error){
-      try{replaceStore(before.values);write(META,before.meta);localStorage.removeItem(TX);}catch{fatal='장부 전환을 복구 중입니다. 브라우저 저장 공간을 확보한 뒤 새로 열어 주세요.';}
+      if(journaled)try{replaceStore(before.values);write(META,before.meta);localStorage.removeItem(TX);}catch{fatal='장부 전환을 복구 중입니다. 전환 전 보관본은 유지됩니다. 상단 백업으로 기록을 보관한 뒤 새로 열어 주세요.';}
       throw error;
-    }
+    } finally {switching=false;busy=false;render();}
     stop();location.reload();
     };
     if(navigator.locks)await navigator.locks.request('maple-account-ledger-switch',perform);
-    else perform();
+    else await perform();
   }
   function bytes64(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);}
   function unbase64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
@@ -107,6 +148,7 @@
     const seq=generation, ctx={account:state.account,generation:seq,key:null};context=ctx;
     announce('넥슨 계정 보관함을 확인하는 중…');
     try {
+      await storageReady;if(!valid(ctx))return;
       checkOwner();
       const key=await window.MapleFriends.request('ledger-key');
       if(!valid(ctx))return;
@@ -123,7 +165,7 @@
       } else if(!meta.dirty&&value.snapshot){
         await useRemote(false,value);
       } else {offer(ctx,value,'conflict');}
-    } catch(error){if(valid(ctx)){context=null;announce(error.message||'계정 저장 연결을 확인하지 못했습니다.',true);}}
+    } catch(error){if(valid(ctx)){context=null;announce(storageMessage(error),true);}}
     finally{if(seq===generation){busy=false;render();}}
   }
   async function upload(){
@@ -146,7 +188,7 @@
     } catch(error){
       if(!valid(ctx))return false;
       if(error.status===409){const value=await remote(ctx);if(value)offer(ctx,value,'conflict');}
-      else announce('계정 저장 실패 · '+error.message+' 현재 기기 기록은 유지됩니다.',true);
+      else announce('계정 저장 실패 · '+storageMessage(error)+' 현재 기기 기록은 유지됩니다.',true);
       return false;
     } finally {if(valid(ctx)){busy=false;render();if(meta.dirty&&!pending&&!isError)timer=setTimeout(upload,900);}}
   }
@@ -154,7 +196,7 @@
     storedMain=localStorage.getItem('mapleTracker.v2');
     if(loadedOwner==='legacy')return;
     try{checkOwner();meta.dirty=true;persist();if(context&&!pending){clearTimeout(timer);timer=setTimeout(upload,900);}}
-    catch(error){announce(error.message,true);}
+    catch(error){announce(storageMessage(error),true);}
   }
   async function pull(){
     if(!context){await initialize();return;}
@@ -169,13 +211,14 @@
     try{
       checkOwner();
       if(ask&&!confirm('현재 장부와 복구 기록을 이 기기에 별도로 보관한 뒤 넥슨 계정 장부를 열까요?'))return;
-      const owner='friends:'+ctx.account, saved=read(VAULT+owner);
+      const owner='friends:'+ctx.account, saved=await preserved().get(VAULT+owner);
+      if(!valid(ctx))return;checkOwner();
       // 다른 계정으로 돌아올 때 서버보다 먼저 그 계정의 미전송 로컬 기록을 복원합니다.
       if(loadedOwner!==owner&&saved){await activate(saved.values,saved.meta,'계정 전환 전 원본');return;}
       const snapshot=value.snapshot||bridge().emptySnapshot();
       const values=bridge().storeFromSnapshot(snapshot);
       await activate(values,{owner,revision:value.revision,dirty:!value.snapshot,fingerprint:mark(snapshot.data)},'클라우드 장부 열기 전 원본');
-    }catch(error){announce('원본 보관 또는 장부 전환 실패 · '+error.message+' 기존 기록은 유지됩니다.',true);}
+    }catch(error){announce('원본 보관 또는 장부 전환 실패 · '+storageMessage(error),true);}
   }
   async function useLocal(){
     const ctx=context,value=pending;if(!ctx||!value||!valid(ctx))return;
@@ -188,21 +231,29 @@
         const next={owner,revision:value.revision,dirty:true,fingerprint:''};
         await activate(capture(),next,'기존 기록을 계정으로 복사하기 전');return;
       }
-      archive('계정 장부 연결 전 원본');bank();
+      busy=true;render();
+      await archive('계정 장부 연결 전 원본');await bank();
+      if(!valid(ctx))return;checkOwner();busy=false;
       meta.revision=value.revision;meta.dirty=true;persist();pending=null;ledgerVerified=true;document.dispatchEvent(new CustomEvent('maple:account-ledger-ready'));await upload();
-    }catch(error){announce('연결 준비 실패 · '+error.message,true);}
+    }catch(error){announce('연결 준비 실패 · '+storageMessage(error),true);}
+    finally{busy=false;render();}
   }
   async function legacy(){
     if(!confirm('현재 계정 장부를 이 기기에 보관하고, 이전 API 키·브라우저 장부로 돌아갈까요? 넥슨 연결은 해제합니다.'))return;
-    try{bank();const saved=read(VAULT+'legacy');if(!saved)throw new Error('이 기기에 보관된 이전 장부가 없습니다.');await window.MapleFriends.disconnect();await activate(saved.values,saved.meta,'이전 장부로 전환 전 원본');}
-    catch(error){announce(error.message,true);}
+    try{await bank();const saved=await preserved().get(VAULT+'legacy');if(!saved)throw new Error('이 기기에 보관된 이전 장부가 없습니다.');await window.MapleFriends.disconnect();await activate(saved.values,saved.meta,'이전 장부로 전환 전 원본');}
+    catch(error){announce(storageMessage(error),true);}
   }
   function download(snapshot,name){const bundle={...snapshot.data,weeklyDropRecovery:snapshot.weeklyDropRecovery||[],huntRecovery:snapshot.huntRecovery||[],huntJournal:snapshot.huntJournal||[]};const url=URL.createObjectURL(new Blob([JSON.stringify(bundle,(key,value)=>key==='nexonApiKey'?undefined:value,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-  function renderArchives(){
+  async function renderArchives(){
     const select=$('account-local-history');if(!select)return;
-    const selected=select.value;select.replaceChildren(new Option('전환 전 보관본 선택',''));
-    try{Object.keys(localStorage).filter(key=>key.startsWith(ARCHIVE+loadedOwner+':')).sort().reverse().forEach(key=>{const row=read(key);select.add(new Option(new Date(row.createdAt).toLocaleString('ko-KR')+' · '+row.label,key));});}catch{}
-    if([...select.options].some(o=>o.value===selected))select.value=selected;
+    const seq=++archiveRender,owner=loadedOwner;
+    try{
+      const rows=await preserved().list(ARCHIVE+owner+':',{metadataOnly:true});
+      if(seq!==archiveRender||owner!==loadedOwner)return;
+      const selected=select.value;select.replaceChildren(new Option('전환 전 보관본 선택',''));
+      rows.sort((a,b)=>Number(b.value.createdAt)-Number(a.value.createdAt)).forEach(({key,value:row})=>select.add(new Option(new Date(row.createdAt).toLocaleString('ko-KR')+' · '+row.label,key)));
+      if([...select.options].some(o=>o.value===selected))select.value=selected;
+    }catch{if(seq===archiveRender)select.replaceChildren(new Option('보관본을 읽지 못했습니다. 새로 열어 주세요.',''));}
   }
   async function history(beforeRevision){
     const ctx=context;if(!ctx||!valid(ctx)||busy)return;busy=true;render();
@@ -223,6 +274,7 @@
   function render(){
     if(!$('account-status'))return;
     const state=auth(),connected=!!state.connected,mine=connected&&loadedOwner==='friends:'+state.account;
+    document.querySelectorAll('[data-desk-account]').forEach(button=>{button.dataset.accountEntry=connected?'account':'login';button.setAttribute('aria-label',connected?'계정 및 저장 설정':'넥슨 로그인 및 계정 저장');const label=button.querySelector('span');if(label)label.textContent=connected?'계정·저장':'넥슨 로그인';});
     $('account-status').textContent=fatal||statusText||'로그인 상태를 확인하는 중…';$('account-status').classList.toggle('err',isError||!!fatal);
     $('account-login').hidden=connected;$('account-login').disabled=busy||!!state.finishing||!state.ready;
     $('account-logout').hidden=!connected;$('account-logout').disabled=busy;
@@ -236,7 +288,7 @@
       $('account-choice-remote').textContent=pending.snapshot?'넥슨 계정: '+summary(pending.snapshot.data):'넥슨 계정: 저장된 장부 없음';
       $('account-use-local').hidden=loadedOwner!=='legacy'&&!mine;
       $('account-use-local').disabled=busy;$('account-use-remote').disabled=busy;
-      $('account-use-remote').textContent=localStorage.getItem(VAULT+'friends:'+state.account)?'이 계정의 기기 보관함 열기':'넥슨 계정 장부 열기';
+      $('account-use-remote').textContent=vaultOwners.has('friends:'+state.account)?'이 계정의 기기 보관함 열기':'넥슨 계정 장부 열기';
     }
     document.querySelectorAll('.storage-badge').forEach(el=>{el.textContent=mine?'넥슨 계정 저장':loadedOwner==='legacy'?'브라우저 저장':'계정 장부 · 오프라인';el.title='기록은 이 기기에 먼저 저장되며, 연결한 계정에 암호화하여 동기화합니다.';});
     renderArchives();
@@ -262,10 +314,10 @@
   document.addEventListener('DOMContentLoaded',()=>{
     started=true;if(!bridge()||!$('account-status'))return;
     $('account-login').onclick=()=>window.MapleFriends.connect('home').catch(error=>announce(error.message,true));
-    $('account-logout').onclick=async()=>{try{bank();await window.MapleFriends.disconnect();}catch(error){announce(error.message,true);}};
+    $('account-logout').onclick=async()=>{try{busy=true;render();await bank();await window.MapleFriends.disconnect();}catch(error){announce(storageMessage(error),true);}finally{busy=false;render();}};
     $('account-save').onclick=upload;$('account-pull').onclick=pull;$('account-legacy').onclick=legacy;
     $('account-use-local').onclick=useLocal;$('account-use-remote').onclick=()=>useRemote();$('account-history').onclick=history;
-    $('account-local-download').onclick=()=>{try{const row=read($('account-local-history').value);if(!row||row.owner!==loadedOwner)return;download(bridge().snapshotFromStore(row.values),'mesobook-local-preserved-'+row.createdAt+'.json');}catch(error){announce('보관본을 읽지 못했습니다. '+error.message,true);}};
+    $('account-local-download').onclick=async()=>{try{const owner=loadedOwner,row=await preserved().get($('account-local-history').value);if(!row||row.owner!==loadedOwner||owner!==loadedOwner)return;download(bridge().snapshotFromStore(row.values),'mesobook-local-preserved-'+row.createdAt+'.json');}catch(error){announce('보관본을 읽지 못했습니다. '+storageMessage(error),true);}};
     initialize();render();
   });
 })();

@@ -10,7 +10,7 @@
     "prepare:web": "node scripts/prepare-worker-web.mjs",
     "test:web-hosting": "node scripts/test-worker-web.mjs",
     "deploy:web": "node scripts/deploy-worker-web.mjs",
-    "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-character-profile.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-sync.cjs",
+    "test:friends": "node scripts/test-friends-ledger.mjs && node scripts/test-friends-character-profile.mjs && node scripts/test-friends-session.cjs && node scripts/test-account-storage.cjs && node scripts/test-account-sync.cjs && node scripts/test-login-visibility.cjs",
     "test:icons": "node scripts/test-item-icons.cjs",
     "test:profit-expense": "node scripts/test-profit-expense-ui.cjs",
     "test:teenieping": "node scripts/test-teenieping-profit.cjs",

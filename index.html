@@ -2,14 +2,15 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261028-2"></script>
-<script src="assets/patch-notes.js?v=20261028-2"></script>
+<script src="assets/patch-notes-data.js?v=20261028-4"></script>
+<script src="assets/patch-notes.js?v=20261028-4"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
 <script src="assets/friends-expenses.js?v=20261022-1"></script>
-<script src="assets/account-sync.js?v=20260929-1"></script>
+<script src="assets/account-storage.js?v=20261028-1"></script>
+<script src="assets/account-sync.js?v=20261028-1"></script>
 <script src="assets/friends-characters.js?v=20260929-1"></script>
-<link rel="stylesheet" href="assets/account-sync.css?v=20260924-1">
+<link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
@@ -1008,7 +1009,7 @@
 </style>
 <link rel="stylesheet" href="assets/workspace.css?v=20261028-2">
 <link rel="stylesheet" href="assets/ledger-planner.css?v=20261028-2">
-<link rel="stylesheet" href="assets/play-desk.css?v=20261028-2">
+<link rel="stylesheet" href="assets/play-desk.css?v=20261028-4">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
@@ -1046,7 +1047,7 @@
   </div>
   <div class="workspace-header-actions">
     <button type="button" class="ghost workspace-search" data-desk-search aria-label="메뉴와 도구 찾기" aria-haspopup="dialog" aria-controls="desk-search-dialog"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>도구 찾기</span><kbd>Ctrl K</kbd></button>
-    <button type="button" class="ghost workspace-account" data-desk-account aria-label="계정 및 저장 설정"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg><span>계정·저장</span></button>
+    <button type="button" class="ghost workspace-account" data-desk-account data-account-entry="login" aria-label="넥슨 로그인 및 계정 저장"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg><span>넥슨 로그인</span></button>
     <span class="storage-badge" title="기록은 현재 브라우저에 저장됩니다.">브라우저 저장</span>
     <button class="ghost workspace-backup" id="workspace-backup" type="button" aria-label="장부 JSON 백업 내려받기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#download"></use></svg><span>백업</span></button>
   </div>
@@ -1067,6 +1068,33 @@
   <section class="home-desk-masthead" aria-labelledby="desk-title">
     <div><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메계부</h2><p>플레이는 가볍게, 기록은 차곡차곡.</p></div>
     <div class="desk-reset"><span id="desk-week"></span><span>주간 초기화 목요일 / 월간 초기화 1일</span></div>
+  </section>
+  <section class="card account-sync home-account-panel" aria-labelledby="account-title">
+    <div class="account-entry-head">
+      <div class="account-entry-copy"><h2 id="account-title" tabindex="-1">넥슨 계정으로 장부 이어쓰기</h2>
+      <p>같은 넥슨 계정으로 로그인하면 다른 기기에서도 장부를 이어 쓸 수 있습니다.</p></div>
+    <div class="account-actions">
+      <button type="button" id="account-login" disabled><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
+      <button type="button" class="ghost" id="account-save" hidden>계정에 지금 저장</button>
+      <button type="button" class="ghost" id="account-pull" hidden>최신 장부 확인</button>
+      <button type="button" class="ghost" id="account-logout" hidden>넥슨 로그아웃</button>
+      <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
+    </div>
+    </div>
+    <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
+    <div id="account-choice" class="account-choice" hidden>
+      <h3>사용할 장부 선택</h3>
+      <p id="account-choice-current"></p><p id="account-choice-remote"></p>
+      <p>선택하기 전에는 계정에 저장하지 않습니다. 서로 다른 장부를 자동으로 합치지 않으며, 선택하지 않은 기기 기록도 전환 전 보관본으로 남깁니다.</p>
+      <div class="account-actions"><button type="button" id="account-use-local">이 기기 장부를 계정에 연결</button><button type="button" class="ghost" id="account-use-remote">넥슨 계정 장부 열기</button></div>
+    </div>
+    <details><summary>계정 저장과 전환 전 보관본</summary>
+      <p>처음 연결할 때 사용할 장부를 선택하며, 전환 전 기록은 이 기기에 보관합니다. 변경은 이 기기에 먼저 저장합니다. 온라인으로 연결되면 계정에도 자동 저장하며, 다른 기기의 변경이 있으면 사용할 장부를 확인합니다. 로그아웃해도 장부는 삭제되지 않습니다. 공용 기기에서는 이용을 마친 뒤 백업 여부를 확인하고 브라우저의 사이트 데이터를 지워 주세요.</p>
+      <p>서버에는 최근 20세대의 보관본을 최대 45일 보존하고, 현재 장부는 별도로 유지합니다. 기존 API 키 보관함도 유지됩니다.</p>
+      <label>이 계정의 전환 전 기기 보관본 <select id="account-local-history"><option value="">전환 전 보관본 선택</option></select></label>
+      <div class="account-actions"><button type="button" class="ghost" id="account-local-download">선택한 보관본 JSON 백업</button><button type="button" class="ghost" id="account-history" hidden>서버 세대 보관본 조회</button></div>
+      <div id="account-server-history"></div>
+    </details>
   </section>
   <div class="workspace-quick-actions" aria-label="빠른 기록">
     <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
@@ -1153,31 +1181,7 @@
     <div><h3>플레이 후 기록</h3><p>수입과 쓴 비용을 남겨요.</p><a href="?page=daily" data-desk-page="daily">재획 기록</a><a href="?page=planner&amp;tool=hunting" data-desk-tool="hunting">재획 효율 비교</a><a href="?page=planner&amp;tool=investment" data-desk-tool="investment">장비 투자 장부</a></div>
     <div><h3>판매 후 정산</h3><p>판매 여부와 파티 분배를 확인해요.</p><a href="?page=planner&amp;tool=settlement" data-desk-tool="settlement">미정산함</a><a href="?page=profit" data-desk-page="profit">판매 손익 계산</a></div>
   </section>
-  <section class="card account-sync" aria-labelledby="account-title">
-    <h2 id="account-title" tabindex="-1">넥슨 계정으로 장부 이어쓰기</h2>
-    <p>넥슨 로그인 후 같은 계정으로 다른 기기에서도 장부를 불러올 수 있습니다. 처음 연결할 때 사용할 장부를 선택하며, 전환 전 기록은 이 기기에 보관합니다.</p>
-    <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
-    <div class="account-actions">
-      <button type="button" id="account-login" disabled><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
-      <button type="button" class="ghost" id="account-save" hidden>계정에 지금 저장</button>
-      <button type="button" class="ghost" id="account-pull" hidden>최신 장부 확인</button>
-      <button type="button" class="ghost" id="account-logout" hidden>넥슨 로그아웃</button>
-      <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
-    </div>
-    <div id="account-choice" class="account-choice" hidden>
-      <h3>사용할 장부 선택</h3>
-      <p id="account-choice-current"></p><p id="account-choice-remote"></p>
-      <p>선택하기 전에는 계정에 저장하지 않습니다. 서로 다른 장부를 자동으로 합치지 않으며, 선택하지 않은 기기 기록도 전환 전 보관본으로 남깁니다.</p>
-      <div class="account-actions"><button type="button" id="account-use-local">이 기기 장부를 계정에 연결</button><button type="button" class="ghost" id="account-use-remote">넥슨 계정 장부 열기</button></div>
-    </div>
-    <details><summary>계정 저장과 전환 전 보관본</summary>
-      <p>변경은 이 기기에 먼저 저장합니다. 온라인으로 연결되면 계정에도 자동 저장하며, 다른 기기의 변경이 있으면 사용할 장부를 확인합니다. 로그아웃해도 장부는 삭제되지 않습니다. 공용 기기에서는 이용을 마친 뒤 백업 여부를 확인하고 브라우저의 사이트 데이터를 지워 주세요.</p>
-      <p>서버에는 최근 20세대의 보관본을 최대 45일 보존하고, 현재 장부는 별도로 유지합니다. 기존 API 키 보관함도 유지됩니다.</p>
-      <label>이 계정의 전환 전 기기 보관본 <select id="account-local-history"><option value="">전환 전 보관본 선택</option></select></label>
-      <div class="account-actions"><button type="button" class="ghost" id="account-local-download">선택한 보관본 JSON 백업</button><button type="button" class="ghost" id="account-history" hidden>서버 세대 보관본 조회</button></div>
-      <div id="account-server-history"></div>
-    </details>
-  </section>
+
     </aside>
   </div>
   <div class="home-support">
