@@ -1,0 +1,34 @@
+/* 플레이 데스크의 읽기 전용 현황과 메뉴 검색. 저장 UI는 기존 계정 패널을 사용합니다. */
+.workspace-header .workspace-search{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.workspace-search kbd{font:12px var(--font-body);padding:2px 5px;border:1px solid var(--line);border-radius:4px;color:var(--sub)}
+.workspace-account{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;min-height:44px!important}
+.desk-record-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:16px 0}
+.desk-record-link{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;text-align:left;padding:12px 16px;background:none;color:var(--text);border:0;border-right:1px solid var(--line);border-radius:0;white-space:normal}
+.desk-record-link:first-child{padding-left:0}.desk-record-link:last-child{border:0}.desk-record-link:hover{background:var(--panel2)}
+.desk-record-link span{font-size:14px;color:var(--sub)}.desk-record-link strong{font-size:19px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.desk-record-link small{font-size:13px;color:var(--sub);line-height:1.6;font-weight:400}
+.desk-next{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:16px;border-top:1px solid var(--line)}
+.desk-next p{font-size:14px;color:var(--sub);margin:0;flex:1 1 240px}.desk-next button{flex:0 1 auto}
+.desk-search-dialog{position:fixed;inset:min(10dvh,80px) 0 auto;margin:0 auto;box-sizing:border-box;width:min(640px,calc(100% - 28px));max-width:calc(100% - 28px);max-height:calc(90dvh - 24px);padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);box-shadow:0 24px 80px #0008;overflow:auto}
+.desk-search-dialog::backdrop{background:rgb(6 15 19 / .8)}
+.desk-search-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.desk-search-head h2{font-size:22px;margin:0;color:var(--text)}.desk-search-head .icon-button{width:44px;height:44px;min-height:44px;flex:0 0 44px}
+.desk-search-dialog label{display:block;margin-bottom:8px;color:var(--sub)}
+.desk-search-dialog input[type=search]{box-sizing:border-box;width:100%;min-height:48px;padding:12px;font:16px var(--font-body);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px}
+#desk-search-count{font-size:13px;color:var(--sub);line-height:1.7;margin:12px 0}
+.desk-search-results{display:grid;gap:4px;max-height:52dvh;overflow:auto;padding:4px;margin:-4px;overscroll-behavior:contain}
+.desk-search-result{display:grid;grid-template-columns:1fr auto;gap:4px 12px;text-align:left;min-width:0;padding:14px;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text);white-space:normal;font-weight:400}
+.desk-search-result strong{font-size:16px}.desk-search-result span{font-size:13px;color:var(--sub);grid-column:1;line-height:1.6}.desk-search-result small{font-size:12px;color:var(--sub);grid-column:2;grid-row:1 / 3;align-self:center}
+.desk-search-result:hover,.desk-search-result:focus-visible{background:var(--panel2);border-color:var(--gold)}
+.desk-search-hint{font-size:12px;line-height:1.6;color:var(--sub);margin:18px 0 0}
+#account-title,#home-backup{scroll-margin-top:100px}
+@media(max-width:1250px){.workspace-search kbd{display:none}.desk-record-list{grid-template-columns:1fr}.desk-record-link,.desk-record-link:first-child{padding:12px 0;border-right:0;border-bottom:1px solid var(--line)}.desk-record-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px}.desk-record-link small{grid-column:1/-1}.desk-record-link strong{font-size:18px;text-align:right}}
+@media(max-width:640px){
+ .workspace-header .workspace-search{width:44px;min-width:44px;padding:10px!important;justify-content:center}.workspace-search span{display:none}
+ .workspace-account{width:44px;min-width:44px;padding:10px!important;display:inline-flex;align-items:center;justify-content:center}.workspace-account span{display:none}
+ .workspace-header-actions{gap:4px!important;flex-shrink:0}.workspace-header .workspace-heading{min-width:0;flex:1}.workspace-header h1{overflow-wrap:anywhere;line-height:1.35}
+ .workspace-backup{min-width:44px;min-height:44px!important;padding:10px!important;justify-content:center}.workspace-backup span{display:none}
+ .desk-record-link strong{font-size:17px}.desk-search-dialog{padding:18px}
+ .desk-search-result{grid-template-columns:1fr}.desk-search-result small{grid-column:1;grid-row:auto}.desk-search-head h2{font-size:20px}
+ .desk-search-results{max-height:48dvh}.desk-next p{flex-basis:100%}
+}

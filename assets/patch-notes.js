@@ -129,7 +129,7 @@
     });
     // 첫 방문에는 본문을 가리지 않는 안내만 표시합니다. 장부나 로그인 상태로 이용자를 판별하지 않습니다.
     function showNotice() {
-      const welcome = document.querySelector('#page-home .home-welcome');
+      const welcome = document.querySelector('#page-home .home-desk-masthead, #page-home .home-welcome');
       if (!welcome) return;
       const notice = document.createElement('section');
       notice.id = 'patch-notes-notice';

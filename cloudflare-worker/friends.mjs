@@ -7,7 +7,7 @@ const SCOPES = ['maplestory.starforce', 'maplestory.potential'];
 // Nexon rejects subsets of the application's registered authorization scopes.
 const AUTH_SCOPES = ['maplestory.characterlist', 'maplestory.starforce', 'maplestory.potential', 'maplestory.scheduler', 'maplestory.cube', 'maplestory.soulpotential'];
 const LEDGER_ACTIONS = ['ledger-key', 'ledger-read', 'ledger-save', 'ledger-history'];
-const GAME_ACTIONS = ['history', 'character-list', 'character-profile', 'scheduler'];
+const GAME_ACTIONS = ['history', 'character-list', 'character-profile', 'character-equipment', 'scheduler'];
 const TOKEN_URL = 'https://openid.nexon.com/oauth2/token';
 const SESSION_TTL = 14 * 24 * 3600 * 1000;
 const hex = bytes => Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
@@ -136,6 +136,31 @@ export class FriendsSession {
     return json(result);
   }
   async alarm() { await this.state.storage.deleteAll(); }
+  async characterEquipment(session,input,deadline) {
+    if(!validOcid(input.ocid))return json({error:'Invalid equipment query'},400);
+    if(typeof this.env.NEXON_API_KEY!=='string'||!this.env.NEXON_API_KEY.trim())return json({error:'장비 조회를 위한 서비스 설정이 준비되지 않았습니다. 수기로 계획을 기록할 수 있습니다.',errorCode:'PROFILE_UNAVAILABLE'},503);
+    const signal=()=>AbortSignal.timeout(Math.max(1,deadline-Date.now()));
+    let list=await this.ownedCharacters(session,false,signal());
+    const owns=()=>list.account_list.some(account=>account.character_list.some(c=>c.ocid===input.ocid));
+    if(!owns())list=await this.ownedCharacters(session,true,signal());
+    if(!owns())return json({error:'로그인한 넥슨 계정의 캐릭터만 조회할 수 있습니다.',errorCode:'CHARACTER_NOT_OWNED'},403);
+    const key='equipment:'+input.ocid,cached=this.profileCache.get(key);
+    if(cached?.account===session.account&&cached.until>Date.now())return json(cached.data);
+    const read=kind=>{const url=new URL('https://open.api.nexon.com/maplestory/v1/character/'+kind);url.searchParams.set('ocid',input.ocid);return upstream(url,{headers:{'x-nxopen-api-key':this.env.NEXON_API_KEY},signal:signal()},'PROFILE');};
+    const results=await Promise.allSettled([read('item-equipment'),read('symbol-equipment')]);
+    const item=results[0].status==='fulfilled'?results[0].value:null,symbol=results[1].status==='fulfilled'?results[1].value:null;
+    const result={ocid:input.ocid,date:item?.date||symbol?.date||null};
+    const itemFields=['item_equipment_part','item_equipment_slot','item_name','item_icon','starforce','potential_option_grade','additional_potential_option_grade','potential_option_1','potential_option_2','potential_option_3','additional_potential_option_1','additional_potential_option_2','additional_potential_option_3'];
+    const symbolFields=['symbol_name','symbol_icon','symbol_level','symbol_force','symbol_exp','symbol_growth_count','symbol_require_growth_count'];
+    if(Array.isArray(item?.item_equipment))result.equipment=item.item_equipment.map(row=>pick(row,itemFields));
+    if(Array.isArray(symbol?.symbol))result.symbols=symbol.symbol.map(row=>pick(row,symbolFields));
+    if(!result.equipment&&!result.symbols)return json({error:'장비·심볼 정보를 불러오지 못했습니다. 저장한 계획은 유지됩니다.',errorCode:'EQUIPMENT_UNAVAILABLE'},502);
+    if(!result.equipment||!result.symbols)result.warning='일부 정보는 불러오지 못했습니다. 기존 값을 확인하세요.';
+    for(const [cacheKey,entry]of this.profileCache)if(entry.until<=Date.now())this.profileCache.delete(cacheKey);
+    if(this.profileCache.size>=30)this.profileCache.delete(this.profileCache.keys().next().value);
+    this.profileCache.set(key,{account:session.account,until:Date.now()+PROFILE_CACHE_TTL,data:result});
+    return json(result);
+  }
   async fetch(request) {
     const requestStarted=Date.now();
     return this.state.blockConcurrencyWhile(async()=>{
@@ -184,7 +209,7 @@ export class FriendsSession {
           const ledger=this.env.FRIENDS_LEDGERS.get(this.env.FRIENDS_LEDGERS.idFromName('account:'+session.account));
           return await ledger.fetch(new Request('https://ledger/'+action,{method:'POST',body:JSON.stringify({action,account:session.account,revision:input.revision,payload:input.payload,beforeRevision:input.beforeRevision})}));
         }
-        const additionalScope=['character-list','character-profile'].includes(action)?'maplestory.characterlist':action==='scheduler'?'maplestory.scheduler':input.kind==='soul-potential'?'maplestory.soulpotential':null;
+        const additionalScope=['character-list','character-profile','character-equipment'].includes(action)?'maplestory.characterlist':action==='scheduler'?'maplestory.scheduler':input.kind==='soul-potential'?'maplestory.soulpotential':null;
         if (additionalScope && !session.scopes?.includes(additionalScope)) return json({error:'추가 게임 데이터 동의를 갱신하려면 넥슨 계정을 다시 연결해 주세요.',errorCode:'USER_SCOPE'},403);
         if (session.accessUntil<=Date.now()+60000) {
           try {
@@ -200,6 +225,7 @@ export class FriendsSession {
           return json(await this.ownedCharacters(session));
         }
         if (action==='character-profile') return await this.characterProfile(session,input,requestStarted+24000);
+        if (action==='character-equipment') return await this.characterEquipment(session,input,requestStarted+24000);
         if (action==='scheduler') {
           const url=new URL('https://open.api.nexon.com/maplestory/v1/scheduler/character-state');
           url.searchParams.set('ocid',input.ocid);
@@ -263,6 +289,7 @@ export async function friendsRoute(request,env) {
   if (path==='ledger-history' && body.beforeRevision!==undefined && (!Number.isSafeInteger(body.beforeRevision) || body.beforeRevision<1)) return json({error:'Invalid history cursor'},400);
   if (path==='scheduler' && (typeof body.ocid!=='string' || !/^[a-f0-9]{16,128}$/i.test(body.ocid) || (body.date!==undefined && !validDate(body.date)))) return json({error:'Invalid scheduler query'},400);
   if (path==='character-profile' && !validProfileQuery(body)) return json({error:'Invalid character profile query'},400);
+  if (path==='character-equipment' && !validOcid(body.ocid)) return json({error:'Invalid equipment query'},400);
   if (path==='history') {
     if (!['starforce','potential','cube','soul-potential'].includes(body.kind)) return json({error:'Invalid history kind'},400);
     const date=body.date, cursor=body.cursor;

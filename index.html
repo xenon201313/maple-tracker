@@ -2,9 +2,10 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261022-1"></script>
-<script src="assets/patch-notes.js?v=20260919-2"></script>
+<script src="assets/patch-notes-data.js?v=20261028-2"></script>
+<script src="assets/patch-notes.js?v=20261028-2"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
+<script src="assets/planner-state.js?v=20261028-1"></script>
 <script src="assets/friends-expenses.js?v=20261022-1"></script>
 <script src="assets/account-sync.js?v=20260929-1"></script>
 <script src="assets/friends-characters.js?v=20260929-1"></script>
@@ -1005,7 +1006,9 @@
     .bimg{width:130px; height:78px;}
   }
 </style>
-<link rel="stylesheet" href="assets/workspace.css?v=20260909-1">
+<link rel="stylesheet" href="assets/workspace.css?v=20261028-2">
+<link rel="stylesheet" href="assets/ledger-planner.css?v=20261028-2">
+<link rel="stylesheet" href="assets/play-desk.css?v=20261028-2">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
@@ -1016,7 +1019,7 @@
   <a class="workspace-brand" href="?page=home"><img id="logo-meso" alt=""><span>나만의 메계부</span></a>
   <button class="icon-button sidebar-close" type="button" data-menu-close aria-label="메뉴 닫기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#close"></use></svg></button>
   <nav class="tabs" aria-label="주요 메뉴">
-    <span class="nav-group-label">내 기록</span>
+    <span class="nav-group-label">장부</span>
     <button class="tab active" type="button" data-page="home" aria-current="page"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#home"></use></svg>홈</button>
     <button class="tab" type="button" data-page="character"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg>캐릭터 등록</button>
     <button class="tab" type="button" data-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg>재획 기록</button>
@@ -1024,10 +1027,11 @@
     <button class="tab" type="button" data-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</button>
     <button class="tab" type="button" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 보스</button>
     <button class="tab" type="button" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 보스</button>
-    <span class="nav-group-label">수익 관리</span>
+    <span class="nav-group-label">수익과 자산</span>
     <button class="tab" type="button" data-page="profit"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#profit"></use></svg>손익 계산기</button>
     <button class="tab" type="button" data-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg>지출 기록</button>
     <button class="tab" type="button" data-page="stats"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#stats"></use></svg>통계</button>
+    <button class="tab" type="button" data-page="planner"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#profit"></use></svg>자산·성장 계획</button>
     <span class="nav-group-label">도움말</span>
     <button class="tab" type="button" data-page="intro"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>사용 설명</button>
     <button class="tab" type="button" id="patch-notes-open" hidden><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg>패치노트</button>
@@ -1040,7 +1044,12 @@
     <button class="icon-button mobile-menu-toggle" type="button" data-menu-toggle aria-label="전체 메뉴 열기" aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg></button>
     <div><span class="workspace-eyebrow">나만의 메계부</span><h1 id="workspace-title" tabindex="-1">홈</h1></div>
   </div>
-  <div class="workspace-header-actions"><span class="storage-badge" title="기록은 현재 브라우저에 저장됩니다.">브라우저 저장</span><button class="ghost workspace-backup" id="workspace-backup" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#download"></use></svg><span>백업</span></button></div>
+  <div class="workspace-header-actions">
+    <button type="button" class="ghost workspace-search" data-desk-search aria-label="메뉴와 도구 찾기" aria-haspopup="dialog" aria-controls="desk-search-dialog"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>도구 찾기</span><kbd>Ctrl K</kbd></button>
+    <button type="button" class="ghost workspace-account" data-desk-account aria-label="계정 및 저장 설정"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg><span>계정·저장</span></button>
+    <span class="storage-badge" title="기록은 현재 브라우저에 저장됩니다.">브라우저 저장</span>
+    <button class="ghost workspace-backup" id="workspace-backup" type="button" aria-label="장부 JSON 백업 내려받기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#download"></use></svg><span>백업</span></button>
+  </div>
 </header>
 <main class="workspace-main" id="workspace-main" tabindex="-1">
 <noscript><p class="card">기록장 입력 기능은 JavaScript가 필요합니다. <a href="guide/">사용 가이드와 계산 사례</a>는 JavaScript 없이도 읽을 수 있습니다.</p></noscript>
@@ -1048,19 +1057,104 @@
   <span><strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <div class="nexon-api-links">
     <a href="api/">API 연동 안내</a>
+    <a href="guide/record-principles/">계산·기록 기준</a>
     <a href="https://openapi.nexon.com/ko/support/terms/" target="_blank" rel="noopener">이용약관</a>
   </div>
 </div>
 
 <!-- ══════════ 홈 ══════════ -->
 <div class="page active" id="page-home">
-  <section class="card home-welcome" aria-labelledby="home-welcome-title">
-    <h2 id="home-welcome-title">내 메소가 어디서 들어오고 나갔는지, 나만의 메계부</h2>
-    <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
-    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/boss-settlement/#try-settlement">보스 분배 계산</a><a href="guide/profit-expense/#try-calculator">판매 손익·강화 비용 계산</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
+  <section class="home-desk-masthead" aria-labelledby="desk-title">
+    <div><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메계부</h2><p>플레이는 가볍게, 기록은 차곡차곡.</p></div>
+    <div class="desk-reset"><span id="desk-week"></span><span>주간 초기화 목요일 / 월간 초기화 1일</span></div>
+  </section>
+  <div class="workspace-quick-actions" aria-label="빠른 기록">
+    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+  </div>
+  <div class="card home-overview">
+    <div class="home-head">
+      <div>
+        <h2>수익 요약</h2>
+        <p id="home-period-label">이번 주와 이번 달의 수익 흐름을 정리하고 있습니다.</p>
+      </div>
+      <button class="ghost" id="home-open-stats" type="button">전체 통계</button>
+    </div>
+    <div class="home-summary-grid" id="home-summary"></div>
+  </div>
+  <div class="home-workbench">
+    <div class="home-core">
+  <section class="card desk-record-card" aria-labelledby="desk-record-title">
+    <div class="home-section-head"><h2 id="desk-record-title">내 기록 확인</h2><span class="muted">현재 장부에 저장한 내역 기준</span></div>
+    <div id="desk-record-status"></div>
+    <div class="desk-next"><p id="desk-next-copy"></p><button type="button" class="ghost" id="desk-next-action">기록 열기</button></div>
+  </section>
+  <div class="home-grid">
+    <div class="card">
+      <div class="home-section-head">
+        <div><h2>이번 주 보스 진행</h2></div>
+        <span class="muted" id="weekly-progress-rules">9월 17일 주차부터 캐릭터별 주간 12개 제한이 해제됩니다.</span>
+      </div>
+      <div class="weekly-progress-list" id="home-weekly-progress"></div>
+      <div class="home-action-row"><button class="ghost" type="button" data-open-page="boss">주간 보스 보기</button></div>
+    </div>
+
+    <div class="card">
+      <div class="home-section-head">
+        <div><h2>월간 결산</h2></div>
+        <span class="muted">실제 수입과 지출만 반영합니다.</span>
+      </div>
+      <div class="monthly-report-controls">
+        <label>결산 월<select id="home-report-month"></select></label>
+        <button class="ghost" id="home-report-copy" type="button">텍스트 복사</button>
+        <button class="ghost" id="home-report-image" type="button">이미지 저장</button>
+      </div>
+      <div id="home-monthly-report"></div>
+    </div>
+
+    <div class="card home-wide home-automation">
+      <div class="home-section-head">
+        <div><h2>수익 추이</h2></div>
+        <span class="muted">저장된 기록 기준 · 예상 수익은 실제 수익과 다를 수 있습니다.</span>
+      </div>
+      <div id="home-automation"></div>
+    </div>
+
+    <div class="card">
+      <div class="home-section-head">
+        <div><h2>개인 시세 기록</h2></div>
+        <span class="muted">내 실수령 기준 최근 판매·드랍 가격입니다.</span>
+      </div>
+      <div class="price-history-list" id="home-price-history"></div>
+    </div>
+
+    <div class="card">
+      <div class="home-section-head">
+        <div><h2>나의 기록</h2></div>
+        <span class="muted">최고 수익과 누적 재획 기록</span>
+      </div>
+      <div class="personal-records" id="home-personal-records"></div>
+    </div>
+
+    <div class="card home-wide">
+      <div class="home-section-head">
+        <div><h2>백업 · 복원</h2></div>
+        <span class="muted">API 키는 어떤 백업 파일에도 포함하지 않습니다.</span>
+      </div>
+      <div class="backup-status" id="home-backup"></div>
+    </div>
+  </div>
+    </div>
+    <aside class="home-side" aria-label="도구와 계정 저장">
+  <section class="card journey-links" aria-labelledby="journey-title">
+    <h2 id="journey-title">플레이 흐름별 도구</h2>
+    <div><h3>플레이 전 계획</h3><p>가능한 시간과 사용할 메소를 정해요.</p><a href="?page=planner&amp;tool=bossplan" data-desk-tool="bossplan">보스 시간 계획</a><a href="?page=planner&amp;tool=symbol" data-desk-tool="symbol">심볼 예산</a><a href="?page=planner&amp;tool=budget" data-desk-tool="budget">자금·목표 계획</a></div>
+    <div><h3>플레이 후 기록</h3><p>수입과 쓴 비용을 남겨요.</p><a href="?page=daily" data-desk-page="daily">재획 기록</a><a href="?page=planner&amp;tool=hunting" data-desk-tool="hunting">재획 효율 비교</a><a href="?page=planner&amp;tool=investment" data-desk-tool="investment">장비 투자 장부</a></div>
+    <div><h3>판매 후 정산</h3><p>판매 여부와 파티 분배를 확인해요.</p><a href="?page=planner&amp;tool=settlement" data-desk-tool="settlement">미정산함</a><a href="?page=profit" data-desk-page="profit">판매 손익 계산</a></div>
   </section>
   <section class="card account-sync" aria-labelledby="account-title">
-    <h2 id="account-title">넥슨 계정으로 장부 이어쓰기</h2>
+    <h2 id="account-title" tabindex="-1">넥슨 계정으로 장부 이어쓰기</h2>
     <p>넥슨 로그인 후 같은 계정으로 다른 기기에서도 장부를 불러올 수 있습니다. 처음 연결할 때 사용할 장부를 선택하며, 전환 전 기록은 이 기기에 보관합니다.</p>
     <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
     <div class="account-actions">
@@ -1084,6 +1178,15 @@
       <div id="account-server-history"></div>
     </details>
   </section>
+    </aside>
+  </div>
+  <div class="home-support">
+  <section class="card home-welcome" aria-labelledby="home-welcome-title">
+    <h2 id="home-welcome-title">처음 기록하는 분을 위한 안내</h2>
+    <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
+    <p class="home-first-action"><button type="button" onclick="openPage('daily')">재획 기록 열기</button> <a href="?page=planner">자산·성장 계획 살펴보기</a></p>
+    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/boss-settlement/#try-settlement">보스 분배 계산</a><a href="guide/profit-expense/#try-calculator">판매 손익·강화 비용 계산</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
+  </section>
   <section class="card home-reading" aria-labelledby="home-reading-title">
     <h2 id="home-reading-title">합계가 달라질 때, 계산부터 확인해 보세요</h2>
     <p>같은 판매가라도 수수료·분배·기록 날짜에 따라 내 몫은 달라집니다. 공개 계산기에서 내 조건으로 결과를 확인하고, 아래 가이드의 숫자 예시로 검산해 보세요. 로그인 없이 사용할 수 있으며 계산 입력은 저장하지 않습니다.</p>
@@ -1091,77 +1194,7 @@
 <a class="reading-card" href="guide/boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>판매가·인원·분배 비율을 입력해 송금액과 각자 실수령액을 계산하고, 100메소 내림과 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
 <a class="reading-card" href="guide/profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>판매 손익을 계산하고, 소울 단계·어빌리티 잠금 수와 실제 시도 횟수에서 필요한 메소·명성치를 구합니다.</p><span>계산 사례 읽기 →</span></a></div>
   </section>
-  <div class="workspace-quick-actions" aria-label="빠른 기록">
-    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-  </div>
-  <div class="card home-overview">
-    <div class="home-head">
-      <div>
-        <h2>수익 요약</h2>
-        <p id="home-period-label">이번 주와 이번 달의 수익 흐름을 정리하고 있습니다.</p>
-      </div>
-      <button class="ghost" id="home-open-stats" type="button">전체 통계</button>
-    </div>
-    <div class="home-summary-grid" id="home-summary"></div>
-  </div>
-
   <div class="card"><h2>10월 22일 본서버 업데이트 반영</h2><p class="muted">본서버 1.2.420의 결정석 변경과 신규 익스트림 보스·드랍, 부티크 기프트·로얄스타일 162기를 반영했습니다. 신규 보스는 10월 23일 저녁부터 개방되며, 상품 판매와 티켓 사용 종료일은 서로 다릅니다. <a href="updates/2026-10/">10월 변경 사항과 기록 방법 보기</a></p></div>
-  <div class="home-grid">
-    <div class="card">
-      <div class="home-section-head">
-        <div><h2>👑 이번 주 보스 진행</h2></div>
-        <span class="muted" id="weekly-progress-rules">9월 17일 주차부터 캐릭터별 주간 12개 제한이 해제됩니다.</span>
-      </div>
-      <div class="weekly-progress-list" id="home-weekly-progress"></div>
-      <div class="home-action-row"><button class="ghost" type="button" data-open-page="boss">주간 보스 보기</button></div>
-    </div>
-
-    <div class="card">
-      <div class="home-section-head">
-        <div><h2>🧾 월간 결산</h2></div>
-        <span class="muted">실제 수입과 지출만 반영합니다.</span>
-      </div>
-      <div class="monthly-report-controls">
-        <label>결산 월<select id="home-report-month"></select></label>
-        <button class="ghost" id="home-report-copy" type="button">텍스트 복사</button>
-        <button class="ghost" id="home-report-image" type="button">이미지 저장</button>
-      </div>
-      <div id="home-monthly-report"></div>
-    </div>
-
-    <div class="card home-wide home-automation">
-      <div class="home-section-head">
-        <div><h2>수익 추이</h2></div>
-        <span class="muted">저장된 기록 기준 · 예상 수익은 실제 수익과 다를 수 있습니다.</span>
-      </div>
-      <div id="home-automation"></div>
-    </div>
-
-    <div class="card">
-      <div class="home-section-head">
-        <div><h2>💎 개인 시세 기록</h2></div>
-        <span class="muted">내 실수령 기준 최근 판매·드랍 가격입니다.</span>
-      </div>
-      <div class="price-history-list" id="home-price-history"></div>
-    </div>
-
-    <div class="card">
-      <div class="home-section-head">
-        <div><h2>🏅 나의 기록</h2></div>
-        <span class="muted">최고 수익과 누적 재획 기록</span>
-      </div>
-      <div class="personal-records" id="home-personal-records"></div>
-    </div>
-
-    <div class="card home-wide">
-      <div class="home-section-head">
-        <div><h2>🛡 백업 · 복원</h2></div>
-        <span class="muted">API 키는 어떤 백업 파일에도 포함하지 않습니다.</span>
-      </div>
-      <div class="backup-status" id="home-backup"></div>
-    </div>
   </div>
 </div>
 
@@ -1785,6 +1818,23 @@
   </div>
 </div>
 
+<section class="page" id="page-planner" aria-label="자산·성장 계획">
+  <div class="planner-heading">
+    <p class="planner-kicker">기록을 다음 계획으로</p>
+    <h2>자산·성장 계획</h2>
+    <p>장비 투자와 미정산 내역을 확인하고, 내 기록에 맞는 예산과 플레이 계획을 세우세요.</p>
+    <a href="guide/record-principles/">계산 기준과 API 제공 범위</a>
+  </div>
+  <div class="planner-tabs" role="tablist" aria-label="계획 종류">
+    <button type="button" role="tab" data-planner-tool="investment" aria-controls="planner-panel">장비 투자</button>
+    <button type="button" role="tab" data-planner-tool="settlement" aria-controls="planner-panel">미정산함</button>
+    <button type="button" role="tab" data-planner-tool="budget" aria-controls="planner-panel">자금 계획</button>
+    <button type="button" role="tab" data-planner-tool="hunting" aria-controls="planner-panel">재획 비교</button>
+    <button type="button" role="tab" data-planner-tool="bossplan" aria-controls="planner-panel">보스 시간 계획</button>
+    <button type="button" role="tab" data-planner-tool="symbol" aria-controls="planner-panel">심볼 예산</button>
+  </div>
+  <div id="planner-panel" role="tabpanel" tabindex="0"></div>
+</section>
 <script>
 const IMG={
   "meso": "data:image/png;base64,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",
@@ -4402,6 +4452,7 @@ function normalizeChar(c){
   const legacyName=typeof c==='string' ? c : '';
   c=(c && typeof c==='object' && !Array.isArray(c)) ? c : {name:legacyName};
   c.name=c.name || '';
+  c.ledgerPlanId=String(c.ledgerPlanId||c.ocid||[c.server||'main',c.worldName||c.world_name||'',c.name].join(':'));
   c.server=c.server==='challenger' ? 'challenger' : 'main';
   c.ocid=String(c.ocid || '').trim();
   c.worldName=String(c.worldName || c.world_name || c.world || '').trim();
@@ -5436,7 +5487,8 @@ function downloadWeeklyDropRecoveryDiagnostic(){
 }
 function hasTrackerDataForBackup(source=db){
   const data=ensureObj(source);
-  return Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0) || MapleEnhancements.normalize(data.enhancements).events.length>0;
+  const planned=globalThis.MaplePlannerState?.sections.some(section=>(data.planner?.[section]||[]).some(row=>!row.deletedAt));
+  return planned || Object.keys(ensureObj(data.records)).length>0 || (Array.isArray(data.chars) && data.chars.length>0) || (Array.isArray(data.profits) && data.profits.length>0) || (Array.isArray(data.expenses) && data.expenses.length>0) || MapleEnhancements.normalize(data.enhancements).events.length>0;
 }
 function maybeCreateMonthlyBackup(){
   const month=todayStr().slice(0,7);
@@ -5448,6 +5500,10 @@ function maybeCreateMonthlyBackup(){
 }
 function save(){
   window.MapleAccountSync?.beforeSave();
+  if(globalThis.MaplePlannerState){
+    const stored=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    db.planner=MaplePlannerState.merge(stored.planner,db.planner);
+  }
   preserveWeeklyDropsBeforeWrite(db);
   preserveHuntRecordsBeforeWrite(db);
   storeHuntJournalFromSource(db);
@@ -5475,6 +5531,7 @@ db.records=normalizeRecords(db.records || {},db.settings);
 db.chars=(Array.isArray(db.chars) ? db.chars : []).map(normalizeChar);
 db.profits=normalizeProfitRecords(db.profits || []);
 db.enhancements=MapleEnhancements.normalize(db.enhancements);
+db.planner=globalThis.MaplePlannerState?.normalize(db.planner)||db.planner||{};
 db.expenses=normalizeExpenseRecords(db.expenses || []);
 db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots || []);
 db.huntTombstones=normalizeHuntTombstones(db.huntTombstones || []);
@@ -7424,6 +7481,7 @@ function trackerDbFromData(source, apiKey='', snapshots=db.backupSnapshots){
     chars:(Array.isArray(raw.chars) ? raw.chars : []).map(c=>normalizeChar(c)),
     profits:normalizeProfitRecords(raw.profits||[]),
     enhancements:MapleEnhancements.merge(db.enhancements,raw.enhancements),
+    planner:globalThis.MaplePlannerState?.normalize(raw.planner===undefined?db.planner:raw.planner)||(raw.planner===undefined?db.planner:raw.planner)||{},
     expenses:normalizeExpenseRecords(raw.expenses||[]),
     backupSnapshots:normalizeBackupSnapshots(snapshots),
     huntTombstones:normalizeHuntTombstones(raw.huntTombstones||[]),
@@ -8654,9 +8712,11 @@ function applyCloudSnapshot(snapshot,options={}){
   const baseKeys=huntEntryLocationKeys({settings:source.settings,records:source.records});
   const mergedKeys=huntEntryLocationKeys({settings:source.settings,records:mergedRecords});
   const enhancements=MapleEnhancements.merge(localSource.enhancements,remoteSource.enhancements);
-  const needsUpload=baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key)) || JSON.stringify(enhancements)!==JSON.stringify(MapleEnhancements.normalize(source.enhancements));
+  const planner=globalThis.MaplePlannerState?.merge(localSource.planner,remoteSource.planner)||source.planner||{};
+  const plannerChanged=globalThis.MaplePlannerState && JSON.stringify(planner)!==JSON.stringify(MaplePlannerState.normalize(source.planner));
+  const needsUpload=plannerChanged || baseKeys.size!==mergedKeys.size || Array.from(mergedKeys).some(key=>!baseKeys.has(key)) || JSON.stringify(enhancements)!==JSON.stringify(MapleEnhancements.normalize(source.enhancements));
   const updatedAt=needsUpload ? Date.now() : (Math.max(Number(localSource.updatedAt)||0,Number(snapshot.updatedAt)||0) || Date.now());
-  db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,enhancements,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
+  db=trackerDbFromData(Object.assign({},source,{records:mergedRecords,enhancements,planner,huntTombstones:tombstones,updatedAt}),currentApiKey,snapshots);
   storeHuntJournalFromSource(db);
   dailyRecordPage=0;
   weeklyStatsPage=0;
@@ -11079,6 +11139,7 @@ function renderAll(){
     case 'profit': renderProfitCalculator(); break;
     case 'expense': renderExpenses(); break;
     case 'stats': renderStats(); break;
+    case 'planner': window.MapleLedgerPlanner?.render(); break;
     case 'home': renderHome(); break;
   }
   document.dispatchEvent(new CustomEvent('workspace:render'));
@@ -11171,7 +11232,17 @@ window.MapleEnhancementBridge={
   }
 };
 </script>
-<script src="assets/workspace.js?v=20260908-1"></script>
+<script src="assets/ledger-finance.js?v=20261028-1"></script>
+<script src="assets/ledger-activity.js?v=20261028-1"></script>
+<script src="assets/ledger-planner.js?v=20261028-1"></script>
+<dialog id="desk-search-dialog" class="desk-search-dialog" aria-labelledby="desk-search-title">
+  <div class="desk-search-head"><h2 id="desk-search-title">메뉴·도구 찾기</h2><button type="button" class="icon-button" data-desk-close aria-label="도구 찾기 닫기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#close"></use></svg></button></div>
+  <label for="desk-search-input">찾을 기능</label><input id="desk-search-input" type="search" placeholder="예: 정산, 소울, 심볼, 백업" autocomplete="off" aria-controls="desk-search-results">
+  <p id="desk-search-count" role="status" aria-live="polite" aria-atomic="true"></p><div id="desk-search-results" class="desk-search-results"></div>
+  <p class="desk-search-hint">방향키로 이동하고 Enter로 열 수 있습니다. Esc로 닫습니다.</p>
+</dialog>
+<script src="assets/workspace.js?v=20261028-1"></script>
+<script src="assets/play-desk.js?v=20261028-2"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <a href="guide/">사용 가이드·계산 사례</a>
