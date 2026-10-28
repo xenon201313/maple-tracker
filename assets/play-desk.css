@@ -1,4 +1,7 @@
 /* 플레이 데스크의 읽기 전용 현황과 메뉴 검색. 저장 UI는 기존 계정 패널을 사용합니다. */
+.ledger-public-link{display:flex;align-items:center;min-height:44px;padding:10px 14px;margin:0 4px 20px;border:1px solid #78958e;border-radius:6px;color:#fff;font-size:14px;font-weight:700;text-decoration:none}
+.ledger-public-link:hover{background:#2d554c;color:#fff}
+.workspace-public-home{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;color:var(--text);border:1px solid var(--line);border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap}
 .workspace-header .workspace-search{display:inline-flex;align-items:center;gap:8px;min-height:44px}
 .workspace-search kbd{font:12px var(--font-body);padding:2px 5px;border:1px solid var(--line);border-radius:4px;color:var(--sub)}
 .workspace-account{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;min-height:44px!important}
@@ -24,6 +27,7 @@
 #account-title,#home-backup{scroll-margin-top:100px}
 @media(max-width:1250px){.workspace-search kbd{display:none}.desk-record-list{grid-template-columns:1fr}.desk-record-link,.desk-record-link:first-child{padding:12px 0;border-right:0;border-bottom:1px solid var(--line)}.desk-record-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px}.desk-record-link small{grid-column:1/-1}.desk-record-link strong{font-size:18px;text-align:right}}
 @media(max-width:640px){
+ .workspace-public-home{display:none}
  .workspace-header .workspace-search{width:44px;min-width:44px;padding:10px!important;justify-content:center}.workspace-search span{display:none}
  .workspace-account{width:44px;min-width:44px;padding:10px!important;display:inline-flex;align-items:center;justify-content:center}.workspace-account span{display:none}
  .workspace-header-actions{gap:4px!important;flex-shrink:0}.workspace-header .workspace-heading{min-width:0;flex:1}.workspace-header h1{overflow-wrap:anywhere;line-height:1.35}

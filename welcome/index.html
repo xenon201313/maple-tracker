@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google-adsense-account" content="ca-pub-7107280230386162">
+<title>메소 계산과 기록의 기준 | 나만의 메계부</title>
+<meta name="description" content="판매가·수수료·구입비로 실제 손익을 계산하고, 재획 조각과 보스 분배를 중복 없이 기록하는 방법을 확인하세요. 공개 계산은 로그인 없이 사용하고 개인 장부는 따로 열 수 있습니다.">
+<meta name="theme-color" content="#23564d">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://maple-trackers.com/">
+<link rel="icon" type="image/png" href="/assets/icon.png?v=20260908">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="나만의 메계부">
+<meta property="og:title" content="메소 계산과 기록의 기준 | 나만의 메계부">
+<meta property="og:description" content="판매가와 실제 손익의 차이를 계산하고, 재획·보스·지출을 기록하는 기준을 확인하세요.">
+<meta property="og:url" content="https://maple-trackers.com/">
+<meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
+<link rel="stylesheet" href="/assets/typography.css?v=20260907-1">
+<link rel="stylesheet" href="/assets/welcome.css?v=20261028-1">
+<script defer src="/assets/welcome.js?v=20261028-1"></script>
+</head>
+<body class="welcome-page">
+<a class="welcome-skip" href="#welcome-main">본문으로 이동</a>
+<header class="welcome-header"><div class="welcome-header-inner">
+  <a class="welcome-brand" href="/" aria-label="나만의 메계부 공개 홈"><img src="/assets/icon.png?v=20260908" width="40" height="40" alt=""><span>나만의 메계부<small>메소 계산과 기록의 기준</small></span></a>
+  <nav class="welcome-nav" aria-label="주요 페이지"><a href="#calculator">계산실</a><a href="#guides">계산 사례</a><a href="#making">제작과 출처</a></nav>
+  <a class="welcome-ledger-link" href="/?page=home">내 장부 열기<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+</div></header>
+<main id="welcome-main">
+  <section class="welcome-hero welcome-container" aria-labelledby="welcome-title">
+    <div class="welcome-intro">
+      <p class="welcome-purpose">메이플스토리 개인 수익 기록 도구</p>
+      <h1 id="welcome-title">판매가와 실제 손익을 구분해 기록하세요.</h1>
+      <p class="welcome-lead">판매가에서 수수료와 구입비를 빼면 얼마가 남을까요? 조건을 바꿔 계산하고, 실제 수입만 내 장부에 기록하세요.</p>
+      <div class="welcome-intro-actions"><a class="welcome-primary-link" href="#calculator">숫자를 바꿔 계산하기</a><a href="/guide/record-principles/">장부에 반영하는 기준</a></div>
+      <dl class="welcome-access"><div><dt>공개 계산</dt><dd>로그인 없이 사용</dd></div><div><dt>개인 장부</dt><dd>브라우저 저장부터 시작</dd></div></dl>
+      <p class="welcome-disclosure">NEXON Open API를 이용하는 비공식 서비스입니다.<br> <a href="/api/">연동 범위</a>와 <a href="/about/#corrections">운영·정정 방법</a>을 공개합니다.</p>
+    </div>
+    <section class="welcome-calculator" id="calculator" aria-labelledby="welcome-calc-title" data-welcome-calculator>
+      <div class="welcome-calc-heading"><div><p>공개 계산실</p><h2 id="welcome-calc-title">이 거래의 실제 손익</h2></div><span class="welcome-example-label">가상 예제</span></div>
+      <p class="welcome-calc-description">금액과 판매 여부를 바꾸면 계산 과정도 함께 달라집니다. 입력값은 저장하거나 서버로 보내지 않습니다.</p>
+      <form data-welcome-form novalidate><fieldset disabled data-welcome-ready><legend class="welcome-sr-only">판매 조건 입력</legend>
+        <div class="welcome-fields">
+          <label for="welcome-cost">실제로 쓴 구입비 <span>메소</span><input id="welcome-cost" name="cost" type="text" inputmode="numeric" value="100,000,000" autocomplete="off" aria-describedby="welcome-input-note welcome-calc-error"></label>
+          <label for="welcome-sale">판매가 합계 <span>메소</span><input id="welcome-sale" name="sale" type="text" inputmode="numeric" value="120,000,000" autocomplete="off" aria-describedby="welcome-input-note welcome-calc-error"></label>
+          <label for="welcome-fee">판매 수수료 <span>%</span><input id="welcome-fee" name="fee" type="number" min="0" max="100" step="0.01" value="3" aria-describedby="welcome-input-note welcome-calc-error"></label>
+        </div>
+        <div class="welcome-sale-state"><label class="welcome-checkbox"><input type="checkbox" name="sold" checked>실제로 판매 완료</label><button type="reset" class="welcome-reset">예제로 되돌리기</button></div>
+        <p id="welcome-input-note" class="welcome-field-note">메소는 0 이상의 정수, 수수료는 0~100%를 입력하세요. 수수료 기본값 3%는 예제 조건입니다.</p>
+      </fieldset></form>
+      <p id="welcome-calc-error" class="welcome-error" role="status" aria-live="polite" data-welcome-error></p>
+      <div class="welcome-answer" data-welcome-answer>
+        <div class="welcome-answer-title"><h3>판매 완료 기준 손익</h3><span data-welcome-state>판매 완료</span></div>
+        <p class="welcome-net" data-welcome-net>16,400,000 <span>메소</span></p><p class="welcome-korean-amount" data-welcome-korean role="status" aria-live="polite" aria-atomic="true">1,640만 메소가 남습니다.</p>
+        <dl class="welcome-receipt"><div><dt>판매 후 실제 수령</dt><dd data-welcome-revenue>116,400,000 메소</dd></div><div><dt>구입 지출</dt><dd data-welcome-cost>100,000,000 메소</dd></div><div><dt>판매 수수료</dt><dd data-welcome-fee>3,600,000 메소</dd></div></dl>
+        <p class="welcome-formula" data-welcome-formula>120,000,000 × 97% − 100,000,000 = 16,400,000 메소</p>
+        <p class="welcome-answer-note" data-welcome-note>판매 수입에서 구입비를 뺀 결과입니다. 파티 분배와 송금 수수료는 포함하지 않습니다.</p>
+      </div>
+      <p class="welcome-rounding">수수료 차감 후 1메소 미만을 내립니다. 합산 금액을 한 번에 판매한 조건이며, 여러 건으로 나누어 팔면 거래별 내림으로 차이가 생길 수 있습니다.</p>
+      <noscript><p class="welcome-noscript">직접 계산에는 JavaScript가 필요합니다. 위 결과와 아래 계산 표는 가상 예제의 정적 결과이며, 입력은 잠겨 있습니다.</p></noscript>
+    </section>
+  </section>
+  <section class="welcome-method" aria-labelledby="welcome-method-title"><div class="welcome-container welcome-method-grid">
+    <div><h2 id="welcome-method-title">장부에 들어가는 숫자는 따로 있습니다.</h2><p>판매가 1억 2,000만 메소가 곧 수익은 아닙니다. 가상 거래 한 건을 세 단계로 나누면, 내 기록에 어떤 금액을 넣어야 하는지 확인할 수 있습니다.</p><a href="/guide/profit-expense/#realized-profit">판매 손익 예제 자세히 읽기</a></div>
+    <div class="welcome-example-table"><table><caption>구입비 1억 · 판매가 1억 2,000만 · 수수료 3% 예제</caption><thead><tr><th scope="col">기록할 항목</th><th scope="col">계산</th><th scope="col">메소</th></tr></thead><tbody><tr><th scope="row">판매 실수령</th><td>120,000,000 × 97%</td><td>116,400,000</td></tr><tr><th scope="row">구입 지출</th><td>실제로 지급한 금액</td><td>100,000,000</td></tr><tr><th scope="row">최종 손익</th><td>실수령 − 구입비</td><td>16,400,000</td></tr></tbody></table><p>아직 팔지 않았다면 수입은 0입니다. 이미 쓴 구입비는 지출로 남고, 예상 판매가는 비교용으로만 확인합니다.</p></div>
+  </div></section>
+  <section class="welcome-container welcome-guides" id="guides" aria-labelledby="welcome-guides-title">
+    <div class="welcome-section-heading"><div><p>합계가 달라지는 이유</p><h2 id="welcome-guides-title">자주 헷갈리는 기록, 계산으로 확인하기</h2></div><a href="/guide/">전체 사용 가이드</a></div>
+    <article class="welcome-guide-row"><div class="welcome-guide-topic"><span>재획과 조각</span><h3>사냥할 때 환산한 조각을 팔면 수익을 또 더할까요?</h3></div><div><p>조각을 이미 메소로 환산한 회차와 나중의 판매 정산을 모두 수입에 넣으면 같은 조각이 두 번 계산됩니다. 회차에 고정한 조각 가격, 보유 수량, 실제 판매 원본을 나누어 살펴봅니다.</p><a href="/guide/hunt-income/">조각 수입의 중복 반영 예제</a></div></article>
+    <article class="welcome-guide-row"><div class="welcome-guide-topic"><span>보스와 파티 분배</span><h3>판매가를 인원수로 나누었는데 왜 내 몫이 다를까요?</h3></div><div><p>판매 수수료를 뺀 금액과 파티원에게 송금한 뒤의 실수령액은 다릅니다. 파티장·파티원 비율과 송금 수수료, 100메소 단위 내림까지 조건을 바꿔 확인합니다.</p><a href="/guide/boss-settlement/#try-settlement">조건별 파티 분배 계산</a></div></article>
+    <article class="welcome-guide-row"><div class="welcome-guide-topic"><span>판매와 강화 지출</span><h3>보유 아이템의 가격과 가져온 강화 이력은 확정 금액일까요?</h3></div><div><p>팔지 않은 아이템의 예상 가격은 확정 수입이 아닙니다. API로 가져온 강화 이력도 실제 조건과 금액을 확인한 뒤 지출에 반영합니다. 수기 비용과 같은 거래인지 확인하는 과정이 필요합니다.</p><a href="/guide/profit-expense/#expense-reconcile">미판매·추정 비용을 구별하는 방법</a></div></article>
+  </section>
+  <section class="welcome-container welcome-ledger-section" aria-labelledby="welcome-ledger-title">
+    <div class="welcome-ledger-copy"><p>계산 다음에는 내 기록</p><h2 id="welcome-ledger-title">흩어진 메소 기록을 한 장부로 이어가세요.</h2><p>재획, 결정석, 아이템 판매와 강화 지출을 같은 기록장에서 확인합니다. 직접 입력으로 시작하고, 필요한 경우에만 넥슨 로그인 또는 개인 API 키 연결을 선택합니다.</p><a class="welcome-primary-link" href="/?page=home">내 장부 열기</a><a class="welcome-inline-link" href="/guide/#reading-guides">처음 사용하는 방법</a></div>
+    <ul class="welcome-ledger-tools"><li><a href="/?page=daily"><strong>재획 기록</strong><span>회차별 메소와 솔 에르다 조각</span></a></li><li><a href="/?page=boss"><strong>보스 수익</strong><span>주간·월간·일간 체크와 드랍</span></a></li><li><a href="/?page=expense"><strong>강화·구매 지출</strong><span>확인한 비용을 한 번만 반영</span></a></li><li><a href="/?page=planner"><strong>자산·성장 계획</strong><span>장비 투자·미정산·시간·심볼 예산</span></a></li></ul>
+  </section>
+  <section class="welcome-making" id="making" aria-labelledby="welcome-making-title"><div class="welcome-container welcome-making-grid">
+    <div><p>제작과 기록 기준</p><h2 id="welcome-making-title">누가, 어떤 기준으로 만들었나요?</h2><p>메이플스토리 크로아 월드의 얀보가 개인 기록용으로 시작한 비공식 도구입니다. 다른 메모장에 흩어진 재획·보스·지출 기록을 모으고, 같은 거래가 중복으로 더해지지 않도록 만드는 데 목적을 둡니다.</p><p class="welcome-byline">운영·기록 기준 <a href="/about/#experience">크로아/얀보</a><br><time datetime="2026-10-28">2026년 10월 28일 수정</time></p><a href="/about/">제작 목적과 운영 방식</a></div>
+    <div class="welcome-evidence"><h3>사용 과정에서 바꾼 것</h3><ul><li><strong>결정석 판매 시점 구분</strong><p>점검 전에 판매한 이용자의 금액이 패치 후 가격으로 섞이지 않도록 시점을 구분했습니다.</p></li><li><strong>조회 방식의 중복 요구 수정</strong><p>넥슨 로그인 후 개인 API 키를 또 요구한다는 제보를 반영해 연결 경로를 정리했습니다.</p></li><li><strong>종료된 상품의 기록 보존</strong><p>기간 한정 상품의 신규 입력이 끝나도 기존 손익과 지출 기록은 남기는 기준을 사용합니다.</p></li></ul><a href="https://github.com/xenon201313/maple-tracker/commits/main/" target="_blank" rel="noopener">소스 변경 이력 확인</a></div>
+  </div></section>
+  <section class="welcome-container welcome-standards" aria-label="출처와 데이터 안내">
+    <div><h2>게임 규칙과 기록 원칙을 구분합니다.</h2><p>게임 규칙은 공식 업데이트와 NEXON API 안내를 우선합니다. 이 페이지의 금액은 계산 방법을 설명하기 위한 가상 예제이며, 실제 시세·평균 수익·수익 보장을 뜻하지 않습니다.</p><div class="welcome-source-links"><a href="https://maplestory.nexon.com/News/Update" target="_blank" rel="noopener">메이플스토리 공식 업데이트</a><a href="https://openapi.nexon.com/ko/game/maplestory/" target="_blank" rel="noopener">NEXON API 제공 범위</a><a href="/guide/record-principles/">이 장부의 계산·정산 원칙</a></div></div>
+    <div><h2>틀린 결과가 나오면 조건부터 확인합니다.</h2><p>사용한 화면과 입력 조건, 기대한 금액과 실제 결과를 <a href="https://github.com/xenon201313/maple-tracker/issues" target="_blank" rel="noopener">GitHub 이슈</a>에 남겨 주세요. API 키, 로그인 정보, 개인 장부 전체는 올리지 마세요.</p><p>개인 장부는 브라우저에 먼저 저장합니다. 계정 연결 시의 처리 방식과 쿠키·광고 정책은 <a href="/privacy.html">개인정보 안내</a>에서 확인할 수 있습니다.</p></div>
+  </section>
+</main>
+<footer class="welcome-footer"><div class="welcome-container"><a class="welcome-footer-brand" href="/">나만의 메계부</a><p>NEXON Open API를 이용하는 비공식 서비스입니다. 게임 이미지와 데이터의 권리는 각 권리자에게 있습니다.</p><nav aria-label="사이트 안내"><a href="/about/">사이트 소개·문의</a><a href="/api/">API 연동 안내</a><a href="/privacy.html">개인정보·쿠키 안내</a><a href="/?page=home">개인 장부</a></nav></div></footer>
+</body>
+</html>

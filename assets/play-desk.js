@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const tools = [
-    {name:'홈',group:'장부',page:'home',description:'오늘 기록과 수익 흐름 확인',words:'오늘 데스크 대시보드'},
+    {name:'장부 요약',group:'장부',page:'home',description:'오늘 기록과 수익 흐름 확인',words:'홈 오늘 데스크 대시보드'},
     {name:'캐릭터 등록',group:'장부',page:'character',description:'캐릭터와 API 연결 관리',words:'넥슨 연동 프로필'},
     {name:'재획 기록',group:'장부',page:'daily',description:'재획 메소와 솔 에르다 조각 기록',words:'사냥 수입 일일'},
     {name:'주간 보스',group:'보스',page:'boss',description:'주간 처치와 결정석·드랍 기록',words:'체크 파티 분배'},

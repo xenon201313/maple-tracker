@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
-const pages=['index.html','guide/index.html','about/index.html','api/index.html','privacy.html',
+const pages=['index.html','welcome/index.html','guide/index.html','guide/record-principles/index.html','about/index.html','api/index.html','privacy.html',
   'guide/hunt-income/index.html','guide/boss-settlement/index.html','guide/profit-expense/index.html','updates/2026-09/index.html','updates/2026-10/index.html'];
 const htmls=new Map(pages.map(file=>[file,fs.readFileSync(path.join(root,file),'utf8')]));
 let links=0;
@@ -11,13 +11,14 @@ for(const [file,html] of htmls){
   assert.equal((html.match(/<h1\b/g)||[]).length,1,file+'의 문서 제목');
   assert.match(html,/<meta name="google-adsense-account" content="ca-pub-7107280230386162">/,file+' 소유권 확인');
   assert.doesNotMatch(html,/<script[^>]*src="https:\/\/pagead2\.googlesyndication/,file+' 무조건 광고 로드 금지');
-  const base=new URL(file==='index.html'?'/':'/'+file.replace(/index\.html$/,''),'https://maple-trackers.com');
+  const base=new URL(file==='index.html'?'/?page=home':file==='welcome/index.html'?'/':'/'+file.replace(/index\.html$/,''),'https://maple-trackers.com');
   const markup=html.replace(/<script([^>]*)>[\s\S]*?<\/script>/g,'<script$1></script>');
   for(const match of markup.matchAll(/(?:href|src)="([^"<>]+)"/g)){
     if(!match[1]||match[1].startsWith('data:'))continue;
     const url=new URL(match[1].replaceAll('&amp;','&'),base);
     if(url.origin!==base.origin)continue;
     let target=decodeURIComponent(url.pathname).slice(1);
+    if(!target||target==='index.html')target=['page','code','state','error'].some(key=>url.searchParams.has(key))?'index.html':'welcome/index.html';
     if(!target||target.endsWith('/'))target+='index.html';
     const full=path.resolve(root,target);
     assert(full.startsWith(root+path.sep),'경로 이탈: '+target);
@@ -29,7 +30,7 @@ for(const [file,html] of htmls){
     }
     links++;
   }
-  const article=file.startsWith('guide/')&&file!=='guide/index.html';
+  const article=['guide/hunt-income/index.html','guide/boss-settlement/index.html','guide/profit-expense/index.html'].includes(file);
   if(article){
     assert.match(html,/<article aria-label="계산 사례 본문">[\s\S]*<table\b/,file+' 정적 본문·계산 표');
     assert.match(html,/가상/);

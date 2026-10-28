@@ -6,12 +6,12 @@
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>나만의 메계부 사용 가이드 | 재획·보스 수익 기록</title>
 <meta name="description" content="재획 메소, 솔 에르다 조각, 일간·주간·월간 보스 결정석과 드랍 분배를 나만의 메계부에 정확히 기록하는 방법">
-<meta name="theme-color" content="#14161f">
+<meta name="theme-color" content="#f2f5f6">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://maple-trackers.com/guide/">
 <link rel="icon" type="image/png" href="../assets/icon.png?v=20260908">
 <link rel="apple-touch-icon" href="../assets/icon.png?v=20260908">
-<link rel="stylesheet" href="../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../assets/public-pages.css?v=20261028-3">
 <link rel="stylesheet" href="../assets/typography.css?v=20260907-1">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
@@ -25,32 +25,37 @@
   <header class="topbar">
     <a class="brand" href="../"><img src="../assets/icon.png?v=20260908" alt="">나만의 메계부</a>
     <nav class="nav" aria-label="주요 페이지">
-      <a href="../">기록장</a>
+      <a href="../">홈</a>
       <a href="../guide/" aria-current="page">사용 가이드</a>
       <a href="../about/">사이트 소개</a>
       <a href="../api/">API 연동</a>
+      <a class="nav-ledger" href="/?page=home">내 장부</a>
     </nav>
   </header>
 
   <main>
     <section class="hero">
       <p class="eyebrow">메이플스토리 수익 기록 안내</p>
-      <h1>나만의 메계부 사용 가이드</h1>
+      <h1>메소 기록과 정산 가이드</h1>
       <p class="lead">사냥과 보스에서 얻은 메소를 같은 기준으로 기록하고, 실제 판매가 끝난 수익과 아직 보유 중인 아이템을 구분하는 방법을 설명합니다.</p>
       <div class="meta">
         <span>재획 회차별 기록</span>
         <span>일간·주간·월간 보스 분리</span>
         <span>드랍 분배와 판매 수수료</span>
         <span>브라우저 우선 저장</span>
-        <span>작성·검토: 크로아/얀보</span>
-        <span>최종 검토 2026-10-28</span>
+        <span>운영·기록 기준: <a href="../about/#experience">크로아/얀보</a></span>
+        <span>안내 수정 2026-10-28</span>
       </div>
     </section>
 
     <nav class="section" aria-label="목적별 가이드">
-      <h2>필요한 안내부터 찾기</h2>
-      <div class="link-list"><a href="#guide-start">처음 기록하기</a><a href="record-principles/">계산·정산 원칙</a><a href="#guide-planning">자산·성장 계획</a><a href="#guide-recovery">기록·백업 확인</a></div>
-      <p>합계가 예상과 다르다면 <a href="record-principles/#real-income">판매가와 실수령액</a>, <a href="record-principles/#confirmed-expense">강화 추정과 확정 지출</a>부터 확인하세요.</p>
+      <h2>어떤 금액을 확인하고 싶으세요?</h2>
+      <div class="guide-route-grid">
+        <a class="guide-route" href="profit-expense/#try-calculator"><span>혼자 판매했을 때</span><h3>판매가가 전부 내 수익인가요?</h3><p>구입비와 수수료를 빼고, 실제 판매가 끝난 금액으로 손익을 계산합니다.</p><b>판매 손익 계산하기</b></a>
+        <a class="guide-route" href="boss-settlement/#try-settlement"><span>파티 드랍을 나눌 때</span><h3>얼마를 보내야 같은 몫일까요?</h3><p>판매·송금 수수료, 파티 인원과 비율을 함께 넣어 분배를 검산합니다.</p><b>보스 분배 계산하기</b></a>
+        <a class="guide-route" href="hunt-income/"><span>사냥 기록을 정리할 때</span><h3>조각 수익이 두 번 들어갔나요?</h3><p>보유 조각, 회차 환산액과 나중에 판매한 정산의 차이를 예제로 확인합니다.</p><b>재획 계산 사례 읽기</b></a>
+      </div>
+      <div class="link-list"><a href="#guide-start">장부 사용 시작</a><a href="record-principles/">계산·정산 원칙</a><a href="#guide-planning">자산·성장 계획</a><a href="#guide-recovery">백업·복구 확인</a></div>
     </nav>
     <section class="section"><h2>게임 패치의 적용 날짜 확인</h2><details><summary>이전 기록과 현재 가격이 다를 때 확인하세요</summary><p>본서버 1.2.420의 익스트림 림보·발드릭스, 새 드랍과 부티크 기프트·로얄스타일은 실제 기록 날짜와 판매 시점에 맞춰 확인합니다. 신규 보스의 입장 시각과 상품 판매·티켓 사용 종료는 서로 다릅니다. <a href="../updates/2026-10/">10월 22일 변경 사항과 기록 방법</a></p><p>본서버 1.2.419의 결정석 가격과 주간 제한, 신규 메소 사용처, 메이린 종료도 기록 날짜에 맞춰 적용합니다. 검은 마법사 변경은 10월 1일부터입니다. <a href="../updates/2026-09/">9월 17일 패치 전후 기록 방법</a></p></details></section>
     <section class="section" aria-labelledby="public-calculators-title">
@@ -74,7 +79,7 @@
       <h2>1. 처음 사용할 때</h2>
       <ol class="steps">
         <li>기록장은 로그인 없이 사용할 수 있습니다. 처음 입력한 데이터는 현재 브라우저의 로컬 저장소에 저장됩니다.</li>
-        <li>캐릭터 등록 탭에서 캐릭터명과 서버를 등록하거나, 넥슨 로그인으로 내 캐릭터 목록을 불러옵니다. 개인 NEXON Open API 키가 있으면 캐릭터 이미지·전투력·경험치도 조회할 수 있습니다.</li>
+        <li>캐릭터 등록 탭에서 캐릭터명과 서버를 직접 등록하거나, 넥슨 로그인으로 내 캐릭터 목록을 불러옵니다. 이미지·전투력·경험치는 넥슨 로그인 또는 개인 NEXON Open API 키 중 한 가지 방식으로 조회합니다. 두 방식을 함께 등록할 필요는 없습니다.</li>
         <li>다른 기기에서 이어 쓰려면 홈에서 넥슨 로그인 후 사용할 계정 장부를 선택합니다. 처음에는 이 기기의 기록과 계정의 기록을 확인하며 전환 전 원본은 별도로 보관합니다. 기존 개인 API 키 동기화도 유지됩니다. 기기 이동 전에는 JSON 백업도 준비하며 API 키 자체는 백업에 포함되지 않습니다.</li>
       </ol>
       <p class="callout"><strong>중요:</strong> 브라우저의 사이트 데이터나 쿠키를 일괄 삭제하면 로컬 기록도 지워질 수 있습니다. 큰 수정 전과 기기 이동 전에는 JSON 백업을 내려받아 보관하세요.</p>
@@ -174,7 +179,7 @@
         <li>복원하기 전에는 현재 상태를 먼저 JSON으로 백업하고, 날짜가 가장 최근인 정상 백업 파일을 선택합니다. 계정 장부의 전환 전 원본과 서버 세대 보관본도 확인할 수 있습니다. 로그아웃만으로 저장한 장부가 삭제되지는 않습니다.</li>
       </ol>
       <div class="link-list">
-        <a href="../">기록장 열기</a>
+        <a href="/?page=home">내 장부 열기</a>
         <a href="../api/">API 연동 안내</a>
         <a href="../privacy.html">데이터 저장 안내</a>
       </div>
