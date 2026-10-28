@@ -23,8 +23,6 @@ Worker가 `ASSETS` 바인딩에서 파일을 반환하므로 정상 웹 요청�
 
 HTTP apex와 www는 경로·쿼리를 보존해 HTTPS apex로 301 이동합니다. `/?page=character` 같은 기존 탐색과 넥슨 콜백 주소 `https://maple-trackers.com/?page=home`도 그대로 사용합니다. `/api/`는 공개 사용 안내 페이지이며 실제 장부 API가 아닙니다.
 
-2026-10-28 공개 홈을 분리했습니다. `/` 및 `/index.html`에서 장부·OAuth 쿼리가 없으면 `welcome/index.html`을 내부적으로 반환합니다. 사용자 에이전트나 로그인 여부로 콘텐츠를 나누지 않습니다. `page`, `code`, `state`, `error` 쿼리가 있으면 기존 `index.html`을 그대로 반환해 장부와 인증 복귀를 보존하며 이 장부 경로만 `noindex, follow`로 표시합니다. 공개 홈·가이드에는 전역 noindex를 붙이지 않습니다. `/welcome/` 직접 접근은 `/`로 정규화하고, 미리보기 도메인은 모든 응답에서 검색 제외를 유지합니다.
-
 ## 배포하기
 
 Node.js 20 이상, npm, Git이 필요합니다. 저장소 루트에서 실행합니다. 최초 인증 또는 만료 시 `npx wrangler@4.129.0 login`으로 운영자 Cloudflare 계정에 로그인합니다. 인증값은 파일이나 채팅에 복사하지 않습니다. 웹 Worker에는 넥슨 키 등 별도 Secret을 등록할 필요가 없습니다.
@@ -60,7 +58,6 @@ npm run deploy:web -- --plan
 | 경로 | 포함 기준 |
 | --- | --- |
 | 루트 | `index.html`, `privacy.html`, `ads-config.js`, `ads.txt`, `robots.txt`, `site.webmanifest`, `sitemap.xml`, `thumbnail.png` |
-| `welcome/index.html` | 루트 공개 홈에서 내부적으로 반환하는 필수 정적 문서 |
 | `assets/` | JS, CSS, 이미지, 글꼴; 기존 출처 JSON 및 라이선스 파일은 명시한 경로만 |
 | `about/`, `api/`, `guide/`, `updates/` | 각 하위 경로의 `index.html` |
 | `downloads/` | `mesobook-android-beta.apk`만 |

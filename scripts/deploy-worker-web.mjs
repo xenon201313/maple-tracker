@@ -28,7 +28,6 @@ async function verifyPublicSite(manifest) {
   const preview = 'https://maple-tracker-web.xenon201313.workers.dev';
   const production = 'https://maple-trackers.com';
   const home = manifest.find(file => file.path === 'index.html');
-  const publicHome = manifest.find(file => file.path === 'welcome/index.html');
   let needsBrowserVerification = false;
   const check = async (url, validate) => {
     const response = await fetch(url, { signal: AbortSignal.timeout(30000), redirect: 'manual' });
@@ -43,16 +42,11 @@ async function verifyPublicSite(manifest) {
     validate(response, body);
   };
   for (const origin of [preview, production]) {
-    await check(`${origin}/`, (response, body) => {
-      if (response.status !== 200 || createHash('sha256').update(body).digest('hex') !== publicHome.sha256) throw new Error(`배포 후 공개 홈 검증 실패: ${origin}`);
-      if (origin === production && /noindex/i.test(response.headers.get('x-robots-tag') || '')) throw new Error('공개 홈이 검색 제외 상태입니다.');
-      if (origin === preview && !response.headers.get('x-robots-tag')?.includes('noindex')) throw new Error('미리보기 공개 홈의 검색 제외 헤더가 없습니다.');
-    });
     await check(`${origin}/?page=home`, (response, body) => {
       const sha256 = createHash('sha256').update(body).digest('hex');
       if (response.status !== 200 || sha256 !== home.sha256) throw new Error(`배포 후 홈 파일 검증 실패: ${origin}. Routes와 보안 이벤트를 확인하세요.`);
       if (origin === preview && !response.headers.get('x-robots-tag')?.includes('noindex')) throw new Error('미리보기 검색 제외 헤더가 없습니다.');
-      if (origin === production && !/^noindex, follow$/i.test(response.headers.get('x-robots-tag') || '')) throw new Error('개인 장부 경로의 검색 제외 설정을 확인하세요.');
+      if (origin === production && /noindex/i.test(response.headers.get('x-robots-tag') || '')) throw new Error('운영 주소에 검색 제외 헤더가 붙었습니다.');
     });
     await check(`${origin}/__maple_missing_asset_20261006__`, response => {
       if (response.status !== 404) throw new Error(`없는 경로가 404가 아닙니다: ${origin}`);

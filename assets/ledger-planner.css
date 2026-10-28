@@ -1,5 +1,5 @@
 /* 계획 도구의 입력·검토·기록 계층. 실제 장부·저장 계약은 유지합니다. */
-#page-planner{--lp-surface:var(--panel,#ffffff);--lp-raised:var(--panel2,#edf3f2);--lp-input:var(--panel-soft,#f6f8f9);--lp-border:var(--line,#d3dee1);--lp-radius:12px;min-width:0}
+#page-planner{--lp-surface:var(--panel,#17282d);--lp-raised:var(--panel2,#1d3338);--lp-input:var(--bg,#101c21);--lp-border:var(--line,#3f595d);--lp-radius:12px;min-width:0}
 .planner-heading{max-width:76ch;padding:0 0 24px}
 .planner-heading h2{margin:0 0 10px;color:var(--text);font:700 28px/1.4 var(--font-body)}
 .planner-heading p{margin:8px 0;color:var(--sub);font-size:16px;line-height:1.7}
@@ -11,18 +11,18 @@
 .planner-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:6px;margin:0 0 28px;border:1px solid var(--lp-border);border-radius:var(--lp-radius);background:var(--lp-input)}
 .planner-tabs button{min-width:0;min-height:48px;padding:12px 8px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--sub);font-size:14px;line-height:1.5;word-break:keep-all;text-wrap:balance;transition:background-color .16s ease,color .16s ease}
 .planner-tabs button:hover{color:var(--text);background:var(--lp-raised)}
-.planner-tabs button[aria-selected=true]{color:#ffffff;border-color:var(--action);background:var(--action);font-weight:700}
+.planner-tabs button[aria-selected=true]{color:#25251b;border-color:var(--gold);background:var(--gold);font-weight:700}
 .planner-tabs button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
 #planner-panel{min-width:0;outline:none}
 #planner-panel h2,#planner-panel h3{color:var(--text);font-family:var(--font-body);line-height:1.5}
 #planner-panel h2{margin:0 0 8px;font-size:22px}#planner-panel h3{margin:24px 0 16px;font-size:18px}
 #planner-panel p{max-width:78ch;line-height:1.75}
 #planner-panel label{display:block;min-width:0;color:var(--sub);font-size:14px;font-weight:700}
-#planner-panel input:not([type=checkbox]):not([type=radio]),#planner-panel select,#planner-panel textarea{display:block;width:100%;min-width:0;min-height:46px;box-sizing:border-box;margin-top:8px;padding:11px 12px;border:1px solid var(--border-strong);border-radius:7px;background:var(--lp-surface);color:var(--text);font-size:16px;font-variant-numeric:tabular-nums;line-height:1.5}
+#planner-panel input:not([type=checkbox]):not([type=radio]),#planner-panel select,#planner-panel textarea{display:block;width:100%;min-width:0;min-height:46px;box-sizing:border-box;margin-top:8px;padding:11px 12px;border:1px solid var(--lp-border);border-radius:7px;background:var(--lp-input);color:var(--text);font-size:16px;font-variant-numeric:tabular-nums;line-height:1.5}
 #planner-panel textarea{min-height:96px;resize:vertical}
 #planner-panel input[type=checkbox]{width:18px;height:18px;margin-right:7px;vertical-align:middle}
 #planner-panel input::placeholder,#planner-panel textarea::placeholder{color:var(--sub);opacity:.85}
-#planner-panel :is(input,select,textarea):focus{border-color:var(--action);box-shadow:0 0 0 3px color-mix(in srgb,var(--action) 15%,transparent)}
+#planner-panel :is(input,select,textarea):focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 15%,transparent)}
 #planner-panel button{min-height:44px;padding:10px 15px;font-size:14px;line-height:1.5;white-space:normal}
 #planner-panel button:active{filter:brightness(.91)}#planner-panel button:disabled{cursor:not-allowed;opacity:.6}
 #planner-panel button.danger{color:var(--red);background:transparent;border-color:color-mix(in srgb,var(--red) 44%,transparent)}
@@ -40,7 +40,7 @@
 .lp-card,.lp-item,.lp-record,.lp-entry{min-width:0;padding:24px;border:1px solid var(--lp-border);border-radius:var(--lp-radius);background:var(--lp-surface);overflow-wrap:anywhere}
 .lp-card h3,.lp-item h3,.lp-entry-head h3{margin-top:0!important}
 .lp-entry-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--lp-border)}
-.lp-entry-head h3{margin-bottom:0!important}.lp-entry-head>span{color:var(--sub);font-size:14px}.lp-entry-head>strong{color:var(--action);font-size:14px}
+.lp-entry-head h3{margin-bottom:0!important}.lp-entry-head>span{color:var(--sub);font-size:14px}.lp-entry-head>strong{color:var(--gold);font-size:14px}
 .lp-entry .lp-form{margin-bottom:16px!important;padding:20px;border-radius:8px;background:var(--lp-input)}
 .lp-entry .lp-form :is(input:not([type=checkbox]),select,textarea){background:var(--lp-surface)!important}
 /* 도움말·오류·빈 상태는 입력보다 조용하되 필요한 조치를 읽을 수 있게 남깁니다. */
@@ -89,18 +89,3 @@
 }
 @media(max-width:380px){.lp-summary,.lp-summary-grid,.lp-metrics{grid-template-columns:minmax(0,1fr)}.lp-actions>button{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){.planner-tabs button{transition:none}}
-
-/* 밝은 장부: 입력과 검토 결과는 같은 카드 깊이를 반복하지 않습니다. */
-.planner-heading { margin-bottom: 8px; padding: 6px 0 24px; border-bottom: 1px solid var(--lp-border); }
-.planner-heading h2 { font-size: 30px; }
-.planner-heading p { max-width: 68ch; }
-.planner-tabs { padding: 0; gap: 0; background: var(--panel); border-radius: 8px; overflow: hidden; }
-.planner-tabs button { border-radius: 0; border-right: 1px solid var(--lp-border); min-height: 56px; }
-.planner-tabs button:last-child { border-right: 0; }
-#planner-panel > .lp-form { border-radius: 8px; border-top: 3px solid var(--action); }
-.lp-card,.lp-item,.lp-record,.lp-entry { border-radius: 8px; }
-.lp-summary>div,.lp-summary-grid>div,.lp-metrics>div { border-radius: 0; background: transparent; border-left: 1px solid var(--lp-border); padding: 8px 16px; }
-.lp-summary>div:first-child,.lp-summary-grid>div:first-child,.lp-metrics>div:first-child { border-left: 0; padding-left: 0; }
-.lp-reference-list { background: var(--lp-input); }
-#planner-panel th { background: var(--lp-input); color: var(--text); }
-@media(max-width:700px) { .planner-heading h2 { font-size: 25px; }.planner-tabs button { min-height: 52px; }.lp-summary>div,.lp-summary-grid>div,.lp-metrics>div { border-left: 0; border-bottom: 1px solid var(--lp-border); padding: 12px 0; } }

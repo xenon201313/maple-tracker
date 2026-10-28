@@ -6,11 +6,11 @@
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>장부 계산·정산 원칙과 자금 계획 | 나만의 메계부</title>
 <meta name="description" content="메소 수입, 실제 판매일, 미정산과 강화 추정 비용을 구분하는 기록 원칙입니다. 장비 투자·잔액·재획 비교·보스 계획·심볼 예산의 API와 직접 입력 범위도 설명합니다.">
-<meta name="theme-color" content="#f2f5f6">
+<meta name="theme-color" content="#14161f">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://maple-trackers.com/guide/record-principles/">
 <link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
-<link rel="stylesheet" href="../../assets/public-pages.css?v=20261028-3">
+<link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
 <link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
@@ -23,7 +23,7 @@
 <div class="shell">
   <header class="topbar">
     <a class="brand" href="../../"><img src="../../assets/icon.png?v=20260908" alt="">나만의 메계부</a>
-    <nav class="nav" aria-label="주요 페이지"><a href="../../">홈</a><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../api/">API 연동</a><a class="nav-ledger" href="/?page=home">내 장부</a></nav>
+    <nav class="nav" aria-label="주요 페이지"><a href="../../">기록장</a><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../api/">API 연동</a></nav>
   </header>
   <main>
     <header class="hero">
@@ -32,11 +32,6 @@
       <p class="lead">아이템을 얻은 날과 판매한 날, 가져온 강화 이력과 확정한 지출, 앞으로 쓸 예산은 서로 다릅니다. 어떤 숫자가 합계에 들어가는지 확인하는 기준과 예제를 모았습니다.</p>
       <p class="article-meta">운영·기록 기준: <a href="../../about/#experience">크로아/얀보</a> · <time datetime="2026-10-28">2026년 10월 28일 수정</time> · 예제 금액은 가상 값</p>
       <p><a href="../../?page=planner">자산·성장 계획 열기</a> · <a href="../profit-expense/#try-calculator">저장 없이 손익 계산해 보기</a></p>
-      <div class="evidence-bar">
-        <div><strong>무엇을 기준으로 하나요?</strong><p>메계부의 실제 입력·합계 방식을 설명합니다. 공식 게임 규칙, 장부의 기록 기준과 가상 계산 예제를 구분합니다.</p></div>
-        <div><strong>예제는 어떤 조건인가요?</strong><p>아래 손익 예제는 한 번의 판매, 판매 수수료 3%, 별도 파티 송금 없음으로 계산합니다. 실제 거래 조건을 뜻하지 않습니다.</p></div>
-        <div><strong>틀린 계산을 찾았다면</strong><p><a href="#sources">출처와 정정 방법</a>에서 확인할 자료와 제보 경로를 볼 수 있습니다. API 키나 개인 장부 전체는 보내지 마세요.</p></div>
-      </div>
     </header>
     <nav class="section article-toc" aria-label="이 글의 목차"><h2>확인할 내용</h2><ol>
       <li><a href="#real-income">판매가와 내 수령액, 손익의 차이</a></li>
@@ -59,8 +54,7 @@
           <tr><th scope="row">손익</th><td>116,400,000 − 100,000,000</td><td>16,400,000</td></tr>
         </tbody></table></div>
         <p class="formula">실제 손익 = 판매 후 수령액 − 구입비 = 1,640만 메소</p>
-        <p>아직 판매하지 않았다면 예상 가격은 비교에만 사용합니다. 이 경우 이미 쓴 구입비 1억 메소는 지출이지만 판매 수입은 0이며, 보유 중인 물건의 예상 가격을 순수익으로 더하지 않습니다.</p>
-        <p><a href="../profit-expense/#try-calculator">공개 손익 계산기</a>에서 같은 구입비·판매가·수수료를 넣고 ‘실제로 판매 완료’를 끄면 차이를 확인할 수 있습니다. 파티 드랍은 내 몫과 송금 수수료·분배 조건까지 확인해야 하므로 <a href="../boss-settlement/">파티 분배 계산 사례</a>를 함께 보세요.</p>
+        <p>아직 판매하지 않았다면 예상 가격은 비교에만 사용합니다. 파티 드랍은 내 몫과 송금 수수료·분배 조건까지 확인해야 하므로 <a href="../boss-settlement/">파티 분배 계산 사례</a>를 함께 보세요.</p>
       </section>
       <section class="section" id="settlement">
         <h2>획득 기록과 판매·분배 기록을 구분합니다</h2>
@@ -117,7 +111,7 @@
       </section>
     </article>
   </main>
-  <footer><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../privacy.html">개인정보·쿠키 안내</a><a href="/?page=home">내 장부</a><span>크로아/얀보 제작</span></footer>
+  <footer><a href="../">사용 가이드</a><a href="../../about/">사이트 소개</a><a href="../../privacy.html">개인정보·쿠키 안내</a><a href="../../">기록장</a><span>크로아/얀보 제작</span></footer>
 </div>
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3a594c7a9bb647f2aec94efbeb9bb992"}'></script>

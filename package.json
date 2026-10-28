@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:public-home": "node scripts/test-public-home.cjs",
     "test:play-desk": "node scripts/test-play-desk.cjs",
     "test:planner": "node scripts/test-planner-state.mjs && node scripts/test-ledger-finance.mjs --ui && node scripts/test-ledger-activity.mjs --ui && node scripts/test-planner-equipment.mjs && node scripts/test-ledger-planner.cjs",
     "test:october": "node scripts/test-october-api.mjs && node scripts/test-october-profit.cjs && node scripts/test-october-boss-rules.cjs && node scripts/test-october-ui.cjs",

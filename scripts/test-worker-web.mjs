@@ -63,26 +63,11 @@ test('미리보기의 정상·없는 페이지·HTML 리디렉션 모두 검색 
   }
 });
 
-test('개인 장부는 기존 경로를 유지하고 검색 결과에서만 제외한다', async () => {
+test('운영 HTTPS는 자산 응답을 그대로 전달하고 전역 noindex를 추가하지 않는다', async () => {
   const asset = new Response('public content');
-  const request = new Request('https://maple-trackers.com/?page=character');
-  const result = await worker.fetch(request, { ASSETS: { fetch: input => { assert.equal(input,request);return asset; } } });
-  assert.equal(await result.text(), 'public content');
-  assert.equal(result.headers.get('x-robots-tag'), 'noindex, follow');
-});
-
-test('공개 홈은 모든 방문자에게 같은 정적 콘텐츠를 제공하고 OAuth 복귀는 장부로 전달한다', async () => {
-  for (const suffix of ['/', '/?utm_source=example', '/index.html']) {
-    let target;
-    const response=await worker.fetch(new Request('https://maple-trackers.com'+suffix),{ASSETS:{fetch: request=>{target=new URL(request.url);return new Response('공개 계산과 해설');}}});
-    assert.equal(target.pathname,'/welcome/');assert.equal(await response.text(),'공개 계산과 해설');assert.equal(response.headers.has('x-robots-tag'),false);
-  }
-  for (const query of ['?page=home','?code=abc&state=state','?error=access_denied&state=state','?page=home?code=abc&state=state']) {
-    const request=new Request('https://maple-trackers.com/'+query);let passed;
-    await worker.fetch(request,{ASSETS:{fetch: input=>{passed=input;return new Response('기존 장부');}}});assert.equal(passed,request,'인증 쿼리를 변경하지 않음');
-  }
-  const direct=await worker.fetch(new Request('https://maple-trackers.com/welcome/'),{ASSETS:{fetch(){throw Error('정규화 주소에서 자산 조회 금지');}}});
-  assert.equal(direct.status,301);assert.equal(direct.headers.get('location'),'https://maple-trackers.com/');
+  const result = await worker.fetch(new Request('https://maple-trackers.com/?page=character'), { ASSETS: { fetch: () => asset } });
+  assert.equal(result, asset);
+  assert.equal(result.headers.has('x-robots-tag'), false);
 });
 
 test('정적 자산은 Worker를 거치고 없는 경로를 앱으로 위장하지 않는다', () => {

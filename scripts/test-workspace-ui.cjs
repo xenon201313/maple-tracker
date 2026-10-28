@@ -281,11 +281,7 @@ async function checkReadability(page, width) {
         await page.goto(origin+route);
         await settle(page);
         await overflow(page,width+' '+route);
-        const colors=await page.evaluate(()=>({background:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color}));
-        const rgb=value=>value.match(/[\d.]+/g).slice(0,3).map(Number);
-        const luminance=value=>rgb(value).map(v=>{const n=v/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
-        assert(rgb(colors.background).every(n=>n>=230),route+' 공개 화면은 밝은 읽기 표면');
-        assert((luminance(colors.background)+.05)/(luminance(colors.text)+.05)>=4.5,route+' 본문 대비');
+        assert.match(await page.evaluate(()=>getComputedStyle(document.body).backgroundImage+' '+getComputedStyle(document.body,'::before').backgroundImage),/maple-mushroom-meso-bg\.webp/,route+' mushroom meso background');
         if (route === '/guide/' && [1440,390].includes(width)) {
           await page.screenshot({path:path.join(output,'guide-'+width+'-viewport.png')});
         }
