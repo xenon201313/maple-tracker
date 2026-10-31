@@ -10,7 +10,7 @@
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://maple-trackers.com/guide/record-principles/">
 <link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
-<link rel="stylesheet" href="../../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../../assets/public-pages.css?v=20261031-1">
 <link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
@@ -30,9 +30,18 @@
       <p class="eyebrow">계산 기준과 기록 읽는 법</p>
       <h1>같은 메소를 한 번만, 실제 조건으로 기록합니다</h1>
       <p class="lead">아이템을 얻은 날과 판매한 날, 가져온 강화 이력과 확정한 지출, 앞으로 쓸 예산은 서로 다릅니다. 어떤 숫자가 합계에 들어가는지 확인하는 기준과 예제를 모았습니다.</p>
-      <p class="article-meta">운영·기록 기준: <a href="../../about/#experience">크로아/얀보</a> · <time datetime="2026-10-28">2026년 10월 28일 수정</time> · 예제 금액은 가상 값</p>
+      <p class="article-meta">운영·기록 기준: <a href="../../about/#experience">크로아/얀보</a> · <time datetime="2026-10-31">2026년 10월 31일 안내 정리</time> · 예제 금액은 가상 값</p>
       <p><a href="../../?page=planner">자산·성장 계획 열기</a> · <a href="../profit-expense/#try-calculator">저장 없이 손익 계산해 보기</a></p>
     </header>
+    <section class="section calculation-key" aria-labelledby="numbers-meaning">
+      <h2 id="numbers-meaning">화면의 숫자는 이렇게 구분합니다</h2>
+      <dl class="source-facts">
+        <div><dt>기록한 수입·지출</dt><dd>실제 거래 조건으로 확정<small>판매 여부·수수료·분배 조건 확인</small></dd></div>
+        <div><dt>API 이력·추정 비용</dt><dd>조회 결과와 계산 참고값<small>최종 금액 확인 후 지출 반영</small></dd></div>
+        <div><dt>계획·예산</dt><dd>앞으로 쓸 금액과 목표<small>확정 장부에 자동 합산하지 않음</small></dd></div>
+      </dl>
+      <p>세 값이 다르게 보일 때는 먼저 기록 날짜와 확정 여부를 확인하세요. 아래 예제는 로그인 없이 읽을 수 있고 개인 장부를 변경하지 않습니다.</p>
+    </section>
     <nav class="section article-toc" aria-label="이 글의 목차"><h2>확인할 내용</h2><ol>
       <li><a href="#real-income">판매가와 내 수령액, 손익의 차이</a></li>
       <li><a href="#settlement">획득일과 실제 판매일이 다른 기록</a></li>
@@ -46,7 +55,7 @@
       <section class="section" id="real-income">
         <h2>판매가에서 구입비와 수수료를 빼야 손익입니다</h2>
         <p>1억 메소에 구입한 물건을 1억 2,000만 메소에 판매하고 판매 수수료가 3%인 가상 사례입니다. 판매가 전체를 순수익으로 계산하지 않습니다.</p>
-        <div class="table-scroll"><table><thead><tr><th scope="col">항목</th><th scope="col">계산</th><th scope="col">메소</th></tr></thead><tbody>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="판매 손익 계산 예제"><table><caption>구입가 1억·판매가 1억 2,000만·수수료 3%의 가상 거래</caption><thead><tr><th scope="col">항목</th><th scope="col">계산</th><th scope="col">메소</th></tr></thead><tbody>
           <tr><th scope="row">구입 지출</th><td>실제로 지급한 금액</td><td>100,000,000</td></tr>
           <tr><th scope="row">판매가</th><td>거래한 물건의 전체 금액</td><td>120,000,000</td></tr>
           <tr><th scope="row">판매 수수료</th><td>120,000,000 × 3%</td><td>3,600,000</td></tr>
@@ -82,7 +91,7 @@
       </section>
       <section class="section" id="api-boundary">
         <h2>API 조회와 직접 확인할 정보</h2>
-        <div class="table-scroll"><table><thead><tr><th scope="col">구분</th><th scope="col">API로 활용하는 정보</th><th scope="col">직접 확인하는 정보</th></tr></thead><tbody>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="API와 직접 입력 범위 비교"><table><caption>조회할 수 있는 사실과 사용자가 확인할 거래 조건</caption><thead><tr><th scope="col">구분</th><th scope="col">API로 활용하는 정보</th><th scope="col">직접 확인하는 정보</th></tr></thead><tbody>
           <tr><th scope="row">캐릭터·장비</th><td>프로필, 장착 장비·옵션, 심볼의 현재 정보</td><td>장비 구입비, 어떤 프로젝트의 장비인지</td></tr>
           <tr><th scope="row">보스</th><td>보스 진행·완료 상태</td><td>실제 소요 시간, 판매가, 파티 지급 여부</td></tr>
           <tr><th scope="row">강화</th><td>제공되는 강화 이력과 결과</td><td>할인·재료 구입비, 최종 확정할 지출</td></tr>

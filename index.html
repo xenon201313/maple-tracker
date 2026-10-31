@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261028-4"></script>
-<script src="assets/patch-notes.js?v=20261028-4"></script>
+<script src="assets/patch-notes-data.js?v=20261031-1"></script>
+<script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
 <script src="assets/friends-expenses.js?v=20261022-1"></script>
@@ -1013,14 +1013,15 @@
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
+<link rel="stylesheet" href="assets/maple-workspace.css?v=20261031-1">
 </head>
-<body>
+<body class="maple-workspace">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
 <aside class="workspace-sidebar" id="workspace-sidebar" aria-label="기록장 메뉴">
-  <a class="workspace-brand" href="?page=home"><img id="logo-meso" alt=""><span>나만의 메계부</span></a>
+  <a class="workspace-brand" href="?page=home"><img id="logo-meso" alt=""><span>나만의 메계부<small>모험가의 메소 기록장</small></span></a>
   <button class="icon-button sidebar-close" type="button" data-menu-close aria-label="메뉴 닫기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#close"></use></svg></button>
   <nav class="tabs" aria-label="주요 메뉴">
-    <span class="nav-group-label">장부</span>
+    <span class="nav-group-label">내 장부</span>
     <button class="tab active" type="button" data-page="home" aria-current="page"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#home"></use></svg>홈</button>
     <button class="tab" type="button" data-page="character"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#character"></use></svg>캐릭터 등록</button>
     <button class="tab" type="button" data-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg>재획 기록</button>
@@ -1028,7 +1029,7 @@
     <button class="tab" type="button" data-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 보스</button>
     <button class="tab" type="button" data-page="monthlyboss"><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 보스</button>
     <button class="tab" type="button" data-page="dailyboss"><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 보스</button>
-    <span class="nav-group-label">수익과 자산</span>
+    <span class="nav-group-label">정산과 계획</span>
     <button class="tab" type="button" data-page="profit"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#profit"></use></svg>손익 계산기</button>
     <button class="tab" type="button" data-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg>지출 기록</button>
     <button class="tab" type="button" data-page="stats"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#stats"></use></svg>통계</button>
@@ -1043,7 +1044,7 @@
 <header class="workspace-header">
   <div class="workspace-heading">
     <button class="icon-button mobile-menu-toggle" type="button" data-menu-toggle aria-label="전체 메뉴 열기" aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg></button>
-    <div><span class="workspace-eyebrow">나만의 메계부</span><h1 id="workspace-title" tabindex="-1">홈</h1></div>
+    <div><span class="workspace-eyebrow">나만의 메계부</span><h1 id="workspace-title" tabindex="-1">홈</h1><p id="workspace-context">내 모험의 기록과 정산</p></div>
   </div>
   <div class="workspace-header-actions">
     <button type="button" class="ghost workspace-search" data-desk-search aria-label="메뉴와 도구 찾기" aria-haspopup="dialog" aria-controls="desk-search-dialog"><svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>도구 찾기</span><kbd>Ctrl K</kbd></button>
@@ -1065,14 +1066,21 @@
 
 <!-- ══════════ 홈 ══════════ -->
 <div class="page active" id="page-home">
-  <section class="home-desk-masthead" aria-labelledby="desk-title">
-    <div><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메계부</h2><p>플레이는 가볍게, 기록은 차곡차곡.</p></div>
-    <div class="desk-reset"><span id="desk-week"></span><span>주간 초기화 목요일 / 월간 초기화 1일</span></div>
-  </section>
-  <section class="card account-sync home-account-panel" aria-labelledby="account-title">
+  <div class="home-launchpad">
+    <section class="home-desk-masthead" aria-labelledby="desk-title">
+      <div class="desk-hero-copy"><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메소, 차곡차곡.</h2><p>재획과 보스 수입부터 판매·강화 지출까지.<br>내 모험의 수익을 한 장의 장부로 정리해요.</p></div>
+      <div class="desk-hero-art" aria-hidden="true"></div>
+      <div class="desk-reset"><span><img src="assets/crystal-weekly.png" alt=""> 이번 주 <b id="desk-week"></b></span><span>주간 목요일 / 월간 1일 초기화</span></div>
+    </section>
+<div class="workspace-quick-actions" aria-label="빠른 기록">
+    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span><strong>재획 기록</strong><small>메소·조각 수입 남기기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span><strong>보스 체크</strong><small>결정석·드랍 정리하기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span><strong>지출 기록</strong><small>구매·강화 비용 적기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+  </div>
+<section class="card account-sync home-account-panel" aria-labelledby="account-title">
     <div class="account-entry-head">
-      <div class="account-entry-copy"><h2 id="account-title" tabindex="-1">넥슨 계정으로 장부 이어쓰기</h2>
-      <p>같은 넥슨 계정으로 로그인하면 다른 기기에서도 장부를 이어 쓸 수 있습니다.</p></div>
+      <div class="account-entry-copy"><h2 id="account-title" tabindex="-1">계정으로 이어쓰기</h2>
+      <p>로그인 없이 기록하고, 넥슨 계정으로 다른 기기에서도 이어 써요.</p></div>
     <div class="account-actions">
       <button type="button" id="account-login" disabled><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
       <button type="button" class="ghost" id="account-save" hidden>계정에 지금 저장</button>
@@ -1096,12 +1104,9 @@
       <div id="account-server-history"></div>
     </details>
   </section>
-  <div class="workspace-quick-actions" aria-label="빠른 기록">
-    <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>보스 체크</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
-    <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출 기록</span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
   </div>
-  <div class="card home-overview">
+  <div class="home-primary-grid">
+<div class="card home-overview">
     <div class="home-head">
       <div>
         <h2>수익 요약</h2>
@@ -1111,14 +1116,18 @@
     </div>
     <div class="home-summary-grid" id="home-summary"></div>
   </div>
-  <div class="home-workbench">
-    <div class="home-core">
-  <section class="card desk-record-card" aria-labelledby="desk-record-title">
+<section class="card desk-record-card" aria-labelledby="desk-record-title">
     <div class="home-section-head"><h2 id="desk-record-title">내 기록 확인</h2><span class="muted">현재 장부에 저장한 내역 기준</span></div>
     <div id="desk-record-status"></div>
     <div class="desk-next"><p id="desk-next-copy"></p><button type="button" class="ghost" id="desk-next-action">기록 열기</button></div>
   </section>
-  <div class="home-grid">
+  </div>
+  <div class="ledger-evidence" aria-label="계산과 기록 안내">
+    <div><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg><span><strong>숫자에도 근거가 있어야 하니까.</strong> 실제 수입·예상 금액·계획을 구분해 기록합니다.</span></div>
+    <a href="guide/record-principles/">계산·기록 기준</a><a href="about/">제작·운영 및 문의</a>
+  </div>
+  <div class="home-workbench"><div class="home-core">
+<div class="home-grid">
     <div class="card">
       <div class="home-section-head">
         <div><h2>이번 주 보스 진행</h2></div>
@@ -1173,18 +1182,16 @@
       <div class="backup-status" id="home-backup"></div>
     </div>
   </div>
-    </div>
-    <aside class="home-side" aria-label="도구와 계정 저장">
-  <section class="card journey-links" aria-labelledby="journey-title">
+  </div><aside class="home-side" aria-label="목적별 계획 도구">
+<section class="card journey-links" aria-labelledby="journey-title">
     <h2 id="journey-title">플레이 흐름별 도구</h2>
     <div><h3>플레이 전 계획</h3><p>가능한 시간과 사용할 메소를 정해요.</p><a href="?page=planner&amp;tool=bossplan" data-desk-tool="bossplan">보스 시간 계획</a><a href="?page=planner&amp;tool=symbol" data-desk-tool="symbol">심볼 예산</a><a href="?page=planner&amp;tool=budget" data-desk-tool="budget">자금·목표 계획</a></div>
     <div><h3>플레이 후 기록</h3><p>수입과 쓴 비용을 남겨요.</p><a href="?page=daily" data-desk-page="daily">재획 기록</a><a href="?page=planner&amp;tool=hunting" data-desk-tool="hunting">재획 효율 비교</a><a href="?page=planner&amp;tool=investment" data-desk-tool="investment">장비 투자 장부</a></div>
     <div><h3>판매 후 정산</h3><p>판매 여부와 파티 분배를 확인해요.</p><a href="?page=planner&amp;tool=settlement" data-desk-tool="settlement">미정산함</a><a href="?page=profit" data-desk-page="profit">판매 손익 계산</a></div>
   </section>
-
-    </aside>
-  </div>
-  <div class="home-support">
+    <section class="card home-source-note"><h2>직접 확인하는 계산</h2><p>1억 메소를 수수료 3%로 판매하면 실수령은 9,700만 메소입니다. 파티 분배가 있다면 그다음 내 몫을 계산합니다.</p><a href="guide/boss-settlement/#try-settlement">분배 조건으로 검산하기</a><a href="guide/profit-expense/#try-calculator">판매 손익 계산하기</a><small>입력 예시이며 실제 시세나 판매 수익을 뜻하지 않습니다.</small></section>
+  </aside></div>
+<div class="home-support">
   <section class="card home-welcome" aria-labelledby="home-welcome-title">
     <h2 id="home-welcome-title">처음 기록하는 분을 위한 안내</h2>
     <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
@@ -1408,7 +1415,7 @@
     </div>
     <div class="row">
       <div style="flex:1; min-width:200px;">
-        <label>캐릭터 이름</label>
+        <label for="in-char">캐릭터 이름</label>
         <input type="text" id="in-char" placeholder="예: 얀보" style="width:100%;">
       </div>
       <div style="min-width:190px;">
@@ -1470,33 +1477,33 @@
 
 <!-- ══════════ 재획 기록 ══════════ -->
 <div class="page" id="page-daily">
-  <div class="card">
+  <div class="card hunt-entry-card">
     <h2><img id="h-meso1">오늘의 재획 입력</h2>
     <div class="row">
       <div>
-        <label>날짜</label>
+        <label for="in-date">날짜</label>
         <input type="text" id="in-date" placeholder="예: 2026-07-06" inputmode="numeric" autocomplete="off">
       </div>
       <div>
-        <label>캐릭터</label>
+        <label for="in-hunt-char">캐릭터</label>
         <input type="text" id="in-hunt-char" placeholder="예: 얀보" autocomplete="off">
       </div>
       <div>
-        <label>회차 / 메모</label>
+        <label for="in-session-label">회차 / 메모</label>
         <input type="text" id="in-session-label" placeholder="예: 1재획, 이벤트 사냥" autocomplete="off">
       </div>
       <div style="flex:1; min-width:180px;">
-        <label><img class="icon-sm" id="i-meso1">획득 메소</label>
+        <label for="in-meso"><img class="icon-sm" id="i-meso1" alt="">획득 메소</label>
         <input type="text" id="in-meso" placeholder="예: 150,000,000" style="width:100%;" inputmode="numeric" autocomplete="off">
         <div class="hint" id="meso-hint"></div>
       </div>
       <div style="flex:1; min-width:180px;">
-        <label><img class="icon-sm" id="i-extra1">추가 부수입</label>
+        <label for="in-extra"><img class="icon-sm" id="i-extra1" alt="">추가 부수입</label>
         <input type="text" id="in-extra" placeholder="예: 30,000,000" style="width:100%;" inputmode="numeric" autocomplete="off">
         <div class="hint" id="extra-hint"></div>
       </div>
       <div>
-        <label><img class="icon-sm" id="i-orb1">솔 에르다 조각 (개)</label>
+        <label for="in-erda"><img class="icon-sm" id="i-orb1" alt="">솔 에르다 조각 (개)</label>
         <input type="number" id="in-erda" placeholder="예: 12" min="0" style="width:150px;">
       </div>
       <div style="flex:1; min-width:250px;">
@@ -1514,11 +1521,11 @@
     <h2>🧮 솔 에르다 조각 계산기</h2>
     <div class="calc-controls">
       <div>
-        <label><img class="icon-sm" id="i-orb-calc">조각 1개 가격</label>
+        <label for="in-erda-price"><img class="icon-sm" id="i-orb-calc" alt="">조각 1개 가격</label>
         <input type="text" id="in-erda-price" placeholder="예: 3,000,000" inputmode="numeric" autocomplete="off">
       </div>
       <div>
-        <label>판매 수수료</label>
+        <label for="erda-fee">판매 수수료</label>
         <select id="erda-fee">
           <option value="5">5%</option>
           <option value="3">3%</option>
@@ -1537,15 +1544,15 @@
     <h2>💠 솔 에르다 조각 판매 정산</h2>
     <div class="erda-settlement-grid">
       <div>
-        <label>판매 날짜</label>
+        <label for="in-erda-settlement-date">판매 날짜</label>
         <input type="text" id="in-erda-settlement-date" placeholder="예: 2026-07-15" inputmode="numeric" autocomplete="off">
       </div>
       <div>
-        <label>정산 시작일</label>
+        <label for="in-erda-settlement-start">정산 시작일</label>
         <input type="text" id="in-erda-settlement-start" placeholder="예: 2026-07-01" inputmode="numeric" autocomplete="off">
       </div>
       <div>
-        <label>정산 종료일</label>
+        <label for="in-erda-settlement-end">정산 종료일</label>
         <input type="text" id="in-erda-settlement-end" placeholder="예: 2026-07-15" inputmode="numeric" autocomplete="off">
       </div>
       <div><button id="btn-erda-settle" type="button">선택 기간 정산 추가</button></div>
@@ -1598,7 +1605,7 @@
     <div class="crystal-sale-guidance" id="weekly-crystal-sale-guidance" hidden><strong>9/17 점검 전에 판매한 결정석이 있나요?</strong><br>9/17 00:00~03:00에 판매했다면 보스 체크 후 해당 카드의 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 바꾸세요. 03:00~10:00 점검 후 판매분은 ‘점검 후 · 새 가격’을 선택합니다. <b>실제 판매 시점과 받은 금액</b>에 맞춰 선택하며, 같은 캐릭터도 보스별로 다르게 선택할 수 있습니다.<br>판매 시점을 지정하지 않은 기록은 기본 새 가격입니다. API로도 판매 시각을 자동 확인할 수 없으므로 점검 전 판매분만 직접 변경해 주세요. 선택은 가격이 바뀐 보스의 완료 카드에 표시되며, 이 주차에만 저장됩니다. <b>9월 24일 00:00(한국 시간)에 선택란과 안내가 자동으로 사라지며, 저장한 판매 금액은 유지됩니다.</b></div>
     <div class="crystal-sale-guidance" id="october-crystal-sale-guidance" hidden><strong>10/22 점검 전에 카링·유피테르 결정석을 판매했나요?</strong><br>10/22 00:00~04:00에 익스트림 카링 또는 하드 유피테르 결정석을 판매했다면, 해당 보스 체크 후 ‘결정석 판매 시점’을 ‘점검 전 · 기존 가격’으로 선택하세요. 점검 후 판매분은 기본 새 가격을 사용합니다. API는 실제 판매 시각을 제공하지 않으므로 받은 금액에 맞춰 직접 선택합니다.<br><b>10월 29일 00:00(한국 시간)에 선택란과 안내가 사라지며, 선택한 가격과 과거 기록은 유지됩니다.</b></div>
     <div class="weekly-drop-recovery" id="weekly-drop-recovery" hidden></div>
-    <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. API 키를 등록한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div></details>
+    <details class="period-help"><summary>기록과 초기화 기준</summary><div class="period-sub">캐릭터별 주간 보스 결정석과 드랍 아이템 수익을 선택한 주차 기준으로 확인합니다. 새 주차에는 완료 체크와 드랍 입력만 새로 시작하며, 과거 기록과 난이도·파티 인원 설정은 유지됩니다. 넥슨 로그인 또는 개인 API 키로 연결한 캐릭터는 메이플 스케줄러 완료 상태가 자동 반영됩니다.</div></details>
   </div>
 
   <div id="charlist"></div>
@@ -1639,7 +1646,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-daily.png" alt="">일간 보스</h2>
     <div class="daily-date-row">
       <div>
-        <label>날짜</label>
+        <label for="dailyboss-date">날짜</label>
         <input type="text" id="dailyboss-date" placeholder="예: 2026-07-06" inputmode="numeric" autocomplete="off">
       </div>
     </div>
@@ -1655,9 +1662,9 @@
 <!-- ══════════ 손익 계산기 ══════════ -->
 <div class="page" id="page-profit">
   <div class="card">
-    <h2>💸 손익 계산기</h2>
+    <h2>판매가 끝나야, 진짜 수익.</h2>
     <p class="muted">뽑기 비용과 판매 수익을 비교합니다. 판매 완료한 결과물만 수수료를 뺀 수익으로 반영됩니다.</p>
-    <p class="muted">강화 비용과 기존 강화 기록은 <a href="?page=expense">지출 기록</a>에서 관리합니다.</p>
+    <p class="muted">강화 비용은 <a href="?page=expense">지출 기록</a>에서 관리합니다. <a href="guide/profit-expense/">수수료와 판매 기준 확인</a></p>
   </div>
   <div class="profit-layout">
     <nav class="profit-menu" id="profit-type-list" aria-label="손익 계산 항목"></nav>
@@ -1675,7 +1682,37 @@
 
 <!-- ══════════ 지출 기록 ══════════ -->
 <div class="page" id="page-expense">
-  <section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
+  <section class="page-purpose"><div><h2>쓴 메소도 빠짐없이.</h2><p>구매 비용은 바로 입력하고, 강화 이력은 확인한 금액만 지출로 반영하세요.</p></div><div class="purpose-actions"><button type="button" data-renewal-jump="expense-entry-title">일반 지출 입력</button><button type="button" class="ghost" data-renewal-jump="enhancement-title">강화 이력 확인</button><a href="guide/profit-expense/">지출·환산액 구분</a></div></section>
+
+  <div class="card expense-entry-card" id="expense-entry-card">
+    <h2 id="expense-entry-title" tabindex="-1">메소 지출 입력</h2>
+    <p class="muted">장비·조각·펫 구매와 직접 소비한 메소를 기록합니다. 다른 입력 화면이나 API에서 이미 반영한 비용은 제외하세요.</p>
+    <details id="september-expense-helper" class="september-expense-helper"></details>
+    <div class="expense-form" style="margin-top:14px;">
+      <div>
+        <label for="expense-date">날짜</label>
+        <input id="expense-date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 2026-07-16">
+      </div>
+      <div>
+        <label for="expense-character">캐릭터 (선택)</label>
+        <select id="expense-character"></select>
+      </div>
+      <div>
+        <label for="expense-category">지출 유형</label>
+        <select id="expense-category"></select>
+      </div>
+      <div>
+        <label for="expense-amount">지출 메소</label>
+        <input id="expense-amount" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 1,500,000,000">
+      </div>
+      <div class="wide">
+        <label for="expense-memo">메모 (선택)</label>
+        <input id="expense-memo" type="text" autocomplete="off" placeholder="예: 무기 구매, 이벤트 소비">
+      </div>
+      <button id="expense-save" type="button">지출 저장</button>
+    </div>
+  </div>
+<section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
     <div class="enhancement-heading"><h2 id="enhancement-title">강화 내역</h2><span class="enhancement-badge" id="enhancement-badge">지출 반영 전까지 통계 제외</span></div>
     <div class="enhancement-tabs" role="tablist" aria-label="강화 종류">
       <button type="button" role="tab" id="enhancement-tab-starforce" data-enhancement-tab="starforce" aria-selected="true" aria-controls="enhancement-api-panel">스타포스 <span>0</span></button>
@@ -1700,7 +1737,7 @@
     <div id="enhancement-list"></div>
     <div id="enhancement-pagination" class="enhancement-pagination"></div>
     <details class="enhancement-confirmed"><summary>확정 / 제외한 강화 이력</summary><div id="enhancement-confirmed-list"></div></details>
-<details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 동일 레벨·등급의 메소 재설정 비용으로 환산합니다. 무료·캐시 큐브의 환산액은 실제 메소 지출이 아니며, 확인한 메소 구매분만 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 5개 권한의 동의를 요청하며, 강화·큐브·잠재능력 이력만 조회합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
+<details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 동일 레벨·등급의 메소 재설정 비용으로 환산합니다. 무료·캐시 큐브의 환산액은 실제 메소 지출이 아니며, 확인한 메소 구매분만 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 조회 항목의 동의를 요청하며, 스타포스·잠재능력 재설정·큐브 사용·소울 잠재능력 이력을 불러옵니다. 고급 어빌리티 비용은 직접 입력합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
     </div>
     <div id="manual-enhancement-panel" role="tabpanel" aria-labelledby="enhancement-tab-legacy" hidden>
     <h3 id="manual-enhancement-title">강화 지출 직접 입력</h3>
@@ -1709,34 +1746,6 @@
     <div id="manual-enhancement-calculator"></div>
     </div>
   </section>
-  <div class="card">
-    <h2>💳 메소 지출 입력</h2>
-    <p class="muted">장비·조각·펫 구매와 직접 소비한 메소를 기록합니다. 다른 입력 화면이나 API에서 이미 반영한 비용은 제외하세요.</p>
-    <details id="september-expense-helper" class="september-expense-helper"></details>
-    <div class="expense-form" style="margin-top:14px;">
-      <div>
-        <label>날짜</label>
-        <input id="expense-date" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 2026-07-16">
-      </div>
-      <div>
-        <label>캐릭터 (선택)</label>
-        <select id="expense-character"></select>
-      </div>
-      <div>
-        <label>지출 유형</label>
-        <select id="expense-category"></select>
-      </div>
-      <div>
-        <label>지출 메소</label>
-        <input id="expense-amount" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 1,500,000,000">
-      </div>
-      <div class="wide">
-        <label>메모 (선택)</label>
-        <input id="expense-memo" type="text" autocomplete="off" placeholder="예: 무기 구매, 이벤트 소비">
-      </div>
-      <button id="expense-save" type="button">지출 저장</button>
-    </div>
-  </div>
   <div class="card">
     <h2>📉 지출 요약</h2>
     <div id="expense-summary" class="expense-summary-grid"></div>
@@ -1786,7 +1795,7 @@
     <h2>🎯 목표 금액</h2>
     <div class="goal-form">
       <div>
-        <label>목표 금액</label>
+        <label for="goal-target">목표 금액</label>
         <input type="text" id="goal-target" placeholder="예: 5,000,000,000,000" inputmode="numeric" autocomplete="off">
       </div>
       <div class="goal-actions">
@@ -11247,6 +11256,7 @@ window.MapleEnhancementBridge={
 </dialog>
 <script src="assets/workspace.js?v=20261028-1"></script>
 <script src="assets/play-desk.js?v=20261028-2"></script>
+<script src="assets/maple-workspace.js?v=20261031-1"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <a href="guide/">사용 가이드·계산 사례</a>

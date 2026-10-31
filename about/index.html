@@ -11,7 +11,7 @@
 <link rel="canonical" href="https://maple-trackers.com/about/">
 <link rel="icon" type="image/png" href="../assets/icon.png?v=20260908">
 <link rel="apple-touch-icon" href="../assets/icon.png?v=20260908">
-<link rel="stylesheet" href="../assets/public-pages.css?v=20260909-1">
+<link rel="stylesheet" href="../assets/public-pages.css?v=20261031-1">
 <link rel="stylesheet" href="../assets/typography.css?v=20260907-1">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="나만의 메계부">
@@ -42,8 +42,17 @@
         <span>브라우저 우선 저장</span>
         <span>사용자 피드백 기반 개선</span>
         <span>운영·기록 기준: 크로아/얀보</span>
-        <span>최종 검토 2026-10-28</span>
+        <span>안내 정리 2026-10-31</span>
       </div>
+    </section>
+
+    <section class="section source-summary" aria-labelledby="site-responsibility">
+      <h2 id="site-responsibility">운영자와 계산 기준을 먼저 확인하세요</h2>
+      <dl class="source-facts">
+        <div><dt>제작·운영</dt><dd><a href="#maker">크로아/얀보</a><small>개인 장부로 시작한 비공식 프로젝트</small></dd></div>
+        <div><dt>계산 확인</dt><dd><a href="../guide/record-principles/">계산식과 가상 예제</a><small>실수령액·추정 비용·계획액 구분</small></dd></div>
+        <div><dt>수정·문의</dt><dd><a href="#corrections">오류 제보와 정정 과정</a><small>입력 조건으로 재현하고 변경 이력 공개</small></dd></div>
+      </dl>
     </section>
 
     <section class="section" id="experience">
@@ -91,7 +100,7 @@
       <p><a href="../guide/record-principles/">계산 원칙과 API·직접 입력의 구분 읽기</a></p>
     </section>
 
-    <section class="section">
+    <section class="section" id="data-principles">
       <h2>데이터와 API 원칙</h2>
       <p>기본 기록은 이용자의 브라우저에 저장됩니다. 넥슨 로그인 후 계정 장부를 선택하면 암호화한 기록을 계정 보관함에 동기화하며, 기존 개인 API 키 방식도 별도로 유지됩니다. 계정 방식은 서버도 암호화 키를 보관하므로 자세한 처리 범위는 개인정보 안내에서 확인하세요. 중요한 기록은 JSON 백업도 함께 보관하는 것을 권장합니다.</p>
       <p>넥슨 로그인만으로 본인 캐릭터의 이미지·전투력·경험치·보스 진행 상태와 스타포스·잠재능력·큐브·소울 잠재능력 이력을 조회합니다. 개인 API 키 등록은 별도로 선택할 수 있는 연결 방식이며, 넥슨 로그인과 함께 등록할 필요는 없습니다. 소울 증폭과 재료 구입비, 고급 어빌리티 비용은 수기로 기록합니다. 가져온 강화 이력은 최종 금액을 확인해야 지출에 반영됩니다. 이 사이트는 NEXON의 공식 서비스가 아니며 API 키는 JSON 백업에 포함하지 않습니다.</p>
@@ -121,7 +130,7 @@
       <p>제보된 조건을 가상 기록으로 재현하고 계산식·게임 규칙·API 응답 중 차이가 생긴 지점을 확인합니다. 수정 시 적용 날짜와 영향을 받는 항목을 안내하고, 공식 규칙을 인용한 가이드는 출처 링크와 검토일도 함께 갱신합니다. 기록이 사라졌다면 복원 전 현재 상태를 먼저 백업해 주세요.</p>
       <p>현재 게임 규칙은 <a href="https://maplestory.nexon.com/News/Update" target="_blank" rel="noopener">메이플스토리 공식 업데이트</a>, API 제공 범위와 갱신 조건은 <a href="https://openapi.nexon.com/ko/game/maplestory/" target="_blank" rel="noopener">NEXON 공식 API 문서</a>를 우선합니다. 장부의 기록 기준은 <a href="../guide/record-principles/">계산·정산 원칙</a>에서 확인할 수 있습니다.</p>
     </section>
-    <section class="section">
+    <section class="section" id="maker">
       <h2>제작과 문의</h2>
       <p>나만의 메계부는 메이플스토리 크로아 월드에서 플레이하는 얀보가 개인 기록용으로 시작해 공개한 프로젝트입니다. 소스와 변경 이력은 GitHub 저장소에서 확인할 수 있고, 오류 제보와 개선 의견도 GitHub 이슈로 받고 있습니다.</p>
       <div class="link-list">

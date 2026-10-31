@@ -128,6 +128,10 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.locator('.enhancement-row').count(),1,'Reimport showed confirmed events again');
     const starforce=page.locator('.enhancement-row');
     await starforce.locator('.enhancement-details > summary').click();
+    // 일반 지출 폼 다음에 강화 이력이 나옵니다. 화면 밖 입력으로 초점을
+    // 옮기는 정상 스크롤과, 실제 편집 중 리렌더링으로 생기는 점프를 구분합니다.
+    await starforce.locator('[data-unit]').scrollIntoViewIfNeeded();
+    await starforce.locator('[data-unit]').focus();
     const scroll=await page.evaluate(()=>scrollY);
     await starforce.locator('[data-unit]').fill('12345678');
     await page.waitForTimeout(350);
