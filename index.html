@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261031-1"></script>
+<script src="assets/patch-notes-data.js?v=20261105-1"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/october-boss-rules.js?v=20261022-1"></script>
+<script src="assets/income-forecast.js?v=20261105-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
 <script src="assets/october-profit.js?v=20261022-1"></script>
 <script src="assets/october-profit-ui.js?v=20261022-1"></script>
@@ -1013,7 +1014,7 @@
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
-<link rel="stylesheet" href="assets/maple-workspace.css?v=20261031-1">
+<link rel="stylesheet" href="assets/maple-workspace.css?v=20261105-1">
 </head>
 <body class="maple-workspace">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1317,7 +1318,7 @@
     <ul class="guide-list">
       <li><b>월간 보스</b> 메뉴는 검은 마법사처럼 월간 기준으로 관리되는 보스를 따로 기록합니다.</li>
       <li><b>일간 보스</b> 메뉴는 일일 보스 클리어 기록을 날짜별로 저장합니다.</li>
-      <li>월간 결정석은 월간 집계에만 반영하며, 일간 결정석은 클리어한 날짜의 주간·월간 집계에 반영합니다.</li>
+      <li>월간 결정석은 월간 집계에만 반영하며, 일간 결정석은 판매를 체크한 날짜의 주간·월간 집계에 반영합니다.</li>
       <li>일간 결정석을 쓰려면 캐릭터 등록 탭에서 캐릭터를 먼저 등록해 주세요.</li>
     </ul>
   </div>
@@ -1650,7 +1651,8 @@
         <input type="text" id="dailyboss-date" placeholder="예: 2026-07-06" inputmode="numeric" autocomplete="off">
       </div>
     </div>
-    <details class="period-help"><summary>기록과 초기화 기준</summary><div class="muted daily-boss-note">일간 보스 결정석을 날짜별로 기록합니다. 일부 일간 보상은 같은 형식으로 체크하고 가격을 합산할 수 있습니다. 완료 체크와 드랍은 날짜별로 초기화되며, 난이도와 파티 인원은 마지막 설정을 유지합니다.</div></details>
+    <p class="daily-sale-guide">처치가 끝나도 결정석을 팔지 않았다면 수익은 0입니다. <b>판매한 결정석만 ‘결정석 판매’를 체크하세요.</b></p>
+    <details class="period-help"><summary>기록과 초기화 기준</summary><div class="muted daily-boss-note">처치 완료와 결정석 판매를 따로 기록합니다. API는 처치만 반영하며, 결정석 판매를 직접 체크한 항목만 수익으로 합산합니다. 이전 버전의 결정석 기록은 유지됩니다. 실제 판매와 다르면 판매 체크만 수정하세요. 날짜가 바뀌어도 과거 기록은 보관합니다.</div></details>
   </div>
   <div id="dailyboss-list"></div>
   <div class="card">
@@ -4523,15 +4525,21 @@ function normalizeChar(c){
   c.bossPreferences=ensureObj(c.bossPreferences);
   c.dailyBossPreferences=ensureObj(c.dailyBossPreferences);
   const today=todayStr();
+  const hasDailyBossDays=c.dailyBossDays && typeof c.dailyBossDays==='object' && !Array.isArray(c.dailyBossDays);
   c.dailyBossDays=ensureObj(c.dailyBossDays);
   const legacyDaily=ensureObj(c.dailyBosses);
-  if(Object.keys(legacyDaily).length && !c.dailyBossDays[today]) c.dailyBossDays[today]=Object.assign({},legacyDaily);
+  if(!hasDailyBossDays && Object.keys(legacyDaily).length) c.dailyBossDays[today]=Object.assign({},legacyDaily);
   if(!c.dailyBossDays[today] || typeof c.dailyBossDays[today]!=='object' || Array.isArray(c.dailyBossDays[today])) c.dailyBossDays[today]={};
   c.dailyBosses=c.dailyBossDays[today];
+  // 이전 일간 기록의 합계는 유지하고, 이후의 API 처치는 별도 보관합니다.
+  const hasDailyClears=c.dailyBossClearDays && typeof c.dailyBossClearDays==='object' && !Array.isArray(c.dailyBossClearDays);
+  c.dailyBossClearDays=hasDailyClears ? c.dailyBossClearDays : JSON.parse(JSON.stringify(c.dailyBossDays));
+  c.schedulerAutoSyncScopes=ensureObj(c.schedulerAutoSyncScopes);
   const normalizeDailyStore=(legacyName, daysName)=>{
     const legacy=ensureObj(c[legacyName]);
+    const hasDays=c[daysName] && typeof c[daysName]==='object' && !Array.isArray(c[daysName]);
     c[daysName]=ensureObj(c[daysName]);
-    if(Object.keys(legacy).length && !c[daysName][today]) c[daysName][today]=Object.assign({},legacy);
+    if(!hasDays && Object.keys(legacy).length) c[daysName][today]=Object.assign({},legacy);
     if(!c[daysName][today] || typeof c[daysName][today]!=='object' || Array.isArray(c[daysName][today])) c[daysName][today]={};
     c[legacyName]=c[daysName][today];
   };
@@ -5736,6 +5744,12 @@ function dailyBossStore(c, date=todayStr()){
   if(date === todayStr()) c.dailyBosses = c.dailyBossDays[date];
   return c.dailyBossDays[date];
 }
+function dailyBossClearStore(c, date=todayStr()){
+  c.dailyBossClearDays=ensureObj(c.dailyBossClearDays);
+  if(!c.dailyBossClearDays[date] || typeof c.dailyBossClearDays[date]!=='object' || Array.isArray(c.dailyBossClearDays[date])) c.dailyBossClearDays[date]={};
+  return c.dailyBossClearDays[date];
+}
+function schedulerScopeEnabled(c,scope){ return ensureObj(c.schedulerAutoSyncScopes)[scope]!==false; }
 function dailyDropStore(c, date=todayStr()){
   c.dailyDropDays = ensureObj(c.dailyDropDays);
   if(!c.dailyDropDays[date] || typeof c.dailyDropDays[date] !== 'object' || Array.isArray(c.dailyDropDays[date])) c.dailyDropDays[date] = {};
@@ -7212,7 +7226,7 @@ function personalRecordData(){
   let bossClears=0;
   db.chars.forEach(c=>{
     Object.values(ensureObj(c.bossWeeks)).forEach(store=>{ Object.keys(ensureObj(store)).forEach(id=>{ if(BOSS_MAP[id]) bossClears++; }); });
-    Object.values(ensureObj(c.dailyBossDays)).forEach(store=>{ Object.keys(ensureObj(store)).forEach(id=>{ if(DAILY_BOSS_MAP[id]) bossClears++; }); });
+    Object.values(ensureObj(c.dailyBossClearDays || c.dailyBossDays)).forEach(store=>{ Object.keys(ensureObj(store)).forEach(id=>{ if(DAILY_BOSS_MAP[id]) bossClears++; }); });
   });
   const history=priceHistoryData();
   const bestDrop=history.events.reduce((best,event)=>!best || event.amount>best.amount?event:best,null);
@@ -7549,11 +7563,45 @@ function monthDayCount(month){
   if(!year || !value) return 30;
   return new Date(Date.UTC(year,value,0)).getUTCDate();
 }
-function monthlyAutomationForecast(report,today=todayStr()){
-  const elapsed=Math.max(1,Number(today.slice(8,10))||1);
-  const totalDays=monthDayCount(report.month);
+function monthlyForecastActual(report,today){
+  if(report.month>today.slice(0,7)) return 0n;
+  let actual=report.net;
+  if(report.month!==today.slice(0,7)) return actual;
+  const isFuture=date=>String(date).slice(0,7)===report.month && date>today;
+  for(const date of Object.keys(ensureObj(db.records))){
+    if(normalizeDateInput(date) && isFuture(date)) actual-=recordMesoTotal(normalizeRecord(db.records[date]));
+  }
+  actual-=profitTotals(isFuture).net;
+  actual+=expenseTotals(isFuture).total;
+  // 월간 보고서와 동일한 주차 귀속을 유지하면서 미래 주차·날짜만 제외합니다.
+  for(const week of weeksForDashboardMonth(report.month)){
+    if(week>today){
+      const boss=bossTotals(week);
+      actual-=toMesoBig(boss.week)+toMesoBig(boss.month);
+    }
+    for(let i=0;i<7;i++){
+      const date=addDays(week,i);
+      if(date>today) actual-=toMesoBig(dailyBossSumForDate(date).meso);
+    }
+  }
+  return actual;
+}
+function monthlyAutomationForecast(report,today=MapleIncomeForecast.kstDate()){
+  // 처치·일시 판매·미래 지출을 반복 수입으로 확대하지 않습니다.
+  const dates=new Set(Object.keys(ensureObj(db.records)));
+  db.chars.forEach(c=>Object.keys(ensureObj(c.dailyBossDays)).forEach(date=>dates.add(date)));
+  const days=[];
+  for(const rawDate of dates){
+    const date=normalizeDateInput(rawDate);
+    if(!date || date>=today || date<addDays(today,-14)) continue;
+    const sessions=db.records[date] ? normalizeRecord(db.records[date]).sessions.filter(s=>s.kind==='hunt') : [];
+    const huntMeso=sessions.reduce((sum,s)=>sum+toMesoBig(s.meso),0n);
+    const daily=dailyBossSumForDate(date);
+    days.push({date,amount:(huntMeso+toMesoBig(daily.crystalMeso)).toString(),active:sessions.length>0 || daily.crystals>0});
+  }
+  const result=MapleIncomeForecast.forecast({today,month:report.month,actual:monthlyForecastActual(report,today).toString(),days});
   const hasActivity=report.hunt.days>0 || report.bossCrystals>0 || report.profit.count>0 || report.expenses.count>0 || lootEntryCount(report.loot)>0;
-  return {hasActivity,elapsed,totalDays,projected:hasActivity ? (report.net*BigInt(totalDays))/BigInt(elapsed) : 0n};
+  return Object.assign({hasActivity},result);
 }
 function goalAutomationForecast(goal,today=todayStr()){
   if(goal.empty) return {state:'empty',value:'목표 미설정',note:'통계 탭에서 목표 금액을 설정할 수 있습니다.'};
@@ -7662,14 +7710,15 @@ function renderHomeAutomation(report,goal){
   const el=document.getElementById('home-automation');
   if(!el) return;
   const pace=recentAutomationPace();
-  const month=monthlyAutomationForecast(report);
+  const forecastToday=MapleIncomeForecast.kstDate();
+  const month=monthlyAutomationForecast(report.month===forecastToday.slice(0,7)?report:monthlyReportData(forecastToday.slice(0,7)),forecastToday);
   const goalForecast=goalAutomationForecast(goal);
   const trend=pace.previous===0n
     ? (pace.current===0n?'비교할 이전 기록이 없습니다.':'이전 7일 기록 없이 새로 집계 중입니다.')
     : '이전 7일보다 '+(pace.change>=0n?'+':'')+signedKorMeso(pace.change);
   const insights=[
     {label:'최근 7일 일평균 순수익',value:signedKorMeso(pace.average),tone:pace.average<0n?'bad':(pace.average>0n?'good':''),note:'기록 '+fmt(pace.activeDays)+'일 · '+trend+' · 주간/월간 결정석 제외'},
-    {label:'이번 달 예상 순수익',value:month.hasActivity?signedKorMeso(month.projected):'예측 대기',tone:month.projected<0n?'bad':(month.projected>0n?'good':''),note:month.hasActivity?'현재 '+signedKorMeso(report.net)+' · '+month.elapsed+'/'+month.totalDays+'일 경과':'이번 달 기록을 저장하면 자동 계산합니다.'},
+    {label:'월말 예상 기록 순수익',value:['ready','closed'].includes(month.status)?signedKorMeso(month.projected):'예측 대기',tone:month.status==='ready'?(month.projected<0n?'bad':(month.projected>0n?'good':'')):'',note:'현재 '+signedKorMeso(month.actual)+(month.status==='ready'?' · 내일부터 '+month.remainingDays+'일 예상 '+signedKorMeso(month.addition)+' 추가. 최근 '+month.sampleDays+'일 재획 메소·일간 판매 결정석 기준이며, 새 지출·주간/월간 보스·일시 판매는 추가 예상에서 제외합니다.':(month.status==='closed'?' · 월말 현재 기록 기준입니다.':' · 완료된 기간 7일·재획 또는 일간 판매 기록 3일 이상이 필요합니다.'))},
     {label:'목표 달성 예상일',value:goalForecast.value,tone:goalForecast.state==='good'?'good':'',note:goalForecast.note}
   ];
   const issues=automationAttentionItems();
@@ -7774,7 +7823,7 @@ function renderHome(){
     ['최고 일일 수익',dayText,records.bestDay?records.bestDay.date:'재획 기록을 저장해 주세요.'],
     ['최고 주간 순수익',weekText,records.bestWeek?fmtWeekRange(records.bestWeek.week):'주간 기록을 저장해 주세요.'],
     ['가장 큰 아이템 수익',dropText,records.bestDrop?records.bestDrop.name+' · '+records.bestDrop.date:'드랍 가격을 입력해 주세요.'],
-    ['누적 보스 클리어',fmt(records.bossClears)+'회','주간 · 월간 · 일간 결정석 체크 기준']
+    ['누적 보스 클리어',fmt(records.bossClears)+'회','주간 체크 · 일간 처치 완료 기준']
   ].map(item=>'<div class="personal-record"><span>'+item[0]+'</span><b>'+item[1]+'</b><small>'+esc(item[2])+'</small></div>').join('');
 
   const backups=normalizeBackupSnapshots(db.backupSnapshots || []);
@@ -9286,7 +9335,7 @@ function schedulerBossGroup(scope, bossId){
   return groups.find(group=>group.bosses.some(b=>b[0]===bossId)) || null;
 }
 function schedulerStoreForDate(c, scope, date){
-  if(scope==='daily') return {store:dailyBossStore(c,date),period:date};
+  if(scope==='daily') return {store:dailyBossClearStore(c,date),period:date};
   const period=scope==='monthly' ? date.slice(0,7) : mapleWeekStart(date);
   return {store:bossStore(c,period,scope),period};
 }
@@ -9342,7 +9391,7 @@ function applySchedulerData(c, data){
     if(!apiFlagTrue(item?.complete_flag)) return;
     result.completed++;
     const scope=schedulerScopeFromCycle(item?.cycle);
-    if(!scope) return;
+    if(!scope || !schedulerScopeEnabled(c,scope)) return;
     const boss=schedulerBossCandidate(item,scope);
     if(!boss) return;
     result.matched++;
@@ -9612,17 +9661,29 @@ function apiTimeText(value){
   if(!at) return '';
   return new Date(at).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
 }
+function characterSchedulerSettingsHtml(c){
+  return '<details class="character-sync-settings"><summary>보스 자동 반영 설정</summary><p class="muted">선택한 주기의 처치 완료를 API에서 가져옵니다. 일간 결정석 판매는 설정과 관계없이 직접 기록합니다.</p><div class="scheduler-scope-options">'+
+    [['daily','일간 처치'],['weekly','주간 보스'],['monthly','월간 보스']].map(([scope,label])=>'<label><input class="scheduler-scope-toggle" type="checkbox" data-scope="'+scope+'" '+(schedulerScopeEnabled(c,scope)?'checked':'')+'>'+label+'</label>').join('')+'</div></details>';
+}
+function bindSchedulerScopeControls(host,c){
+  host.querySelectorAll('.scheduler-scope-toggle').forEach(input=>input.onchange=()=>{
+    window.MapleAccountSync?.beforeSave();
+    c.schedulerAutoSyncScopes=ensureObj(c.schedulerAutoSyncScopes);
+    c.schedulerAutoSyncScopes[input.dataset.scope]=input.checked;
+    save();
+  });
+}
 function characterSchedulerTrackingHtml(c){
   const sync=normalizeSchedulerSync(c.schedulerSync);
   const hasWeeklyLimit=sync.weeklyClearLimitCount>0 && Number.isFinite(weeklyBossCheckLimit(mapleWeekStart(sync.date || todayStr())));
   let title='보스 상태 대기';
-  let detail='정보 갱신 시 주간·월간·일간 보스 완료 상태를 반영합니다.';
+  let detail='선택한 주기의 보스 완료를 반영합니다. 일간 결정석 판매는 직접 기록합니다.';
   if(hasWeeklyLimit){
     title='이번 주 '+fmt(sync.weeklyClearCount)+' / '+fmt(sync.weeklyClearLimitCount)+' 완료';
     detail='넥슨 스케줄러 기준 · 완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
   }else if(sync.matchedBossCount>0){
     title='완료 보스 '+fmt(sync.matchedBossCount)+'개 반영';
-    detail='넥슨 스케줄러 기준으로 카드 체크를 동기화했습니다.';
+    detail='넥슨 스케줄러 기준으로 처치를 반영했습니다. 일간 판매는 별도로 기록합니다.';
   }else if(sync.updatedAt){
     title='조회 완료 · 반영할 보스 없음';
     detail='자동으로 반영할 완료 기록이 없습니다. 기존 체크는 유지합니다.';
@@ -9633,7 +9694,7 @@ function characterSchedulerTrackingHtml(c){
   return '<div class="character-api-card boss"><b>넥슨 보스 진행</b><strong>'+esc(title)+'</strong><small'+(c.schedulerError?' class="api-error"':'')+'>'+esc(detail)+'</small></div>';
 }
 function characterApiTrackingHtml(c){
-  return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+'</div>';
+  return '<div class="character-api-grid">'+characterSchedulerTrackingHtml(c)+'</div>'+characterSchedulerSettingsHtml(c);
 }
 function charHeadHtml(c, summaryHtml){
   return charProfileHtml(c)+'<span class="sum">'+summaryHtml+'</span>';
@@ -9693,6 +9754,7 @@ function renderRegisteredCharacters(){
         '<button class="danger char-delete-btn" type="button" data-idx="'+idx+'">캐릭터 삭제</button>'+
         '<span class="muted">'+synced+(c.profileWarning?' · '+esc(c.profileWarning):'')+'</span>'+
       '</div>';
+    bindSchedulerScopeControls(card,c);
     const btn=card.querySelector('.char-refresh-btn');
     btn.onclick=async()=>{
       if(!characterSource()){ alert(characterConnectionMessage()); return; }
@@ -10435,7 +10497,7 @@ function selectedBossForGroup(g,c,period=currentWeekKey(),scope='weekly'){
 }
 function selectedDailyBossForGroup(g,c,date){
   const store=ensureObj(ensureObj(c.dailyBossDays)[date]);
-  const picked = groupPickedBoss(g,store);
+  const picked = groupPickedBoss(g,store) || groupPickedBoss(g,ensureObj(ensureObj(c.dailyBossClearDays)[date]));
   if(picked) return picked;
   const pref=dailyBossPreference(c,g);
   return g.bosses.find(b=>b[0]===pref.bossId) || g.bosses[0];
@@ -10905,6 +10967,7 @@ function dailyBossGroupCard(g,c,date){
   const pref=dailyBossPreference(c,g);
   const img=IMG[g.imgKey] || IMG[b[4]] || IMG.orb;
   const on=id in store;
+  const clears=dailyBossClearStore(c,date), cleared=id in clears;
   const party=Math.max(1, Math.min(MAX_PARTY, Number(store[id])||pref.party));
   let diffOpts='';
   g.bosses.forEach(x=>{ diffOpts+='<option value="'+x[0]+'"'+(x[0]===id?' selected':'')+'>'+bossDiff(x)+'</option>'; });
@@ -10921,7 +10984,9 @@ function dailyBossGroupCard(g,c,date){
     '<div class="bprice">'+korShort(price)+'</div>'+
     '<div class="bparty">파티 <select class="daily-party" aria-label="'+esc(g.name)+' 파티 인원" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'">'+partyOpts+'</select></div>'+
     '<div class="bshare">'+shareTxt+'</div>'+
-    '<label class="bcheck"><input class="daily-boss-check" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+'>'+(on?'다님':'체크')+'</label>'+
+    '<div class="daily-boss-status"><label class="bcheck"><input class="daily-boss-clear" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(cleared?'checked':'')+'>처치 완료</label>'+
+    '<label class="bcheck daily-sale-check"><input class="daily-boss-check" type="checkbox" data-date="'+esc(date)+'" data-id="'+id+'" data-group="'+g.key+'" '+(on?'checked':'')+'>결정석 판매</label></div>'+
+    '<div class="daily-sale-state muted">'+(on?'판매 기록을 수익에 반영했습니다.':'판매를 체크해야 수익에 포함됩니다.')+'</div>'+
     dropHtml+
     '</div>';
 }
@@ -10981,7 +11046,7 @@ function renderDailyBoss(){
     head.innerHTML=charHeadHtml(c,date+' '+korMeso(charMeso)+(itemMeso?' <span class="muted">(결정석 '+korMeso(crystalMeso)+' + 아이템 '+korMeso(itemMeso)+')</span>':'')+' <span class="cnt">('+charCrystals+'개)</span>');
     const bl=document.createElement('div'); bl.className='bosslist'+(dailyOpenChars.has(c.name)?' open':'');
     bindCharacterDisclosure(head,bl,c.name,dailyOpenChars,'daily');
-    let html='<div class="bossgroup">'+crystalIcon('daily')+'일간 결정석 ('+date+')</div><div class="bgrid">';
+    let html='<div class="bossgroup">'+crystalIcon('daily')+'일간 보스 ('+date+')</div>'+characterSchedulerSettingsHtml(c)+'<div class="bgrid">';
     DAILY_BOSS_GROUPS.forEach(g=>{ html+=dailyBossGroupCard(g,c,date); });
     html+='</div>';
     bl.innerHTML=html;
@@ -10996,17 +11061,24 @@ function renderDailyBoss(){
         const party=Math.max(1,Math.min(MAX_PARTY,Number(oldId in store ? store[oldId] : pref.party)||1));
         setDailyBossPreference(c,group,newId,party);
         if(oldId in store){
-          const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
-          group.bosses.forEach(b=>{
-            dailyDropItemsForBoss(b).forEach(item=>{
-              const key=dailyDropKey(b,item);
-              delete drops[key];
-              delete prices[key];
-            });
-          });
           group.bosses.forEach(b=>{ delete store[b[0]]; });
           store[newId]=party;
         }
+        const clears=dailyBossClearStore(c,date);
+        if(oldId in clears){
+          group.bosses.forEach(b=>{ delete clears[b[0]]; });
+          clears[newId]=party;
+        }
+        save(); renderAllPreservingViewport();
+      };
+    });
+    bindSchedulerScopeControls(bl,c);
+    bl.querySelectorAll('input.daily-boss-clear').forEach(chk=>{
+      chk.onchange=()=>{
+        window.MapleAccountSync?.beforeSave();
+        const group=DAILY_BOSS_GROUP_MAP[chk.dataset.group], store=dailyBossClearStore(c,date);
+        group.bosses.forEach(b=>{ delete store[b[0]]; });
+        if(chk.checked) store[chk.dataset.id]=dailyBossPreference(c,group).party;
         save(); renderAllPreservingViewport();
       };
     });
@@ -11022,14 +11094,7 @@ function renderDailyBoss(){
           store[id]=party;
           setDailyBossPreference(c,group,id,party);
         } else {
-          const drops=dailyDropStore(c,date), prices=dailyDropPriceStore(c,date);
-          group.bosses.forEach(b=>{
-            dailyDropItemsForBoss(b).forEach(item=>{
-              const key=dailyDropKey(b,item);
-              delete drops[key];
-              delete prices[key];
-            });
-          });
+          // 판매 취소는 처치·별도 드랍·가격 기록에 영향을 주지 않습니다.
           group.bosses.forEach(b=>{ delete store[b[0]]; });
         }
         save(); renderAllPreservingViewport();
@@ -11041,6 +11106,8 @@ function renderDailyBoss(){
         const group=DAILY_BOSS_GROUP_MAP[sel.dataset.group];
         const party=Math.max(1,Math.min(MAX_PARTY,Number(sel.value)||1));
         if(sel.dataset.id in store) store[sel.dataset.id]=party;
+        const clears=dailyBossClearStore(c,date);
+        if(sel.dataset.id in clears) clears[sel.dataset.id]=party;
         if(group) setDailyBossPreference(c,group,sel.dataset.id,party);
         save(); renderAllPreservingViewport();
       };
@@ -11255,8 +11322,8 @@ window.MapleEnhancementBridge={
   <p class="desk-search-hint">방향키로 이동하고 Enter로 열 수 있습니다. Esc로 닫습니다.</p>
 </dialog>
 <script src="assets/workspace.js?v=20261028-1"></script>
-<script src="assets/play-desk.js?v=20261028-2"></script>
-<script src="assets/maple-workspace.js?v=20261031-1"></script>
+<script src="assets/play-desk.js?v=20261105-1"></script>
+<script src="assets/maple-workspace.js?v=20261105-1"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <a href="guide/">사용 가이드·계산 사례</a>

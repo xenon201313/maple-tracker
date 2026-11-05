@@ -17,13 +17,17 @@ const server=http.createServer((req,res)=>{let name=new URL(req.url,'http://loca
    await page.setViewportSize({width,height});await page.evaluate(()=>{openPage('home');window.scrollTo(0,0);});
    assert.equal(await page.locator('#account-title').count(),1,'계정 영역은 한 곳만 유지');
    const layout=await page.evaluate(()=>{const panel=document.querySelector('.home-account-panel').getBoundingClientRect(),actions=document.querySelector('.workspace-quick-actions').getBoundingClientRect(),summary=document.querySelector('.home-overview').getBoundingClientRect(),header=document.querySelector('[data-desk-account]').getBoundingClientRect();return {panelTop:panel.top,panelLeft:panel.left,panelRight:panel.right,panelBottom:panel.bottom,actionsTop:actions.top,summaryTop:summary.top,headerTop:header.top,headerBottom:header.bottom,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};});
-   assert.equal(layout.overflow,false,width+' 가로 넘침 없음');assert(layout.panelTop<layout.summaryTop&&layout.panelLeft>=0&&layout.panelRight<=width,width+' 결과를 읽기 전 계정 연결 접근');assert(layout.actionsTop<height,width+' 로그인 없이 빠른 기록을 첫 화면에서 이용');
+   assert.equal(layout.overflow,false,width+' 가로 넘침 없음');assert(layout.panelLeft>=0&&layout.panelRight<=width,width+' 계정 영역이 화면 안에 표시');assert(layout.actionsTop<height,width+' 로그인 없이 빠른 기록을 첫 화면에서 이용');
+   // 작은 화면에서는 기록 결과를 먼저 읽고, 항상 보이는 헤더 로그인으로 계정 영역에 이동합니다.
+   if(width<=700){assert(layout.summaryTop<layout.panelTop,width+' 확정 수익이 계정 안내보다 먼저 표시');assert(layout.summaryTop<height-68,width+' 기록 결과가 첫 화면에서 시작');}
+   else assert(layout.panelTop<layout.summaryTop,width+' 넓은 화면의 계정 연결 위치 유지');
    assert(layout.headerTop>=0&&layout.headerBottom<=height,width+' 첫 화면 헤더 로그인 노출');
    assert.equal(await page.locator('[data-desk-account] span').isVisible(),true,width+' 모바일에서도 로그인 글자 노출');
    assert.equal(await page.locator('[data-desk-account]').innerText(),'넥슨 로그인');
    const target=await page.locator('[data-desk-account]').boundingBox();assert(target.width>=44&&target.height>=44,'로그인 터치 영역');
    await page.evaluate(()=>openPage('stats'));await page.locator('[data-desk-account]').click();
    assert.equal(await page.locator('#account-title').evaluate(el=>document.activeElement===el),true,'계정 제목에 키보드 초점 이동');
+   assert.equal(await page.locator('#account-title').evaluate(el=>el.getBoundingClientRect().top>=document.querySelector('.workspace-header').getBoundingClientRect().bottom-2),true,'계정 초점이 고정 헤더에 가려지지 않음');
    assert.match(page.url(),/page=home/);
    await page.screenshot({path:path.join(output,'login-'+width+'.png')});
   }
@@ -36,6 +40,6 @@ const server=http.createServer((req,res)=>{let name=new URL(req.url,'http://loca
   await page.waitForFunction(()=>document.querySelector('[data-desk-account] span').textContent==='넥슨 로그인');
   assert.equal(await page.locator('[data-desk-account]').getAttribute('data-account-entry'),'login');
   assert.equal(await page.evaluate(()=>localStorage.getItem('mapleTracker.v2')),baseline,'로그인 접근과 상태 표시로 장부 변경 없음');assert.deepEqual(errors,[]);
-  await context.close();console.log('로그인 접근성: 4개 화면 크기·홈 상단 배치·모바일 텍스트·상태별 표기·초점 이동·장부 불변 통과');
+  await context.close();console.log('로그인 접근성: 4개 화면 크기·모바일 결과 우선/헤더 로그인·상태별 표기·가려지지 않는 초점·장부 불변 통과');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>server.close());

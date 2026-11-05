@@ -205,3 +205,113 @@ body.maple-workspace::after{background:linear-gradient(90deg,#171b1ee8,#171b1ec9
 @media(max-width:680px){.maple-workspace .workspace-header{padding:10px max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));gap:10px;min-height:76px}.maple-workspace .workspace-heading{gap:8px}#workspace-context{display:none}.maple-workspace .workspace-header h1{font-size:18px}.maple-workspace .workspace-header-actions{gap:5px}.maple-workspace .workspace-header .workspace-search{display:inline-flex;width:44px;min-width:44px;padding:10px!important;justify-content:center}.maple-workspace .workspace-account{min-height:44px;font-size:13px}.maple-workspace .workspace-backup{min-height:44px}.maple-workspace .workspace-main{width:calc(100% - 24px);margin-top:14px}.maple-workspace .nexon-api-disclosure{margin-bottom:14px;font-size:11px}.maple-workspace .nexon-api-links a{font-size:11px;margin:0 9px 0 0}.maple-workspace .home-launchpad{display:flex;flex-direction:column;margin-bottom:18px;gap:0}.maple-workspace .home-desk-masthead{min-height:220px;padding:23px 20px 66px;border-radius:16px 16px 0 0}.maple-workspace #desk-title{font-size:29px;line-height:1.5;margin:8px 0}.maple-workspace .desk-hero-copy{max-width:85%}.maple-workspace .desk-hero-copy>p:last-child{font-size:13px}.desk-hero-art{width:46%;opacity:.4;background-size:auto 300px}.maple-workspace .desk-reset{left:20px;right:16px;bottom:15px;font-size:11px;gap:3px 14px}.maple-workspace .workspace-quick-actions{border-radius:0 0 16px 16px}.maple-workspace .workspace-quick-actions button{display:flex;flex-direction:column;justify-content:center;gap:5px;padding:13px 5px;min-height:78px;text-align:center}.maple-workspace .workspace-quick-actions strong{font-size:14px}.maple-workspace .workspace-quick-actions button>span{flex:0}.maple-workspace .workspace-quick-actions button>.ui-icon{width:20px;height:20px}.maple-workspace .home-account-panel{margin-top:14px;border-radius:12px;padding:15px 17px}.maple-workspace .account-entry-head{display:flex;flex-direction:row;align-items:center;gap:12px}.maple-workspace .account-entry-copy{flex:1;min-width:0}.maple-workspace .account-entry-copy h2{font-size:16px;margin-bottom:3px}.maple-workspace .account-entry-copy p{font-size:12px;line-height:1.6}.maple-workspace .account-entry-head>.account-actions{flex:0 0 112px;width:auto}.maple-workspace #account-login{max-width:112px;width:112px;min-height:44px;display:flex;align-items:center}.maple-workspace #account-login img{width:112px;height:auto}.maple-workspace .home-account-panel #account-status{font-size:11px;margin:9px 0 7px}.maple-workspace .home-account-panel details{padding-top:6px;font-size:11px}.maple-workspace .home-account-panel .account-actions{flex-direction:row;flex-wrap:wrap;gap:6px}.maple-workspace .home-account-panel .account-actions button{width:auto;flex:1 1 auto}.maple-workspace .home-account-panel .account-entry-head>.account-actions:has(#account-save:not([hidden])){flex-basis:100%;width:100%}.maple-workspace .account-entry-head:has(#account-save:not([hidden])){flex-wrap:wrap}.maple-workspace .home-primary-grid{display:block}.maple-workspace .home-overview{padding:20px;margin-bottom:18px}.maple-workspace .home-head{display:flex;gap:10px;align-items:flex-start;margin-bottom:18px}.maple-workspace .home-head>div{display:block}.maple-workspace .home-head h2{font-size:19px;margin-bottom:5px}.maple-workspace .home-head p{font-size:11px}.maple-workspace .home-summary-grid{grid-template-columns:1fr;gap:0}.maple-workspace .home-summary,.maple-workspace .home-summary:first-child{display:grid;grid-template-columns:minmax(90px,1fr) minmax(0,1.7fr);align-items:center;gap:0 10px;padding:13px 0;border:0;border-bottom:1px solid var(--line)}.maple-workspace .home-summary b{font-size:25px;line-height:1.45;text-align:right;letter-spacing:-.4px;margin:0}.maple-workspace .home-summary span{font-size:14px}.maple-workspace .home-summary small{grid-column:1/-1;text-align:right;font-size:13px;margin-top:5px}.maple-workspace .home-summary:last-child{display:flex;padding-top:14px;margin-top:0;border:0;gap:6px 12px}.maple-workspace .home-summary:last-child small{order:1;flex-basis:100%;text-align:left}.maple-workspace .home-summary:last-child b{font-size:14px}.maple-workspace .desk-record-card{padding:18px 20px;margin-bottom:18px}.maple-workspace .desk-record-card .desk-record-list{display:block;margin:8px 0}.maple-workspace .desk-record-link,.maple-workspace .desk-record-link:first-child{display:grid;grid-template-columns:1fr auto;border-bottom:1px solid #485657;padding:11px 0}.maple-workspace .desk-record-link>strong{font-size:14px;text-align:right}.maple-workspace .desk-record-link:last-child{border-bottom:0}.ledger-evidence{padding:0 0 14px;margin-bottom:20px;gap:6px 18px}.ledger-evidence>div{flex-basis:100%}.maple-workspace .home-grid{grid-template-columns:1fr;gap:16px}.maple-workspace .home-grid>.card{padding:18px}.maple-workspace .home-side{display:block}.maple-workspace .home-side>.card{margin-bottom:16px}.maple-workspace .home-source-note{display:none}.maple-workspace .home-support{margin-top:20px}.maple-workspace .home-support>.card{padding:20px}.maple-workspace .card{padding:20px 18px;margin-bottom:18px;border-radius:12px}.maple-workspace .card h2{font-size:20px}.maple-workspace .page>.card:first-child{padding-top:20px}.page-purpose{padding-bottom:18px;margin-bottom:18px;gap:12px}.page-purpose h2{font-size:24px}.page-purpose p{font-size:13px}.purpose-actions{gap:7px}.purpose-actions button{padding:9px 12px;font-size:13px}.purpose-actions a{font-size:12px}.maple-workspace .expense-form{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.maple-workspace .expense-form>.wide,.maple-workspace .expense-form>#expense-save{grid-column:1/-1}.maple-workspace .enhancement-tabs{display:flex;flex-wrap:wrap;gap:4px}.maple-workspace .enhancement-tabs button{font-size:13px;padding:10px 8px}.maple-workspace .profit-layout{grid-template-columns:1fr;gap:14px}.maple-workspace #profit-type-list{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.maple-workspace #profit-type-list .profit-type-btn{font-size:12px;min-height:52px;padding:9px;gap:7px}.maple-workspace #profit-type-list .profit-type-icon{width:26px;height:26px;flex-basis:26px}.maple-workspace .profit-line{padding:13px;gap:10px}.maple-workspace .hunt-entry-card>.row{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}.maple-workspace .hunt-entry-card>.row>div:nth-last-child(-n+2){grid-column:1/-1}.maple-workspace .bgrid{grid-template-columns:1fr;gap:14px}.maple-workspace .bcard{padding:17px;grid-template-columns:80px minmax(0,1fr);gap:10px 14px}.maple-workspace .bimg-wrap{width:80px;height:76px}.maple-workspace .bimg{width:100px;height:76px}.maple-workspace .bname{font-size:19px}.maple-workspace .bprice{font-size:22px}.maple-workspace .planner-tabs{grid-template-columns:repeat(3,minmax(0,1fr));padding:6px;gap:4px}.maple-workspace .planner-tabs button{font-size:13px;padding:10px 6px}.maple-workspace .planner-heading h2{font-size:25px}.maple-workspace .planner-heading p{font-size:14px}.maple-workspace .page-context-note{padding:11px 13px;font-size:12px;gap:4px 12px}}
 @media(max-width:370px){.maple-workspace .workspace-header h1{font-size:16px}.maple-workspace .workspace-header-actions{gap:4px}.maple-workspace .workspace-account{padding:9px!important}.maple-workspace .workspace-header .workspace-backup{padding:9px!important}.maple-workspace .account-entry-head{flex-direction:column;align-items:stretch}.maple-workspace .account-entry-head>.account-actions{flex:0 0 auto}.maple-workspace .home-summary b{font-size:23px}.maple-workspace .hunt-entry-card>.row{grid-template-columns:1fr}.maple-workspace .hunt-entry-card>.row>div{grid-column:1}.maple-workspace .expense-form{grid-template-columns:1fr}.maple-workspace .expense-form>div{grid-column:1}.maple-workspace .workspace-header .workspace-heading{gap:5px}}
 @media(prefers-reduced-motion:reduce){.maple-workspace *, .maple-workspace *::before,.maple-workspace *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* 2026-11-05: 기록 우선, 추가 정보는 펼쳐보기 */
+.maple-workspace .home-desk-masthead{min-height:170px;padding:22px 26px 48px}
+.maple-workspace #desk-title{font-size:28px;margin:5px 0 8px;line-height:1.4}
+.maple-workspace .desk-hero-copy>p:last-child{font-size:15px}
+.maple-workspace .desk-hero-art{background-size:auto 270px;opacity:.7}
+.maple-workspace .desk-reset{left:26px;bottom:14px}
+.maple-workspace .workspace-quick-actions button{min-height:78px;padding:14px 18px}
+.maple-workspace .home-account-panel{padding:18px 22px}
+.maple-workspace .home-account-panel .account-entry-head{gap:10px}
+.maple-workspace .home-account-panel .account-entry-copy p{font-size:13px}
+.maple-workspace .home-primary-grid{gap:20px}
+.maple-workspace .home-workbench{grid-template-columns:minmax(0,1fr) 290px;gap:20px}
+.maple-workspace .home-grid{gap:12px}
+.maple-workspace .home-grid>.card:first-child{grid-column:1/-1}
+.maple-workspace .clarity-fold{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0;margin:0;overflow:clip}
+.maple-workspace .clarity-fold>summary{display:flex;gap:18px;align-items:center;justify-content:space-between;list-style:none;padding:18px 20px;cursor:pointer;min-height:80px;color:var(--text);line-height:1.5}
+.maple-workspace .clarity-fold>summary::-webkit-details-marker{display:none}
+.maple-workspace .clarity-fold>summary>span{display:flex;min-width:0;flex-direction:column;gap:4px}
+.maple-workspace .clarity-fold>summary strong{font-size:16px;font-weight:700;word-break:keep-all}
+.maple-workspace .clarity-fold>summary small{font-size:13px;font-weight:400;color:var(--sub);line-height:1.6}
+.maple-workspace .clarity-fold>summary::after{content:'+';font-size:25px;color:var(--gold);flex:0 0 24px;text-align:center}
+.maple-workspace .clarity-fold[open]>summary::after{content:'−'}
+.maple-workspace .clarity-fold>summary:hover{background:var(--raised)}
+.maple-workspace .clarity-fold>summary:focus-visible{outline-offset:-4px}
+.maple-workspace .clarity-fold[open]>summary{border-bottom:1px solid var(--line)}
+.maple-workspace .clarity-fold-body{padding:20px;min-width:0}
+.maple-workspace .clarity-fold-body>.card{margin:0;padding:0;border:0;box-shadow:none;background:transparent;border-radius:0}
+.maple-workspace .clarity-fold-body>.card>.home-section-head h2,.maple-workspace .clarity-fold-body>.card>h2{display:none}
+.maple-workspace .clarity-fold-body>.card>.home-section-head{margin-bottom:14px}
+.maple-workspace .clarity-fold-body>.home-support{margin:0}
+.maple-workspace .clarity-fold-body>.home-support>.card{margin:0 0 20px;padding:20px}
+.maple-workspace .clarity-fold-body>.home-support>.card:last-child{margin-bottom:0}
+.maple-workspace .home-support{margin-top:0}
+.maple-workspace #page-home>.clarity-fold{margin-top:20px}
+.maple-workspace .home-side{gap:12px}
+.maple-workspace .home-side>.clarity-fold .clarity-fold-body{padding:16px 18px}
+.maple-workspace .home-side .journey-links>div:first-of-type{border-top:0;padding-top:0}
+.maple-workspace .home-source-note{display:block}
+.maple-workspace .automation-insight-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.maple-workspace .automation-insight{min-width:0}
+.maple-workspace .automation-insight b{font-size:23px;line-height:1.5;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.maple-workspace .automation-insight small{font-size:13px;line-height:1.7;color:var(--sub)}
+.maple-workspace .clarity-period-nav,.maple-workspace .clarity-section-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.maple-workspace .clarity-period-nav{padding:5px;border:1px solid var(--line);border-radius:10px;background:var(--panel-soft);width:fit-content;max-width:100%}
+.maple-workspace .clarity-period-nav button{min-height:44px;padding:10px 24px;background:transparent;color:var(--sub);border:1px solid transparent;font-size:15px}
+.maple-workspace .clarity-period-nav button[aria-current=page]{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+.maple-workspace .clarity-section-nav button{min-height:44px;padding:9px 18px;font-size:14px}
+.maple-workspace .page-context-note{font-size:14px;margin-bottom:16px;max-width:100%}
+.maple-workspace .page-context-note span{max-width:75ch}
+.maple-workspace .workspace-main{max-width:1420px}
+.maple-workspace .card[tabindex='-1']{scroll-margin-top:112px}
+.maple-workspace .daily-crystal-actions{display:grid;grid-template-columns:1fr;gap:8px}
+.maple-workspace .daily-sale-check{border-color:var(--gold);background:#3a342a}
+.maple-workspace .boss-sync-options{font-size:14px;line-height:1.7;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-soft)}
+.maple-workspace .boss-sync-options label{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-right:18px}
+@media(max-width:1100px){
+ .maple-workspace .home-launchpad{grid-template-columns:minmax(0,1fr) 285px;gap:0 18px}
+ .maple-workspace .home-primary-grid{grid-template-columns:minmax(0,1fr) 285px;gap:18px}
+ .maple-workspace .home-workbench{grid-template-columns:1fr;gap:12px}
+ .maple-workspace .home-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+}
+@media(max-width:700px){
+ .maple-workspace .home-launchpad{display:block}
+ .maple-workspace .home-desk-masthead{min-height:156px;padding:18px 20px 45px}
+ .maple-workspace #desk-title{font-size:25px;line-height:1.4;margin:6px 0}
+ .maple-workspace .desk-hero-copy{max-width:90%}
+ .maple-workspace .desk-hero-copy>p:last-child{font-size:13px}
+ .maple-workspace .desk-reset{left:20px;bottom:12px;font-size:11px;gap:3px 12px}
+ .maple-workspace .workspace-quick-actions button{padding:12px 5px;min-height:76px}
+ .maple-workspace .home-account-panel{padding:14px 16px}
+ .maple-workspace .home-primary-grid{display:block}
+ .maple-workspace .home-grid{grid-template-columns:1fr;gap:10px}
+ .maple-workspace .home-side{display:flex;gap:10px}
+ .maple-workspace .clarity-fold>summary{padding:16px;min-height:78px;gap:10px}
+ .maple-workspace .clarity-fold>summary strong{font-size:16px}
+ .maple-workspace .clarity-fold>summary small{font-size:13px}
+ .maple-workspace .clarity-fold-body{padding:16px}
+ .maple-workspace .clarity-fold-body>.home-support>.card{padding:14px}
+ .maple-workspace .automation-insight-grid{grid-template-columns:1fr}
+ .maple-workspace .automation-insight b{font-size:24px}
+ .maple-workspace .clarity-period-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
+ .maple-workspace .clarity-period-nav button{width:100%;padding:9px 5px;font-size:14px}
+ .maple-workspace .clarity-section-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .maple-workspace .clarity-section-nav button{width:100%;padding:9px 4px;font-size:13px}
+ .maple-workspace .page-context-note{font-size:13px}
+}
+.maple-workspace .clarity-fold[data-clarity-section=monthly]{grid-column:1/-1}
+.maple-workspace .character-sync-settings{margin-top:12px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel-soft)}
+.maple-workspace .character-sync-settings>summary{font-size:14px;min-height:44px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.maple-workspace .character-sync-settings>summary::before{content:'+';font-size:20px;color:var(--gold)}
+.maple-workspace .character-sync-settings[open]>summary::before{content:'−'}
+.maple-workspace .character-sync-settings p{font-size:13px;max-width:70ch}
+.maple-workspace .scheduler-scope-options{display:flex;flex-wrap:wrap;gap:6px 20px}
+.maple-workspace .scheduler-scope-options label{display:inline-flex;gap:8px;align-items:center;min-height:44px;font-size:14px;margin:0}
+.maple-workspace .scheduler-scope-options input{width:18px;height:18px;flex:0 0 18px}
+.maple-workspace .daily-boss-status{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.maple-workspace .daily-boss-status .bcheck{font-size:13px;justify-content:flex-start;padding:9px 10px;gap:8px}
+.maple-workspace .daily-boss-status .bcheck:has(.daily-boss-check){border-color:#9b855e;background:#3a342a}
+.maple-workspace .daily-boss-status .bcheck:has(input:checked){background:#324f42;border-color:#6caa90}
+.maple-workspace .daily-boss-status input{width:18px;height:18px;flex:0 0 18px}
+.maple-workspace .daily-sale-state{font-size:13px;line-height:1.7;text-align:left}
+@media(max-width:700px){
+ .maple-workspace #page-home>.home-account-panel{margin:0 0 18px}
+ .maple-workspace #page-home>.home-account-panel .account-entry-copy>p{display:none}
+ .maple-workspace #page-home>.home-account-panel #account-status{font-size:12px}
+ .maple-workspace .home-side>.clarity-fold{width:100%}
+ .maple-workspace .daily-boss-status{grid-template-columns:1fr}
+ .maple-workspace .daily-boss-status .bcheck{font-size:14px}
+}

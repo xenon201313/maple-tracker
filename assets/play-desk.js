@@ -27,7 +27,7 @@
     if(route.action){
       openPage('home');
       const target=document.getElementById(route.action==='account'?'account-title':'home-backup');
-      if(target){target.setAttribute('tabindex','-1');target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true});}
+      if(target){window.MapleWorkspaceReveal?.(target);target.setAttribute('tabindex','-1');target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true});}
     }else if(route.tool)window.MapleLedgerPlanner.open(route.tool);
     else openPage(route.page);
   }

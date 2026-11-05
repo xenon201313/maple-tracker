@@ -40,6 +40,9 @@ const server=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(r
   await page.keyboard.press('Escape');await page.locator('#desk-search-dialog').waitFor({state:'hidden'});assert.equal(await page.locator('[data-desk-search]').evaluate(el=>document.activeElement===el),true,'Escape restores focus '+JSON.stringify(await page.evaluate(()=>({active:document.activeElement?.outerHTML.slice(0,240),open:document.getElementById('desk-search-dialog').open}))));
   await page.locator('[data-desk-search]').click();await page.locator('#desk-search-input').fill('정산');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');assert.match(page.url(),/tool=settlement/);
   await page.locator('[data-desk-account]').click();assert.equal(await page.locator('#account-title').evaluate(el=>document.activeElement===el),true);assert.match(page.url(),/page=home/);assert.equal(await page.locator('#account-choice').count(),1);
+  // 목적별 계획은 필요할 때 펼치는 보조 도구입니다. 검색 검증과 별도로 실제 펼치기 동작을 거칩니다.
+  const toolsSummary=page.locator('details[data-clarity-section="tools"]>summary');
+  if(await toolsSummary.count())await toolsSummary.click();
   await page.locator('[data-desk-tool=bossplan]').click();assert.match(page.url(),/tool=bossplan/);
   await page.evaluate(()=>MaplePatchNotes.open());await page.keyboard.press('Control+k');assert.equal(await page.locator('#desk-search-dialog').evaluate(el=>el.open),false,'다른 팝업 위에 도구 찾기를 중첩하지 않음');await page.keyboard.press('Escape');
   await page.evaluate(()=>openPage('home'));assert.equal(await snapshot(),baseline,'Search/status/navigation must not alter source ledger');
