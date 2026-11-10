@@ -16,7 +16,7 @@
     }
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('ui-icon','maple-tab-icon');
     svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
-    const use=document.createElementNS('http://www.w3.org/2000/svg','use');use.setAttribute('href','assets/ui-icons.svg?v=20261111-icons#'+spec.symbol);svg.append(use);return svg;
+    const use=document.createElementNS('http://www.w3.org/2000/svg','use');use.setAttribute('href','assets/ui-icons.svg?v=20261111-icons-2#'+spec.symbol);svg.append(use);return svg;
   }
   const bar=document.createElement('div');bar.className='maple-sitebar';
   const brand=document.createElement('a');brand.className='maple-site-brand';brand.href='?page=home';
@@ -64,8 +64,15 @@
   const huntIcons=[pageIcons.daily,mesoIcon,{symbol:'receipt'}];
   [...document.querySelectorAll('.clarity-section-nav button')].forEach((button,index)=>button.prepend(tabIcon(huntIcons[index])));
   for(const button of document.querySelectorAll('[data-renewal-jump]'))button.prepend(tabIcon(button.dataset.renewalJump==='enhancement-title'?enhancementIcons.starforce:pageIcons.expense));
-  const plannerMenu=document.querySelector('.tabs [data-page="planner"] .ui-icon use');if(plannerMenu)plannerMenu.setAttribute('href','assets/ui-icons.svg?v=20261111-icons#target');
-  const patchMenu=document.querySelector('#patch-notes-open .ui-icon use');if(patchMenu)patchMenu.setAttribute('href','assets/ui-icons.svg?v=20261111-icons#receipt');
+  const homeSectionIcons={monthly:{symbol:'receipt'},forecast:pageIcons.stats,prices:{symbol:'price-tag'},records:{symbol:'trophy'},backup:{symbol:'download'},guides:pageIcons.intro,tools:pageIcons.profit,example:{symbol:'compare'}};
+  for(const [section,spec]of Object.entries(homeSectionIcons)){
+    const heading=document.querySelector('#page-home [data-clarity-section="'+section+'"]>summary>span>strong');
+    if(heading){heading.classList.add('maple-home-title');heading.prepend(tabIcon(spec));}
+  }
+  const bossHeading=document.getElementById('home-weekly-progress')?.closest('.card')?.querySelector('.home-section-head h2');
+  if(bossHeading){bossHeading.classList.add('maple-home-title');bossHeading.prepend(tabIcon(pageIcons.boss));}
+  const plannerMenu=document.querySelector('.tabs [data-page="planner"] .ui-icon use');if(plannerMenu)plannerMenu.setAttribute('href','assets/ui-icons.svg?v=20261111-icons-2#target');
+  const patchMenu=document.querySelector('#patch-notes-open .ui-icon use');if(patchMenu)patchMenu.setAttribute('href','assets/ui-icons.svg?v=20261111-icons-2#receipt');
   function update(){
     const current=document.querySelector('.page.active')?.id.replace('page-','')||'home';
     for(const button of nav.querySelectorAll('button')){

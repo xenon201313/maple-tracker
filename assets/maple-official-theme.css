@@ -251,6 +251,8 @@ body.maple-official-theme::after{background:transparent;pointer-events:none}
 /* 글자를 유지한 채 메뉴와 하위 탭에 뜻이 다른 아이콘을 함께 표시합니다. */
 .maple-official-theme .maple-tab-icon{display:inline-block;width:24px;height:24px;flex:0 0 24px;vertical-align:middle;pointer-events:none;stroke-width:1.8}
 .maple-official-theme .maple-tab-icon--item{width:28px;height:28px;flex-basis:28px;object-fit:contain;image-rendering:pixelated;padding:2px;background:#fff;border:1px solid #dedee9;border-radius:6px}
+.maple-official-theme .maple-home-title{display:flex;align-items:center;gap:10px;min-width:0}
+.maple-official-theme .maple-home-title>.maple-tab-icon{color:var(--gold)}
 .maple-official-theme .maple-nav-group>summary{gap:8px}
 .maple-official-theme .maple-nav-group>summary .maple-tab-icon{width:22px;height:22px;flex-basis:22px}
 .maple-official-theme .maple-nav-group>summary .maple-tab-icon--item{width:26px;height:26px;flex-basis:26px}
