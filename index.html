@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261111-1"></script>
+<script src="assets/patch-notes-data.js?v=20261111-2"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -1015,7 +1015,9 @@
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
 <link rel="stylesheet" href="assets/maple-workspace.css?v=20261105-1">
-<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261111-3">
+<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261111-4">
+<link rel="stylesheet" href="assets/home-characters.css?v=20261111-1">
+<link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 </head>
 <body class="maple-workspace maple-official-theme">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1069,6 +1071,7 @@
 <!-- ══════════ 홈 ══════════ -->
 <div class="page active" id="page-home">
   <div class="home-launchpad">
+    <div class="home-launchpad-main">
     <section class="home-desk-masthead" aria-labelledby="desk-title">
       <div class="desk-hero-copy"><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메소, 차곡차곡.</h2><p>재획과 보스 수입부터 판매·강화 지출까지.<br>내 모험의 수익을 한 장의 장부로 정리해요.</p></div>
       <div class="desk-hero-art" aria-hidden="true"></div>
@@ -1078,6 +1081,7 @@
     <button type="button" data-open-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span><strong>재획 기록</strong><small>메소·조각 수입 남기기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
     <button type="button" data-open-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span><strong>보스 체크</strong><small>결정석·드랍 정리하기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
     <button type="button" data-open-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span><strong>지출 기록</strong><small>구매·강화 비용 적기</small></span><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#chevron"></use></svg></button>
+  </div>
   </div>
 <section class="card account-sync home-account-panel" aria-labelledby="account-title">
     <div class="account-entry-head">
@@ -10412,9 +10416,11 @@ function bindCharacterDisclosure(head,list,name,opened,scope){
     button.setAttribute('aria-label',name+' '+button.textContent);
   };
   const toggle=()=>{
+    const previousHeight=window.MapleDisclosureMotion?.measure(list)||0;
     opened.has(name)?opened.delete(name):opened.add(name);
     list.classList.toggle('open',opened.has(name));
     update();
+    window.MapleDisclosureMotion?.slidePanel(list,previousHeight,opened.has(name));
   };
   button.onclick=toggle;
   head.onclick=event=>{ if(!event.target.closest('button,a,input,select')) toggle(); };
@@ -11369,8 +11375,10 @@ window.MapleEnhancementBridge={
 </dialog>
 <script src="assets/workspace.js?v=20261028-1"></script>
 <script src="assets/play-desk.js?v=20261105-1"></script>
-<script src="assets/maple-workspace.js?v=20261105-1"></script>
+<script src="assets/maple-workspace.js?v=20261111-1"></script>
 <script src="assets/maple-official-theme.js?v=20261111-3"></script>
+<script src="assets/home-characters.js?v=20261111-1"></script>
+<script src="assets/disclosure-motion.js?v=20261111-1"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <a href="guide/">사용 가이드·계산 사례</a>

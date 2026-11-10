@@ -1,0 +1,12 @@
+/* 본문에서 사용자가 펼친 영역만 움직입니다. 검색·복구 경로는 즉시 표시합니다. */
+@supports (interpolate-size:allow-keywords) and selector(::details-content) and (transition-behavior:allow-discrete){
+ .maple-workspace .page details::details-content{interpolate-size:allow-keywords;height:0}
+ .maple-workspace .page details[open]::details-content{height:auto}
+ .maple-workspace .page details.maple-disclosure-slide::details-content{
+  overflow:clip;
+  transition:height 240ms cubic-bezier(.22,.61,.36,1),content-visibility 240ms allow-discrete;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .maple-workspace .page details.maple-disclosure-slide::details-content{transition:none}
+}

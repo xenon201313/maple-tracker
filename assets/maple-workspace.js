@@ -57,8 +57,11 @@
   if(account&&primary){
     const origin=document.createComment('계정 패널의 PC 위치');account.before(origin);
     const narrow=matchMedia('(max-width:700px)');
-    const placeAccount=()=>{if(narrow.matches)primary.after(account);else origin.after(account);};
-    narrow.addEventListener('change',placeAccount);placeAccount();
+    const placeAccount=()=>{
+      if(narrow.matches){if(primary.nextElementSibling!==account)primary.after(account);}
+      else if(origin.nextSibling!==account)origin.after(account);
+    };
+    narrow.addEventListener('change',placeAccount);document.addEventListener('workspace:page',placeAccount);placeAccount();
   }
   const bossAction=home?.querySelector('.workspace-quick-actions [data-open-page="boss"]');
   if(bossAction){bossAction.querySelector('strong').textContent='보스 기록';bossAction.querySelector('small').textContent='처치·판매·드랍 확인';}
@@ -87,7 +90,7 @@
   // 회복·도구 등 접힌 내용으로 이동할 때 초점이 숨지 않게 합니다.
   window.MapleWorkspaceReveal=function(target){
     const folds=[];for(let parent=target?.parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')folds.push(parent);
-    for(const fold of folds.reverse())fold.open=true;
+    for(const fold of folds.reverse()){window.MapleDisclosureMotion?.finishDetails(fold);fold.open=true;}
   };
   function updateContext(){
     const name=document.querySelector('.page.active')?.id.replace('page-','')||'home';
