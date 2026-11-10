@@ -11,4 +11,12 @@
 <symbol id="close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
 <symbol id="download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol>
 <symbol id="chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="equipment" viewBox="0 0 24 24"><path d="m14 3 7 0 0 7-10 10-7-7Z"/><path d="m3 21 5-5M3 14l7 7M15 6l3 3"/></symbol>
+<symbol id="package" viewBox="0 0 24 24"><path d="m3 7 9-5 9 5v10l-9 5-9-5Z"/><path d="m3 7 9 5 9-5M12 12v10M7.5 4.5l9 5"/></symbol>
+<symbol id="target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 9-9M16 3h5v5"/></symbol>
+<symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M12 2v3M18 6l2-2"/></symbol>
+<symbol id="cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7Z"/><path d="m3 7 9 5 9-5M12 12v10M7.5 4.5l9 5"/><path d="m7 12 2 1M16 13l2-1"/></symbol>
+<symbol id="receipt" viewBox="0 0 24 24"><path d="M5 3v18l3-2 4 2 4-2 3 2V3l-3 2-4-2-4 2Z"/><path d="M9 9h6M9 13h6M9 17h3"/></symbol>
+<symbol id="compare" viewBox="0 0 24 24"><path d="M4 20h16M5 17V9h5v8M14 17V4h5v13M4 4h6M7 1v6"/></symbol>
+<symbol id="symbol" viewBox="0 0 24 24"><path d="m8 2 8 0 6 8-10 12L2 10Z"/><path d="M2 10h20M8 2l-2 8 6 12 6-12-2-8M6 10l6-8 6 8"/></symbol>
 </svg>
