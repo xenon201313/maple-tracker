@@ -20,11 +20,10 @@
             const shown=selectedChildForDrop(key,item,drops)||item;
             const effective=effectiveDropKeyForParent(key,item,drops);
             const price=toMesoBig(ensureObj(ensureObj(c[priceStore])[period])[effective]);
-            const shareMeta=ensureObj(ensureObj(ensureObj(c[scope==='weekly'?'dropShareWeeks':scope==='monthly'?'monthDropShareMonths':'dailyDropShareDays'])[period])[effective]);
             const party=scope==='daily'?dailyBossPartyForDropKey(c,period,effective):bossPartyForDropKey(c,period,effective,scope);
             const split=scope==='daily'?null:dropSplitInfo(c,period,effective,scope);
             const shareRate=split?.saleNet>0n?Number(split.mine*1000000n/split.saleNet)/1000000:1/Math.max(1,party);
-            result.push({id:['drop',charId(c),scope,period,effective].join(':'),sourceType:'boss-drop',sourcePeriod:period,date:scope==='daily'?period:'',dateBasis:scope==='daily'?'일간 기록':'주간·월간 기록 · 획득일 직접 확인',charName:c.name,itemName:shown.name,quantity:1,unitPrice:price.toString(),fee:scope==='daily'?0:(split?.fee??validDropFee(shareMeta.fee)),shareRate,originalNet:scope==='daily'?sharedDailyDropPrice(c,period,effective).toString():(split?.mine?.toString()||''),originalShareText:scope==='daily'?dailyDropPriceText(c,period,effective):(split?dropSplitResultText(split):''),icon:shown.img||'',note:party>1?'원본 분배 결과는 참고값입니다. 새 정산의 단순 분배율과 송금 수수료를 직접 확인하세요.':''});
+            result.push({id:['drop',charId(c),scope,period,effective].join(':'),sourceType:'boss-drop',sourcePeriod:period,date:scope==='daily'?period:'',dateBasis:scope==='daily'?'일간 기록':'주간·월간 기록 · 획득일 직접 확인',charName:c.name,itemName:shown.name,quantity:1,unitPrice:price.toString(),fee:3,shareRate,originalNet:scope==='daily'?sharedDailyDropPrice(c,period,effective).toString():(split?.mine?.toString()||''),originalShareText:scope==='daily'?dailyDropPriceText(c,period,effective):(split?dropSplitResultText(split):''),icon:shown.img||'',note:'새 드랍 판매의 경매장 수수료는 3%로 고정합니다.'+(party>1?' 원본 분배 결과는 참고값입니다. 새 정산의 단순 분배율과 송금 수수료를 직접 확인하세요.':'')});
           }
         }
       }
@@ -45,11 +44,11 @@
     const expenses=(db.expenses||[]).map(normalizeExpenseRecord).map(r=>({id:'expense:'+r.id,date:r.date,charName:r.charName,category:expenseCategoryById(r.category).name,memo:r.memo,amount:String(r.amount)}));
     expenses.forEach(r=>cashEntries.push({...r,signedAmount:(-signed(r.amount)).toString(),kind:'직접 지출'}));
     db.chars.forEach(c=>{
-      const id=charId(c),checked=ensureObj(ensureObj(c.bossWeeks)[week]),summary=charSum(c,week);
-      bossRemainingLimits[id]=Math.max(0,weeklyBossCheckLimit(week)-summary.limitCount);
+      const id=charId(c),checked=ensureObj(ensureObj(c.bossWeeks)[week]);
+      bossRemainingLimits[id]=Math.max(0,weeklyBossSelectionLimit()-weeklyBossSelectionCount(c,week));
       BOSS_GROUPS.w.forEach(g=>{
         const pref=bossPreference(c,g),completed=g.bosses.some(b=>Object.hasOwn(checked,b[0]));
-        g.bosses.filter(b=>canUseBoss(c,b,week)).forEach(b=>{const party=clampPartyForBoss(b,pref.party);bossOptions.push({id:id+'|'+b[0],groupId:id+'|'+g.key,charId:id,charName:c.name,bossId:g.key,bossCode:b[0],bossName:g.name,difficulty:b[1].replace(g.name,'').trim(),party,meso:share(bossCrystalPrice(b,week,c),party).toString(),completed,period:'weekly',limitFree:isLimitFreeBoss(b)});});
+        g.bosses.filter(b=>canUseBoss(c,b,week)).forEach(b=>{const party=clampPartyForBoss(b,pref.party);bossOptions.push({id:id+'|'+b[0],groupId:id+'|'+g.key,charId:id,charName:c.name,bossId:g.key,bossCode:b[0],bossName:g.name,difficulty:b[1].replace(g.name,'').trim(),party,meso:share(bossCrystalPrice(b,week,c),party).toString(),completed,period:'weekly',limitFree:false});});
       });
       for(const [period,store]of Object.entries(ensureObj(c.bossWeeks))){
         let amount=0n;for(const [key,party]of Object.entries(ensureObj(store))){const b=BOSS_MAP[key];if(b)amount+=toMesoBig(share(bossCrystalPrice(b,period,c),clampPartyForBoss(b,party)));}

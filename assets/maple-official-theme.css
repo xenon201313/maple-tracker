@@ -1,0 +1,251 @@
+/* 공식 홈페이지의 밝은 패널·가로 메뉴를 메계부의 기록 화면에 맞춥니다. */
+:root:has(.maple-official-theme){color-scheme:light;--bg:#f4f4f8;--panel:#fff;--panel2:#eeeef5;--panel-soft:#f7f7fa;--field:#fff;--chrome:#fff;--raised:#f0f0f6;--line:#d9dae4;--border-strong:#9294a5;--text:#292a3b;--sub:#626476;--muted:#626476;--gold:#a54b16;--yellow:#a54b16;--accent:#a54b16;--on-gold:#fff;--orange:#ff8545;--blue:#3854a1;--purple:#6462a7;--green:#16725a;--red:#b83a49;--positive-surface:#eef8f1;--danger-surface:#fff1f2;--sidebar-width:0px;--focus:#80502c}
+html:has(.maple-official-theme){background:#f4f4f8;scroll-padding-top:165px}
+body.maple-official-theme{padding-left:0;background:#f4f4f8;color:var(--text);font-size:16px;line-height:1.7}
+body.maple-official-theme::before{opacity:.025;background-position:center top;pointer-events:none}
+body.maple-official-theme::after{background:transparent;pointer-events:none}
+.maple-official-theme :is(h1,h2,h3,h4){color:var(--text)}
+.maple-official-theme :is(button,a,summary,[tabindex]):focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.maple-official-theme :is(input,select,textarea):focus{outline:2px solid var(--focus);outline-offset:2px}
+.maple-official-theme button{color:#fff;background:#a54b16;border-color:#a54b16;border-radius:8px}
+.maple-official-theme button.ghost{color:var(--text);background:#fff;border-color:#b8bac9}
+.maple-official-theme button.ghost:hover{background:#eeeef5;border-color:#85889d}
+.maple-official-theme button.danger{color:#b0273d;background:#fff3f5;border-color:#d9a0aa}
+.maple-official-theme button:disabled{opacity:.55}
+.maple-official-theme :is(input[type=text],input[type=number],input[type=date],input[type=password],input[type=search],select,textarea){background:#fff;color:var(--text);border-color:#999cad;border-radius:7px;font-size:16px}
+.maple-official-theme :is(input,textarea)::placeholder{color:#77798b;opacity:1}
+.maple-official-theme input[type=checkbox],.maple-official-theme input[type=radio]{accent-color:#a54b16}
+.maple-official-theme .workspace-header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 16px;min-height:0;padding:0 max(32px,calc((100vw - 1280px)/2));background:#fff;border-bottom:1px solid #dedee8;box-shadow:0 3px 14px #36364f08;z-index:101}
+.maple-sitebar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:36px;min-height:84px;border-bottom:1px solid #ededf2}
+.maple-site-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#292a3b;flex-shrink:0;font:22px/1.5 var(--font-title)}
+.maple-site-brand>img{width:37px;height:40px;object-fit:contain}
+.maple-site-brand>span{display:flex;flex-direction:column}
+.maple-site-brand small{font:12px/1.5 var(--font-body);color:var(--sub);margin-top:2px}
+#maple-top-nav{display:flex;justify-content:flex-end;align-items:stretch;gap:22px;min-width:0;align-self:stretch}
+.maple-nav-group{position:relative;display:block;min-width:0}
+.maple-nav-group>summary{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;min-height:84px;padding:10px 14px;color:#4d4e60;cursor:pointer;list-style:none;font:700 17px/1.5 var(--font-body);white-space:nowrap}
+.maple-nav-group>summary::-webkit-details-marker{display:none}
+.maple-nav-group>summary::after{content:'';width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin-top:-4px}
+.maple-nav-group.is-current>summary,.maple-nav-group[open]>summary{color:#983e0f}
+.maple-nav-group.is-current>summary::before{content:'';position:absolute;bottom:0;left:14px;right:14px;height:3px;background:#ff8545}
+.maple-nav-links{position:absolute;left:50%;top:calc(100% - 4px);transform:translateX(-50%);min-width:200px;padding:10px;background:#fff;border:1px solid #d7d8e3;border-radius:12px;box-shadow:0 16px 36px #292a3b20;z-index:120}
+.maple-nav-group:not([open])>.maple-nav-links{display:none}
+.maple-nav-group:last-child .maple-nav-links{left:auto;right:0;transform:none}
+.maple-nav-links button{display:block;width:100%;text-align:left;min-height:46px;padding:10px 14px;background:#fff;color:#4d4e60;border:0;border-radius:7px;font:600 15px/1.6 var(--font-body);white-space:nowrap}
+.maple-nav-links button:hover,.maple-nav-links button[aria-current=page]{color:#983e0f;background:#fff0e6}
+.maple-official-theme .workspace-heading{padding:12px 0;min-height:70px}
+.maple-official-theme .workspace-header h1{font-size:20px;line-height:1.4;color:#292a3b}
+.maple-official-theme #workspace-context{font-size:12px;color:#626476}
+.maple-official-theme .workspace-header-actions{gap:8px;padding:10px 0}
+.maple-official-theme .workspace-header button{min-height:44px;font-size:14px}
+.maple-official-theme .workspace-header .workspace-account[data-account-entry=login]{color:#3f261a;background:#ffad74;border-color:#ffad74}
+.maple-official-theme .workspace-search kbd{background:#f7f7fa}
+.maple-official-theme .workspace-main{max-width:1280px;width:calc(100% - 64px);margin:22px auto 0}
+.maple-official-theme .nexon-api-disclosure{font-size:12px;line-height:1.7;color:#626476;margin-bottom:18px}
+.maple-official-theme .nexon-api-disclosure strong,.maple-official-theme .nexon-api-disclosure a{color:#626476}
+.maple-official-theme .card{background:#fff;border:1px solid #e0e0e9;border-radius:18px;padding:24px;box-shadow:none}
+.maple-official-theme .card h2{font-size:21px;color:#292a3b}
+.maple-official-theme .home-launchpad{grid-template-columns:minmax(0,1fr) 305px;gap:0 24px;margin-bottom:24px}
+.maple-official-theme .home-desk-masthead{min-height:206px;border:0;border-radius:24px 24px 0 0;background:#f3e8db;padding:25px 30px 49px}
+.maple-official-theme #desk-title{font-family:var(--font-title);font-size:34px;color:#573622;line-height:1.45;margin:7px 0 11px}
+.maple-official-theme #desk-date{color:#725741;font-size:13px}
+.maple-official-theme .desk-hero-copy{max-width:80%}
+.maple-official-theme .desk-hero-copy>p:last-child{color:#624e40;font-size:15px}
+.maple-official-theme .desk-hero-art{width:55%;background-size:auto 320px;opacity:.85;mask-image:linear-gradient(90deg,transparent,#000 45%)}
+.maple-official-theme .desk-reset{left:30px;color:#624e40;gap:4px 20px;font-size:12px;right:14px;bottom:17px}
+.maple-official-theme .desk-reset b{color:#573622}
+.maple-official-theme .workspace-quick-actions{border:0;border-radius:0 0 24px 24px;background:#fff;box-shadow:0 0 0 1px #e0d7cf inset}
+.maple-official-theme .workspace-quick-actions button{border:0;border-right:1px solid #f0d5c0;background:#fff4e9;color:#67391c;border-radius:0;min-height:82px;padding:15px 18px}
+.maple-official-theme .workspace-quick-actions button:first-child{background:#ffad74;color:#442716}
+.maple-official-theme .workspace-quick-actions button:last-child{border-right:0}
+.maple-official-theme .workspace-quick-actions button:hover{background:#ffdab6;filter:none}
+.maple-official-theme .workspace-quick-actions strong{font-size:16px}
+.maple-official-theme .workspace-quick-actions small{font-size:12px}
+.maple-official-theme .home-account-panel{--text:#fff;--sub:#fff;--gold:#ffe1bd;--raised:#46495f;--line:#9699af;--border-strong:#b3b5c7;grid-column:2;grid-row:1/3;background:#71748c;border:0;border-radius:24px;padding:24px;color:#fff;min-width:0}
+.maple-official-theme .home-account-panel .account-entry-head{flex-direction:column;align-items:stretch;gap:12px}
+.maple-official-theme .home-account-panel .account-entry-head>.account-actions{flex:auto}
+.maple-official-theme .home-account-panel a{color:#fff4e3}
+.maple-official-theme .home-account-panel :is(h2,h3){color:#fff}
+.maple-official-theme .home-account-panel .account-entry-copy p{color:#fff;font-size:13px}
+.maple-official-theme .home-account-panel :is(button,a,summary,[tabindex]):focus-visible{outline-color:#fff}
+.maple-official-theme .home-account-panel #account-status{color:#fff;font-size:12px;line-height:1.75}
+.maple-official-theme .home-account-panel #account-status.err{color:#ffe4e6}
+.maple-official-theme .home-account-panel button.ghost{background:#46495f;color:#fff;border-color:#a3a5b7}
+.maple-official-theme .home-account-panel .account-choice{--text:#292a3b;--sub:#626476;--line:#d9dae4;background:#fff;color:#292a3b;border-radius:10px}
+.maple-official-theme .home-account-panel .account-choice :is(h2,h3){color:#292a3b}
+.maple-official-theme .home-account-panel .account-choice a{color:#3854a1}
+.maple-official-theme .home-account-panel :is(input,select,textarea){color:#292a3b}
+.maple-official-theme .home-account-panel #account-login{max-width:210px}
+.maple-official-theme .home-primary-grid{grid-template-columns:minmax(0,1fr) 305px;gap:24px}
+.maple-official-theme .home-overview{border-top:0;border-radius:18px;padding:25px 28px}
+.maple-official-theme .home-summary b{font-size:clamp(23px,1.8vw,30px);line-height:1.5}
+.maple-official-theme .home-summary:last-child{border-top-color:#dddde7}
+.maple-official-theme .desk-record-card{background:#eeeef5;border:0;border-radius:18px;padding:24px}
+.maple-official-theme .desk-record-link,.maple-official-theme .desk-record-link:first-child{border-bottom-color:#d6d6e4;background:transparent;color:#292a3b}
+.maple-official-theme .desk-record-link:hover{background:#e3e3ee}
+.maple-official-theme .desk-record-link>strong{color:#8b451b}
+.maple-official-theme .desk-record-link>small{font-size:12px}
+.maple-official-theme .desk-next{border-color:#d6d6e4}
+.maple-official-theme .ledger-evidence{padding:0 0 18px;border-color:#d9dae4;color:#626476}
+.maple-official-theme .home-workbench{gap:20px;grid-template-columns:minmax(0,1fr) 290px}
+.maple-official-theme .home-grid>.card,.maple-official-theme .clarity-fold{background:#fff;border:1px solid #e0e0e9;border-radius:16px}
+.maple-official-theme .weekly-progress-top b{color:#292a3b}
+.maple-official-theme .clarity-fold>summary{padding:18px 22px;min-height:80px}
+.maple-official-theme .clarity-fold>summary:hover{background:#f5f5f9}
+.maple-official-theme .clarity-fold>summary::after{color:#7b7d99}
+.maple-official-theme .clarity-fold-body>.card{border:0;background:transparent}
+.maple-official-theme .home-side .clarity-fold{background:#eeeef5;border-color:#e3e3ed}
+.maple-official-theme .journey-links a{background:#fff;border-color:#d5d6e1;color:#42445a}
+.maple-official-theme .journey-links a:hover{border-color:#b96131;color:#8b451b}
+.maple-official-theme .page-context-note{background:#eeeef5;border:0;border-radius:10px;color:#55576d;padding:14px 18px}
+.maple-official-theme .page-context-note a{color:#3854a1;font-size:13px}
+.maple-official-theme .page-purpose h2{color:#292a3b}
+.maple-official-theme .period-note,.maple-official-theme .clarity-period-nav{background:#fff;border-color:#d1d2de}
+.maple-official-theme .clarity-period-nav button{background:transparent;color:#55576d}
+.maple-official-theme .clarity-period-nav button[aria-current=page]{background:#46495f;color:#fff;border-color:#46495f}
+.maple-official-theme .registered-card,.maple-official-theme .charcard{background:#fff;border-color:#dddde8;border-radius:16px}
+.maple-official-theme .character-api-card,.maple-official-theme .character-sync-settings{background:#f4f4f9;border-color:#d6d7e3;color:#55576d}
+.maple-official-theme .bcard{background:#fff;border-color:#d6d7e1;border-radius:14px;padding:19px}
+.maple-official-theme .bimg-wrap{background:#f1f1f7;border-color:#e5e5ef;border-radius:10px}
+.maple-official-theme .bcard.checked{background:#fff7ed;border-color:#e0a366;box-shadow:inset 0 3px 0 #ffad74}
+.maple-official-theme .bcard.checked .bcheck{background:#ffead4;border-color:#ca8d53;color:#67391c}
+.maple-official-theme .bcheck{background:#f4f4f9;border-color:#a7a9bb;color:#42445a}
+.maple-official-theme .bcard .bcheck:has(:disabled){color:#717386;border-color:#d1d2dc;background:#f5f5f8}
+.maple-official-theme .bprice{color:#934318}
+.maple-official-theme .weekly-selection-status{padding:12px 16px;border-radius:9px;background:#fff0df;color:#74401d;border:1px solid #e7c5a3;font-size:14px;line-height:1.7;margin:12px 0}
+.maple-official-theme .weekly-selection-status b{font-size:16px}
+.maple-official-theme .bcheck.selection-full{background:#f5f5f8;color:#717386;border-color:#c9cbd6}
+.maple-official-theme .drop-auction-fee{display:block;padding:10px 12px;min-height:44px;border:1px solid #e2c6a9;border-radius:7px;background:#fff4e7;color:#75401d;font-size:14px;line-height:1.7}
+.maple-official-theme .daily-boss-status .bcheck:has(.daily-boss-check){background:#fff0e1;border-color:#bb855a}
+.maple-official-theme .daily-boss-status .bcheck:has(input:checked){background:#e4f3e9;border-color:#6d9f7d;color:#235c3b}
+.maple-official-theme .drop-picker,.maple-official-theme .drop-selected,.maple-official-theme .drop-settlement-item{background:#fafafd;border-color:#d4d5e2}
+.maple-official-theme .drop-picker-summary{color:#42445a}
+.maple-official-theme .drop-count{color:#764019;background:#ffe4c8}
+.maple-official-theme .drop-settlement-field>span,.maple-official-theme .drop-settlement-head span{color:#626476}
+.maple-official-theme .totalbar{color:#4d3d30;background:#fff0df;border:1px solid #ebc9a5;border-left:3px solid #ffa56b}
+.maple-official-theme .profit-line,.maple-official-theme .profit-line.output{background:#f7f7fb;border-color:#dddde8}
+.maple-official-theme .profit-metric{background:#fff;border-color:#d6d7e1}
+.maple-official-theme #profit-type-list .profit-type-btn{background:#fff;color:#55576d;border-color:#d6d7e1}
+.maple-official-theme #profit-type-list .profit-type-btn.active{background:#fff0e1;border-color:#c9854f;color:#81401d}
+.maple-official-theme .expense-entry-card,.maple-official-theme .hunt-entry-card,.maple-official-theme .profit-layout>.card{border-top:3px solid #ffad74;border-radius:6px 6px 18px 18px}
+.maple-official-theme .enhancement-panel{background:#fff;border-color:#d6d7e1}
+.maple-official-theme .enhancement-tabs button{color:#626476;background:transparent}
+.maple-official-theme .enhancement-tabs button[aria-selected=true]{color:#944217;border-color:#ff8545}
+.maple-official-theme .stat,.maple-official-theme .stats-period-card,.maple-official-theme .stats-period-metric,.maple-official-theme .community-stat{background:#fff;border-color:#dddde8}
+.maple-official-theme .stats-period-net{color:#16725a}
+.maple-official-theme .community-stats-card{background:#eeeef5}
+.maple-official-theme .guide-note,.maple-official-theme .guide-pill{background:#fff1e3;border-color:#e3bd99;color:#694626}
+.maple-official-theme .guide-item,.maple-official-theme .reading-card{background:#fff;border-color:#dddde8}
+.maple-official-theme .planner-tabs{background:#eeeef5;border-color:#d7d8e4}
+.maple-official-theme .planner-tabs button[aria-selected=true]{color:#fff;background:#46495f;border-color:#46495f}
+.maple-official-theme .lp-reference-list{background:#fff}
+.maple-official-theme .desk-search-dialog{background:#fff;color:#292a3b;border-color:#b9bbce;box-shadow:0 20px 80px #292a3b33}
+.maple-official-theme .desk-search-dialog::backdrop{background:#35364a88}
+.maple-official-theme .desk-search-result:hover,.maple-official-theme .desk-search-result:focus-visible{background:#f2f2f8;border-color:#b9a18d}
+.maple-official-theme .patch-notes-dialog,.maple-official-theme .patch-notes-notice{background:#fff;color:#292a3b;border-color:#bfc0cf}
+.maple-official-theme .patch-notes-header,.maple-official-theme .patch-notes-footer{border-color:#dddde8;background:#f5f5f9}
+.maple-official-theme .patch-note-section h3{color:#292a3b}
+.maple-official-theme .patch-note-section ul{color:#4e5063}
+.maple-official-theme .patch-note-section+.patch-note-section{border-color:#dddde8}
+.maple-official-theme .patch-note-tag{background:#ffe6cf;color:#794119}
+.maple-official-theme .patch-notes-preference{color:#292a3b}
+.maple-official-theme .patch-notes-footnote{background:#f2f2f8;color:#626476}
+.maple-official-theme .patch-notes-status{color:#b0273d}
+.maple-official-theme .guide-modal-panel{background:#fff;border-color:#d7d8e4;color:#292a3b}
+.maple-official-theme .site-footer{max-width:1280px;border-color:#d9dae4;color:#626476;margin-inline:auto;background:transparent}
+.maple-official-theme .site-footer a{color:#55576d}
+.maple-official-theme .site-footer-api-notice{color:#626476}
+.maple-official-theme .site-footer-api-notice strong{color:#42445a}
+.maple-official-theme .watermark{color:#626476;background:transparent;border-radius:0;text-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* 과거 어두운 테마에서 직접 지정했던 상세 화면 색을 함께 바꿉니다. */
+.maple-official-theme .backup-current{background:#eef7f1;border-color:#bad5c4;color:#285c40}
+.maple-official-theme .backup-row b,.maple-official-theme .api-copy b,.maple-official-theme .cloud-sync-copy b,.maple-official-theme .character-api-card b{color:#42445a}
+.maple-official-theme .api-status{color:#55576d;background:#eeeef5;border-color:#bcbecf}
+.maple-official-theme .api-status.ok{color:#166344;background:#e8f5ed;border-color:#81b698}
+.maple-official-theme .api-status.err{color:#a5273b;background:#fff0f2;border-color:#cf8e99}
+.maple-official-theme .api-landing-link,.maple-official-theme .api-landing-link:hover,.maple-official-theme .api-landing-link:focus-visible{color:#3854a1;background:#eef1fb;border-color:#b6c1e0}
+.maple-official-theme .api-field span{color:#55576d}
+.maple-official-theme .api-help span{color:#55576d;background:#f0f0f6;border-color:#d6d7e1}
+.maple-official-theme .settlement-preview .pill,.maple-official-theme .daily-session,.maple-official-theme .exp-summary,.maple-official-theme .exp-tracker-empty{background:#f6f6fa;border-color:#d9dae4}
+.maple-official-theme .daily-session-field b,.maple-official-theme .daily-day-metric b{color:#42445a}
+.maple-official-theme .daily-session-field.meso b,.maple-official-theme .daily-session-field.total b,.maple-official-theme .daily-session-field.extra b,.maple-official-theme .daily-day-metric.meso b{color:#914214}
+.maple-official-theme .daily-session-field.erda b,.maple-official-theme .daily-day-metric.erda b{color:#6462a7}
+.maple-official-theme .daily-session-field.settlement b{color:#16725a}
+.maple-official-theme .enhancement-panel input:not([type=checkbox]),.maple-official-theme .enhancement-panel select{background:#fff;color:#292a3b}
+.maple-official-theme .enhancement-item-image{background:#f0f0f6}
+.maple-official-theme .enhancement-row-title .enhancement-method{color:#16725a}
+.maple-official-theme .enhancement-row[data-kind=cube] .enhancement-method{color:#3854a1}
+.maple-official-theme .september-expense-helper{background:#f7f7fb;border-color:#d9dae4}
+.maple-official-theme .expense-summary{background:#fff;border-color:#d9dae4}
+.maple-official-theme .community-stats-controls,.maple-official-theme .community-stats-empty{background:#f7f7fb;border-color:#d6d7e2}
+.maple-official-theme .community-stats-toggle{color:#42445a}
+.maple-official-theme .goal-wrap{background:#f5f5fa;border-color:#d9dae4;box-shadow:none}
+.maple-official-theme .goal-title{color:#42445a}
+.maple-official-theme .stats-period-metric b{color:#42445a}
+.maple-official-theme .stats-period-metric.hunt b{color:#914214}
+.maple-official-theme .stats-period-metric.profit b{color:#6462a7}
+.maple-official-theme .stats-period-metric.expense b,.maple-official-theme .stats-period-metric.profit b.bad{color:#b83a49}
+.maple-official-theme .app-install-option{background:#f4f4f9;border-color:#d9dae4}
+.maple-official-theme .app-install-tag{background:#e9edf8;color:#3854a1}
+.maple-official-theme .app-install-note{color:#626476}
+.maple-official-theme :is(#account-title,#home-backup,#expense-entry-title,#enhancement-title,.card[tabindex='-1']){scroll-margin-top:170px}
+@media(min-width:901px){.maple-official-theme .workspace-sidebar{display:none}}
+@media(max-width:1150px) and (min-width:901px){
+ .maple-official-theme .workspace-header{padding-inline:24px}
+ .maple-sitebar{gap:16px}.maple-site-brand{font-size:20px}.maple-site-brand small{font-size:11px}
+ #maple-top-nav{gap:4px}.maple-nav-group>summary{padding-inline:10px;font-size:15px}
+ .maple-official-theme .home-launchpad,.maple-official-theme .home-primary-grid{grid-template-columns:minmax(0,1fr) 285px;gap:0 18px}
+ .maple-official-theme .home-workbench{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+ html:has(.maple-official-theme){scroll-padding-top:96px}
+ .maple-sitebar{display:none}
+ .maple-official-theme .workspace-header{display:flex;gap:12px;padding:10px 20px;min-height:78px}
+ .maple-official-theme .workspace-heading{min-height:0;padding:0;flex:1}
+ .maple-official-theme .workspace-header-actions{padding:0;gap:6px}
+ .maple-official-theme .workspace-sidebar{background:#fff;border-color:#d9dae4}
+ .maple-official-theme .workspace-sidebar .workspace-brand{color:#7e421e}
+ .maple-official-theme .workspace-sidebar .tab{color:#55576d}
+ .maple-official-theme .workspace-sidebar .tab.active{background:#fff0e1;color:#7e421e;border-color:#edc9a5;box-shadow:inset 3px 0 0 #ff8545}
+ .maple-official-theme .workspace-sidebar .tab:hover{background:#f4f4f9}
+ .maple-official-theme .mobile-nav{background:#fff;border-color:#d6d7e1;box-shadow:0 -4px 20px #292a3b0a}
+ .maple-official-theme .mobile-nav button{color:#626476;background:transparent}
+ .maple-official-theme .mobile-nav [aria-current=page]{color:#8b451d;background:#fff0e1}
+ .maple-official-theme .icon-button{color:#55576d;background:#fff;border-color:#a8aabc}
+ .maple-official-theme .workspace-main{width:calc(100% - 36px);margin-top:18px}
+ .maple-official-theme .home-launchpad,.maple-official-theme .home-primary-grid{grid-template-columns:minmax(0,1fr) 265px;gap:0 16px}
+ .maple-official-theme .home-workbench{grid-template-columns:1fr}
+ .maple-official-theme :is(#account-title,#home-backup,#expense-entry-title,#enhancement-title,.card[tabindex='-1']){scroll-margin-top:108px}
+}
+@media(max-width:700px){
+ .maple-official-theme .workspace-header{padding:10px 12px;gap:8px;min-height:76px}
+ .maple-official-theme .workspace-header h1{font-size:18px}
+ .maple-official-theme .workspace-header-actions{gap:4px}
+ .maple-official-theme .workspace-header .workspace-account[data-account-entry=login]{font-size:13px}
+ .maple-official-theme .workspace-main{width:calc(100% - 24px);margin-top:14px}
+ .maple-official-theme .nexon-api-disclosure{font-size:11px;margin-bottom:14px}
+ .maple-official-theme .home-launchpad{display:block;margin-bottom:18px}
+ .maple-official-theme .home-desk-masthead{min-height:165px;padding:18px 20px 45px;border-radius:20px 20px 0 0}
+ .maple-official-theme #desk-title{font-size:25px;margin:7px 0;line-height:1.4}
+ .maple-official-theme .desk-hero-copy{max-width:94%}
+ .maple-official-theme .desk-hero-copy>p:last-child{font-size:13px}
+ .maple-official-theme .desk-hero-art{width:52%;opacity:.5;background-size:auto 265px}
+ .maple-official-theme .desk-reset{left:20px;bottom:12px;gap:3px 12px;font-size:11px}
+ .maple-official-theme .workspace-quick-actions{border-radius:0 0 20px 20px}
+ .maple-official-theme .workspace-quick-actions button{min-height:76px;padding:12px 5px}
+ .maple-official-theme .workspace-quick-actions strong{font-size:14px}
+ .maple-official-theme .home-primary-grid{display:block}
+ .maple-official-theme .home-overview{padding:20px}
+ .maple-official-theme .home-summary b{font-size:25px}
+ .maple-official-theme .home-summary:last-child b{font-size:14px}
+ .maple-official-theme .home-account-panel{padding:18px;border-radius:18px}
+ .maple-official-theme .home-account-panel .account-entry-head{flex-direction:row;align-items:center}
+ .maple-official-theme .home-account-panel .account-entry-head>.account-actions{flex:0 0 112px}
+ .maple-official-theme .desk-record-card{padding:20px}
+ .maple-official-theme .card{padding:20px 18px;border-radius:14px}
+ .maple-official-theme .clarity-fold>summary{padding:16px}
+ .maple-official-theme .bcard{padding:18px}
+ .maple-official-theme .daily-boss-status .bcheck{font-size:14px}
+}
+@media(max-width:370px){.maple-official-theme .home-account-panel .account-entry-head{flex-direction:column;align-items:stretch}.maple-official-theme .home-account-panel .account-entry-head>.account-actions{flex:0 0 auto}}
+@media(prefers-reduced-motion:reduce){.maple-official-theme *, .maple-official-theme *::before,.maple-official-theme *::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

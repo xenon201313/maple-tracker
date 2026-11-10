@@ -207,7 +207,8 @@ function ledgerReference() {
     assert.equal(await staticPage.locator('[name="sale"]').isDisabled(),true);
     assert.equal(await staticPage.locator('[data-boss-result="transfer"]').innerText(),'487,179,400 메소');
     const text = await staticPage.locator('main').innerText();
-    for (const value of ['462,820,430','499,407,200','100메소','JavaScript']) assert(text.includes(value));
+    // 상단의 5% 비교 예제와 본문의 판매 3%·송금 5% 장부 예제가 모두 정적으로 남아야 합니다.
+    for (const value of ['462,820,430','970,000,000','472,564,010','509,921,000','218,537,525','3% 고정','100메소','JavaScript']) assert(text.includes(value),value+' 정적 본문');
     await noJs.close();
     pass('JavaScript 없이도 계산 결과·본문 검산표 표시, 동작하지 않는 입력은 잠금');
     await context.close();

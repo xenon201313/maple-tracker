@@ -51,6 +51,17 @@ async function context(seed,account=A){
   });return c;
 }
 async function open(c){const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.goto(origin+'/?page=home');return p;}
+async function navigate(p,name){
+  const top=p.locator('#maple-top-nav');
+  if(await top.isVisible()){
+    const route=top.locator('[data-maple-route="'+name+'"]'),group=route.locator('xpath=ancestor::details[1]');
+    if(!await group.evaluate(el=>el.open))await group.locator('summary').click();
+    await route.click();
+  }else{
+    if(!await p.locator('#workspace-sidebar').evaluate(el=>el.classList.contains('is-open')))await p.locator('.mobile-nav [data-menu-toggle]').click();
+    await p.locator('.tab[data-page="'+name+'"]').click();
+  }
+}
 async function pending(p){await p.waitForFunction(()=>window.MapleAccountSync?.getState().pending);}
 async function synced(p){try{await p.waitForFunction(()=>{const s=window.MapleAccountSync?.getState();return s?.connected&&!s.dirty&&!s.pending&&!s.busy&&s.revision>0;});}catch(error){console.error('Fixture state',await p.evaluate(()=>({state:MapleAccountSync.getState(),status:document.getElementById('account-status').textContent,owner:JSON.parse(localStorage.getItem('maple:account-ledger:active:v1'))?.owner,errors:document.querySelector('dialog')?.textContent})));throw error;}}
 async function change(p,name){await p.evaluate(name=>{db.records['2026-09-24'].sessions.push({id:name,meso:'77',runs:1});save();},name);}
@@ -85,7 +96,7 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     // 돌아온 계정의 기기 원본과 그 사이 바뀐 서버 장부를 다시 비교합니다.
     if(await p1.evaluate(()=>MapleAccountSync.getState().pending))await p1.click('#account-use-remote');await synced(p1);
     assert.equal(await p1.evaluate(()=>db.records['2026-09-24'].sessions.some(x=>x.id==='first-device')),true);
-    await p1.click('a.tab[data-page="character"], button.tab[data-page="character"]');
+    await navigate(p1,'character');
     await p1.click('#friends-characters-load');await p1.locator('#friends-characters-list button').first().waitFor();await p1.locator('#friends-characters-list button').first().click();
     await p1.waitForFunction(()=>db.chars.length===1&&!document.getElementById('friends-characters-load').disabled);await synced(p1);
     await p1.evaluate(()=>{const c=db.chars[0];c.combatPower='123';c.characterImage='fixture-image';c.characterExp='456';save();});await synced(p1);
@@ -97,7 +108,7 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     assert.equal(await p1.evaluate(()=>characterSource()),'friends','계정 장부 검증 완료 뒤 개인 키 없이 자동 갱신 예약');
     assert.equal(await p1.locator('#character-personal-api').isVisible(),false,'실제 계정 장부 준비 완료 이벤트 뒤 개인 키 입력 영역 숨김');
     assert.equal(await p1.locator('#character-personal-api').evaluate(el=>el.hidden),true,'페이지 표시 여부와 무관하게 개인 키 입력 자체를 숨김');
-    await p1.click('.tab[data-page="home"]');await p1.locator('.account-sync details summary').click();await p1.click('#account-history');await p1.locator('#account-server-history button').first().waitFor();
+    await navigate(p1,'home');await p1.locator('.account-sync details summary').click();await p1.click('#account-history');await p1.locator('#account-server-history button').first().waitFor();
     const [download]=await Promise.all([p1.waitForEvent('download'),p1.locator('#account-server-history button').first().click()]);const bundle=JSON.parse(fs.readFileSync(await download.path(),'utf8'));assert(bundle.records);assert(Array.isArray(bundle.huntRecovery));assert(!JSON.stringify(bundle).includes('FIXTURE-SECRET-KEY'));
     const p3=await open(c1);await synced(p3);await change(p1,'same-browser-other-tab');await synced(p1);await p3.locator('dialog.account-stale').waitFor();
     assert.equal(await p3.evaluate(()=>{try{save();return false;}catch{return true;}}),true,'stale tab must not overwrite ledger');await p3.close();

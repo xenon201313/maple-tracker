@@ -71,7 +71,15 @@ async function settle(page) {
   await page.waitForTimeout(170);
 }
 async function navigate(page, name) {
-  await page.evaluate(name => openPage(name), name);
+  if (page.viewportSize().width > 900) {
+    const target=page.locator('#maple-top-nav [data-maple-route="'+name+'"]').first();
+    const menu=target.locator('xpath=ancestor::details[1]');
+    if(!await menu.evaluate(el=>el.open)) await menu.locator(':scope > summary').click();
+    await target.click();
+  } else {
+    if(!await page.locator('#workspace-sidebar').evaluate(el=>el.classList.contains('is-open'))) await page.locator('.workspace-header [data-menu-toggle]').click();
+    await page.locator('#workspace-sidebar .tab[data-page="'+name+'"]').click();
+  }
   await settle(page);
 }
 async function recordSnapshot(page) {
@@ -255,10 +263,16 @@ async function checkReadability(page, width) {
     await price.focus();
     const priceScroll = await page.evaluate(()=>scrollY);
     await price.fill('2345678900');
-    await page.keyboard.press('Tab');
     await settle(page);
-    assert(Math.abs(await page.evaluate(()=>scrollY)-priceScroll) < 100,'Price entry moved viewport');
+    const filledScroll = await page.evaluate(()=>scrollY);
+    assert(Math.abs(filledScroll-priceScroll) < 100,'Price entry moved viewport: '+JSON.stringify({before:priceScroll,filled:filledScroll}));
     assert.equal(await price.inputValue(),'2,345,678,900');
+    // 편집 중 스크롤 보존과 다음 필드로 이동하는 기본 Tab 스크롤을 구분합니다.
+    // 고정 수수료는 읽기 전용 입력이며 화면 아래에 있으면 브라우저가 초점을 보이도록 스크롤해야 합니다.
+    await page.keyboard.press('Tab');
+    const nextField=await page.evaluate(()=>{const el=document.activeElement,r=el.getBoundingClientRect();return {fee:el.classList.contains('drop-auction-fee'),readonly:el.readOnly,top:r.top,bottom:r.bottom,header:document.querySelector('.workspace-header').getBoundingClientRect().bottom,height:innerHeight};});
+    assert(nextField.fee&&nextField.readonly,'Tab reaches the fixed auction fee');
+    assert(nextField.top>=nextField.header-2&&nextField.bottom<=nextField.height+2,'Focused fee field is visible: '+JSON.stringify(nextField));
     const dropsSaved = await recordSnapshot(page);
     await page.reload();
     await settle(page);

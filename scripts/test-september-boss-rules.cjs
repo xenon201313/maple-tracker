@@ -110,7 +110,9 @@ const server=http.createServer((req,res)=>{
         // 월드리프 이후에도 저장된 메이린 체크·드랍과 해당 주차 수입을 조회합니다.
         c.server='main';
         const meirGroup=BOSS_GROUPS.w.find(g=>g.bosses.some(b=>b[0]==='nmeirin'));
-        const preservedCard=bossGroupCard(meirGroup,c,'2026-09-10');
+        // API 12종 입력 시험에서 지운 현재 주차와 분리된 기존 기록을 검사합니다.
+        const savedMeirinChar=normalizeChar({name:'리프 보존 검증',server:'main',bossWeeks:{'2026-09-10':{nmeirin:1}},dropWeeks:{'2026-09-10':{[key]:true}},dropPriceWeeks:{'2026-09-10':{[key]:'123456789'}}});
+        const preservedCard=bossGroupCard(meirGroup,savedMeirinChar,'2026-09-10');
         const holder=document.createElement('div'); holder.innerHTML=preservedCard;
         const savedVisible=!!holder.querySelector('input.boss-check:checked') && !!holder.querySelector('.drops');
         const savedDisabled=holder.querySelector('input.boss-check').disabled;
@@ -124,6 +126,7 @@ const server=http.createServer((req,res)=>{
         c.bossWeeks[prev].nmeirin=1;
         c.bossWeeks[week]={};
         const previousSnapshot=JSON.stringify(c.bossWeeks[prev]);
+        const expectedCopyMeirin=BOSS_GROUPS.w.map(g=>groupPickedBoss(g,c.bossWeeks[prev])).filter(b=>b&&canUseBoss(c,b,week)).slice(0,12).some(b=>b[0]==='nmeirin');
         const copied=copyPreviousWeeklyBosses(c);
         const copiedMeirin=Object.prototype.hasOwnProperty.call(c.bossWeeks[week],'nmeirin');
         const copyPreserved=JSON.stringify(c.bossWeeks[prev])===previousSnapshot;
@@ -135,12 +138,12 @@ const server=http.createServer((req,res)=>{
         const thirteenth=normalBosses[12][0];
         window.patchTestChar=c;
         window.patchTestThirteenth=thirteenth;
-        return {apiCount,apiResults,meirinAllowed,meirinApi,meirinRecorded,expectedIncome,actualIncome,fixedPrices,september,october,monthWeek,savedVisible,savedDisabled,preserved,copied,copiedMeirin,copyPreserved,storedServer,
+        return {apiCount,apiResults,meirinAllowed,meirinApi,meirinRecorded,expectedIncome,actualIncome,fixedPrices,september,october,monthWeek,savedVisible,savedDisabled,preserved,copied,copiedMeirin,expectedCopyMeirin,copyPreserved,storedServer,
           monthlySeptemberCard,monthlyOctoberCard,thirteenth,postPatch:date>='2026-09-17'};
       },date);
-      assert.equal(results.apiCount,results.postPatch?13:12,date+' API 주간 제한');
+      assert.equal(results.apiCount,12,date+' 메계부 API 주간 선택 제한');
       assert.equal(results.meirinAllowed,!results.postPatch,date+' 메이린 입장 종료');
-      assert.equal(results.meirinRecorded,!results.postPatch,date+' 종료 후 API 신규 메이린');
+      assert.equal(results.meirinRecorded,false,date+' 메이린도 메계부 12종 선택 한도에 포함');
       assert.equal(results.actualIncome,results.expectedIncome,date+' 합계 단가');
       assert.equal(results.fixedPrices.past,547333333,'본섭 가격 정정 전 주차의 수익 보존');
       assert.equal(results.fixedPrices.current,488500000,'흉성 3인+카링 2인 본섭 수입');
@@ -150,19 +153,21 @@ const server=http.createServer((req,res)=>{
       assert.equal(results.october,465000000,'10월 월간 새 가격');
       assert.equal(results.monthWeek,465000000,'월간 보스의 주차 귀속 가격');
       assert(results.savedVisible,'리프한 캐릭터의 저장된 메이린 체크·드랍 표시');
-      assert(results.savedDisabled,'본서버에서 메이린 신규 체크 잠금');
+      assert.equal(results.savedDisabled,false,'잠긴 보스도 이미 저장된 체크의 해제는 가능');
       assert(results.preserved,'가격표 전환이 과거 수입·장부를 변경했습니다.');
-      assert.equal(results.copied,13,date+' 지난주 복사 개수');
-      assert.equal(results.copiedMeirin,!results.postPatch,date+' 복사의 메이린 종료 적용');
+      assert.equal(results.copied,12,date+' 지난주 복사 개수');
+      assert.equal(results.copiedMeirin,results.expectedCopyMeirin,date+' 복사의 메이린 종료와 전체 12종 적용');
       assert(results.copyPreserved,'지난주 복사가 원본 기록을 변경했습니다.');
       assert.equal(results.storedServer,'challenger','날짜 전환이 캐릭터 서버를 바꿨습니다.');
       assert(results.monthlySeptemberCard.includes('6억 6,500만'),'9월 카드 단가');
       assert(results.monthlyOctoberCard.includes('4억 6,500만'),'10월 카드 단가');
-      await page.locator('#charlist input.boss-check[data-id="'+results.thirteenth+'"]').click();
+      const capped=page.locator('#charlist input.boss-check[data-id="'+results.thirteenth+'"]');
+      assert.equal(await capped.isDisabled(),true,date+' 13번째 선택 비활성화');
+      await capped.evaluate(el=>{el.disabled=false;el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));});
       const manual=await page.evaluate(()=>({checked:patchTestThirteenth in bossStore(patchTestChar,currentWeekKey()),count:charSum(patchTestChar).wc,note:document.getElementById('weekly-boss-limit-note').textContent}));
-      assert.equal(manual.checked,results.postPatch,date+' 수동 13번째 체크');
-      assert.equal(manual.count,results.postPatch?13:12);
-      assert(manual.note.includes(results.postPatch?'한도 없음':'12개'));
+      assert.equal(manual.checked,false,date+' 수동 13번째 체크 차단');
+      assert.equal(manual.count,12);
+      assert(manual.note.includes('12종'));
       const worlds=await page.evaluate(()=>{
         const week=currentWeekKey();
         const tenBosses=BOSS_GROUPS.w.filter(g=>g.bosses.some(b=>!isLimitFreeBoss(b))).slice(0,10).map(g=>g.bosses[0]);

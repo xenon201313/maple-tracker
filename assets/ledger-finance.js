@@ -268,7 +268,7 @@
           field('실제 판매일',input('date',sale?.date||context.today,'date','required'))+
           field('판매 수량',input('quantity',sale?.quantity||Math.max(t.remainingQuantity,1),'number','required min="1" max="1000000000" step="1"'))+
           field('실제 개당 판매가',input('unitPrice',sale?.unitPrice||trade.expectedPrice||'0','text','required inputmode="numeric"'))+
-          field('판매 수수료(%)',input('feePercent',sale?.feePercent??trade.feePercent??'3','number','required min="0" max="100" step="0.01"'))+
+          field(trade.sourceType==='boss-drop'?'경매장 수수료 · 3% 고정':'판매 수수료(%)',input('feePercent',trade.sourceType==='boss-drop'?'3':(sale?.feePercent??trade.feePercent??'3'),'number',trade.sourceType==='boss-drop'?'required readonly min="3" max="3"':'required min="0" max="100" step="0.01"'))+
           field('수수료 차감 후 내 분배율(%)',input('sharePercent',sale?.sharePercent??trade.sharePercent??'100','number','required min="0" max="100" step="0.01"'))+
           field('파티에 이미 지급한 총 메소',input('paidAmount',sale?.paidAmount||'0','text','required inputmode="numeric"'))+
           field('분배 대상·지급 메모',input('recipient',sale?.recipient,'text','maxlength="200" placeholder="예: A 3억 지급 / B 지급 대기"'))+
@@ -279,7 +279,7 @@
         if(!trade)throw new Error('획득 기록이 변경되었습니다. 화면을 다시 열어 주세요.');
         const sales=clone(trade.sales||[]),saleId=saleForm.dataset.saleId||id('sale'),saleDate=date(data.date);
         if(saleDate<trade.acquiredDate)throw new Error('판매일은 획득일보다 빠를 수 없습니다.');
-        const value={id:saleId,date:saleDate,quantity:quantity(data.quantity),unitPrice:amount(data.unitPrice).toString(),feePercent:String(data.feePercent),sharePercent:String(data.sharePercent),paidAmount:amount(data.paidAmount).toString(),recipient:String(data.recipient||'').trim(),memo:String(data.memo||'').trim(),updatedAt:nextStamp(sales.find(row=>row.id===saleId))};
+        const value={id:saleId,date:saleDate,quantity:quantity(data.quantity),unitPrice:amount(data.unitPrice).toString(),feePercent:trade.sourceType==='boss-drop'?'3':String(data.feePercent),sharePercent:String(data.sharePercent),paidAmount:amount(data.paidAmount).toString(),recipient:String(data.recipient||'').trim(),memo:String(data.memo||'').trim(),updatedAt:nextStamp(sales.find(row=>row.id===saleId))};
         saleTotals(value);const index=sales.findIndex(row=>row.id===saleId);if(index<0)sales.push(value);else sales[index]=value;
         const next={...trade,sales};
         if(saleForm.dataset.saleId)validateTradeRepair(trade,next);else tradeTotals(next);

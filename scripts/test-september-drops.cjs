@@ -41,7 +41,7 @@ const server=http.createServer((req,res)=>{
       bossStore(c,week).nadv=1;
       const before=JSON.stringify({drops:c.dropWeeks[oldWeek],prices:c.dropPriceWeeks[oldWeek]});
       const oldIncome=BigInt(charSum(c,oldWeek).w)+dropPriceSumForCharWeek(c,oldWeek);
-      const mapped=Object.entries(DROP_ITEMS).flatMap(([id,items])=>items.filter(item=>item.availableFrom).map(item=>[id,item.id]));
+      const mapped=Object.entries(DROP_ITEMS).filter(([id])=>canUseBoss(c,BOSS_MAP[id],week)).flatMap(([id,items])=>items.filter(item=>item.availableFrom && item.availableFrom<=week).map(item=>[id,item.id]));
       const group=BOSS_GROUPS.w.find(group=>group.name==='최초의 대적자');
       const oldMarkup=dropChecklistHtml(group,boss,c,oldWeek);
       const newMarkup=dropChecklistHtml(group,boss,c,week);
@@ -64,16 +64,16 @@ const server=http.createServer((req,res)=>{
     const price=page.locator('input.drop-price[data-key="nadv|soul_ether_1"]');
     await price.fill('200000000');
     await price.blur();
-    await page.locator('select.drop-fee[data-key="nadv|soul_ether_1"]').selectOption('0');
+    assert.equal(await page.locator('select.drop-fee').count(),0); // 경매장 3% 고정
     const saved=await page.evaluate(()=>{
       const c=db.chars[0],week='2026-09-17';
       const backup=JSON.parse(JSON.stringify(trackerDbFromData(db)));
       const restored=normalizeChar(backup.chars[0]);
       return {selected:!!c.dropWeeks[week]['nadv|soul_ether_1'],sum:dropPriceSumForCharWeek(c,week).toString(),old:(BigInt(charSum(c,'2026-09-10').w)+dropPriceSumForCharWeek(c,'2026-09-10')).toString(),restored:dropPriceSumForCharWeek(restored,week).toString()};
     });
-    assert(saved.selected);assert.equal(saved.sum,'200000000');assert.equal(saved.restored,saved.sum);assert.equal(saved.old,result.oldIncome);
+    assert(saved.selected);assert.equal(saved.sum,'194000000');assert.equal(saved.restored,saved.sum);assert.equal(saved.old,result.oldIncome);
     await page.reload();
-    assert.equal(await page.evaluate(()=>dropPriceSumForCharWeek(db.chars[0],'2026-09-17').toString()),'200000000');
+    assert.equal(await page.evaluate(()=>dropPriceSumForCharWeek(db.chars[0],'2026-09-17').toString()),'194000000');
     assert.equal(await page.locator('input.drop-check[data-key="nadv|soul_ether_1"]').isChecked(),true);
     const output=path.join(root,'.tools','ui-review');fs.mkdirSync(output,{recursive:true});
     for(const width of [320,390,1440]){

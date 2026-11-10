@@ -37,10 +37,17 @@ const stateSnapshot = page => page.evaluate(keys=>JSON.stringify({
 },(_,value)=>typeof value==='bigint'?value.toString():value),[storageKey,seenKey]);
 
 async function openManually(page) {
-  if (await page.evaluate(()=>matchMedia('(max-width: 900px)').matches && !document.getElementById('workspace-sidebar').classList.contains('is-open'))) {
-    await page.locator('.mobile-nav [data-menu-toggle]').click();
+  const top=page.locator('#maple-top-nav');
+  if(await top.isVisible()){
+    const route=top.locator('[data-maple-route="patch"]'),group=route.locator('xpath=ancestor::details[1]');
+    if(!await group.evaluate(el=>el.open))await group.locator('summary').click();
+    await route.click();
+  }else{
+    if (await page.evaluate(()=>!document.getElementById('workspace-sidebar').classList.contains('is-open'))) {
+      await page.locator('.mobile-nav [data-menu-toggle]').click();
+    }
+    await page.locator('#patch-notes-open').click();
   }
-  await page.locator('#patch-notes-open').click();
   await waitOpen(page);
 }
 async function checkLayout(page,label) {
@@ -188,7 +195,7 @@ async function checkLayout(page,label) {
     await page.keyboard.press('Escape');
     await waitClosed(page);
     assert.deepEqual(await hiddenIds(page),[],'Escape가 체크박스 설정을 저장했습니다.');
-    assert.equal(await page.locator('#patch-notes-open').evaluate(el=>el===document.activeElement),true,'수동 실행 버튼으로 포커스가 복귀하지 않았습니다.');
+    assert.equal(await page.locator('#maple-top-nav details').filter({has:page.locator('[data-maple-route="patch"]')}).locator('summary').evaluate(el=>el===document.activeElement),true,'수동 실행 메뉴로 포커스가 복귀하지 않았습니다.');
     await openManually(page);
     assert.equal(await page.locator('#patch-notes-hide').isChecked(),false,'취소한 체크박스가 유지되었습니다.');
     await page.mouse.click(1,1);
