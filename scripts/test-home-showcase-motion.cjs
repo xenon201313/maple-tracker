@@ -22,7 +22,8 @@ function shrank(values,label){assert(values[0]>values.at(-1)+2,label+' shrinks '
   });
   const before=await page.evaluate(()=>JSON.stringify(db));
   assert.equal(await page.locator('.home-character-card').count(),1);assert.match(await page.locator('.home-character-card').innerText(),/Lv.296.*메카닉/);
-  assert.equal(await page.locator('.home-character-stage>img').evaluate(img=>img.getBoundingClientRect().width),176);
+  await page.waitForFunction(()=>document.querySelector('.home-character-stage')?.dataset.portraitFit==='trimmed');
+  assert(await page.locator('.home-character-stage>img').evaluate(img=>img.getBoundingClientRect().width>176),'portrait pixels are enlarged after removing transparent margins');
   // 계정 안내가 길어져도 왼쪽 배너와 빠른 기록 버튼은 늘어나지 않습니다.
   const heroHeight=await page.locator('.home-launchpad-main').evaluate(el=>el.getBoundingClientRect().height);
   await page.evaluate(()=>{const choice=document.getElementById('account-choice');choice.hidden=false;document.getElementById('account-choice-current').textContent='계정 장부 선택 안내 '.repeat(45);});

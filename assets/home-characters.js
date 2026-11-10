@@ -12,6 +12,55 @@
   const list=document.createElement('ul');list.className='home-character-list';list.setAttribute('aria-label','등록한 캐릭터');
   host.append(head,list);const reset=masthead.querySelector('.desk-reset');if(reset)reset.before(host);else masthead.append(host);
   let lastSignature='';
+  const portraitCache=new Map(),portraits=new Map();
+  const snap=value=>Math.round(value*(devicePixelRatio||1))/(devicePixelRatio||1);
+  function layoutPortrait(stage){
+    const entry=portraits.get(stage);if(!entry||!entry.image.isConnected)return;
+    const {image,bounds}=entry,style=getComputedStyle(stage),ratio=devicePixelRatio||1;
+    const base=parseFloat(style.getPropertyValue('--portrait-base-size'))||176;
+    const minimum=parseFloat(style.getPropertyValue('--portrait-min-height'))||212;
+    const preferred=Math.ceil(base/Math.max(bounds.sourceWidth,bounds.sourceHeight)*3*ratio)/ratio;
+    const maximum=Math.max(1,stage.clientWidth-16)/bounds.width;
+    const scale=Math.min(preferred,Math.max(1/ratio,Math.floor(maximum*ratio)/ratio),maximum);
+    const height=Math.max(minimum,Math.ceil(bounds.height*scale)+36);
+    const left=snap((stage.clientWidth-bounds.width*scale)/2-bounds.x*scale);
+    const top=snap(height-24-bounds.height*scale-bounds.y*scale);
+    const signature=[scale,height,left,top].join(':');if(entry.signature===signature)return;entry.signature=signature;
+    stage.style.height=height+'px';stage.dataset.portraitFit=bounds.trimmed?'trimmed':'full';
+    Object.assign(image.style,{position:'absolute',width:bounds.sourceWidth*scale+'px',height:bounds.sourceHeight*scale+'px',left:left+'px',top:top+'px'});
+  }
+  const portraitResize=typeof ResizeObserver==='function'?new ResizeObserver(entries=>{for(const {target}of entries)layoutPortrait(target);}):null;
+  function alphaBounds(image){
+    const width=image.naturalWidth,height=image.naturalHeight;
+    if(!width||!height||width*height>4194304)throw new Error('이미지 크기 측정 범위 초과');
+    // 원본은 다시 그려 저장하지 않고, 투명 여백의 경계만 읽습니다.
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+    const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0);
+    const pixels=context.getImageData(0,0,width,height).data;
+    let left=width,top=height,right=-1,bottom=-1;
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(pixels[(y*width+x)*4+3]>0){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
+    canvas.width=canvas.height=0;
+    if(right<left)return {x:0,y:0,width,height,sourceWidth:width,sourceHeight:height,trimmed:false};
+    left=Math.max(0,left-2);top=Math.max(0,top-2);right=Math.min(width-1,right+2);bottom=Math.min(height-1,bottom+2);
+    return {x:left,y:top,width:right-left+1,height:bottom-top+1,sourceWidth:width,sourceHeight:height,trimmed:true};
+  }
+  function measurePortrait(image){
+    const url=image.currentSrc||image.src;if(portraitCache.has(url))return portraitCache.get(url);
+    const task=(async()=>{
+      try{
+        if(url.startsWith('data:')||new URL(url).origin===location.origin)return alphaBounds(image);
+        // 별도 CORS 확인용 이미지를 써서 기존에 정상 표시되던 이미지를 보호합니다.
+        const probe=new Image();probe.crossOrigin='anonymous';probe.referrerPolicy='no-referrer';
+        await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{probe.src='';reject(new Error('이미지 측정 시간 초과'));},4500);probe.onload=()=>{clearTimeout(timer);resolve();};probe.onerror=()=>{clearTimeout(timer);reject(new Error('이미지 측정 불가'));};probe.src=url;});
+        return alphaBounds(probe);
+      }catch{
+        return {x:0,y:0,width:image.naturalWidth,height:image.naturalHeight,sourceWidth:image.naturalWidth,sourceHeight:image.naturalHeight,trimmed:false};
+      }
+    })();
+    if(portraitCache.size>=64)portraitCache.delete(portraitCache.keys().next().value);
+    portraitCache.set(url,task);return task;
+  }
+  function resetPortraits(){portraitResize?.disconnect();portraits.clear();}
   function icon(){
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('ui-icon');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
     const use=document.createElementNS('http://www.w3.org/2000/svg','use');use.setAttribute('href','assets/ui-icons.svg#character');svg.append(use);return svg;
@@ -39,9 +88,11 @@
     const fallback=document.createElement('span');fallback.className='home-character-fallback';fallback.append(icon());
     const unavailable=document.createElement('small');unavailable.textContent='이미지 정보 없음';fallback.append(unavailable);stage.append(fallback);
     if(row.image){
-      const image=document.createElement('img');image.src=row.image;image.alt='';image.width=176;image.height=176;image.decoding='async';image.referrerPolicy='no-referrer';
+      stage.classList.add('home-character-stage--portrait');
+      const image=document.createElement('img');image.alt='';image.width=176;image.height=176;image.decoding='async';image.referrerPolicy='no-referrer';
+      image.addEventListener('load',async()=>{const bounds=await measurePortrait(image);if(!image.isConnected||!bounds.sourceWidth||!bounds.sourceHeight)return;portraits.set(stage,{image,bounds});layoutPortrait(stage);portraitResize?.observe(stage);},{once:true});
       image.addEventListener('error',()=>{image.remove();fallback.hidden=false;unavailable.textContent='이미지를 불러오지 못했어요';},{once:true});
-      fallback.hidden=true;stage.append(image);
+      fallback.hidden=true;stage.append(image);image.src=row.image;
     }
     const name=document.createElement('strong');name.className='home-character-name';name.textContent=row.name;
     const world=document.createElement('span');world.className='home-character-world';world.textContent=row.world;
@@ -54,6 +105,7 @@
   }
   function render(){
     const chars=rows(),signature=JSON.stringify(chars);if(signature===lastSignature)return;lastSignature=signature;
+    resetPortraits();
     const focused=list.contains(document.activeElement)?document.activeElement?.dataset.characterIndex:null,scroll=list.scrollLeft;
     count.textContent=chars.length?chars.length+'명':'';host.dataset.count=String(chars.length);masthead.classList.toggle('has-registered-characters',chars.length>0);
     if(chars.length)list.replaceChildren(...chars.map(card));else empty();
@@ -62,6 +114,6 @@
   }
   document.addEventListener('workspace:render',render);
   document.addEventListener('workspace:page',event=>{if(event.detail?.page==='home')render();});
-  document.addEventListener('maple:account-ledger-changing',()=>{lastSignature='';host.dataset.count='0';count.textContent='';masthead.classList.remove('has-registered-characters');empty('장부를 전환하고 있습니다.');});
+  document.addEventListener('maple:account-ledger-changing',()=>{lastSignature='';resetPortraits();portraitCache.clear();host.dataset.count='0';count.textContent='';masthead.classList.remove('has-registered-characters');empty('장부를 전환하고 있습니다.');});
   window.MapleHomeCharacters=Object.freeze({render});render();
 })();

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:home-showcase": "node scripts/test-home-showcase-motion.cjs",
+    "test:home-showcase": "node scripts/test-home-showcase-motion.cjs && node scripts/test-portrait-scale.cjs",
     "test:maple-style": "node scripts/test-weekly-boss-selection.cjs && node scripts/test-drop-auction-fee.cjs && node scripts/test-maple-official-theme.cjs",
     "test:clarity": "node scripts/test-income-forecast.cjs && node scripts/test-income-forecast-ui.cjs && node scripts/test-daily-crystal-sales.cjs && node scripts/test-clarity-ui.cjs",
     "test:workspace-renewal": "node scripts/test-maple-workspace.cjs",
