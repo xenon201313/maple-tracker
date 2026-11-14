@@ -9,6 +9,7 @@ const AUTH_SCOPES = ['maplestory.characterlist', 'maplestory.starforce', 'maples
 const LEDGER_ACTIONS = ['ledger-key', 'ledger-read', 'ledger-save', 'ledger-history'];
 const GAME_ACTIONS = ['history', 'character-list', 'character-profile', 'character-equipment', 'scheduler'];
 const TOKEN_URL = 'https://openid.nexon.com/oauth2/token';
+const NEXON_USER_AGENT = 'MapleTrackers/1.0 (+https://maple-trackers.com)';
 const OAUTH_ERROR_FORMATS = new Map([
   ['invalid_request','OAUTH_INVALID_REQUEST'],
   ['invalid_client','OAUTH_INVALID_CLIENT'],
@@ -58,7 +59,8 @@ function profileBasic(data) {
 async function upstream(url, init={}, stage='HISTORY') {
   let response;
   const timeout=AbortSignal.timeout(12000);
-  try { response=await fetch(url,{...init,redirect:'manual',signal:init.signal?AbortSignal.any([init.signal,timeout]):timeout}); }
+  const headers={...init.headers,'User-Agent':NEXON_USER_AGENT};
+  try { response=await fetch(url,{...init,headers,redirect:'manual',signal:init.signal?AbortSignal.any([init.signal,timeout]):timeout}); }
   catch { throw Object.assign(new Error('UPSTREAM'),{stage}); }
   // Workers does not support redirect:error. Reject redirects without forwarding credentials.
   if(response.status>=300 && response.status<400) throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status});

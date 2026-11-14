@@ -59,11 +59,13 @@ Date.now = () => clock;
 globalThis.fetch = async (input, init) => {
   const url = new URL(input); fetches.push(url.href);
   assert.equal(init.redirect, 'manual');
+  assert.equal(new Headers(init.headers).get('User-Agent'), 'MapleTrackers/1.0 (+https://maple-trackers.com)');
   if (overrideUpstream) {
     const overridden = await overrideUpstream(url, init);
     if (overridden !== undefined) return overridden;
   }
   if (url.pathname === '/oauth2/token') {
+    assert.equal(new Headers(init.headers).get('Content-Type'), 'application/x-www-form-urlencoded');
     assert.equal(init.body.get('client_secret'), env.NEXON_CLIENT_SECRET);
     const identity = init.body.get('code') || init.body.get('refresh_token').replace('refresh:', '');
     return Response.json({ access_token: 'access:' + identity, refresh_token: 'refresh:' + identity, expires_in: 1800, refresh_token_expires_in: 1209600 });
