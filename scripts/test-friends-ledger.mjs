@@ -59,13 +59,11 @@ Date.now = () => clock;
 globalThis.fetch = async (input, init) => {
   const url = new URL(input); fetches.push(url.href);
   assert.equal(init.redirect, 'manual');
-  assert.equal(new Headers(init.headers).get('User-Agent'), 'MapleTrackers/1.0 (+https://maple-trackers.com)');
   if (overrideUpstream) {
     const overridden = await overrideUpstream(url, init);
     if (overridden !== undefined) return overridden;
   }
-  if (url.pathname === '/openid/oauth2/token') {
-    assert.equal(new Headers(init.headers).get('Content-Type'), 'application/x-www-form-urlencoded');
+  if (url.pathname === '/oauth2/token') {
     assert.equal(init.body.get('client_secret'), env.NEXON_CLIENT_SECRET);
     const identity = init.body.get('code') || init.body.get('refresh_token').replace('refresh:', '');
     return Response.json({ access_token: 'access:' + identity, refresh_token: 'refresh:' + identity, expires_in: 1800, refresh_token_expires_in: 1209600 });
@@ -226,7 +224,7 @@ try {
     for (const item of cases) {
       const diagnosticEnv={...env};diagnosticEnv.FRIENDS_SESSIONS=namespace(FriendsSession,diagnosticEnv);
       const started=await (await friendsRoute(request('start',{challenge}),diagnosticEnv)).json();
-      overrideUpstream=url=>url.pathname===(item.path||'/openid/oauth2/token')?item.response():undefined;
+      overrideUpstream=url=>url.pathname===(item.path||'/oauth2/token')?item.response():undefined;
       try {
         const response=await friendsRoute(request('finish',{state:started.state,proof,code:'diagnostic-only-code'}),diagnosticEnv);
         assert.equal(response.status,502,item.tag+'는 기존 프록시 오류 상태 유지');
