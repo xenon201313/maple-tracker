@@ -85,6 +85,7 @@ html[data-maple-theme=dark] .maple-official-theme .home-account-panel :is(input,
 html[data-maple-theme=dark] .maple-official-theme .home-account-panel .account-choice a{color:#b6ceff}
 html[data-maple-theme=dark] .maple-official-theme :is(.desk-record-card,.home-side .clarity-fold,.community-stats-card,.planner-tabs,.page-context-note,.character-api-card,.character-sync-settings,.api-status,.api-help span){background:var(--panel2);border-color:var(--line);color:var(--sub)}
 html[data-maple-theme=dark] .maple-official-theme :is(.desk-record-link,.desk-record-link:first-child,.desk-next,.ledger-evidence,.home-summary:last-child){border-color:var(--line);color:var(--text)}
+html[data-maple-theme=dark] .maple-official-theme .desk-record-link{background:transparent}
 html[data-maple-theme=dark] .maple-official-theme :is(.desk-record-link:hover,.clarity-fold>summary:hover){background:var(--raised)}
 html[data-maple-theme=dark] .maple-official-theme .desk-record-link>strong{color:var(--gold)}
 html[data-maple-theme=dark] .maple-official-theme .clarity-fold>summary::after{color:#d2c6ef}
