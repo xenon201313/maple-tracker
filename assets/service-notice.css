@@ -1,0 +1,19 @@
+/* 해결 공지를 게시할 때까지 모든 앱 탭에서 보이는 로그인 오류 안내입니다. */
+body.maple-official-theme .service-login-notice{--notice-surface:#fff5e9;--notice-line:#c78b50;--notice-text:#603817;--notice-sub:#735035;display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;margin:0 0 22px;padding:18px 20px;border:1px solid var(--notice-line);border-left:4px solid #bc642c;border-radius:14px;background:var(--notice-surface);color:var(--notice-text);font-family:var(--font-body,sans-serif);font-weight:400;font-size:14px;line-height:1.75;scroll-margin-top:190px}
+.service-login-notice .service-notice-icon{width:26px;height:26px;margin-top:2px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.service-login-notice .service-notice-copy{min-width:0}
+.service-login-notice .service-notice-heading{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:6px}
+body.maple-official-theme .service-login-notice .service-notice-title{margin:0;color:var(--notice-text);font-size:18px;line-height:1.5;letter-spacing:-.3px}
+.service-login-notice .service-notice-badge{padding:1px 8px;border:1px solid var(--notice-line);border-radius:5px;font-size:12px;font-weight:700;white-space:nowrap}
+.service-login-notice time{margin-left:auto;color:var(--notice-sub);font-size:12px;white-space:nowrap}
+.service-login-notice p{margin:0;color:var(--notice-text);font-size:14px;line-height:1.75;word-break:keep-all;overflow-wrap:anywhere}
+.service-login-notice .service-notice-details{margin-top:8px;padding:0;border:0;background:transparent;color:var(--notice-text)}
+.service-login-notice .service-notice-details>summary{display:list-item;min-height:44px;padding:5px 0;color:var(--notice-text);font-size:13px;font-weight:700;cursor:pointer;list-style:disclosure-closed inside}
+.service-login-notice .service-notice-details[open]>summary{list-style-type:disclosure-open}
+.service-login-notice .service-notice-details ul{margin:7px 0 0;padding-left:19px;color:var(--notice-text)}
+.service-login-notice .service-notice-details li{margin:5px 0;line-height:1.75;word-break:keep-all;overflow-wrap:anywhere}
+.service-login-notice:focus-visible,.service-login-notice summary:focus-visible{outline:3px solid var(--notice-text);outline-offset:4px}
+body.maple-official-theme .home-account-panel .service-notice-link{margin:14px 0 0;font-size:13px;line-height:1.6}
+body.maple-official-theme .home-account-panel .service-notice-link a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+html[data-maple-theme=dark] body.maple-official-theme .service-login-notice{--notice-surface:#302830;--notice-line:#a27b5e;--notice-text:#ffdfc2;--notice-sub:#dfbfa7;border-left-color:#ffb67d}
+@media(max-width:640px){body.maple-official-theme .service-login-notice{grid-template-columns:22px minmax(0,1fr);gap:8px;margin-bottom:16px;padding:14px 12px;border-radius:10px;scroll-margin-top:95px}.service-login-notice .service-notice-icon{width:22px;height:22px}body.maple-official-theme .service-login-notice .service-notice-title{font-size:16px}.service-login-notice time{flex-basis:100%;margin-left:0}.service-login-notice p,.service-login-notice li{font-size:13px}}

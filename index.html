@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261114-1"></script>
+<script src="assets/patch-notes-data.js?v=20261114-2"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -1020,6 +1020,7 @@
 <link rel="stylesheet" href="assets/home-characters.css?v=20261111-2">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 <link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
+<link rel="stylesheet" href="assets/service-notice.css?v=20261114-1">
 </head>
 <body class="maple-workspace maple-official-theme">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1061,6 +1062,20 @@
 </header>
 <main class="workspace-main" id="workspace-main" tabindex="-1">
 <noscript><p class="card">기록장 입력 기능은 JavaScript가 필요합니다. <a href="guide/">사용 가이드와 계산 사례</a>는 JavaScript 없이도 읽을 수 있습니다.</p></noscript>
+<aside class="service-login-notice" id="service-login-notice" role="note" aria-labelledby="service-login-notice-title" tabindex="-1">
+  <svg class="service-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/></svg>
+  <div class="service-notice-copy">
+    <div class="service-notice-heading"><h2 class="service-notice-title" id="service-login-notice-title">넥슨 로그인 오류 안내</h2><span class="service-notice-badge">확인 중</span><time datetime="2026-11-14">2026.11.14</time></div>
+    <p>일부 이용자에게 로그인을 마쳐도 로그인 버튼이 다시 나타나거나, 계정에 저장한 장부를 불러오지 못하는 문제가 있습니다. 현재 원인을 확인하고 있으며, 복구되면 이곳에서 다시 안내하겠습니다.</p>
+    <details class="service-notice-details"><summary>기록을 지키는 방법</summary>
+      <ul>
+        <li>로그인이 안 된다고 기존 기록이 삭제된 것은 아닙니다. 기기에 남아 있는 기록을 보존하려면 브라우저의 사이트 데이터를 지우지 말아 주세요.</li>
+        <li>기록 화면이 열리면 상단의 <strong>백업</strong> 버튼으로 기록을 내려받아 보관해 주세요.</li>
+        <li>계정 저장 완료 안내가 없으면, 다른 기기에서 최신 기록을 확인하지 못할 수 있습니다. 로그인을 여러 번 반복할 필요는 없습니다.</li>
+      </ul>
+    </details>
+  </div>
+</aside>
 <div class="nexon-api-disclosure" role="note" aria-label="NEXON Open API 이용 고지">
   <span><strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <div class="nexon-api-links">
@@ -1098,6 +1113,7 @@
       <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
     </div>
     </div>
+    <p class="service-notice-link"><a href="#service-login-notice">로그인 연결 문제 안내 보기</a></p>
     <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
     <div id="account-choice" class="account-choice" hidden>
       <h3>사용할 장부 선택</h3>
