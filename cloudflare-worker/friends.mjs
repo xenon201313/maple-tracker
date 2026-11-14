@@ -9,6 +9,18 @@ const AUTH_SCOPES = ['maplestory.characterlist', 'maplestory.starforce', 'maples
 const LEDGER_ACTIONS = ['ledger-key', 'ledger-read', 'ledger-save', 'ledger-history'];
 const GAME_ACTIONS = ['history', 'character-list', 'character-profile', 'character-equipment', 'scheduler'];
 const TOKEN_URL = 'https://openid.nexon.com/oauth2/token';
+const OAUTH_ERROR_FORMATS = new Map([
+  ['invalid_request','OAUTH_INVALID_REQUEST'],
+  ['invalid_client','OAUTH_INVALID_CLIENT'],
+  ['invalid_grant','OAUTH_INVALID_GRANT'],
+  ['unauthorized_client','OAUTH_UNAUTHORIZED_CLIENT'],
+  ['unsupported_grant_type','OAUTH_UNSUPPORTED_GRANT_TYPE'],
+  ['invalid_scope','OAUTH_INVALID_SCOPE'],
+  ['access_denied','OAUTH_ACCESS_DENIED'],
+  ['server_error','OAUTH_SERVER_ERROR'],
+  ['temporarily_unavailable','OAUTH_TEMPORARILY_UNAVAILABLE']
+]);
+const UPSTREAM_ERROR_FORMATS = new Set(['HTML','NON_JSON',...OAUTH_ERROR_FORMATS.values()]);
 const SESSION_TTL = 14 * 24 * 3600 * 1000;
 const hex = bytes => Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
 const random = () => hex(crypto.getRandomValues(new Uint8Array(32)));
@@ -51,12 +63,18 @@ async function upstream(url, init={}, stage='HISTORY') {
   // Workers does not support redirect:error. Reject redirects without forwarding credentials.
   if(response.status>=300 && response.status<400) throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status});
   let data;
-  try { data=await response.json(); } catch { throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status}); }
+  try { data=await response.json(); } catch {
+    const contentType=(response.headers.get('Content-Type')||'').split(';',1)[0].trim().toLowerCase();
+    const format=['text/html','application/xhtml+xml'].includes(contentType)?'HTML':'NON_JSON';
+    // 응답 본문·헤더 값은 전달하지 않고 고정된 형식 코드만 남긴다.
+    throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status,format});
+  }
   if (!response.ok || data?.error) {
     const error=new Error('UPSTREAM');
     error.status=response.status;
     error.code=data?.error?.name;
     error.stage=stage;
+    error.format=OAUTH_ERROR_FORMATS.get(data?.error);
     throw error;
   }
   return data;
@@ -247,7 +265,8 @@ export class FriendsSession {
         return json({[field]:history[field],next_cursor:history.next_cursor || '',count:history.count});
       } catch (error) {
         // Only fixed stage names and official error identifiers can reach the browser.
-        const stage=['TOKEN_EXCHANGE','TOKEN_RESPONSE','TOKEN_REFRESH','USER_INFO','USER_RESPONSE','HISTORY','CHARACTER_LIST','PROFILE'].includes(error.stage)?error.stage:'SESSION';
+        const baseStage=['TOKEN_EXCHANGE','TOKEN_RESPONSE','TOKEN_REFRESH','USER_INFO','USER_RESPONSE','HISTORY','CHARACTER_LIST','PROFILE'].includes(error.stage)?error.stage:'SESSION';
+        const stage=baseStage+(UPSTREAM_ERROR_FORMATS.has(error.format)?'_'+error.format:'');
         const code=/^OPENAPI\d{5}$/.test(error.code||'')?error.code:Number.isInteger(error.status)?String(error.status):'UNAVAILABLE';
         return json({error:error.status===429?'넥슨 API 호출 한도를 초과했습니다. 잠시 후 다시 조회해 주세요.':'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:stage+' / '+code},error.status===429?429:502);
       }

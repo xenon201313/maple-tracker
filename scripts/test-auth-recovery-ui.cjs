@@ -65,6 +65,54 @@ const snapshot=page=>page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.
   assert.equal(await page.locator('#account-login').isVisible(),true);assert.equal(await page.locator('#account-login').isEnabled(),true,'서버가 실제 만료를 확인한 때만 재로그인 허용');
   assert.equal(await snapshot(page),before,'복구와 만료 처리 뒤에도 장부·복구·보관 표식을 유지');
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('auth-recovery-keep')),'preserved');assert.equal(saves,0,'명시적인 장부 선택 전 자동 업로드 금지');assert.equal(legacy,0,'저장 세션이 있는 동안 이전 API 키 동기화로 우회하지 않음');assert.deepEqual(errors,[]);
-  await context.close();console.log('인증 UI: 확인 중 버튼·일시 503 보존·재확인 복구·중복 OAuth 0회·실제 만료 재로그인·장부 선택/복구 보존 통과');
+  await context.close();
+
+  // 실제 계정과 분리한 새 탭에서, 로그인 직후 토큰 교환이 실패하는 경로도 검증합니다.
+  const failedContext=await browser.newContext({viewport:{width:1440,height:1000},timezoneId:'Asia/Seoul',reducedMotion:'reduce'});await fixtureDismissPatchNotes(failedContext);
+  await failedContext.addInitScript(()=>{
+   sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'b'.repeat(64),proof:'f'.repeat(64),createdAt:Date.now(),returnPage:'home'}));
+   sessionStorage.setItem('auth-recovery-keep','preserved');
+   localStorage.setItem('mapleTracker.v2',JSON.stringify({records:{'2026-11-13':{sessions:[{id:'callback-keep-hunt',runs:1,meso:'123456789',erda:2}]}},chars:[],profits:[],expenses:[],settings:{},backupSnapshots:[]}));
+   localStorage.setItem('mapleTracker.legacyRecovery.fixture',JSON.stringify({records:{'2026-09-01':{sessions:[{id:'callback-keep-recovery',runs:1,meso:'99'}]}}}));
+  });
+  const callbackActions=[],callbackErrors=[];let releaseFailure,callbackStarts=0,callbackSaves=0;
+  await failedContext.route('**/*',async route=>{
+   const url=new URL(route.request().url());if(url.origin===origin||url.protocol==='data:')return route.continue();
+   if(!url.pathname.startsWith('/v1/friends/'))return route.abort();
+   const action=url.pathname.split('/').at(-1);callbackActions.push(action);
+   const send=(body,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body)});
+   if(action==='finish'){
+    await new Promise(resolve=>{releaseFailure=resolve;});
+    return send({error:'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:'TOKEN_EXCHANGE / 403'},502);
+   }
+   if(action==='config')return send({ready:true,ledgerReady:true,scopes});
+   if(action==='start')callbackStarts++;
+   if(action==='ledger-save')callbackSaves++;
+   return send({error:'검증에서 허용하지 않은 동작'},400);
+  });
+  const failedPage=await failedContext.newPage();failedPage.on('pageerror',error=>callbackErrors.push(error.message));
+  await failedPage.goto(origin+'/?page=home&state='+'b'.repeat(64)+'&code=fake-callback-code');
+  await failedPage.waitForFunction(()=>window.MapleFriends?.getState().finishing);
+  for(let attempts=0;!releaseFailure&&attempts<100;attempts++)await new Promise(resolve=>setTimeout(resolve,10));assert.equal(typeof releaseFailure,'function');
+  const callbackBefore=await snapshot(failedPage);releaseFailure();
+  await failedPage.waitForFunction(()=>MapleFriends.getState().ready&&!MapleFriends.getState().checking&&!MapleFriends.getState().finishing);
+  assert(callbackActions.indexOf('config')>callbackActions.indexOf('finish'),'콜백 실패 뒤 설정 확인 성공 경로를 실행');
+  assert.match(await failedPage.locator('#account-status').innerText(),/TOKEN_EXCHANGE \/ 403/,'홈에서 실제 로그인 실패 단계를 계속 표시');
+  assert.equal(await failedPage.locator('#account-status').evaluate(element=>element.classList.contains('err')),true);
+  assert.equal(await failedPage.locator('#account-login').isEnabled(),true,'콜백 실패 후에는 사용자가 새 로그인을 시작할 수 있음');
+  assert.equal(await failedPage.locator('#account-recheck').isVisible(),true);
+  await failedPage.locator('#account-recheck').click();
+  await failedPage.waitForFunction(()=>!MapleFriends.getState().checking&&!!MapleFriends.getState().error);
+  assert.match(await failedPage.locator('#account-status').innerText(),/TOKEN_EXCHANGE \/ 403/,'재확인 성공만으로 토큰 교환 실패를 숨기지 않음');
+  assert.equal(await failedPage.evaluate(()=>MapleFriends.getState().hasSession||MapleFriends.getState().connected),false);
+  assert.equal(await failedPage.evaluate(()=>sessionStorage.getItem('maple:friends:session')),null);
+  assert.equal(await failedPage.evaluate(()=>sessionStorage.getItem('maple:friends:flow')),null,'완료된 가짜 로그인 요청은 재사용하지 않음');
+  assert(!new URL(failedPage.url()).searchParams.has('code'),'콜백 코드는 주소에서 제거');
+  assert.equal(await snapshot(failedPage),callbackBefore,'콜백 실패와 재확인도 장부·복구 기록을 변경하지 않음');
+  assert.equal(await failedPage.evaluate(()=>sessionStorage.getItem('auth-recovery-keep')),'preserved');
+  assert.equal(callbackStarts,0,'콜백 실패 뒤 자동 OAuth 재시작 금지');assert.equal(callbackSaves,0,'인증 실패 뒤 장부 업로드 금지');
+  assert(callbackActions.every(action=>['finish','config'].includes(action)),'인증되지 않은 콜백 경로에서 상태·장부·게임 API를 호출하지 않음');
+  assert.deepEqual(callbackErrors,[]);await failedContext.close();
+  console.log('인증 UI: 확인 중 버튼·일시 503 보존·재확인 복구·중복 OAuth 0회·실제 만료 재로그인·콜백 실패 사유 유지·장부 선택/복구 보존 통과');
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>server.close());

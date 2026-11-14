@@ -134,6 +134,18 @@ function environment({initial=session,url='https://maple-trackers.com/?page=home
   assert(!callback.navigation[0].includes('temporary-code'),'OAuth 인증 코드는 즉시 주소에서 제거');
   assert.equal(callback.storage.has('maple:friends:flow'),false);
   assert(!JSON.stringify(callback.events).includes(proof));
+  const failedCallback=environment({initial:null,url:'https://maple-trackers.com/?page=home&state='+state+'&code=temporary-code',flow:{state,proof,createdAt:Date.now(),returnPage:'home'},fetchHook:action=>action==='finish'?respond({error:'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:'TOKEN_EXCHANGE / 403'},502):undefined});
+  await spin(()=>failedCallback.api.getState().ready&&!failedCallback.api.getState().finishing&&!failedCallback.api.getState().checking);
+  assert.match(failedCallback.api.getState().error,/TOKEN_EXCHANGE \/ 403/,'콜백 실패의 원인은 설정 확인이 성공해도 홈 상태에 유지');
+  assert.equal(failedCallback.api.getState().connected,false);assert.equal(failedCallback.api.getState().hasSession,false);
+  await failedCallback.api.recheck();
+  assert.match(failedCallback.api.getState().error,/TOKEN_EXCHANGE \/ 403/,'일반 연결 재확인만으로 로그인 교환 실패 원인을 지우지 않음');
+  assert.equal(failedCallback.requests.filter(request=>request.action==='start').length,0,'콜백 실패 후 새 OAuth를 자동으로 반복하지 않음');
+  assert.equal(failedCallback.storage.has('maple:friends:session'),false);
+  const missingFlow=environment({initial:null,url:'https://maple-trackers.com/?page=home&state='+state+'&code=temporary-code'});
+  await spin(()=>missingFlow.api.getState().ready&&!missingFlow.api.getState().finishing&&!missingFlow.api.getState().checking);
+  assert.match(missingFlow.api.getState().error,/만료|일치/,'돌아온 탭에 로그인 요청 정보가 없는 원인도 유지');
+  assert.equal(missingFlow.requests.filter(request=>request.action==='finish').length,0);
   let finishReply;
   const cancelledCallback=environment({initial:null,url:'https://maple-trackers.com/?page=home&state='+state+'&code=temporary-code',flow:{state,proof,createdAt:Date.now(),returnPage:'home'},fetchHook:action=>action==='finish'?new Promise(resolve=>{finishReply=()=>resolve(respond({connected:true,account:'account-one',scopes}));}):undefined});
   await spin(()=>typeof finishReply==='function');await cancelledCallback.api.disconnect();finishReply();

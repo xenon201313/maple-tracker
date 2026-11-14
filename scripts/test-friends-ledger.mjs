@@ -54,11 +54,15 @@ env.FRIENDS_SESSIONS = namespace(FriendsSession, env);
 env.FRIENDS_LEDGERS = namespace(FriendsLedger, env);
 const scopes = ['maplestory.characterlist', 'maplestory.starforce', 'maplestory.potential', 'maplestory.scheduler', 'maplestory.cube', 'maplestory.soulpotential'];
 const originalFetch = globalThis.fetch, originalNow = Date.now;
-let clock = originalNow(), fetches = [];
+let clock = originalNow(), fetches = [], overrideUpstream = null;
 Date.now = () => clock;
 globalThis.fetch = async (input, init) => {
   const url = new URL(input); fetches.push(url.href);
   assert.equal(init.redirect, 'manual');
+  if (overrideUpstream) {
+    const overridden = await overrideUpstream(url, init);
+    if (overridden !== undefined) return overridden;
+  }
   if (url.pathname === '/oauth2/token') {
     assert.equal(init.body.get('client_secret'), env.NEXON_CLIENT_SECRET);
     const identity = init.body.get('code') || init.body.get('refresh_token').replace('refresh:', '');
@@ -203,6 +207,34 @@ try {
     assert([...kvValues.keys()].some(key => key.startsWith('history:v1:' + id + ':')));
     const direct = new Request('https://worker.test/v1/ledger/' + a.account, { headers: { Origin: 'https://maple-trackers.com' } });
     assert.equal((await worker.fetch(direct, env)).status, 404);
+  });
+  await check('토큰 교환 HTML·비JSON·OAuth 오류 진단은 고정 코드만 전달', async () => {
+    const privateValue = 'private-upstream-value';
+    const cases = [
+      { tag: 'HTML 403', response: () => new Response('<html>'+privateValue+'</html>', {status:403,headers:{'Content-Type':'text/html; charset=utf-8'}}), expected: 'TOKEN_EXCHANGE_HTML / 403' },
+      { tag: '비JSON 403', response: () => new Response(privateValue, {status:403,headers:{'Content-Type':'text/plain'}}), expected: 'TOKEN_EXCHANGE_NON_JSON / 403' },
+      { tag: '깨진JSON 403', response: () => new Response('{"access_token":"'+privateValue+'"', {status:403,headers:{'Content-Type':'application/json'}}), expected: 'TOKEN_EXCHANGE_NON_JSON / 403' },
+      { tag: 'OAuth invalid_client', response: () => Response.json({error:'invalid_client',error_description:privateValue,client_secret:privateValue}, {status:403}), expected: 'TOKEN_EXCHANGE_OAUTH_INVALID_CLIENT / 403' },
+      { tag: 'OAuth invalid_grant', response: () => Response.json({error:'invalid_grant',error_description:privateValue}, {status:400}), expected: 'TOKEN_EXCHANGE_OAUTH_INVALID_GRANT / 400' },
+      { tag: '알 수 없는OAuth 오류', response: () => Response.json({error:privateValue}, {status:403}), expected: 'TOKEN_EXCHANGE / 403' },
+      { tag: '기존OpenAPI 코드', response: () => Response.json({error:{name:'OPENAPI00004',message:privateValue}}, {status:400}), expected: 'TOKEN_EXCHANGE / OPENAPI00004' },
+      { tag: '전송 실패', response: () => {throw new Error(privateValue);}, expected: 'TOKEN_EXCHANGE / UNAVAILABLE' },
+      { tag: '사용자 정보HTML', path:'/oauth2/userinfo', response: () => new Response('<html>'+privateValue+'</html>', {status:403,headers:{'Content-Type':'text/html'}}), expected: 'USER_INFO_HTML / 403' }
+    ];
+    for (const item of cases) {
+      const diagnosticEnv={...env};diagnosticEnv.FRIENDS_SESSIONS=namespace(FriendsSession,diagnosticEnv);
+      const started=await (await friendsRoute(request('start',{challenge}),diagnosticEnv)).json();
+      overrideUpstream=url=>url.pathname===(item.path||'/oauth2/token')?item.response():undefined;
+      try {
+        const response=await friendsRoute(request('finish',{state:started.state,proof,code:'diagnostic-only-code'}),diagnosticEnv);
+        assert.equal(response.status,502,item.tag+'는 기존 프록시 오류 상태 유지');
+        const data=await response.json();
+        assert.equal(data.errorCode,item.expected,item.tag);
+        assert.match(data.errorCode,/^[A-Z_]+ \/ (?:OPENAPI\d{5}|\d{3}|UNAVAILABLE)$/);
+        assert.deepEqual(Object.keys(data).sort(),['error','errorCode']);
+        for(const forbidden of [privateValue,env.NEXON_CLIENT_SECRET,'diagnostic-only-code',proof,started.state])assert(!JSON.stringify(data).includes(forbidden),item.tag+' 비밀값 비노출');
+      } finally {overrideUpstream=null;}
+    }
   });
   assert.equal(validLedgerPayload(payload()), true);
   console.log('Friends 계정 장부·인증·충돌·세대 보관·추가 API 검사 완료. 실제 계정 자료는 사용하지 않았습니다.');
