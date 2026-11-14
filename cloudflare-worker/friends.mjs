@@ -8,7 +8,7 @@ const SCOPES = ['maplestory.starforce', 'maplestory.potential'];
 const AUTH_SCOPES = ['maplestory.characterlist', 'maplestory.starforce', 'maplestory.potential', 'maplestory.scheduler', 'maplestory.cube', 'maplestory.soulpotential'];
 const LEDGER_ACTIONS = ['ledger-key', 'ledger-read', 'ledger-save', 'ledger-history'];
 const GAME_ACTIONS = ['history', 'character-list', 'character-profile', 'character-equipment', 'scheduler'];
-const TOKEN_URL = 'https://openid.nexon.com/oauth2/token';
+const TOKEN_URL = 'https://openid.nexon.com/openid/oauth2/token';
 const NEXON_USER_AGENT = 'MapleTrackers/1.0 (+https://maple-trackers.com)';
 const OAUTH_ERROR_FORMATS = new Map([
   ['invalid_request','OAUTH_INVALID_REQUEST'],

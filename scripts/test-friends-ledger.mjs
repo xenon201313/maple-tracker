@@ -64,7 +64,7 @@ globalThis.fetch = async (input, init) => {
     const overridden = await overrideUpstream(url, init);
     if (overridden !== undefined) return overridden;
   }
-  if (url.pathname === '/oauth2/token') {
+  if (url.pathname === '/openid/oauth2/token') {
     assert.equal(new Headers(init.headers).get('Content-Type'), 'application/x-www-form-urlencoded');
     assert.equal(init.body.get('client_secret'), env.NEXON_CLIENT_SECRET);
     const identity = init.body.get('code') || init.body.get('refresh_token').replace('refresh:', '');
@@ -226,7 +226,7 @@ try {
     for (const item of cases) {
       const diagnosticEnv={...env};diagnosticEnv.FRIENDS_SESSIONS=namespace(FriendsSession,diagnosticEnv);
       const started=await (await friendsRoute(request('start',{challenge}),diagnosticEnv)).json();
-      overrideUpstream=url=>url.pathname===(item.path||'/oauth2/token')?item.response():undefined;
+      overrideUpstream=url=>url.pathname===(item.path||'/openid/oauth2/token')?item.response():undefined;
       try {
         const response=await friendsRoute(request('finish',{state:started.state,proof,code:'diagnostic-only-code'}),diagnosticEnv);
         assert.equal(response.status,502,item.tag+'는 기존 프록시 오류 상태 유지');

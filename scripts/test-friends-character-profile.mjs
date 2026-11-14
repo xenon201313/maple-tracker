@@ -26,7 +26,7 @@ const check=async(title,callback)=>{reset();await callback();console.log('통과
 globalThis.fetch=async(input,init)=>{
   const url=new URL(input);fixtures.calls.push({url:url.href,headers:init.headers});
   assert(init.signal instanceof AbortSignal,'실제 업스트림 요청에 제한 시간 signal 전달');
-  if(url.href==='https://openid.nexon.com/oauth2/token'){
+  if(url.href==='https://openid.nexon.com/openid/oauth2/token'){
     now+=fixtures.costs.token || 0;
     return Response.json({access_token:access,refresh_token:'private-refresh-fixture',expires_in:1800,refresh_token_expires_in:1209600});
   }

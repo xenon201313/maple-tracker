@@ -79,7 +79,7 @@ let exchanges=0,upstreamFailure=null,upstreamStatus=401;
 globalThis.fetch=async (url,init)=>{
   url=String(url);
   assert.equal(init.redirect,'manual','Worker requests must reject redirects manually');
-  if(url==='https://openid.nexon.com/oauth2/token') {
+  if(url==='https://openid.nexon.com/openid/oauth2/token') {
     exchanges++;
     assert.equal(init.body.get('client_secret'),'server-only-fixture');
     if(upstreamFailure) return new Response(JSON.stringify(upstreamFailure),{status:upstreamStatus,headers:{Location:'https://untrusted.example/never-follow'}});
