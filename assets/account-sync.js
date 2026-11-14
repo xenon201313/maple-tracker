@@ -139,8 +139,12 @@
     const state=auth();
     if(!state.connected){
       if(context)stop();
-      if(meta.owner!=='legacy')announce('이 기기의 계정 장부는 유지됩니다. 넥슨 로그인 후 동기화를 이어갑니다.');
-      else {announce('현재 브라우저에 기록합니다. 넥슨 로그인으로 다른 기기에서도 이어서 사용할 수 있습니다.');if(!window.MapleAccountSync.blocksLegacy())bridge().resumeLegacy?.();}
+      if(state.checking||state.finishing)announce('넥슨 로그인 상태를 확인하고 있습니다. 현재 장부는 유지됩니다.');
+      else if(state.hasSession)announce('기존 넥슨 연결을 아직 확인하지 못했습니다. 연결 상태를 다시 확인해 주세요. 현재 장부는 유지됩니다.',true);
+      else if(state.error)announce(state.error,true);
+      else if(meta.owner!=='legacy')announce('이 기기의 계정 장부는 유지됩니다. 넥슨 로그인 후 동기화를 이어갑니다.');
+      else announce('현재 브라우저에 기록합니다. 넥슨 로그인으로 다른 기기에서도 이어서 사용할 수 있습니다.');
+      if(meta.owner==='legacy'&&!window.MapleAccountSync.blocksLegacy())bridge().resumeLegacy?.();
       return;
     }
     if(context?.account===state.account)return;
@@ -274,9 +278,17 @@
   function render(){
     if(!$('account-status'))return;
     const state=auth(),connected=!!state.connected,mine=connected&&loadedOwner==='friends:'+state.account;
-    document.querySelectorAll('[data-desk-account]').forEach(button=>{button.dataset.accountEntry=connected?'account':'login';button.setAttribute('aria-label',connected?'계정 및 저장 설정':'넥슨 로그인 및 계정 저장');const label=button.querySelector('span');if(label)label.textContent=connected?'계정·저장':'넥슨 로그인';});
-    $('account-status').textContent=fatal||statusText||'로그인 상태를 확인하는 중…';$('account-status').classList.toggle('err',isError||!!fatal);
-    $('account-login').hidden=connected;$('account-login').disabled=busy||!!state.finishing||!state.ready;
+    const checking=!!state.checking||!!state.finishing,unverified=!!state.hasSession&&!connected;
+    document.querySelectorAll('[data-desk-account]').forEach(button=>{button.dataset.accountEntry=connected?'account':'login';button.setAttribute('aria-busy',String(checking));button.setAttribute('aria-label',connected?'계정 및 저장 설정':unverified?'넥슨 연결 확인 및 계정 저장':'넥슨 로그인 및 계정 저장');const label=button.querySelector('span');if(label)label.textContent=connected?'계정·저장':unverified?'연결 확인':'넥슨 로그인';});
+    $('account-title').textContent=connected?'넥슨 계정으로 연결됨':unverified?'넥슨 연결 상태 확인':'계정으로 이어쓰기';
+    const message=fatal||statusText||'로그인 상태를 확인하는 중…';
+    $('account-status').textContent=!fatal&&connected&&state.error?message+' · '+state.error:message;
+    $('account-status').classList.toggle('err',isError||!!fatal||!!state.error);
+    $('account-login').hidden=connected||unverified||checking;$('account-login').disabled=busy||checking||!state.ready;
+    if($('account-recheck')){
+      $('account-recheck').hidden=(connected&&!state.error)||!!state.finishing||!(state.hasSession||state.checking||state.error);
+      $('account-recheck').disabled=busy||checking;$('account-recheck').textContent=state.checking?'연결 상태 확인 중…':'연결 상태 다시 확인';
+    }
     $('account-logout').hidden=!connected;$('account-logout').disabled=busy;
     $('account-save').hidden=!mine;$('account-save').disabled=busy||!!pending||!context;
     $('account-pull').hidden=!connected;$('account-pull').disabled=busy;
@@ -303,7 +315,7 @@
   window.MapleAccountSync=Object.freeze({
     beforeSave,changed,guard:checkOwner,
     blocksLegacy(){
-      try{return !!fatal||meta.owner!=='legacy'||!!auth().connected||!!auth().finishing||!!sessionStorage.getItem('maple:friends:session');}catch{return true;}
+      try{return !!fatal||meta.owner!=='legacy'||!!auth().connected||!!auth().hasSession||!!auth().finishing||!!sessionStorage.getItem('maple:friends:session');}catch{return true;}
     },
     canUseAccount(account){return ledgerVerified&&!stale&&loadedOwner==='friends:'+account&&auth().account===account&&auth().connected&&!pending;},
     getState:()=>({owner:loadedOwner,connected:!!context,dirty:!!meta.dirty,pending:!!pending,busy,revision:meta.revision}),
@@ -314,6 +326,7 @@
   document.addEventListener('DOMContentLoaded',()=>{
     started=true;if(!bridge()||!$('account-status'))return;
     $('account-login').onclick=()=>window.MapleFriends.connect('home').catch(error=>announce(error.message,true));
+    if($('account-recheck'))$('account-recheck').onclick=()=>window.MapleFriends.recheck().catch(error=>announce(error.message,true));
     $('account-logout').onclick=async()=>{try{busy=true;render();await bank();await window.MapleFriends.disconnect();}catch(error){announce(storageMessage(error),true);}finally{busy=false;render();}};
     $('account-save').onclick=upload;$('account-pull').onclick=pull;$('account-legacy').onclick=legacy;
     $('account-use-local').onclick=useLocal;$('account-use-remote').onclick=()=>useRemote();$('account-history').onclick=history;

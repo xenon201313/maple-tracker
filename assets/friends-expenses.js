@@ -12,6 +12,7 @@
   const read=key=>{try{return JSON.parse(sessionStorage.getItem(key)||'null');}catch{return null;}};
   const bridge=()=>window.MapleEnhancementBridge;
   let session=read(sessionKey), ready=false, verified=false, configured=false, page=0, running=null, lastAuto=0, tab='starforce';
+  let configuring=null,checking=false,authError='',sessionWriteError='',lastVerifiedAt=0;
   let scopes=[], generation=0;
   let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const callback=new URL(location.href);
@@ -48,22 +49,32 @@
     $('enhancement-status').textContent=text;
     $('enhancement-status').classList.toggle('err',error);
   }
-  const getState=()=>({connected:!!(session && verified && !finishing),account:verified?session?.account||null:null,ready,finishing,scopes:[...scopes]});
-  const announce=()=>document.dispatchEvent(new CustomEvent('maple:friends-session',{detail:getState()}));
+  const getState=()=>({connected:!!(session && verified && !finishing),account:verified?session?.account||null:null,ready,finishing,checking,hasSession:!!session,error:authError||sessionWriteError,scopes:[...scopes]});
+  let announcedAuthority='';
+  const announce=()=>{
+    const state=getState(),authority=JSON.stringify([state.connected,state.account,[...state.scopes].sort()]);
+    const sessionChanged=authority!==announcedAuthority;announcedAuthority=authority;
+    document.dispatchEvent(new CustomEvent('maple:friends-session',{detail:{...state,sessionChanged}}));
+  };
   const sameSession=snapshot=>!!(snapshot && session && snapshot.state===session.state && snapshot.proof===session.proof && snapshot.account===session.account);
-  function clearSession() {
-    running?.abort(); generation++; session=null; verified=false; scopes=[];
+  function persistSession() {
+    try{sessionStorage.setItem(sessionKey,JSON.stringify(session));sessionWriteError='';}
+    catch{sessionWriteError='넥슨 로그인은 완료됐지만 브라우저가 연결 보관을 허용하지 않았습니다. 현재 탭에서는 사용할 수 있으며 다시 열면 로그인이 필요합니다.';}
+  }
+  function clearSession(error='') {
+    running?.abort(); generation++; session=null; verified=false; scopes=[];finishing=false;authError=error;sessionWriteError='';lastVerifiedAt=0;
     try {sessionStorage.removeItem(sessionKey);} catch {}
     announce(); controls();
   }
   async function call(path,body,signal) {
+    const requestedGeneration=generation;
     const timeout=AbortSignal.timeout(30000);
     const response=await fetch(endpoint+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'omit',redirect:'error',signal:signal?AbortSignal.any([signal,timeout]):timeout});
     let data;
     try {data=await response.json();} catch {throw Object.assign(new Error('프렌즈 서버 응답을 확인할 수 없습니다.'),{status:response.status,httpStatus:response.status,errorCode:'INVALID_RESPONSE'});}
     if (!response.ok) {
       // 이전 계정에서 늦게 돌아온 401 응답으로 새 로그인 세션을 지우지 않습니다.
-      if (response.status===401 && path!=='finish' && body?.state===session?.state && body?.proof===session?.proof) clearSession();
+      if (response.status===401 && path!=='finish' && session && typeof body?.state==='string' && typeof body?.proof==='string' && requestedGeneration===generation && body.state===session.state && body.proof===session.proof) clearSession('넥슨 연결이 만료되었습니다. 현재 장부는 유지되며 다시 로그인하면 동기화를 이어갈 수 있습니다.');
       const code=typeof data.errorCode==='string' && /^[A-Z_]+(?: \/ (?:OPENAPI\d{5}|\d{3}|UNAVAILABLE))?$/.test(data.errorCode)?' ('+data.errorCode+')':'';
       throw Object.assign(new Error((typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.')+code),{status:response.status,httpStatus:response.status,errorCode:data.errorCode||'',code:data.errorCode||''});
     }
@@ -71,43 +82,67 @@
   }
   function controls() {
     if(!$('enhancement-source')) return;
-    const useFriends=$('enhancement-source').value==='friends';
-    $('enhancement-connect').hidden=!useFriends || !!session;
-    $('enhancement-connect').disabled=!ready || !!running || finishing;
+    const useFriends=$('enhancement-source').value==='friends',state=getState();
+    $('enhancement-connect').hidden=!useFriends || state.hasSession;
+    $('enhancement-connect').disabled=!ready || !!running || finishing || checking;
     $('enhancement-connect').title=ready?'넥슨 게임 데이터 제공 동의':'프렌즈 서버 설정이 필요합니다.';
     $('enhancement-disconnect').hidden=!useFriends || !session;
-    ['enhancement-source','enhancement-from','enhancement-to','enhancement-refresh','enhancement-disconnect'].forEach(id=>$(id).disabled=!!running || finishing);
+    ['enhancement-source','enhancement-from','enhancement-to','enhancement-refresh','enhancement-disconnect'].forEach(id=>$(id).disabled=!!running || finishing || checking);
+    $('enhancement-refresh').disabled=!!running || finishing || checking || (useFriends&&!state.connected);
     $('enhancement-cancel').hidden=!running;
   }
-  async function configure(preserveStatus=false) {
-    if(configured || finishing) return;
-    configured=true;
-    try {
-      ready=!!(await call('config')).ready;
-      if(session && ready) {
-        const snapshot=session, info=await call('status',{state:snapshot.state,proof:snapshot.proof});
-        if(info.connected!==true || typeof info.account!=='string' || !info.account) throw new Error('넥슨 계정 정보를 확인할 수 없습니다.');
-        if(sameSession(snapshot)) {
-          session={...snapshot,account:info.account}; verified=info.connected===true && typeof info.account==='string';
+  function configure(preserveStatus=false,force=false) {
+    if(finishing)return Promise.resolve();
+    if(configuring)return configuring;
+    if(configured&&!force)return Promise.resolve();
+    const before=generation;checking=true;authError='';
+    // 먼저 작업을 공유한 뒤 알립니다. 동시에 누른 확인·로그인이 같은 검증을 기다립니다.
+    let operation;
+    operation=Promise.resolve().then(async()=>{
+      try {
+        ready=!!(await call('config')).ready;
+        if(before!==generation)return;
+        if(session && ready) {
+          const snapshot=session, info=await call('status',{state:snapshot.state,proof:snapshot.proof});
+          if(before!==generation||!sameSession(snapshot))return;
+          if(info.connected!==true || typeof info.account!=='string' || !info.account)throw new Error('넥슨 계정 정보를 확인할 수 없습니다.');
+          session={...snapshot,account:info.account};verified=true;lastVerifiedAt=Date.now();
           scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
-          try {sessionStorage.setItem(sessionKey,JSON.stringify(session));} catch {}
+          persistSession();
         }
+        configured=true;
+        if(!ready)authError='넥슨 로그인 서버를 확인하지 못했습니다. 잠시 뒤 연결 상태를 다시 확인해 주세요.';
+        if(!preserveStatus)status(authError||(ready?(getState().connected?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.'),!!authError);
+      } catch(error) {
+        configured=false;
+        if(before!==generation)return;
+        // 일시적인 네트워크 실패로 기존 proof나 이미 검증된 연결을 버리지 않습니다.
+        authError='넥슨 연결 상태를 확인하지 못했습니다. 잠시 뒤 다시 확인해 주세요. 기존 장부와 연결 정보는 유지됩니다.';
+        if(!preserveStatus)status(authError,true);
       }
-      if(!preserveStatus) status(ready?(session?'넥슨 계정 연결됨':'넥슨 계정을 연결하거나 개인 API 키를 선택하세요.'):'개인 API 키로 조회할 수 있습니다.');
-    } catch { configured=false; if(!preserveStatus) status('프렌즈 서버에 연결할 수 없습니다. 개인 API 키 방식은 계속 사용할 수 있습니다.',true); }
-    controls(); announce();
+    }).finally(()=>{if(configuring===operation){configuring=null;checking=false;controls();announce();}});
+    configuring=operation;controls();announce();return operation;
+  }
+  async function recheck(){await configure(false,true);return getState();}
+  function retryWhenVisible(){
+    if(session&&!finishing&&!checking&&(!verified||Date.now()-lastVerifiedAt>=60000))void recheck();
   }
   async function connect(returnPage='home') {
-    if(finishing) return;
-    finishing=true; running?.abort(); generation++; controls(); announce();
+    if(finishing||getState().connected)return;
+    await configure(true);
+    if(finishing||getState().connected)return;
+    if(session)throw Object.assign(new Error('저장된 넥슨 연결 상태를 먼저 다시 확인해 주세요. 기존 연결 정보와 장부는 유지됩니다.'),{errorCode:'SESSION_UNVERIFIED'});
+    if(!ready)throw new Error(authError||'넥슨 로그인 서버를 확인한 뒤 다시 시도해 주세요.');
+    finishing=true;authError='';running?.abort();generation++;const before=generation;controls();announce();
     try {
       const proof=hex(crypto.getRandomValues(new Uint8Array(32)));
       const result=await call('start',{challenge:await digest(proof)});
+      if(before!==generation||!finishing)return;
       const url=new URL(result.url);
       if(url.origin!=='https://openid.nexon.com' || url.pathname!=='/oauth2/authorize' || url.searchParams.get('state')!==result.state) throw new Error('로그인 주소 검증에 실패했습니다.');
       sessionStorage.setItem(flowKey,JSON.stringify({state:result.state,proof,createdAt:Date.now(),returnPage:returnPage==='expense'?'expense':'home'}));
       location.assign(url.href);
-    } catch(error) {finishing=false;controls();announce();status(error.message,true);throw error;}
+    } catch(error) {if(before===generation){finishing=false;authError=error.message;controls();announce();status(error.message,true);}throw error;}
   }
   async function disconnect() {
     const previous=session;
@@ -124,25 +159,30 @@
     if(before!==generation || !sameSession(snapshot) || !verified) throw Object.assign(new Error('넥슨 계정이 변경되어 요청을 중단했습니다.'),{errorCode:'SESSION_CHANGED'});
     return data;
   }
-  window.MapleFriends=Object.freeze({connect,disconnect,request,getState});
+  window.MapleFriends=Object.freeze({connect,disconnect,request,getState,recheck});
   document.addEventListener('maple:account-ledger-changing',()=>running?.abort());
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)retryWhenVisible();});
+  window.addEventListener?.('online',retryWhenVisible);
+  window.addEventListener?.('pageshow',retryWhenVisible);
   async function finish() {
     if(!callbackCode && !callbackError) return;
     status('넥슨 로그인 확인 중...');
-    const flow=read(flowKey); sessionStorage.removeItem(flowKey);
+    const flow=read(flowKey),before=generation;
     try {
+      sessionStorage.removeItem(flowKey);
       if(!flow || flow.state!==callbackState || !Number.isFinite(flow.createdAt) || flow.createdAt>Date.now()+60000 || Date.now()-flow.createdAt>600000) throw new Error('로그인 요청이 만료되었거나 일치하지 않습니다. 다시 연결해 주세요.');
       if(callbackError) throw new Error('넥슨 로그인이 완료되지 않았습니다.');
       const info=await call('finish',{state:flow.state,proof:flow.proof,code:callbackCode});
+      if(before!==generation){await configure(true);return;}
       if(info.connected!==true || typeof info.account!=='string' || !info.account) throw new Error('넥슨 계정 정보를 확인할 수 없습니다. 다시 연결해 주세요.');
       running?.abort(); generation++;
       session={state:flow.state,proof:flow.proof,account:info.account};
-      verified=info.connected===true && typeof info.account==='string';
+      verified=info.connected===true && typeof info.account==='string';lastVerifiedAt=Date.now();authError='';
       scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
-      sessionStorage.setItem(sessionKey,JSON.stringify(session));
+      persistSession();
       if($('enhancement-source')) $('enhancement-source').value='friends';
       ready=true; status('넥슨 계정이 연결되었습니다. 이력을 가져올 수 있습니다.');
-    } catch(error) {status(error.message,true);}
+    } catch(error) {authError=error.message;status(error.message,true);}
     document.querySelector('.tab[data-page="'+(flow?.returnPage==='home'?'home':'expense')+'"]')?.click();
     finishing=false;
     controls(); announce();

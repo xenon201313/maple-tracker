@@ -13,7 +13,10 @@
   }
   async function run(work){
     if(running)return;
-    if(!available()){status('홈에서 넥슨 로그인과 사용할 장부 선택을 먼저 완료해 주세요.',true);return;}
+    if(!available()){
+      const state=auth();
+      status(state.checking||state.finishing?'넥슨 연결 상태를 확인하고 있습니다. 확인이 끝나면 다시 조회해 주세요.':state.hasSession&&!state.connected?'홈의 연결 상태 다시 확인에서 기존 넥슨 연결을 확인해 주세요. 개인 API 키를 추가할 필요는 없습니다.':'홈에서 넥슨 로그인과 사용할 장부 선택을 먼저 완료해 주세요.',true);return;
+    }
     const account=auth().account,seq=generation,controller=new AbortController();running=controller;controls();
     const guard=()=>{controller.signal.throwIfAborted();if(seq!==generation||auth().account!==account||!available())throw new Error('계정이 변경되었습니다. 현재 장부에 반영하지 않았습니다.');};
     try{await work(guard,controller.signal);}
@@ -54,7 +57,7 @@
     guard();const result=bridge().scheduler(completed);
     status(completed.length+'개 캐릭터 갱신 · 보스 완료 '+result.added+'건 추가'+(failed.length?' · 조회 실패 '+failed.join(' / '):'')+' · 기존 체크와 드랍 기록은 유지했습니다.',!!failed.length);
   });}
-  document.addEventListener('maple:friends-session',()=>{generation++;running?.abort();rows=[];$('friends-characters-list')?.replaceChildren();controls();});
+  document.addEventListener('maple:friends-session',event=>{if(event.detail?.sessionChanged!==false){generation++;running?.abort();rows=[];$('friends-characters-list')?.replaceChildren();}controls();});
   document.addEventListener('maple:account-ledger-changing',()=>{generation++;running?.abort();});
   document.addEventListener('DOMContentLoaded',()=>{if(!bridge())return;$('friends-characters-load').onclick=list;$('friends-scheduler-load').onclick=scheduler;controls();});
 })();

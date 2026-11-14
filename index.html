@@ -2,14 +2,15 @@
 <html lang="ko">
 <head>
 <meta name="referrer" content="no-referrer">
-<script src="assets/patch-notes-data.js?v=20261111-3"></script>
+<script src="assets/theme-mode.js?v=20261114-1"></script>
+<script src="assets/patch-notes-data.js?v=20261114-1"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
-<script src="assets/friends-expenses.js?v=20261022-1"></script>
+<script src="assets/friends-expenses.js?v=20261114-1"></script>
 <script src="assets/account-storage.js?v=20261028-1"></script>
-<script src="assets/account-sync.js?v=20261028-1"></script>
-<script src="assets/friends-characters.js?v=20260929-1"></script>
+<script src="assets/account-sync.js?v=20261114-1"></script>
+<script src="assets/friends-characters.js?v=20261114-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
 <script src="assets/september-expenses.js?v=20260917-1"></script>
 <script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
@@ -1018,6 +1019,7 @@
 <link rel="stylesheet" href="assets/maple-official-theme.css?v=20261111-4">
 <link rel="stylesheet" href="assets/home-characters.css?v=20261111-2">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
+<link rel="stylesheet" href="assets/theme-mode.css?v=20261114-1">
 </head>
 <body class="maple-workspace maple-official-theme">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1089,6 +1091,7 @@
       <p>로그인 없이 기록하고, 넥슨 계정으로 다른 기기에서도 이어 써요.</p></div>
     <div class="account-actions">
       <button type="button" id="account-login" disabled><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
+      <button type="button" class="ghost" id="account-recheck" hidden>연결 상태 다시 확인</button>
       <button type="button" class="ghost" id="account-save" hidden>계정에 지금 저장</button>
       <button type="button" class="ghost" id="account-pull" hidden>최신 장부 확인</button>
       <button type="button" class="ghost" id="account-logout" hidden>넥슨 로그아웃</button>
@@ -9180,7 +9183,10 @@ function characterSource(){
   return nexonApiKey() ? 'key' : '';
 }
 function characterConnectionMessage(){
-  return characterLoginState().connected ? '홈에서 넥슨 계정 장부 연결과 사용할 장부 선택을 완료해 주세요.' : '넥슨 로그인 또는 개인 API 키 중 한 가지 방식으로 연결해 주세요.';
+  const state=characterLoginState();
+  if(state.checking||state.finishing)return '넥슨 연결 상태를 확인하고 있습니다. 확인이 끝나면 다시 조회해 주세요.';
+  if(state.hasSession&&!state.connected)return '홈의 연결 상태 다시 확인을 눌러 기존 넥슨 연결을 확인해 주세요. 개인 API 키를 추가할 필요는 없습니다.';
+  return state.connected ? '홈에서 넥슨 계정 장부 연결과 사용할 장부 선택을 완료해 주세요.' : '넥슨 로그인 또는 개인 API 키 중 한 가지 방식으로 연결해 주세요.';
 }
 function invalidateCharacterQueries(){
   characterQueryGeneration++;
@@ -9224,7 +9230,7 @@ function mergeCharacterExpSnapshots(current,incoming){
   for(const row of [...(incoming||[]),...(current||[])])rows.set([row.at,row.level,row.exp,row.rate].join('|'),row);
   return normalizeExpHistory([...rows.values()]);
 }
-document.addEventListener('maple:friends-session',()=>{invalidateCharacterQueries();scheduleNexonAutoRefresh();updateCharacterConnectionControls();});
+document.addEventListener('maple:friends-session',event=>{if(event.detail?.sessionChanged!==false){invalidateCharacterQueries();scheduleNexonAutoRefresh();}updateCharacterConnectionControls();});
 document.addEventListener('maple:account-ledger-changing',invalidateCharacterQueries);
 document.addEventListener('maple:account-ledger-ready',()=>{scheduleNexonAutoRefresh();updateCharacterConnectionControls();});
 function updateCharacterConnectionControls(){
