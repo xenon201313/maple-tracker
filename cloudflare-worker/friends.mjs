@@ -1,4 +1,5 @@
 import { boundedRequestText, LEDGER_REQUEST_LIMIT, validLedgerPayload } from './friends-ledger.mjs';
+import { authFailureDiagnostic, safeAuthDiagnostic } from './friends-auth-diagnostic.mjs';
 
 const CLIENT_ID = '94027613-24a9-4bab-9c74-c5d4ae55bf5e';
 const APP_ORIGIN = 'https://maple-trackers.com';
@@ -62,9 +63,13 @@ async function upstream(url, init={}, stage='HISTORY') {
   catch { throw Object.assign(new Error('UPSTREAM'),{stage}); }
   // Workers does not support redirect:error. Reject redirects without forwarding credentials.
   if(response.status>=300 && response.status<400) throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status});
+  const contentType=(response.headers.get('Content-Type')||'').split(';',1)[0].trim().toLowerCase();
+  if (response.status===403 && ['TOKEN_EXCHANGE','TOKEN_REFRESH'].includes(stage) && ['text/html','application/xhtml+xml'].includes(contentType)) {
+    const diagnostic=await authFailureDiagnostic(response);
+    throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status,format:'HTML',diagnostic});
+  }
   let data;
   try { data=await response.json(); } catch {
-    const contentType=(response.headers.get('Content-Type')||'').split(';',1)[0].trim().toLowerCase();
     const format=['text/html','application/xhtml+xml'].includes(contentType)?'HTML':'NON_JSON';
     // 응답 본문·헤더 값은 전달하지 않고 고정된 형식 코드만 남긴다.
     throw Object.assign(new Error('UPSTREAM'),{stage,status:response.status,format});
@@ -235,7 +240,8 @@ export class FriendsSession {
             session=tokenState(data,session);
             await store.put('session',session); await store.setAlarm(session.expires);
           } catch (error) {
-            if ([400,401,403].includes(error.status)) { await store.deleteAll(); return json({error:'연결이 만료되었습니다. 다시 로그인해 주세요.'},401); }
+            // HTML·비JSON 거부는 토큰 만료의 증거가 아니다. 기존 만료 시각은 유지한다.
+            if ([400,401,403].includes(error.status) && !['HTML','NON_JSON'].includes(error.format)) { await store.deleteAll(); return json({error:'연결이 만료되었습니다. 다시 로그인해 주세요.'},401); }
             throw error;
           }
         }
@@ -268,7 +274,8 @@ export class FriendsSession {
         const baseStage=['TOKEN_EXCHANGE','TOKEN_RESPONSE','TOKEN_REFRESH','USER_INFO','USER_RESPONSE','HISTORY','CHARACTER_LIST','PROFILE'].includes(error.stage)?error.stage:'SESSION';
         const stage=baseStage+(UPSTREAM_ERROR_FORMATS.has(error.format)?'_'+error.format:'');
         const code=/^OPENAPI\d{5}$/.test(error.code||'')?error.code:Number.isInteger(error.status)?String(error.status):'UNAVAILABLE';
-        return json({error:error.status===429?'넥슨 API 호출 한도를 초과했습니다. 잠시 후 다시 조회해 주세요.':'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:stage+' / '+code},error.status===429?429:502);
+        const diagnostic=['TOKEN_EXCHANGE','TOKEN_REFRESH'].includes(baseStage)?safeAuthDiagnostic(error.diagnostic):null;
+        return json({error:error.status===429?'넥슨 API 호출 한도를 초과했습니다. 잠시 후 다시 조회해 주세요.':'넥슨 연결에 실패했습니다. 기존 기록은 변경되지 않았습니다.',errorCode:stage+' / '+code,...(diagnostic?{diagnostic}:{})},error.status===429?429:502);
       }
     });
   }
