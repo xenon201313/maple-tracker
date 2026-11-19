@@ -1,10 +1,29 @@
 (function (root) {
   'use strict';
 
-  // 2026-09-17 본서버 1.2.419로 단가를 확인했습니다. 장부 저장과 API 조회는 기존 화면에서만 수행합니다.
+  // 금액은 메소 단위입니다. 장부 저장은 기존 지출 입력 화면에서만 수행합니다.
   const effectiveDate = '2026-09-17';
   const source = 'https://maplestory.nexon.com/news/update/813';
   const modes = [
+    {id:'sora_meso_shop',name:'소라의 메소샵 구매',startsOn:'2026-11-19',endsOn:'2026-12-16',help:'11월 19일 점검 후부터 12월 16일 오후 11시 59분까지 구매할 수 있습니다. 실제 구매 수량을 입력하세요.',items:[
+      {id:'vip_exp',name:'VIP 버프 (경험치)',meso:'500000'},
+      {id:'vip_stats',name:'VIP 버프 (능력치)',meso:'500000'},
+      {id:'karma_chaos',name:'카르마 놀라운 긍정의 혼돈 주문서 100%',meso:'45000000',limit:100,scope:'월드'},
+      {id:'pet_transfer',name:'펫장비 능력치 이전 주문서',meso:'100000000',limit:5,scope:'월드'},
+      {id:'damage_skin',name:'데미지 스킨 추출권',meso:'100000000',limit:1,scope:'월드'},
+      {id:'ear_sensor',name:'안드로이드 이어센서 클립',meso:'600000000',limit:1,scope:'월드'},
+      {id:'android_skin_soft',name:'뽀송 꽃잎 스킨 안드로이드 변경권',meso:'800000000',limit:1,scope:'월드'},
+      {id:'android_skin_rosy',name:'홍조 꽃잎 스킨 안드로이드 변경권',meso:'800000000',limit:1,scope:'월드'},
+      {id:'bag',name:'가방/지갑 선택권',meso:'15000000',limit:10,scope:'메이플ID'},
+      {id:'advanced_bag',name:'고급 가방 선택권',meso:'80000000',limit:10,scope:'메이플ID'}
+    ]},
+    {id:'november_meso_scroll',name:'가디언 엔젤 링·아스트라 주문서',startsOn:'2026-11-19',help:'강화 화면에서 메소를 내고 사용한 횟수를 입력하세요.',items:[
+      {id:'guardian_ring',name:'가디언 엔젤 링 세트 변환 주문서 100%',meso:'10000000'},
+      {id:'astra_aegis',name:'아스트라 이지스 전용 공격력 주문서 100%',meso:'500000000'},
+      {id:'astra_shield',name:'아스트라 실드 전용 마력 주문서 100%',meso:'500000000'},
+      {id:'astra_vane',name:'아스트라 베인 실드 전용 공격력 주문서 100%',meso:'500000000'},
+      {id:'astra_blade',name:'아스트라 블레이드 전용 공격력 주문서 100%',meso:'1000000000'}
+    ]},
     {id:'advanced_ability',name:'어빌리티 고급 재설정',help:'레전드리 어빌리티의 고급 재설정 비용입니다. 3개 동시 변경 1번은 3회로 입력하세요. 명성치는 메소 지출에 합산하지 않습니다.',items:[
       {id:'lock0',name:'잠금 0개',meso:'2000000',fame:20000},
       {id:'lock1',name:'잠금 1개',meso:'6000000',fame:30000},
@@ -49,7 +68,7 @@
       {id:'ether3',name:'3단계 소울 에테르'},
       {id:'ether4',name:'4단계 소울 에테르'}
     ]},
-    {id:'september_meso_shop',name:'아르고 메소샵 구매',manual:true,help:'아르고 호의 방문객 이벤트 메소샵입니다. 운영 기간은 9/17 점검 후~11/18 23:59입니다. 실제 구매 단가를 직접 입력합니다. 품목은 아래 지출 메모에 남겨 주세요.',items:[
+    {id:'september_meso_shop',name:'아르고 메소샵 구매',endsOn:'2026-11-18',manual:true,help:'아르고 호의 방문객 이벤트 메소샵입니다. 운영 기간은 9/17 점검 후~11/18 23:59입니다. 실제 구매 단가를 직접 입력합니다. 품목은 아래 지출 메모에 남겨 주세요.',items:[
       {id:'purchase',name:'메소샵에서 실제 구매한 품목'}
     ]},
     {id:'arcane_symbol',name:'아케인심볼 강화',manual:true,legacy:true,help:'9/17 패치에서 모든 지역의 강화 비용이 30% 감소했습니다. 실제 강화창에 표시된 비용을 입력하세요. 이미 인하된 금액에서 30%를 다시 빼지 않습니다. 단계별 비용이 다르면 각각 기록하세요.',items:[
@@ -68,8 +87,9 @@
     const mode = modeById(category);
     if (!mode) return '';
     if (!validDate(date)) return '지출 날짜를 YYYY-MM-DD 형식으로 입력하세요.';
-    if (!mode.legacy && date < effectiveDate) return mode.name + ' 지출은 2026-09-17 점검 후 사용분부터 기록할 수 있습니다. 미리 계산한 금액은 저장하지 마세요.';
-    if (category === 'september_meso_shop' && date > '2026-11-18') return '아르고 메소샵 구매 날짜는 운영 기간인 2026-09-17~2026-11-18 안에서 선택하세요.';
+    const start = mode.startsOn || effectiveDate;
+    if (!mode.legacy && date < start) return mode.name + ' 지출은 ' + start + ' 점검 후 사용분부터 기록할 수 있습니다.';
+    if (mode.endsOn && date > mode.endsOn) return mode.name + ' 날짜는 운영 기간인 ' + start + '~' + mode.endsOn + ' 안에서 선택하세요.';
     return '';
   }
   function quote(category, itemId, rawCount, rawUnit) {
@@ -78,18 +98,19 @@
     if (!item) return {ok:false,error:'지출 종류와 세부 항목을 선택하세요.'};
     const count = String(rawCount || '').trim();
     if (!/^[1-9]\d{0,6}$/.test(count) || BigInt(count) > 1000000n) return {ok:false,error:'실제 횟수·수량을 1~1,000,000의 정수로 입력하세요.'};
+    if (item.limit && Number(count) > item.limit) return {ok:false,error:item.name + '은(는) ' + item.scope + '당 ' + item.limit + '개까지 구매할 수 있습니다.'};
     const unit = mode.manual ? String(rawUnit || '').trim().replace(/,/g,'') : item.meso;
     if (!/^[1-9]\d*$/.test(unit || '')) return {ok:false,error:'실제로 지출한 1회 비용 또는 구매 단가를 입력하세요. 무료로 받은 항목은 제외하세요.'};
     const amount = (BigInt(unit) * BigInt(count)).toString();
-    const detail = mode.name + ' · ' + item.name + ' · ' + format(unit) + '메소 × ' + format(count) + (mode.manual ? '개/회' : '회');
+    const detail = mode.name + ' · ' + item.name + ' · ' + format(unit) + '메소 × ' + format(count) + (category === 'sora_meso_shop' ? '개' : mode.manual ? '개/회' : '회');
     return {ok:true,category,amount,unit,count,detail,fame:item.fame ? (BigInt(item.fame) * BigInt(count)).toString() : ''};
   }
   function mount(options) {
     const host = document.getElementById('september-expense-helper');
     if (!host || host.dataset.initialized) return;
     host.dataset.initialized = 'true';
-    host.innerHTML = '<summary>9/17 본서버 패치 · 신규 메소 비용 계산</summary>' +
-      '<div class="september-expense-body"><p class="muted">9/17 본서버 1.2.419 기준입니다. 실제 사용량을 계산한 뒤 아래 지출 입력칸에 채울 수 있습니다. 저장은 별도로 눌러야 장부에 반영됩니다. <a href="'+source+'" target="_blank" rel="noopener noreferrer">공식 안내</a></p>' +
+    host.innerHTML = '<summary>메소샵 구매·강화 비용 계산</summary>' +
+      '<div class="september-expense-body"><p class="muted">품목과 수량을 선택하고 계산 금액을 채운 뒤 지출을 저장하세요. <a href="updates/2026-11/#expenses">11월 품목·가격 안내</a> · <a href="'+source+'" target="_blank" rel="noopener noreferrer">9월 강화 비용 출처</a></p>' +
       '<div class="september-expense-grid"><label>지출 종류<select id="september-expense-mode"></select></label>' +
       '<label>세부 항목<select id="september-expense-item"></select></label>' +
       '<label>실제 횟수 · 수량<input id="september-expense-count" type="text" inputmode="numeric" autocomplete="off" value="1"></label>' +
@@ -108,11 +129,15 @@
     function refreshDateNote() {
       const date = selectedDate();
       // 저장 직전의 기존 폼과 같은 방식으로 날짜를 해석합니다.
-      get('date-note').textContent = validateRecordDate(modeInput.value,date) || (date > options.today() ? '선택 날짜가 미래이므로 계산만 할 수 있습니다. 실제 지출일에 저장하세요.' : '기록 날짜: ' + date + (modeInput.value === 'arcane_symbol' ? ' · 실제로 지불한 금액을 기록합니다.' : ' · 9/17 당일은 점검 후 사용분만 기록하세요.'));
+      const mode = modeById(modeInput.value);
+      const warning = validateRecordDate(mode.id,date) || (date > options.today() ? '미래 날짜입니다. 실제 지출일에 저장하세요.' : '');
+      get('date-note').textContent = warning || '기록 날짜 ' + date + (date === (mode.startsOn || effectiveDate) && !mode.legacy ? ' · 점검 후 사용분부터 기록하세요.' : '');
     }
     function refreshQuote() {
       const result = quote(modeInput.value,itemInput.value,countInput.value,unitInput.value);
-      get('unit-note').textContent = result.ok ? result.detail : '';
+      const item = modeById(modeInput.value).items.find(entry => entry.id === itemInput.value);
+      const limit = modeInput.value === 'sora_meso_shop' ? (item.limit ? item.scope + '당 ' + item.limit + '개까지' : '구매 수량 제한 없음') : '';
+      get('unit-note').textContent = [result.ok ? result.detail : '',limit].filter(Boolean).join(' · ');
       get('result').textContent = result.ok ? '계산 금액 ' + format(result.amount) + ' 메소' + (result.fame ? ' · 명성치 ' + format(result.fame) + ' 별도 소모' : '') : result.error;
       get('fill').disabled = !result.ok;
       get('fill-note').textContent = '';
@@ -146,6 +171,7 @@
       get('fill-note').textContent = '유형·금액·메모를 채웠습니다. 아래 날짜와 실제 사용량을 확인한 뒤 ‘지출 저장’을 누르세요. 아직 장부에는 반영되지 않았습니다.';
       refreshDateNote();
     });
+    modeInput.value = selectedDate() >= '2026-11-19' && selectedDate() <= '2026-12-16' ? 'sora_meso_shop' : 'advanced_ability';
     refreshMode();
   }
   root.MapleSeptemberExpenses = Object.freeze({effectiveDate,source,categories,modes,quote,validateRecordDate,mount});

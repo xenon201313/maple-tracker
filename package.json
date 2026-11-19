@@ -12,6 +12,7 @@
     "test:workspace-renewal": "node scripts/test-maple-workspace.cjs",
     "test:play-desk": "node scripts/test-play-desk.cjs",
     "test:planner": "node scripts/test-planner-state.mjs && node scripts/test-ledger-finance.mjs --ui && node scripts/test-ledger-activity.mjs --ui && node scripts/test-planner-equipment.mjs && node scripts/test-ledger-planner.cjs",
+    "test:november": "node scripts/test-november-crystal-limit.cjs && node scripts/test-november-profit.cjs && node scripts/test-september-expenses.cjs",
     "test:october": "node scripts/test-october-api.mjs && node scripts/test-october-profit.cjs && node scripts/test-october-boss-rules.cjs && node scripts/test-october-ui.cjs",
     "prepare:web": "node scripts/prepare-worker-web.mjs",
     "test:web-hosting": "node scripts/test-worker-web.mjs",

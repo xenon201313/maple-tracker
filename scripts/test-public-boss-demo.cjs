@@ -6,6 +6,7 @@ const path = require('node:path');
 const http = require('node:http');
 const vm = require('node:vm');
 const { chromium } = require('playwright');
+const { initializePublicDemoAudit } = require('./helpers/public-demo-audit.cjs');
 
 // 사용자 브라우저와 실제 장부를 사용하지 않는 공개 정산 도구 검증입니다.
 const root = path.resolve(__dirname, '..');
@@ -51,23 +52,7 @@ function ledgerReference() {
   try {
     browser = await chromium.launch({ headless:true, channel:process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
     const context = await browser.newContext({ viewport:{width:1440,height:1000}, reducedMotion:'reduce' });
-    await context.addInitScript(() => {
-      const local = window.localStorage, session = window.sessionStorage, get = Storage.prototype.getItem;
-      local.setItem('boss-demo-ledger-fixture', '{"meso":"123456789"}');
-      local.setItem('boss-demo-recovery-fixture', '검증용 복구 기록');
-      session.setItem('boss-demo-auth-fixture', '실제 인증값 아님');
-      const entries = [[local,'boss-demo-ledger-fixture'],[local,'boss-demo-recovery-fixture'],[session,'boss-demo-auth-fixture']];
-      const before = entries.map(([store,key]) => get.call(store,key));
-      const calls = [];
-      const denied = name => () => { calls.push(name); throw new Error('금지된 접근: ' + name); };
-      for (const name of ['getItem','setItem','removeItem','clear','key']) Storage.prototype[name] = denied('Storage.' + name);
-      for (const name of ['localStorage','sessionStorage','db']) Object.defineProperty(window,name,{get:denied(name)});
-      window.fetch = denied('fetch');
-      XMLHttpRequest.prototype.open = denied('XMLHttpRequest');
-      navigator.sendBeacon = denied('sendBeacon');
-      window.WebSocket = denied('WebSocket');
-      window.__bossDemoAudit = () => ({ calls:[...calls], before, after:entries.map(([store,key]) => get.call(store,key)) });
-    });
+    await initializePublicDemoAudit(context);
     const external = [];
     const route = async request => {
       const url = request.request().url();
@@ -192,12 +177,13 @@ function ledgerReference() {
     }
     pass('1440·390·320px 입력과 결과 가로 넘침 없이 표시');
 
-    const audit = await page.evaluate(() => window.__bossDemoAudit());
+    const audit = await page.evaluate(() => window.__publicDemoAudit());
+    assert.equal(audit.themeReads,1);
     assert.deepEqual(audit.calls,[]);
     assert.deepEqual(audit.after,audit.before);
     assert.deepEqual(errors,[]);
     assert(external.every(url => url.startsWith('https://static.cloudflareinsights.com/')));
-    pass('저장소·장부 읽기/쓰기·API 호출 0회, 외부 통신 차단, 가상 장부·복구·세션 보존');
+    pass('테마 설정 읽기 1회, 장부·복구·세션 접근 및 저장소 쓰기·API 호출 0회');
 
     const noJs = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:900}});
     await noJs.route('**/*',route);

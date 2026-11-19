@@ -20,6 +20,7 @@ function check(name, fn) { fn(); checks++; process.stdout.write('통과: '+name+
 const expected = {
   advanced_ability:[['lock0','2000000'],['lock1','6000000'],['lock2','15000000']],
   meso_scroll:[['premium_acc_attack','60000000'],['premium_acc_magic','60000000'],['ear_str','100000000'],['ear_dex','100000000'],['ear_luk','100000000'],['ear_int','100000000'],['magical_one_attack','60000000'],['magical_one_magic','60000000'],['magical_two_attack','60000000'],['pet_attack','30000000'],['pet_magic','30000000'],['premium_pet_attack','60000000'],['premium_pet_magic','60000000'],['positive60','500000'],['positive100','300000000'],['pet_innocence','1000000000'],['pet_clean_slate','60000000'],['return','400000000'],['pet_return','500000000']],
+  november_meso_scroll:[['guardian_ring','10000000'],['astra_aegis','500000000'],['astra_shield','500000000'],['astra_vane','500000000'],['astra_blade','1000000000']],
   soul_amplification:[['stage1','500000000'],['stage2','1000000000'],['stage3','1750000000'],['stage4','2750000000']],
   soul_potential:[['rare','20000000'],['epic','40000000'],['unique','65000000'],['legendary','88000000']]
 };
@@ -49,13 +50,26 @@ check('무료·음수·소수·빈 횟수·과도한 횟수는 지출로 자동 
   assert.equal(E.quote('unknown','lock0','1').ok,false);
 });
 check('9월 16/17일 신규 종류 경계와 기존 심볼 지출 날짜 보존',()=>{
-  for (const category of E.categories.filter(c=>c.id!=='arcane_symbol')) {
+  for (const category of E.modes.filter(mode=>!mode.legacy && !mode.startsOn)) {
     assert.match(E.validateRecordDate(category.id,'2026-09-16'),/2026-09-17/);
     assert.equal(E.validateRecordDate(category.id,'2026-09-17'),'');
   }
   assert.equal(E.validateRecordDate('arcane_symbol','2026-09-01'),'');
   assert.equal(E.validateRecordDate('equipment','2026-09-01'),'');
   assert.match(E.validateRecordDate('soul_potential','2026-09-31'),/날짜/);
+});
+check('11월 메소샵 단가·수량·구매 기간과 상시 주문서 적용일',()=>{
+  assert.equal(E.validateRecordDate('sora_meso_shop','2026-11-19'),'');
+  assert.equal(E.validateRecordDate('sora_meso_shop','2026-12-16'),'');
+  assert.match(E.validateRecordDate('sora_meso_shop','2026-12-17'),/운영 기간/);
+  assert.match(E.validateRecordDate('november_meso_scroll','2026-11-18'),/2026-11-19/);
+  assert.equal(E.validateRecordDate('november_meso_scroll','2026-12-17'),'');
+  const sora=E.modes.find(mode=>mode.id==='sora_meso_shop');
+  assert.equal(sora.items.length,10);
+  assert.equal(E.quote(sora.id,'vip_exp','300').amount,'150000000');
+  assert.equal(E.quote(sora.id,'karma_chaos','100').amount,'4500000000');
+  assert.equal(E.quote(sora.id,'ear_sensor','2').ok,false);
+  assert.equal(E.quote(sora.id,'advanced_bag','10').amount,'800000000');
 });
 check('아르고 메소샵 기간 종료 경계',()=>{
   assert.equal(E.validateRecordDate('september_meso_shop','2026-11-18'),'');
@@ -152,6 +166,18 @@ async function setMode(page,mode,item,count,unit) {
       assert.equal(await page.evaluate(()=>String(db.expenses[0].amount)),total);
       assert.equal(await page.evaluate(()=>db.expenses[0].category),mode);
     }
+    await page.clock.setFixedTime(new Date('2026-11-19T12:00:00+09:00'));
+    await page.fill('#expense-date','2026-11-19');
+    for(const [mode,item,count,total] of [
+      ['sora_meso_shop','karma_chaos','3','135000000'],
+      ['november_meso_scroll','astra_blade','2','2000000000']
+    ]){
+      await setMode(page,mode,item,count);
+      await page.click('#september-expense-fill');
+      await page.click('#expense-save');
+      assert.equal(await page.evaluate(()=>String(db.expenses[0].amount)),total);
+      assert.equal(await page.evaluate(()=>db.expenses[0].category),mode);
+    }
     const after=await snapshot(page);
     const existing=JSON.parse(after);
     assert.deepEqual(existing.expenses.find(record=>record.id==='keep-expense'),JSON.parse(before).expenses[0]);
@@ -165,7 +191,7 @@ async function setMode(page,mode,item,count,unit) {
       save();renderAll();
     });
     assert.equal(await snapshot(page),after,'백업 및 클라우드 왕복에서 지출이나 기존 장부가 변했습니다.');
-    process.stdout.write('통과: 7종 지출 명시 저장·분류·메모, 기존 장부 및 백업/클라우드 왕복 보존\n');
+    process.stdout.write('통과: 9종 지출 명시 저장·분류·메모, 기존 장부 및 백업/클라우드 왕복 보존\n');
 
     await page.locator('#september-expense-helper summary').click();
     await setMode(page,'meso_scroll','premium_acc_attack','100');
@@ -186,5 +212,5 @@ async function setMode(page,mode,item,count,unit) {
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
   }
-  process.stdout.write('9월 신규 지출: 비용·날짜 '+checks+'건 및 UI·보존 검사 통과\n');
+  process.stdout.write('메소 지출: 비용·날짜 '+checks+'건 및 UI·보존 검사 통과\n');
 })().catch(error=>{console.error(error);process.exitCode=1;});

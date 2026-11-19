@@ -2,13 +2,16 @@
 (function(root){
   'use strict';
   const data=()=>root.MapleOctoberProfit;
-  const state={royalSeries:'162',drafts:new Map()};
+  const novemberRoyal=root.MapleNovemberProfit?.royal;
+  const novemberRoyalStarted=()=>!!novemberRoyal && Date.now()>=Date.parse(novemberRoyal.startsAt);
+  const initialSeries=novemberRoyalStarted()?(data().today()<=novemberRoyal.lastPurchaseDate?'163':'legacy'):'162';
+  const state={royalSeries:initialSeries,drafts:new Map()};
   const count=value=>/^\d{1,7}$/.test(String(value||'0')) && Number(value||0)<=1000000 ? Number(value||0) : null;
   const read=(box,key)=>box?.querySelector('[data-profit-input="'+key+'"]')?.value || '';
   function normalizeContext(raw){
-    if(!raw || raw.version!==1 || !['royal','boutique','artisan_gift','momentum_plus','yeti_magnifier'].includes(raw.catalog)) return null;
+    if(!raw || raw.version!==1 || !supported(raw.catalog)) return null;
     const result={version:1,catalog:raw.catalog};
-    if(raw.catalog==='royal') result.royalSeries=raw.royalSeries==='162'?'162':'legacy';
+    if(raw.catalog==='royal') result.royalSeries=['162','163'].includes(raw.royalSeries)?raw.royalSeries:'legacy';
     if(raw.catalog==='boutique'){
       const before=count(raw.beforeUses),used=count(raw.usedCount);
       if(before===null || used===null) return null;
@@ -38,8 +41,11 @@
   function supported(type){return type==='royal' || !!data()?.catalog(type);}
   function available(type,now=Date.now()){return !data()?.catalog(type) || data().isActive(type,now);}
   function draftKey(type){return supported(type)?type+(type==='royal'?':'+state.royalSeries:''):'';}
-  function royalOutputs(legacy){return state.royalSeries==='162'?data().royalOutputs:legacy;}
-  function allItems(){return data().catalogs.flatMap(c=>c.costs.concat(c.outputs)).concat(data().royalOutputs);}
+  function royalOutputs(legacy){
+    if(state.royalSeries==='163' && novemberRoyal)return novemberRoyal.outputs;
+    return state.royalSeries==='162'?data().royalOutputs:legacy;
+  }
+  function allItems(){return data().catalogs.flatMap(c=>c.costs.concat(c.outputs)).concat(data().royalOutputs,novemberRoyal?.outputs || []);}
   function notice(text,h){return '<p class="muted october-product-note">'+h.esc(text)+'</p>';}
   function officialPriceNotes(c,h){
     return '<ul class="october-product-prices">'+c.costs.map(item=>'<li>'+h.esc(item.name)+' — '+h.esc(item.tradeNote || '')+'</li>').join('')+'</ul>';
@@ -48,11 +54,14 @@
     if(type==='royal'){
       const active=data().isActive('royal162');
       if(!active) state.royalSeries='legacy';
+      const latest=state.royalSeries==='163' && novemberRoyal;
+      const source=latest || data().royal;
       return '<div class="profit-entry-grid">'+h.profitDateBlock()+'<div class="profit-field"><label for="october-royal-series">기록 방식</label><select id="october-royal-series">'+
+        (novemberRoyalStarted()?'<option value="163"'+(latest?' selected':'')+'>163기 · 네온 블루 스톰</option>':'')+
         (active?'<option value="162"'+(state.royalSeries==='162'?' selected':'')+'>162기 · 품목별</option>':'')+'<option value="legacy"'+(state.royalSeries==='legacy'?' selected':'')+'>기존 · 라벨 등급별</option></select></div></div>'+
-        (state.royalSeries==='162'?notice('162기 꿈빛 마법 상점 · 1회 2,200캐시 · 목록은 11월 19일 점검 전까지입니다. 보유 쿠폰은 구입 후 7일 내 사용하며, 과거 결과의 판매 정산은 계속 기록할 수 있습니다. 품목별 기록과 라벨별 기록에 같은 판매를 두 번 입력하지 마세요.',h):notice('기존 기수·마스터피스의 라벨별 기록입니다. 162기 실물 이름을 남기려면 품목별 방식을 선택하세요.',h))+
+        (latest?notice('163기 · 쿠폰 1개 2,200캐시. '+latest.tradeNote,h):state.royalSeries==='162'?notice('162기 꿈빛 마법 상점 · 1회 2,200캐시 · 목록은 11월 19일 점검 전까지입니다. 보유 쿠폰은 구입 후 7일 내 사용하며, 과거 결과의 판매 정산은 계속 기록할 수 있습니다. 품목별 기록과 라벨별 기록에 같은 판매를 두 번 입력하지 마세요.',h):notice('기존 기수·마스터피스의 라벨별 기록입니다. 같은 판매는 해당 기수 또는 라벨 등급별 기록에 한 번만 남기세요.',h))+
         '<h3>실제 구입 비용</h3>'+h.profitCostRowsHtml(h.royalCosts,'개당 매입가 (메소)')+'<h3>획득 결과 · 실제 판매</h3>'+h.profitOutputRowsHtml(royalOutputs(h.royalLegacyOutputs))+
-        '<p class="muted"><a href="'+data().royal.source+'" target="_blank" rel="noopener noreferrer">162기 공식 상품 안내</a></p>';
+        '<p class="muted"><a href="'+source.source+'" target="_blank" rel="noopener noreferrer">'+(latest?'163':'162')+'기 공식 상품 안내</a></p>';
     }
     const c=data().catalog(type);if(!c)return '';
     const previous=(h.records || []).filter(r=>r.type==='boutique' && r.date>='2026-10-22' && r.date<='2026-11-30').reduce((max,r)=>{
@@ -77,7 +86,8 @@
     }else if(c.outputs.length){
       result+='<h3>획득 결과 · 실제 판매</h3>'+notice(c.tradeNote,h)+h.profitOutputRowsHtml(c.outputs);
     }
-    return result+'<p class="muted"><a href="'+c.source+'" target="_blank" rel="noopener noreferrer">공식 상품·확률 안내</a></p>';
+    return result+'<p class="muted"><a href="'+c.source+'" target="_blank" rel="noopener noreferrer">공식 상품 안내</a>'+
+      (c.probabilitySource?' · <a href="'+c.probabilitySource+'" target="_blank" rel="noopener noreferrer">공식 획득 확률</a>':'')+'</p>';
   }
   function probabilityTable(title,rows,h){
     return '<p><b>'+h.esc(title)+'</b> · '+rows.map(row=>row.quantity+'개 '+row.probability+'%').join(' / ')+'</p>';
@@ -133,10 +143,12 @@
     if(!supported(type))return '';
     const c=data().catalog(type);
     if(c && !available(type,now))return '이 상품의 신규 입력 기간이 끝났습니다. 저장된 과거 기록과 통계는 유지됩니다.';
-    if((c || state.royalSeries==='162') && date<'2026-10-22')return '이번 상품 기록은 2026년 10월 22일부터 입력하세요. 이전 로얄 기수는 기존 라벨 등급별 기록을 선택하세요.';
+    const royal=type==='royal' && (state.royalSeries==='163'?novemberRoyal:state.royalSeries==='162'?data().royal:null);
+    const firstDate=(c || royal)?.startsAt.slice(0,10);
+    if(firstDate && date<firstDate)return '이번 상품은 '+firstDate+'부터 기록할 수 있습니다. 실제 기록 날짜와 상품 회차를 확인하세요.';
     if(c?.lastRecordDate && date>c.lastRecordDate)return '기록 날짜는 '+c.lastRecordDate+'까지 선택하세요.';
     if(c?.lastPurchaseDate && date>c.lastPurchaseDate && record.costs.some(line=>line.count>0))return '판매 기간 이후 구입비는 입력할 수 없습니다. 이전 구입비를 중복 입력하지 말고 남은 결과의 판매만 정산하세요.';
-    if(type==='royal' && state.royalSeries==='162' && date>data().royal.lastPurchaseDate && record.costs.some(line=>line.id==='royal_style' && line.count>0))return '162기 목록 종료 이후 날짜에 새 쿠폰 구입비를 입력할 수 없습니다. 남은 결과의 판매 정산만 기록하세요.';
+    if(royal && date>royal.lastPurchaseDate && record.costs.some(line=>line.id==='royal_style' && line.count>0))return state.royalSeries+'기 목록 종료 이후 날짜에 새 쿠폰 구입비를 입력할 수 없습니다. 남은 결과의 판매 정산만 기록하세요.';
     if(type==='momentum_plus' && date===data().today(now) && !data().canPurchase(type,now) && record.costs.some(line=>['momentum_premium','momentum_prime'].includes(line.id) && line.count>0))return '패스 구매는 11월 18일 23:00에 종료됩니다. 실제 구매 날짜의 기록을 확인하세요.';
     if(!context(type,box))return '사용 수를 0~1,000,000의 정수로 입력하세요.';
     if(type==='boutique' && box.querySelector('[data-profit-input="ticketCheck"]')?.checked){const balance=ticketBalance(box);if(balance.error)return balance.error;}

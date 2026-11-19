@@ -1,0 +1,29 @@
+{
+  "verifiedOn": "2026-11-19",
+  "sourceImages": {
+    "653": "https://lwi.nexon.com/maplestory/2026/1119_board/CBNHEQAPKKKPU7J6.png",
+    "654": "https://lwi.nexon.com/maplestory/2026/1119_board/04A1FC6E29D01749.png",
+    "655": "https://lwi.nexon.com/maplestory/2026/1119_board/P3S9QSYEKERZ9WJX.png"
+  },
+  "note": "코디·굿즈 컬렉션과 로얄스타일 신상품 이미지는 공식 공지에서 잘라냈습니다. 아래 기존 로얄 품목은 KMS 데이터에서 공식 확률표의 품목명과 대조한 아이콘을 사용합니다. 30일 반지 교환권은 교환 후 반지 미리보기입니다.",
+  "kmsIconSource": "https://maplestory.io/api/KMS/389/item/{itemId}/icon",
+  "kmsItemIds": {
+    "royal163_12_m": 1005821,
+    "royal163_12_f": 1005822,
+    "royal163_13_m": 1050590,
+    "royal163_13_f": 1051663,
+    "royal163_14": 1073553,
+    "royal163_15": 1703107,
+    "royal163_16": 1012744,
+    "royal163_17_m": 1005971,
+    "royal163_17_f": 1005972,
+    "royal163_18_m": 1050630,
+    "royal163_18_f": 1051703,
+    "royal163_19_m": 1070139,
+    "royal163_19_f": 1071155,
+    "royal163_20": 1103426,
+    "royal163_21": 1703185,
+    "royal163_22": 1012568,
+    "royal163_28": 5204016
+  }
+}

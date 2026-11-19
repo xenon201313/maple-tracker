@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261114-2"></script>
+<script src="assets/patch-notes-data.js?v=20261119-1"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -12,15 +12,16 @@
 <script src="assets/account-sync.js?v=20261114-1"></script>
 <script src="assets/friends-characters.js?v=20261114-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
-<script src="assets/september-expenses.js?v=20260917-1"></script>
+<script src="assets/september-expenses.js?v=20261119-1"></script>
 <script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/october-boss-rules.js?v=20261022-1"></script>
 <script src="assets/income-forecast.js?v=20261105-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
-<script src="assets/october-profit.js?v=20261022-1"></script>
-<script src="assets/october-profit-ui.js?v=20261022-1"></script>
+<script src="assets/november-profit.js?v=20261119"></script>
+<script src="assets/october-profit.js?v=20261119-1"></script>
+<script src="assets/october-profit-ui.js?v=20261119-1"></script>
 <link rel="stylesheet" href="assets/october-profit.css?v=20261022-1">
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260918-1">
 <meta charset="UTF-8">
@@ -1020,7 +1021,7 @@
 <link rel="stylesheet" href="assets/home-characters.css?v=20261111-2">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 <link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
-<link rel="stylesheet" href="assets/service-notice.css?v=20261114-1">
+<link rel="stylesheet" href="assets/service-notice.css?v=20261119-1">
 </head>
 <body class="maple-workspace maple-official-theme">
 <a class="skip-link" href="#workspace-main">본문으로 이동</a>
@@ -1063,17 +1064,10 @@
 <main class="workspace-main" id="workspace-main" tabindex="-1">
 <noscript><p class="card">기록장 입력 기능은 JavaScript가 필요합니다. <a href="guide/">사용 가이드와 계산 사례</a>는 JavaScript 없이도 읽을 수 있습니다.</p></noscript>
 <aside class="service-login-notice" id="service-login-notice" role="note" aria-labelledby="service-login-notice-title" tabindex="-1">
-  <svg class="service-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/></svg>
+  <svg class="service-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/></svg>
   <div class="service-notice-copy">
-    <div class="service-notice-heading"><h2 class="service-notice-title" id="service-login-notice-title">넥슨 로그인 오류 안내</h2><span class="service-notice-badge">확인 중</span><time datetime="2026-11-14">2026.11.14</time></div>
-    <p>일부 이용자에게 로그인을 마쳐도 로그인 버튼이 다시 나타나거나, 계정에 저장한 장부를 불러오지 못하는 문제가 있습니다. 현재 원인을 확인하고 있으며, 복구되면 이곳에서 다시 안내하겠습니다.</p>
-    <details class="service-notice-details"><summary>기록을 지키는 방법</summary>
-      <ul>
-        <li>로그인이 안 된다고 기존 기록이 삭제된 것은 아닙니다. 기기에 남아 있는 기록을 보존하려면 브라우저의 사이트 데이터를 지우지 말아 주세요.</li>
-        <li>기록 화면이 열리면 상단의 <strong>백업</strong> 버튼으로 기록을 내려받아 보관해 주세요.</li>
-        <li>계정 저장 완료 안내가 없으면, 다른 기기에서 최신 기록을 확인하지 못할 수 있습니다. 로그인을 여러 번 반복할 필요는 없습니다.</li>
-      </ul>
-    </details>
+    <div class="service-notice-heading"><h2 class="service-notice-title" id="service-login-notice-title">넥슨 로그인 복구 안내</h2><span class="service-notice-badge">복구 완료</span><time datetime="2026-11-19">2026.11.19</time></div>
+    <p>넥슨 로그인을 마쳐도 로그인 버튼이 다시 나타나던 문제가 해결됐습니다. 홈에서 넥슨 계정으로 로그인하면 저장해 둔 장부를 다시 열 수 있습니다.</p>
   </div>
 </aside>
 <div class="nexon-api-disclosure" role="note" aria-label="NEXON Open API 이용 고지">
@@ -1113,7 +1107,7 @@
       <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
     </div>
     </div>
-    <p class="service-notice-link"><a href="#service-login-notice">로그인 연결 문제 안내 보기</a></p>
+    <p class="service-notice-link"><a href="#service-login-notice">넥슨 로그인 복구 안내 보기</a></p>
     <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
     <div id="account-choice" class="account-choice" hidden>
       <h3>사용할 장부 선택</h3>
@@ -1230,7 +1224,7 @@
 <a class="reading-card" href="guide/boss-settlement/"><h3>보스 드랍 분배와 월말 결산 검산하기</h3><p>판매가·인원·분배 비율을 입력해 송금액과 각자 실수령액을 계산하고, 100메소 내림과 월 경계 주차를 확인합니다.</p><span>계산 사례 읽기 →</span></a>
 <a class="reading-card" href="guide/profit-expense/"><h3>판매 손익과 강화 지출을 구분해 기록하기</h3><p>판매 손익을 계산하고, 소울 단계·어빌리티 잠금 수와 실제 시도 횟수에서 필요한 메소·명성치를 구합니다.</p><span>계산 사례 읽기 →</span></a></div>
   </section>
-  <div class="card"><h2>10월 22일 본서버 업데이트 반영</h2><p class="muted">본서버 1.2.420의 결정석 변경과 신규 익스트림 보스·드랍, 부티크 기프트·로얄스타일 162기를 반영했습니다. 신규 보스는 10월 23일 저녁부터 개방되며, 상품 판매와 티켓 사용 종료일은 서로 다릅니다. <a href="updates/2026-10/">10월 변경 사항과 기록 방법 보기</a></p></div>
+  <div class="card"><h2>11월 19일 본서버 업데이트</h2><p class="muted">여러 월드에서 판 결정석을 합산하는 방법과 소라의 메소샵·신규 주문서 지출을 확인하세요. <a href="updates/2026-11/">11월 변경 사항과 기록 방법 보기</a></p></div>
   </div>
 </div>
 
@@ -1321,7 +1315,7 @@
     <ul class="guide-list">
       <li>먼저 캐릭터 이름을 등록하고, 본서버 또는 챌린저스 서버를 선택합니다.</li>
       <li>캐릭터 이름을 누르면 보스 카드가 열리고, 보스마다 난이도와 파티 인원수를 선택할 수 있습니다.</li>
-      <li>메계부의 캐릭터별 주간 선택 한도는 12종입니다. 게임의 공식 처치 규칙과는 별개이며, 이미 저장한 12종 초과 기록은 그대로 보존합니다. 다른 보스를 고르려면 기존 선택을 먼저 해제하세요. 월드당 결정석 판매 한도 90개 안내는 별도로 유지합니다.</li>
+      <li>메계부에서는 캐릭터마다 주간 보스 12종을 선택할 수 있습니다. 다른 보스를 고르려면 기존 선택을 먼저 해제하세요. 11월 19일 주차부터 게임에서 같은 메이플ID의 일반 월드를 합쳐 결정석을 주당 90개까지 판매할 수 있습니다. 챌린저스·스페셜 월드는 별도입니다.</li>
       <li>메이린은 9월 16일 23시 59분, 챌린저스 시즌 4 육성 기간은 9월 17일 점검 전까지입니다. 기존 캐릭터와 과거 수익·드랍 기록은 보존되며, 월드 리프 후 캐릭터 정보를 갱신하면 실제 이동한 월드를 반영합니다.</li>
       <li>파티 인원수를 고르면 결정석 가격이 인원수로 나뉘어 “내 몫”으로 표시됩니다.</li>
     </ul>
@@ -1521,6 +1515,7 @@
         <label for="in-meso"><img class="icon-sm" id="i-meso1" alt="">획득 메소</label>
         <input type="text" id="in-meso" placeholder="예: 150,000,000" style="width:100%;" inputmode="numeric" autocomplete="off">
         <div class="hint" id="meso-hint"></div>
+        <p class="muted">실제로 주운 메소를 입력하세요. 11월 19일부터 캐릭터가 몬스터보다 6레벨 이상 높으면 획득량이 더 줄어듭니다. 입력한 금액은 그대로 기록됩니다.</p>
       </div>
       <div style="flex:1; min-width:180px;">
         <label for="in-extra"><img class="icon-sm" id="i-extra1" alt="">추가 부수입</label>
@@ -1639,7 +1634,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-weekly.png" alt="">주간 결정석 합계</h2>
     <div class="totalbar" id="boss-total"></div>
     <div class="muted" style="margin-top:10px;">
-      <span id="weekly-boss-limit-note">※ 메계부 선택 한도: 캐릭터별 주간 12종 · 월드당 주간 결정석 판매 90개는 별도</span><br>
+      <span id="weekly-boss-limit-note">메계부에서 캐릭터마다 주간 보스 12종을 선택할 수 있습니다.</span><br>
       ※ 파티 인원수로 나눈 값 = 실제 내가 받는 결정석 몫 (메소 가격 ÷ 인원수)<br>
       ※ 결정석 가격: 선택한 기록 기간 기준 · <span id="weekly-crystal-sale-period-note">9월 17일 주차의 판매 시점 선택은 9월 24일 00:00(한국 시간)까지 · </span>10월 1일 검은 마법사부터 <a href="https://maplestory.nexon.com/news/update/813" target="_blank" rel="noopener noreferrer">본서버 1.2.419</a> 가격 반영 · 이전 기록은 기존 가격 유지 · 보스 일러스트: 넥슨/나무위키
     </div>
@@ -1660,7 +1655,7 @@
     <h2><img class="crystal-icon" src="assets/crystal-monthly.png" alt="">월간 결정석 합계</h2>
     <div class="totalbar" id="monthlyboss-total"></div>
     <div class="muted" style="margin-top:10px;">
-      ※ 검은 마법사는 월드당 주간 90개 결정석 한도 표시에서 제외됩니다. 본서버 공지에 따라 10월 기록부터 변경된 결정석 가격을 반영하며 9월 이전 기록은 기존 가격을 유지합니다.
+      11월 19일 주차부터 검은 마법사 결정석은 메계부에 기록한 처치 주차의 판매 한도에 함께 표시합니다. 10월 기록부터 변경된 결정석 가격을 적용합니다.
     </div>
   </div>
 </div>
@@ -1916,6 +1911,7 @@ const IMG={
 const MAX_CHECK = 12;   // 2026년 9월 17일 이전 주차의 일반 주간 보스 한도
 const MAX_PARTY = 6;
 const CRYSTAL_LIMIT = 90;
+const ACCOUNT_CRYSTAL_LIMIT_WEEK = '2026-11-19';
 
 /* 보스 결정석 (KMS 1.2.416, 2026-06-18 기준)  [id,이름,가격,그룹(w주간/m월간),이미지키] */
 const BOSSES = [
@@ -6022,7 +6018,7 @@ function dailyDropPriceSumForCharDate(c, date=todayStr()){
   for(const key in prices){ if(drops[key]) total += sharedDailyDropPrice(c,date,key); }
   return total;
 }
-function dailyBossSumForDate(date){
+function dailyBossSumForDate(date,countsByCharacter){
   let crystalMeso=0, dropMeso=0n, crystals=0;
   db.chars.forEach(c=>{
     const store = ensureObj(ensureObj(c.dailyBossDays)[date]);
@@ -6030,16 +6026,17 @@ function dailyBossSumForDate(date){
       const b=DAILY_BOSS_MAP[id]; if(!b) continue;
       crystalMeso += share(b[2], Math.max(1, Number(store[id])||1));
       crystals++;
+      if(countsByCharacter) countsByCharacter.set(c,(countsByCharacter.get(c)||0)+1);
     }
     dropMeso += dailyDropPriceSumForCharDate(c,date);
   });
   return {meso:toMesoBig(crystalMeso)+dropMeso, crystalMeso, dropMeso, crystals};
 }
-function dailyBossTotalsForWeek(week=currentWeekKey()){
+function dailyBossTotalsForWeek(week=currentWeekKey(),countsByCharacter){
   let meso=0n, crystalMeso=0, dropMeso=0n, crystals=0;
   for(let i=0;i<7;i++){
     const d=addDays(week,i);
-    const s=dailyBossSumForDate(d);
+    const s=dailyBossSumForDate(d,countsByCharacter);
     meso += toMesoBig(s.meso);
     crystalMeso += s.crystalMeso || 0;
     dropMeso += toMesoBig(s.dropMeso);
@@ -7823,7 +7820,7 @@ function renderHome(){
 
   const progressEl=document.getElementById('home-weekly-progress');
   const progressRules=document.getElementById('weekly-progress-rules');
-  if(progressRules) progressRules.textContent='메계부 선택 한도: 캐릭터별 주간 12종 · 게임 내 처치 한도와 별도 · 월드당 결정석 판매 90개 유지';
+  if(progressRules) progressRules.textContent='캐릭터별 주간 보스 12종 선택 · '+crystalLimitPeriodText(week);
   if(!db.chars.length){
     progressEl.innerHTML='<div class="empty-state">캐릭터 등록 탭에서 캐릭터를 추가하면 이번 주 보스 진행 현황이 표시됩니다.</div>';
   }else{
@@ -8187,7 +8184,7 @@ let octoberProfitExpiryTimer;
 function refreshOctoberProfitAvailability(){
   window.clearTimeout(octoberProfitExpiryTimer);
   const now=Date.now();
-  const next=[MapleOctoberProfit.startsAt,...MapleOctoberProfit.catalogs.map(c=>c.endsAt)].filter(Boolean).map(Date.parse).filter(t=>t>now).sort((a,b)=>a-b)[0];
+  const next=MapleOctoberProfit.catalogs.flatMap(c=>[c.startsAt,c.endsAt]).filter(Boolean).map(Date.parse).filter(t=>t>now).sort((a,b)=>a-b)[0];
   if(next)octoberProfitExpiryTimer=window.setTimeout(refreshOctoberProfitAvailability,Math.min(next-now,2147483647));
   if(!MapleOctoberProfitUI.available(profitState.active)){
     profitState.active='wonderberry';renderProfitCalculator();
@@ -8316,8 +8313,9 @@ function buildProfitRecord(showErrors){
   }else if(type==='royal'){
     base.costs=profitReadCostLines(PROFIT_ROYAL_COSTS);
     base.outputs=profitReadOutputLines(MapleOctoberProfitUI.royalOutputs(PROFIT_ROYAL_OUTPUTS));
-    base.itemId=MapleOctoberProfitUI.state.royalSeries==='162'?'royal162':'';
-    base.itemName=base.itemId?'로얄스타일 162기 · 품목별':'기존 라벨 등급별';
+    const series=MapleOctoberProfitUI.state.royalSeries;
+    base.itemId=series==='legacy'?'':'royal'+series;
+    base.itemName=base.itemId?'로얄스타일 '+series+'기 · 품목별':'기존 라벨 등급별';
   }else if(MapleOctoberProfit.catalog(type)){
     const product=MapleOctoberProfit.catalog(type);
     base.itemId=product.id;
@@ -9802,12 +9800,25 @@ function renderRegisteredCharacters(){
     card.innerHTML=
       charProfileHtml(c)+
       characterApiTrackingHtml(c)+
+      '<details class="period-help crystal-limit-settings"><summary>결정석 판매 한도 설정</summary><p class="muted">같은 메이플ID의 캐릭터에는 같은 별명을 입력하세요. 비워 두면 기본 계정으로 합산합니다.</p>'+
+      '<label>장부용 계정 별명 <input class="crystal-account-alias" maxlength="24" placeholder="기본 계정" value="'+esc(c.crystalAccountAlias||'')+'"></label> '+
+      '<label>월드 구분 <select class="crystal-world-type"><option value="">캐릭터 정보 기준</option><option value="normal">일반</option><option value="challenger">챌린저스</option><option value="special">스페셜</option></select></label> '+
+      '<button type="button" class="ghost crystal-account-apply">적용</button></details>'+
       '<div class="registered-actions">'+
         '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'">정보 갱신</button>'+
         '<button class="danger char-delete-btn" type="button" data-idx="'+idx+'">캐릭터 삭제</button>'+
         '<span class="muted">'+synced+(c.profileWarning?' · '+esc(c.profileWarning):'')+'</span>'+
       '</div>';
     bindSchedulerScopeControls(card,c);
+    const worldType=card.querySelector('.crystal-world-type');
+    worldType.value=c.crystalWorldType||'';
+    card.querySelector('.crystal-account-apply').onclick=()=>{
+      window.MapleAccountSync?.beforeSave();
+      c.crystalAccountAlias=card.querySelector('.crystal-account-alias').value.trim().slice(0,24);
+      c.crystalWorldType=worldType.value;
+      save();
+      renderAll();
+    };
     const btn=card.querySelector('.char-refresh-btn');
     btn.onclick=async()=>{
       if(!characterSource()){ alert(characterConnectionMessage()); return; }
@@ -10019,7 +10030,7 @@ function monthlyBossTotals(month=currentMonthKey()){
   const dropMeso=dropPriceSumForMonth(month);
   return {meso:toMesoBig(crystalMeso)+dropMeso,crystalMeso,dropMeso,crystals};
 }
-function monthlyBossTotalsForWeek(week=currentWeekKey()){
+function monthlyBossTotalsForWeek(week=currentWeekKey(),countsByCharacter){
   let crystalMeso=0, dropMeso=0n, crystals=0;
   db.chars.forEach(c=>{
     const months=ensureObj(c.monthBossMonths);
@@ -10031,6 +10042,7 @@ function monthlyBossTotalsForWeek(week=currentWeekKey()){
         if(!b || b[3]!=='m' || clears[id]!==week) return;
         crystalMeso+=share(bossCrystalPrice(b,month),clampPartyForBoss(b,bosses[id]));
         crystals++;
+        if(countsByCharacter) countsByCharacter.set(c,(countsByCharacter.get(c)||0)+1);
       });
       const drops=ensureObj(ensureObj(c.monthDropMonths)[month]);
       Object.keys(drops).forEach(key=>{
@@ -10044,28 +10056,44 @@ function monthlyBossTotalsForWeek(week=currentWeekKey()){
   });
   return {meso:toMesoBig(crystalMeso)+dropMeso,crystalMeso,dropMeso,crystals};
 }
+function crystalLimitPeriodText(week){
+  return week>=ACCOUNT_CRYSTAL_LIMIT_WEEK ? '메이플ID당 일반 월드 합산 주 90개 · 챌린저스·스페셜 별도' : '월드당 결정석 판매 주 90개';
+}
+function crystalLimitGroup(c,accountLimit){
+  const world=String(c.worldName||'').trim();
+  if(!accountLimit) return {key:charServer(c)+'|'+(world||'__unspecified__'),label:world||serverLabel(c)+' · 월드 미지정 합산',unspecified:!world};
+  const account=String(c.crystalAccountAlias||'').trim()||'기본 계정';
+  let type=c.crystalWorldType;
+  const labels={normal:'일반 월드 합산',challenger:'챌린저스 월드',special:'스페셜 월드'};
+  if(!Object.hasOwn(labels,type)){
+    if(charServer(c)==='challenger'||world.includes('챌린저스')) type='challenger';
+    else type=world.includes('스페셜')?'special':'normal';
+  }
+  return {key:JSON.stringify([account,type]),label:account+' · '+labels[type],unspecified:false};
+}
 function bossTotals(week=currentWeekKey()){
   let crystalWeek=0, specialRewardWeek=0, weeklyCrystals=0;
   const worlds=new Map();
+  const accountLimit=week>=ACCOUNT_CRYSTAL_LIMIT_WEEK;
+  const otherCrystals=accountLimit ? new Map() : undefined;
+  const monthly=monthlyBossTotalsForWeek(week,otherCrystals);
+  const daily=dailyBossTotalsForWeek(week,otherCrystals);
   db.chars.forEach(c=>{
     const s=charSum(c,week);
     crystalWeek+=s.crystalMeso; specialRewardWeek+=s.specialMeso; weeklyCrystals+=s.crystals;
-    if(!s.crystals) return;
-    const name=String(c.worldName || '').trim();
-    const unspecified=!name;
-    const key=charServer(c)+'|'+(name || '__unspecified__');
-    if(!worlds.has(key)) worlds.set(key,{key,label:name || serverLabel(c)+' · 월드 미지정 합산',unspecified,crystals:0});
-    worlds.get(key).crystals+=s.crystals;
+    const count=s.crystals+(otherCrystals?.get(c)||0);
+    if(!count) return;
+    const group=crystalLimitGroup(c,accountLimit);
+    if(!worlds.has(group.key)) worlds.set(group.key,{...group,crystals:0});
+    worlds.get(group.key).crystals+=count;
   });
   const worldCrystals=Array.from(worlds.values()).map(world=>Object.assign(world,{overLimit:!world.unspecified && world.crystals>CRYSTAL_LIMIT}));
   const dropMeso = dropPriceSumForWeek(week);
-  const monthly = monthlyBossTotalsForWeek(week);
-  const daily = dailyBossTotalsForWeek(week);
   return {
     week: toMesoBig(crystalWeek)+toMesoBig(specialRewardWeek)+dropMeso,
     crystalWeek,
     specialRewardWeek,
-    worldCrystals,
+    worldCrystals,accountLimit,
     overWorldLimit:worldCrystals.some(world=>world.overLimit),
     dropMeso,
     month: monthly.meso,
@@ -10089,6 +10117,7 @@ function weeklyWorldLimitHtml(t){
     if(world.unspecified) return '<span class="world-crystal-unknown">'+esc(world.label)+' '+world.crystals+'개 (월드 확인 필요)</span>';
     return '<span class="'+(world.overLimit?'warn world-crystal-over':'world-crystal-count')+'">'+esc(world.label)+' '+world.crystals+' / '+CRYSTAL_LIMIT+'개'+(world.overLimit?' · 판매 한도 초과':'')+'</span>';
   });
+  if(t.accountLimit) return '<div class="muted" style="margin-top:6px;">주간 판매 한도 집계 · '+rows.join(' · ')+'<br>일간은 판매 체크, 주간·월간은 처치한 주차를 기준으로 셉니다. 게임의 실제 판매일과 다를 수 있습니다. 여러 메이플ID를 쓰면 캐릭터 등록에서 계정 별명을 구분하세요.</div>';
   return '<div class="muted" style="margin-top:6px;">등록 월드별 주간 결정석: '+rows.join(' · ')+'<br>현재 등록된 월드를 기준으로 표시합니다. 월드 미지정 합산은 실제 월드별 초과 여부를 확정하지 않습니다.</div>';
 }
 function clearWeeklyDropData(c,week=currentWeekKey()){
@@ -10462,7 +10491,7 @@ function renderBoss(){
   const octoberGuidance=document.getElementById('october-crystal-sale-guidance');
   if(octoberGuidance) octoberGuidance.hidden=!MapleOctoberBossRules.saleTimingUiActive(wk);
   const limitNote=document.getElementById('weekly-boss-limit-note');
-  if(limitNote) limitNote.textContent='※ 메계부 선택 한도: 캐릭터별 주간 12종. 하나를 해제하면 다른 보스를 선택할 수 있습니다. 기존 12종 초과 기록은 보존합니다. 게임 내 처치 한도 및 월드당 결정석 판매 90개와는 별도입니다.';
+  if(limitNote) limitNote.textContent='메계부에서 캐릭터마다 주간 보스 12종을 선택합니다. 게임의 결정석 판매 한도는 '+crystalLimitPeriodText(wk)+'입니다.'+(wk===ACCOUNT_CRYSTAL_LIMIT_WEEK?' 11월 19일 0시부터 점검 전까지 판매한 결정석도 이번 주에 포함됩니다.':'');
   const isCurrentWeek=wk===currentWeekKey();
   const weekContext=isCurrentWeek ? '이번 주' : '과거 주차';
   const periodNote=document.getElementById('weeklyboss-period-note');
@@ -10920,7 +10949,9 @@ function dropChecklistHtml(g,b,c,period=currentWeekKey(),scope='weekly'){
   });
   const summary=selectedChips.length ? selectedChips.join('') : '<span class="drop-empty">'+periodLabel+' 획득한 아이템 없음</span>';
   const pickerKey=dropPickerStateKey(isMonthly?'monthlyboss':'boss',c,b,period);
-  const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selectedTop.length+'개 선택</span></summary><div class="drop-picker-panel"><div class="drop-grid">'+
+  const etherNote=period>=ACCOUNT_CRYSTAL_LIMIT_WEEK && items.some(item=>['soul_ether_1','soul_ether_2'].includes(item.id))
+    ? '<p class="muted">1·2단계 소울 에테르는 드롭 이펙트가 없습니다. 파티 습득 권한이 분배라면 무작위 파티원 한 명이 받으므로 직접 획득했을 때 체크하세요.</p>' : '';
+  const picker='<details class="drop-picker" data-drop-picker-key="'+esc(pickerKey)+'" '+(dropPickerOpen.has(pickerKey)?'open':'')+'><summary class="drop-picker-summary"><span>드랍 아이템 선택</span><span class="drop-picker-count">'+selectedTop.length+'개 선택</span></summary><div class="drop-picker-panel">'+etherNote+'<div class="drop-grid">'+
     items.map(item=>{
       const key=dropKey(b,item), legacy=checkedFor(item), checked=!!legacy;
       const childKeys=(item.children||[]).map(child=>childKey(item,child)).join(',');

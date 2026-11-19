@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { chromium } = require('playwright');
+const { initializePublicDemoAudit } = require('./helpers/public-demo-audit.cjs');
 
 // 격리된 Chrome에만 검증용 저장값을 넣습니다. 사용자 브라우저와 외부 API는 사용하지 않습니다.
 const root = path.resolve(__dirname, '..');
@@ -23,28 +24,6 @@ const server = http.createServer((req, res) => {
 const digits = text => text.replace(/[^\d-]/g, '');
 let checks = 0;
 function pass(label) { checks++; process.stdout.write('PASS ' + label + '\n'); }
-
-async function initializeAudit(context) {
-  await context.addInitScript(() => {
-    const local = window.localStorage, session = window.sessionStorage;
-    const getItem = Storage.prototype.getItem;
-    local.setItem('demo-ledger-fixture', '{"records":[{"meso":"123456789"}]}');
-    local.setItem('demo-recovery-fixture', '기존 복구 기록');
-    session.setItem('demo-auth-fixture', '실제 인증값이 아닌 검사 문자열');
-    const entries = [[local,'demo-ledger-fixture'],[local,'demo-recovery-fixture'],[session,'demo-auth-fixture']];
-    const before = entries.map(([store,key]) => getItem.call(store,key));
-    const calls = [];
-    const forbidden = name => () => { calls.push(name); throw new Error('공개 계산기에서 금지된 접근: ' + name); };
-    for (const name of ['getItem','setItem','removeItem','clear','key']) Storage.prototype[name] = forbidden('Storage.' + name);
-    for (const name of ['localStorage','sessionStorage']) Object.defineProperty(window,name,{get:forbidden(name)});
-    window.fetch = forbidden('fetch');
-    XMLHttpRequest.prototype.open = forbidden('XMLHttpRequest');
-    navigator.sendBeacon = forbidden('sendBeacon');
-    window.WebSocket = forbidden('WebSocket');
-    Object.defineProperty(window,'db',{get:forbidden('db')});
-    window.__publicDemoAudit = () => ({ calls: [...calls], before, after:entries.map(([store,key]) => getItem.call(store,key)) });
-  });
-}
 
 async function checkLayout(page, width, mode) {
   await page.setViewportSize({ width, height:900 });
@@ -72,7 +51,7 @@ async function checkLayout(page, width, mode) {
   try {
     browser = await chromium.launch({ headless:true, channel:process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
     const context = await browser.newContext({ viewport:{width:1440,height:1000}, reducedMotion:'reduce' });
-    await initializeAudit(context);
+    await initializePublicDemoAudit(context);
     const external = [];
     const route = async request => {
       const url = request.request().url();
@@ -240,11 +219,12 @@ async function checkLayout(page, width, mode) {
     pass('1440·390·320px의 세 모드 가로 넘침 없이 표시');
 
     const audit = await page.evaluate(() => window.__publicDemoAudit());
+    assert.equal(audit.themeReads,1);
     assert.deepEqual(audit.calls, [], '저장소·API·장부에 접근했습니다.');
     assert.deepEqual(audit.after, audit.before, '검증용 장부·복구·세션 값이 바뀌었습니다.');
     assert(external.every(url => url.startsWith('https://static.cloudflareinsights.com/')), '예상하지 않은 외부 요청: ' + external.join(', '));
     assert.deepEqual(errors, [], '브라우저 오류');
-    pass('저장소 읽기·쓰기, 장부 접근, fetch/XHR/beacon 모두 0회·외부 통신 차단');
+    pass('테마 설정 읽기 1회, 장부·복구·세션 접근 및 저장소 쓰기·API 호출 0회');
 
     const noJs = await browser.newContext({ javaScriptEnabled:false, viewport:{width:390,height:900} });
     await noJs.route('**/*', route);

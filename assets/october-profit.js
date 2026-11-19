@@ -88,7 +88,8 @@
   ];
   const loupeItems=[['yeti_loupe','수상한 돋보기','event-suspicious-loupe'],['yeti_detective_loupe','탐정예티의 수상한 돋보기','event-detective-yeti-loupe']];
   catalogs.push({id:'yeti_magnifier',title:'사냥 이벤트 돋보기',costs:loupeItems.map(([id,name,img])=>row(id+'_buy',name+' 구입',{img:base+img+'.png',tradeNote:'실제 메소 구입비만 입력. 직접 획득했거나 미션 보상으로 받은 수량의 구입비는 0입니다.'})),outputs:loupeItems.map(([id,name,img])=>row(id,name,{img:base+img+'.png',sellable:true,tradeNote:'몬스터 드랍은 1회 교환 후 월드 내 이동만 가능. 일일 미션 보상은 판매 대상이 아닙니다.'})),startsAt:start,endsAt:'2026-11-19T02:00:00+09:00',purchaseEndsAt:'2026-11-19T02:00:00+09:00',lastPurchaseDate:'2026-11-19',lastRecordDate:'2026-11-19',source:'https://maplestory.nexon.com/News/Event/1403',tradeNote:'드랍 획득은 11/18 23:59까지, 사용은 11/19 02:00까지입니다. 몬스터 드랍 중 실제로 판매한 수량만 수익에 반영합니다. 일반 돋보기는 캐릭터당 하루 10회, 탐정예티 돋보기는 메이플ID당 하루 3회 사용합니다. 일일 미션 보상은 월드 내 이동만 가능하므로 판매로 입력하지 마세요.'});
-  const categories=catalogs.map(c=>({id:c.id,title:c.title,img:c.costs[0].img,tag:c.id==='boutique'?'11/18 판매 종료':c.id==='momentum_plus'?'11/18까지':c.id==='yeti_magnifier'?'사냥 이벤트':'모루',desc:c.tradeNote}));
+  catalogs.push(...(global.MapleNovemberProfit?.catalogs || []));
+  const categories=catalogs.map(c=>({id:c.id,title:c.title,img:c.costs[0].img,tag:c.tag || (c.id==='boutique'?'11/18 판매 종료':c.id==='momentum_plus'?'11/18까지':c.id==='yeti_magnifier'?'사냥 이벤트':'모루'),desc:c.tradeNote}));
   function moment(value){return typeof value==='string'?Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(value)?value+'T00:00:00+09:00':value):Number(value);}
   function catalog(id){return catalogs.find(c=>c.id===id)||null;}
   function isActive(id,now=Date.now()){
@@ -100,9 +101,9 @@
       const t=moment(now);if(!Number.isFinite(t)||new Date(t+9*60*60*1000).toISOString().slice(0,10)!==now)return false;
       const firstDate=start.slice(0,10);
       if(id==='royal162')return now>=firstDate&&now<='2026-11-19';
-      const c=catalog(id);return !!c&&now>=firstDate&&(!c.lastPurchaseDate||now<=c.lastPurchaseDate);
+      const c=catalog(id);return !!c&&now>=c.startsAt.slice(0,10)&&(!c.lastPurchaseDate||now<=c.lastPurchaseDate);
     }
-    if(id==='royal162'){const t=moment(now);return t>=Date.parse(start)&&t<Date.parse('2026-11-20T00:00:00+09:00');}
+    if(id==='royal162'){const t=moment(now);return t>=Date.parse(start)&&t<Date.parse('2026-11-19T04:00:00+09:00');}
     const c=catalog(id),t=moment(now);return !!c&&Number.isFinite(t)&&t>=Date.parse(c.startsAt)&&(!c.purchaseEndsAt||t<Date.parse(c.purchaseEndsAt));
   }
   function feverInfo(previousUsed,currentUsed){
