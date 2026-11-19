@@ -25,7 +25,10 @@
 .maple-official-theme .home-characters-empty{display:flex;align-items:center;justify-content:center;gap:14px;min-height:96px;padding:18px;background:#fffaf2d9;border:1px dashed #bda58c;border-radius:12px;color:#624e40;font-size:13px;line-height:1.7}
 .maple-official-theme .home-characters-empty>.ui-icon{width:40px;height:40px;flex:0 0 40px;color:#8b5a31}
 .maple-official-theme .has-registered-characters .desk-hero-art{opacity:.28}
+.maple-official-theme .home-desk-masthead:has(>.workspace-quick-actions){border-radius:20px}
+.maple-official-theme .home-desk-masthead>.workspace-quick-actions{position:relative;z-index:1;overflow:hidden;border-radius:12px;margin-top:14px}
 @media(max-width:700px){
+ .maple-official-theme .home-desk-masthead>.workspace-quick-actions{margin-top:8px}
  .maple-official-theme .home-characters{margin-top:16px}
  .maple-official-theme .home-characters-head{margin-bottom:8px}
  .maple-official-theme .home-characters-head h3{font-size:15px}
@@ -39,5 +42,10 @@
  .maple-official-theme .home-character-name{font-size:16px}
  .maple-official-theme .home-character-world,.maple-official-theme .home-character-detail{font-size:11px}
  .maple-official-theme .home-characters[data-count="1"] .home-character-list{grid-auto-columns:minmax(0,min(280px,100%))}
- .maple-official-theme .home-characters-empty{justify-content:flex-start;padding:14px;gap:12px;min-height:92px}
+ .maple-official-theme .home-characters[data-count="0"] .home-characters-head{margin-bottom:2px}
+ .maple-official-theme .home-characters[data-count="0"] .home-character-list{padding:0;margin:0}
+ .maple-official-theme .home-characters-empty{display:block;min-height:0;padding:2px 0;border:0;border-radius:0}
+ .maple-official-theme .home-characters-empty>.ui-icon{display:none}
+ .maple-official-theme .home-desk-masthead{padding-bottom:14px}
+ .maple-official-theme .desk-reset{position:relative;inset:auto;margin-top:8px}
 }

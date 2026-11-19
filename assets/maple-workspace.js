@@ -63,7 +63,21 @@
     };
     narrow.addEventListener('change',placeAccount);document.addEventListener('workspace:page',placeAccount);placeAccount();
   }
-  const bossAction=home?.querySelector('.workspace-quick-actions [data-open-page="boss"]');
+  const shortcuts=home?.querySelector('.workspace-quick-actions');
+  const masthead=home?.querySelector('.home-desk-masthead');
+  const intro=masthead?.querySelector('.desk-hero-copy');
+  if(shortcuts&&intro){
+    const compact=matchMedia('(max-width:1100px), (max-height:960px)');
+    const placeShortcuts=()=>{
+      const anchor=compact.matches?intro:masthead;
+      if(anchor.nextElementSibling===shortcuts)return;
+      const active=document.activeElement;
+      anchor.after(shortcuts);
+      if(shortcuts.contains(active))active.focus({preventScroll:true});
+    };
+    compact.addEventListener('change',placeShortcuts);placeShortcuts();
+  }
+  const bossAction=shortcuts?.querySelector('[data-open-page="boss"]');
   if(bossAction){bossAction.querySelector('strong').textContent='보스 기록';bossAction.querySelector('small').textContent='처치·판매·드랍 확인';}
   for(const name of ['boss','monthlyboss','dailyboss']){
     const host=document.getElementById('page-'+name);if(!host)continue;

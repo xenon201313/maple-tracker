@@ -73,14 +73,27 @@ const sections = ['monthly', 'forecast', 'prices', 'records', 'backup', 'tools',
       await page.evaluate(() => { openPage('home'); document.querySelectorAll('details[data-clarity-section]').forEach(el => el.open = false); scrollTo(0, 0); });
       await settle(page); await noOverflow(page, width + ' home'); screens++;
       const actionBounds = await page.locator('.workspace-quick-actions').boundingBox();
-      assert(actionBounds && actionBounds.y + actionBounds.height < height - 60, width + ' primary record actions clear the bottom bar in first screen');
+      const bottomBar = await page.locator('.mobile-nav').boundingBox();
+      assert(actionBounds && actionBounds.y + actionBounds.height <= (bottomBar?.y ?? height), width + ' primary record actions clear the bottom bar in first screen');
       const loginBounds = await page.locator('[data-desk-account]').boundingBox();
       assert(loginBounds && loginBounds.width >= 44 && loginBounds.height >= 44, width + ' visible login target');
       if (width <= 700) {
         const resultBounds = await page.locator('.home-overview').boundingBox();
         const accountBounds = await page.locator('.home-account-panel').boundingBox();
-        assert(resultBounds.y < height - 68, width + ' actual recorded results start in first screen');
         assert(resultBounds.y < accountBounds.y, width + ' results precede secondary account guidance');
+        // 등록된 캐릭터를 크게 보여 주는 장부에서는 스크롤해 수익 요약을 읽고 전체 통계로 이동합니다.
+        const amount = page.locator('#home-summary .home-summary b').first();
+        const readable = await amount.evaluate(el => {
+          el.scrollIntoView({block:'center',behavior:'instant'});
+          const r=el.getBoundingClientRect();
+          return r.height>0 && r.top>=document.querySelector('.workspace-header').getBoundingClientRect().bottom &&
+            r.bottom<=document.querySelector('.mobile-nav').getBoundingClientRect().top;
+        });
+        assert(readable, width + ' saved income readable between fixed navigation bars');
+        await page.locator('.home-character-card').last().focus();
+        await page.keyboard.press('Tab');
+        assert(await page.locator('#home-open-stats').evaluate(el=>document.activeElement===el), width + ' summary action follows character cards by keyboard');
+        await page.evaluate(()=>scrollTo(0,0));
       }
       homeHeights[width] = Math.round(await page.locator('#page-home').evaluate(el => el.getBoundingClientRect().height));
       if ([390, 1440].includes(width)) await page.screenshot({ path:path.join(output, 'home-' + width + '.png'), fullPage:true });

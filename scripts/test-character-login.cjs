@@ -123,7 +123,8 @@ async function assertProfiles(page, expectedCount=1) {
     await page.waitForFunction(()=>db.chars.length===1&&db.chars[0].characterImage&&db.chars[0].characterExp==='987654');
     assert.equal(await page.evaluate(()=>nexonApiKey()),'');
     console.log('PASS: 로그인 경로의 이름 입력 캐릭터 추가');
-    assert.equal(await page.evaluate(()=>todayStr()),'2026-09-28','미국 현지 날짜로 실행 중인지 확인');
+    assert.equal(await page.evaluate(()=>new Date().getDate()),28,'미국 현지 날짜로 실행 중인지 확인');
+    assert.equal(await page.evaluate(()=>todayStr()),'2026-09-29','미국에서도 장부는 한국 날짜로 작성');
     const dates=await page.evaluate(()=>loginFixture.calls.find(call=>call.action==='character-profile').body.dates);
     assert.deepEqual(dates,['2026-09-23','2026-09-24','2026-09-25','2026-09-26','2026-09-27','2026-09-28'],'해외 시간대에서도 한국 어제부터 6일 전까지만 과거 경험치를 조회함');
     console.log('PASS: 미국 시간대에서도 KST 기준 최근 6일 조회');
@@ -191,6 +192,25 @@ async function assertProfiles(page, expectedCount=1) {
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'캐릭터 UI 가로 넘침 '+width);
       await page.screenshot({path:path.join(output,'nexon-character-login-'+(width===1280?'desktop':'mobile')+'.png'),animations:'disabled'});
     }
+    await page.clock.setFixedTime('2026-11-18T15:00:00Z');
+    await page.goto(origin+'/?page=expense');
+    assert.deepEqual(await page.evaluate(()=>[todayStr(),currentWeekKey(),schedulerDate('2026-11-19')]),
+      ['2026-11-19','2026-11-19','2026-11-19'],'목요일 한국 자정에 새 주차 및 API 기록 날짜 일치');
+    assert.equal(await page.locator('#expense-date').inputValue(),'2026-11-19');
+    const historyDays=await page.evaluate(()=>{
+      const c={expHistory:[]};
+      recordCharacterExpSnapshot(c,{characterLevel:250,characterExp:'1000',characterExpRate:'25'});
+      recordHistoricalExpSnapshot(c,{character_level:250,character_exp:'900',character_exp_rate:'24'},'2026-11-18');
+      return expWeekData(c).filter(day=>day.snapshot).map(day=>[day.date,day.snapshot.exp]);
+    });
+    assert.deepEqual(historyDays,[['2026-11-18','900'],['2026-11-19','1000']],'경험치 이력도 한국 조회일에 표시');
+    await page.locator('#expense-category').selectOption('sora_meso_shop');
+    await page.locator('#expense-amount').fill('500,000');
+    await page.locator('#expense-save').click();
+    await page.reload();
+    assert(await page.evaluate(()=>db.expenses.some(row=>row.date==='2026-11-19' && row.category==='sora_meso_shop' && String(row.amount)==='500000')),'한국 날짜에 저장한 지출 유지');
+    await page.clock.setFixedTime('2026-11-30T15:00:00Z');
+    assert.equal(await page.evaluate(()=>currentMonthKey()),'2026-12','한국 월초에 월간 장부도 변경');
     assert.deepEqual(errors,[]);
     await context.close();
     console.log('PASS: 넥슨 로그인 캐릭터 조회 회귀 전체 완료');

@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261119-1"></script>
+<script src="assets/patch-notes-data.js?v=20261119-2"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -12,16 +12,16 @@
 <script src="assets/account-sync.js?v=20261114-1"></script>
 <script src="assets/friends-characters.js?v=20261114-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
-<script src="assets/september-expenses.js?v=20261119-1"></script>
+<script src="assets/september-expenses.js?v=20261119-2"></script>
 <script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/october-boss-rules.js?v=20261022-1"></script>
 <script src="assets/income-forecast.js?v=20261105-1"></script>
 <script src="assets/teenieping-profit.js?v=20260918-1"></script>
-<script src="assets/november-profit.js?v=20261119"></script>
+<script src="assets/november-profit.js?v=20261119-2"></script>
 <script src="assets/october-profit.js?v=20261119-1"></script>
-<script src="assets/october-profit-ui.js?v=20261119-1"></script>
+<script src="assets/october-profit-ui.js?v=20261119-2"></script>
 <link rel="stylesheet" href="assets/october-profit.css?v=20261022-1">
 <link rel="stylesheet" href="assets/friends-expenses.css?v=20260918-1">
 <meta charset="UTF-8">
@@ -1018,7 +1018,7 @@
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
 <link rel="stylesheet" href="assets/maple-workspace.css?v=20261105-1">
 <link rel="stylesheet" href="assets/maple-official-theme.css?v=20261111-4">
-<link rel="stylesheet" href="assets/home-characters.css?v=20261111-2">
+<link rel="stylesheet" href="assets/home-characters.css?v=20261119-1">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 <link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
 <link rel="stylesheet" href="assets/service-notice.css?v=20261119-1">
@@ -4472,7 +4472,9 @@ function normalizeExpHistory(value){
     const exp=onlyDigits(o.exp || o.characterExp || '');
     const rate=normalizeCharacterExpRate(o.rate ?? o.characterExpRate);
     const at=normalizeApiTimestamp(o.at || o.syncedAt);
-    return at && level>0 && (exp || rate!== '') ? {at,level,exp,rate} : null;
+    if(!at || level<=0 || (!exp && rate==='')) return null;
+    const date=normalizeDateInput(o.date);
+    return date ? {at,level,exp,rate,date} : {at,level,exp,rate};
   }).filter(Boolean).sort((a,b)=>a.at-b.at).slice(-120);
 }
 function normalizeSchedulerSync(value){
@@ -5641,8 +5643,7 @@ function korShort(value){ /* 짧은 표기: 억/만 */
   return fmt(n);
 }
 function todayStr(){
-  const d=new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return MapleIncomeForecast.kstDate();
 }
 function mapleWeekStart(dateStr){
   const d = new Date(dateStr+'T12:00:00');
@@ -6608,8 +6609,10 @@ function renderDailyRecordPagination(total,pageCount,start,visibleCount){
     };
   });
 }
-function expTrackerDate(at){
-  const time=normalizeApiTimestamp(at);
+function expTrackerDate(snapshot){
+  if(snapshot.date) return snapshot.date;
+  // 조회일을 함께 저장하기 전 기록은 기존 장부에서 표시하던 날짜를 유지합니다.
+  const time=normalizeApiTimestamp(snapshot.at);
   if(!time) return '';
   const d=new Date(time);
   return Number.isNaN(d.getTime()) ? '' : d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -6633,7 +6636,7 @@ function expWeekData(character){
   const start=addDays(todayStr(),-(EXP_TRACKER_DAYS-1));
   const byDate={};
   normalizeExpHistory(character?.expHistory).forEach(snapshot=>{
-    const date=expTrackerDate(snapshot.at);
+    const date=expTrackerDate(snapshot);
     if(!date || date<start || date>todayStr() || expProgressUnit(snapshot)===null) return;
     if(!byDate[date] || byDate[date].at<snapshot.at) byDate[date]=snapshot;
   });
@@ -6668,7 +6671,7 @@ function expLevelUpForecast(history,current){
   const remaining=Math.max(0,100-currentRate);
   const days=Math.max(1,Math.ceil(remaining/dailyRate));
   if(!Number.isFinite(days) || days>730) return null;
-  return {date:addDays(expTrackerDate(last.at) || todayStr(),days),dailyRate,days};
+  return {date:addDays(expTrackerDate(last) || todayStr(),days),dailyRate,days};
 }
 function expRateLabel(value){
   const rate=Number(value);
@@ -6705,7 +6708,7 @@ function expLevelMilestones(history){
   let previousLevel=null;
   normalizeExpHistory(history).forEach(snapshot=>{
     const level=Math.max(0,Math.floor(Number(snapshot.level)||0));
-    const date=expTrackerDate(snapshot.at);
+    const date=expTrackerDate(snapshot);
     if(!level || !date || level===previousLevel) return;
     milestones.push({date,level,rate:expSnapshotRate(snapshot),kind:previousLevel===null?'기록 시작':'레벨업 감지'});
     previousLevel=level;
@@ -6779,7 +6782,7 @@ function renderExpTracker(){
   const currentRate=expSnapshotRate(latest);
   const currentLevel=Math.floor(Number(latest.level)||0);
   const rawExp=latest.exp ? ' · EXP '+fmt(latest.exp) : '';
-  const latestDate=expTrackerDate(latest.at);
+  const latestDate=expTrackerDate(latest);
   const forecastText=forecast ? forecast.date+' 예상' : '데이터 수집 중';
   const forecastDetail=forecast ? '최근 기록 기준 평균 +'+forecast.dailyRate.toLocaleString('ko-KR',{maximumFractionDigits:6})+'%p/일' : '현재 레벨에서 변화 기록이 더 필요합니다.';
   el.innerHTML=
@@ -8184,11 +8187,14 @@ let octoberProfitExpiryTimer;
 function refreshOctoberProfitAvailability(){
   window.clearTimeout(octoberProfitExpiryTimer);
   const now=Date.now();
-  const next=MapleOctoberProfit.catalogs.flatMap(c=>[c.startsAt,c.endsAt]).filter(Boolean).map(Date.parse).filter(t=>t>now).sort((a,b)=>a-b)[0];
+  const boundaries=MapleOctoberProfit.catalogs.flatMap(c=>[c.startsAt,c.endsAt]).filter(Boolean).map(Date.parse);
+  const next=boundaries.concat(MapleOctoberProfitUI.royalBoundaries).filter(t=>t>now).sort((a,b)=>a-b)[0];
   if(next)octoberProfitExpiryTimer=window.setTimeout(refreshOctoberProfitAvailability,Math.min(next-now,2147483647));
+  const royalChanged=MapleOctoberProfitUI.refreshRoyalPeriod(now);
   if(!MapleOctoberProfitUI.available(profitState.active)){
     profitState.active='wonderberry';renderProfitCalculator();
-  }else renderProfitMenu();
+  }else if(royalChanged && profitState.active==='royal')renderProfitCalculator();
+  else renderProfitMenu();
 }
 window.addEventListener('pageshow',refreshOctoberProfitAvailability);
 window.addEventListener('focus',refreshOctoberProfitAvailability);
@@ -8244,17 +8250,39 @@ function renderProfitCalculator(){
   renderProfitResult();
   renderProfitRecords();
 }
+const MESO_INPUT_PATTERN=/^(?:\d+|\d{1,3}(?:,\d{3})+)$/;
+function profitEntryIssue(box){
+  for(const input of box.querySelectorAll('.profit-money,input[type="number"]')){
+    const raw=input.value.trim();
+    if(input.validity.badInput)return {field:input,message:'수량에 0 이상의 정수를 입력하세요.'};
+    if(!raw)continue;
+    if(input.classList.contains('profit-money')){
+      if(!MESO_INPUT_PATTERN.test(raw))return {field:input,message:'메소 금액은 0 이상의 정수로 입력하세요. 쉼표는 세 자리 단위로 쓸 수 있습니다.'};
+    }else if(!/^\d+$/.test(raw)||!Number.isSafeInteger(Number(raw))){
+      return {field:input,message:'수량에 정확히 계산할 수 있는 0 이상의 정수를 입력하세요.'};
+    }
+  }
+  for(const sold of box.querySelectorAll('[data-profit-out-sold]:checked')){
+    const row=sold.closest('.profit-line');
+    const price=row.querySelector('[data-profit-out-price]'),count=row.querySelector('[data-profit-out-count]');
+    if(toMesoBig(price.value)===0n)return {field:price,message:'판매한 품목의 개당 판매가를 입력하세요.'};
+    if(!Number(count.value))return {field:count,message:'판매한 품목의 수량을 1개 이상 입력하세요.'};
+  }
+  return null;
+}
 function bindProfitForm(box){
   box.querySelectorAll('.profit-money').forEach(el=>{
-    el.addEventListener('input',()=>{
-      const digits=onlyDigits(el.value);
-      el.value=digits ? formatDigits(digits) : '';
-      renderProfitResult();
+    el.addEventListener('focus',()=>{
+      if(MESO_INPUT_PATTERN.test(el.value))el.value=el.value.replace(/,/g,'');
+    });
+    el.addEventListener('blur',()=>{
+      const raw=el.value.trim();
+      if(MESO_INPUT_PATTERN.test(raw))el.value=formatDigits(raw);
     });
   });
   box.querySelectorAll('input,select').forEach(el=>{
     el.addEventListener('change',renderProfitResult);
-    if(!el.classList.contains('profit-money')) el.addEventListener('input',renderProfitResult);
+    el.addEventListener('input',renderProfitResult);
   });
   const saveBtn=box.querySelector('#profit-save');
   if(saveBtn) saveBtn.onclick=saveProfitRecord;
@@ -8293,6 +8321,11 @@ function buildProfitRecord(showErrors){
     return null;
   }
   const cat=profitCategory(type);
+  const issue=profitEntryIssue(document.getElementById('profit-calculator'));
+  if(issue){
+    if(showErrors){alert(issue.message);issue.field.focus();}
+    return null;
+  }
   const date=normalizeDateInput(profitInputValue('date'));
   if(!date){
     if(showErrors) alert('날짜를 올바르게 입력해 주세요.');
@@ -8321,7 +8354,7 @@ function buildProfitRecord(showErrors){
     base.itemId=product.id;
     base.itemName=product.title;
     base.costs=profitReadCostLines(product.costs);
-    base.outputs=profitReadOutputLines(product.outputs);
+    base.outputs=profitReadOutputLines(MapleOctoberProfitUI.saleOutputs(product));
   }else if(type==='platinumapple'){
     const price=mesoValueFromDigits(profitInputValue('platinumPrice'));
     const count=Math.max(0,Math.floor(Number(profitInputValue('platinumCount'))||0));
@@ -8370,7 +8403,11 @@ function renderProfitResult(){
   const out=document.getElementById('profit-result');
   if(!out) return;
   const record=buildProfitRecord(false);
-  if(!record){ out.innerHTML=''; return; }
+  if(!record){
+    updateProfitSubtotals({costs:[],outputs:[]});
+    out.textContent=profitEntryIssue(document.getElementById('profit-calculator'))?.message || '';
+    return;
+  }
   const totals=profitRecordTotals(record);
   updateProfitSubtotals(record);
   const metrics=[
@@ -8654,7 +8691,13 @@ function saveExpenseRecord(){
   if(date>todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
   const patchDateError=MapleSeptemberExpenses.validateRecordDate(categoryInput.value,date);
   if(patchDateError){ alert(patchDateError); return; }
-  const amount=mesoValueFromDigits(amountInput.value);
+  const rawAmount=amountInput.value.trim();
+  if(rawAmount && !MESO_INPUT_PATTERN.test(rawAmount)){
+    alert('지출 메소는 양의 정수로 입력하세요. 예: 150000000 또는 150,000,000');
+    amountInput.focus();
+    return;
+  }
+  const amount=mesoValueFromDigits(rawAmount);
   if(toMesoBig(amount)<=0n){ alert('지출 메소를 입력하세요.'); return; }
   db.expenses=Array.isArray(db.expenses) ? db.expenses : [];
   db.expenses.unshift(normalizeExpenseRecord({
@@ -8685,9 +8728,18 @@ function initExpenseControls(){
   };
   dateInput.addEventListener('blur',normalizeExpenseDate);
   dateInput.addEventListener('change',normalizeExpenseDate);
+  let editingFormattedAmount=false;
+  amountInput.addEventListener('beforeinput',event=>{
+    editingFormattedAmount=MESO_INPUT_PATTERN.test(amountInput.value) &&
+      ((event.inputType==='insertText' && /^\d$/.test(event.data)) || event.inputType.startsWith('delete'));
+  });
   amountInput.addEventListener('input',()=>{
-    const digits=onlyDigits(amountInput.value);
-    amountInput.value=digits ? formatDigits(digits) : '';
+    const raw=amountInput.value.trim();
+    if(MESO_INPUT_PATTERN.test(raw) || (editingFormattedAmount && /^[\d,]*$/.test(raw))){
+      const digits=onlyDigits(raw);
+      amountInput.value=digits ? formatDigits(digits) : '';
+    }
+    editingFormattedAmount=false;
   });
   saveButton.addEventListener('click',saveExpenseRecord);
   MapleSeptemberExpenses.mount({normalizeDate:normalizeDateInput,today:todayStr});
@@ -9218,8 +9270,7 @@ function characterQueryContext(target=null){
   return {source,signal:controller.signal,guard,release:()=>characterQueries.delete(controller)};
 }
 async function collectFriendsCharacterProfile(c,ctx){
-  const koreaToday=new Date(Date.now()+9*3600000).toISOString().slice(0,10);
-  const dates=historicalExpDatesToFetch({...c,expHistoryFetchAttempts:{...c.expHistoryFetchAttempts}},koreaToday);
+  const dates=historicalExpDatesToFetch({...c,expHistoryFetchAttempts:{...c.expHistoryFetchAttempts}},todayStr());
   const result=await window.MapleFriends.request('character-profile',{ocid:c.ocid || undefined,characterName:c.name,dates},ctx.signal);ctx.guard();
   if(!result.ocid || !result.basic?.character_name || !result.basic?.world_name) throw new Error('캐릭터의 최신 정보를 확인하지 못했습니다. 잠시 후 다시 갱신해 주세요.');
   const profile=profileFromNexonBasic(result.basic,c.name,result.ocid,charServer(c));
@@ -9416,9 +9467,11 @@ function applySchedulerBossCompletion(c, boss, scope, date){
   }
   const added=!(boss[0] in target.store);
   target.store[boss[0]]=party;
-  if(scope==='monthly') setMonthBossClearWeek(c,target.period,boss[0],mapleWeekStart(date));
+  // 월간 완료는 그달 내내 조회됩니다. 최초 확인 주차나 사용자가 기록한 주차를 유지합니다.
+  const attributed=scope==='monthly' && (added || !monthBossClearWeek(c,target.period,boss[0]));
+  if(attributed) setMonthBossClearWeek(c,target.period,boss[0],mapleWeekStart(date));
   if(scope!=='daily') syncBossScopeAliases(c,target.period,scope);
-  return {added,conflict:''};
+  return {added,attributed,conflict:''};
 }
 function schedulerDate(value){
   const date=normalizeDateInput(String(value || '').slice(0,10));
@@ -9437,6 +9490,7 @@ function applySchedulerData(c, data){
   const source=ensureObj(data);
   const date=schedulerDate(source.date);
   const result={completed:0,matched:0,added:0,conflicts:[]};
+  let attributedMonthlyClear=false;
   (Array.isArray(source.boss_contents) ? source.boss_contents : []).forEach(item=>{
     if(!apiFlagTrue(item?.complete_flag)) return;
     result.completed++;
@@ -9447,6 +9501,7 @@ function applySchedulerData(c, data){
     result.matched++;
     const applied=applySchedulerBossCompletion(c,boss,scope,date);
     if(applied.added) result.added++;
+    if(applied.attributed) attributedMonthlyClear=true;
     if(applied.conflict) result.conflicts.push(applied.conflict);
   });
   const next={
@@ -9458,7 +9513,7 @@ function applySchedulerData(c, data){
     matchedBossCount:result.matched,
     conflicts:result.conflicts.slice(0,6)
   };
-  const changed=schedulerSyncChanged(c.schedulerSync,next) || result.added>0 || !!c.schedulerError;
+  const changed=schedulerSyncChanged(c.schedulerSync,next) || result.added>0 || attributedMonthlyClear || !!c.schedulerError;
   if(changed) c.schedulerSync=next;
   c.schedulerError='';
   return Object.assign(result,{changed,summary:ensureObj(c.schedulerSync)});
@@ -9475,12 +9530,12 @@ function recordCharacterExpSnapshot(c, profile){
   c.expHistory=normalizeExpHistory(c.expHistory);
   const last=c.expHistory[c.expHistory.length-1];
   if(last && last.level===level && last.exp===exp && last.rate===rate) return false;
-  c.expHistory.push({at,level,exp,rate});
+  c.expHistory.push({at,level,exp,rate,date:MapleIncomeForecast.kstDate(at)});
   c.expHistory=c.expHistory.slice(-120);
   return true;
 }
 function expHistoryDateTimestamp(date){
-  const at=new Date(date+'T12:00:00').getTime();
+  const at=new Date(date+'T12:00:00+09:00').getTime();
   return Number.isFinite(at) ? at : 0;
 }
 function recordHistoricalExpSnapshot(c,basic,date){
@@ -9490,14 +9545,14 @@ function recordHistoricalExpSnapshot(c,basic,date){
   const at=expHistoryDateTimestamp(date);
   if(!at || !level || (!exp && rate==='')) return false;
   c.expHistory=normalizeExpHistory(c.expHistory);
-  if(c.expHistory.some(snapshot=>expTrackerDate(snapshot.at)===date)) return false;
-  c.expHistory.push({at,level,exp,rate});
+  if(c.expHistory.some(snapshot=>expTrackerDate(snapshot)===date)) return false;
+  c.expHistory.push({at,level,exp,rate,date});
   c.expHistory=normalizeExpHistory(c.expHistory);
   return true;
 }
 function historicalExpDatesToFetch(c,today=todayStr()){
   const start=addDays(today,-(EXP_TRACKER_DAYS-1));
-  const present=new Set(normalizeExpHistory(c.expHistory).map(snapshot=>expTrackerDate(snapshot.at)).filter(Boolean));
+  const present=new Set(normalizeExpHistory(c.expHistory).map(expTrackerDate).filter(Boolean));
   const attempts=ensureObj(c.expHistoryFetchAttempts);
   c.expHistoryFetchAttempts=attempts;
   const now=Date.now();
@@ -10117,7 +10172,7 @@ function weeklyWorldLimitHtml(t){
     if(world.unspecified) return '<span class="world-crystal-unknown">'+esc(world.label)+' '+world.crystals+'개 (월드 확인 필요)</span>';
     return '<span class="'+(world.overLimit?'warn world-crystal-over':'world-crystal-count')+'">'+esc(world.label)+' '+world.crystals+' / '+CRYSTAL_LIMIT+'개'+(world.overLimit?' · 판매 한도 초과':'')+'</span>';
   });
-  if(t.accountLimit) return '<div class="muted" style="margin-top:6px;">주간 판매 한도 집계 · '+rows.join(' · ')+'<br>일간은 판매 체크, 주간·월간은 처치한 주차를 기준으로 셉니다. 게임의 실제 판매일과 다를 수 있습니다. 여러 메이플ID를 쓰면 캐릭터 등록에서 계정 별명을 구분하세요.</div>';
+  if(t.accountLimit) return '<div class="muted" style="margin-top:6px;">주간 판매 한도 집계 · '+rows.join(' · ')+'<br>일간은 판매 체크, 주간·월간은 처치한 주차를 기준으로 셉니다. 게임의 실제 판매일과 다를 수 있습니다. 캐릭터 등록에서 설정한 현재 계정 별명과 월드 구분으로 집계합니다. 월드 리프 후에는 과거 주차도 현재 월드 구분으로 표시됩니다.</div>';
   return '<div class="muted" style="margin-top:6px;">등록 월드별 주간 결정석: '+rows.join(' · ')+'<br>현재 등록된 월드를 기준으로 표시합니다. 월드 미지정 합산은 실제 월드별 초과 여부를 확정하지 않습니다.</div>';
 }
 function clearWeeklyDropData(c,week=currentWeekKey()){
@@ -11428,7 +11483,7 @@ window.MapleEnhancementBridge={
 </dialog>
 <script src="assets/workspace.js?v=20261028-1"></script>
 <script src="assets/play-desk.js?v=20261105-1"></script>
-<script src="assets/maple-workspace.js?v=20261111-1"></script>
+<script src="assets/maple-workspace.js?v=20261119-1"></script>
 <script src="assets/maple-official-theme.js?v=20261111-3"></script>
 <script src="assets/home-characters.js?v=20261111-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>

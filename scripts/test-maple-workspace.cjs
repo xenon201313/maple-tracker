@@ -45,7 +45,8 @@ const snapshot=page=>page.evaluate(()=>JSON.stringify({records:db.records,expens
     await overflow(page,width+' '+name);checks++;
     if(name==='home'){
      const bounds=await page.evaluate(()=>({hero:document.querySelector('.home-desk-masthead').getBoundingClientRect().top,actions:document.querySelector('.workspace-quick-actions').getBoundingClientRect().bottom}));
-     assert(bounds.hero>=0&&bounds.hero<height,width+' hero in first screen');assert(bounds.actions<height-60,width+' record actions clear fixed bottom bar');
+     const bottomBar=await page.locator('.mobile-nav').boundingBox();
+     assert(bounds.hero>=0&&bounds.hero<height,width+' hero in first screen');assert(bounds.actions<=(bottomBar?.y??height),width+' record actions clear fixed bottom bar');
      const login=await page.locator('[data-desk-account]').boundingBox();assert(login.width>=44&&login.height>=44,width+' login touch target');assert.equal(await page.locator('[data-desk-account] span').innerText(),'넥슨 로그인');
      assert.equal(await page.locator('.ledger-evidence a[href="guide/record-principles/"]').count(),1);assert.equal(await page.locator('.ledger-evidence a[href="about/"]').count(),1);
     }

@@ -141,7 +141,60 @@ let browser;
   await page.clock.fastForward(1000);
   assert.equal(await page.locator('[data-profit-type="boutique"]').count(),0,'열린 화면의 종료 시각에 자동 숨김');
   assert.equal(await page.evaluate(()=>JSON.stringify(db.profits)),saved,'기간 종료 후 저장 기록 유지');
+  // 기수를 자동으로 바꾸되 수기로 기록 중인 이전 기수와 해당 초안을 보존합니다.
+  const beforeNovember='2026-11-19T09:59:05+09:00';
+  await page.clock.setSystemTime(new Date(beforeNovember));
+  await page.reload();
+  await page.locator('[data-profit-type="royal"]').click();
+  assert.equal(await page.locator('#october-royal-series option[value="163"]').count(),0);
+  await page.clock.fastForward(60000);
+  assert.equal(await page.locator('#october-royal-series').inputValue(),'163','열어 둔 화면에서 현행 기수로 전환');
+  await page.clock.setSystemTime(new Date(beforeNovember));
+  await page.reload();
+  await page.locator('[data-profit-type="royal"]').click();
+  await out(page,'royal162_bell','count').fill('3');
+  await page.clock.setSystemTime(new Date('2026-11-19T10:01:00+09:00'));
+  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+  assert.equal(await page.locator('#october-royal-series option[value="163"]').count(),1,'복귀 즉시 새 기수 표시');
+  assert.equal(await page.locator('#october-royal-series').inputValue(),'162','작업 중인 과거 기수 유지');
+  assert.equal(await out(page,'royal162_bell','count').inputValue(),'3');
+  for(const id of ['ba_coordi_v1','ba_goods_v1']){
+    await page.locator('[data-profit-type="'+id+'"]').click();
+    const item=id+'_sealed_sale';
+    if(id==='ba_coordi_v1'){
+      const history=await page.evaluate(()=>JSON.stringify(db.profits));
+      await out(page,item,'sold').check();
+      await out(page,item,'count').fill('2');
+      for(const invalid of ['-500','2.5','1e6','1,2,3','']){
+        await out(page,item,'price').fill(invalid);
+        const dismissed=page.waitForEvent('dialog').then(async dialog=>{await dialog.accept();});
+        await page.locator('#profit-save').click();
+        await dismissed;
+        assert.equal(await out(page,item,'price').inputValue(),invalid,'오입력 금액의 뜻을 바꾸지 않음');
+        assert.equal(await page.evaluate(()=>JSON.stringify(db.profits)),history);
+      }
+      await out(page,item,'price').fill('1,000,000');
+      for(const invalid of ['','-1','2.5','1e3','9007199254740992']){
+        await out(page,item,'count').fill(invalid);
+        assert.equal(await page.evaluate(()=>buildProfitRecord(false)),null,'유효하지 않은 판매 수량 '+invalid);
+      }
+      await out(page,item,'sold').uncheck();
+      await out(page,item,'count').fill('2');
+      await out(page,item,'price').fill('');
+      assert.equal(await page.evaluate(()=>String(profitRecordTotals(buildProfitRecord(false)).revenue)),'0','무료 획득·미판매 기록 허용');
+    }
+    await out(page,item,'price').fill('1000000');
+    await out(page,item,'count').fill('2');
+    assert.equal(await page.evaluate(()=>String(profitRecordTotals(buildProfitRecord(false)).revenue)),'0');
+    await out(page,item,'sold').check();
+    await page.locator('#profit-save').click();
+    const result=await page.evaluate(()=>({ids:db.profits[0].outputs.map(x=>x.id),revenue:String(profitRecordTotals(db.profits[0]).revenue)}));
+    assert.deepEqual(result,{ids:[item],revenue:'1940000'},'상자 실제 판매만 수수료 차감 후 1회 저장');
+  }
+  await page.reload();
+  assert.match(await page.locator('#profit-records').innerText(),/미개봉/);
+  assert.equal(await preserved(),before,'미개봉 판매가 이전 장부를 변경했습니다.');
   assert.deepEqual(errors,[]);
   assert.deepEqual(missing.filter(name=>name!=='/favicon.ico'),[],'상품 이미지·스크립트 누락 없음');
-  console.log('10월 상품 UI·실제 손익·피버·기수 초안·기간 경계·과거 장부 보존 검증 통과');
+  console.log('10·11월 상품 UI·손익 입력 검증·미개봉 판매·기수 자동 전환·초안·과거 장부 보존 통과');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{await browser?.close();server.close();});

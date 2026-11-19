@@ -120,6 +120,7 @@
       tradeNote: '정가로 구매한 캐시는 안내 금액입니다. 사용 전 1회 교환 가능한 상품과 결과물 중 실제로 판매한 수량만 기록하세요. 교환권을 사용한 뒤 받은 캐릭터 전용 보상이나 사용 횟수 보상은 판매 수익에서 제외합니다.',
       costs: [{id: boxId, name: title, img: image(boxId), officialPrice, officialCurrency: '넥슨캐시',
         tradeNote: '낱개 ' + officialPrice.toLocaleString('ko-KR') + '캐시 · 10개 ' + (officialPrice * 10).toLocaleString('ko-KR') + '캐시. 메이플포인트 사용 불가. 구입 후 7일 내 사용. 개당 실제 메소 비용을 입력하세요.'}],
+      sealedSale: {id: id + '_v1_sealed_sale', name: title + ' (미개봉)', img: image(boxId), sellable: true},
       outputs: rows.map(([id, name, note]) => ({id, name, note, img: image(id), sellable: true}))
     };
   }

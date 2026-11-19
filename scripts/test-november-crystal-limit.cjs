@@ -57,6 +57,42 @@ async function main() {
     await page.reload();
     const after = await page.evaluate(() => bossTotals('2026-11-19').worldCrystals.map(row => [row.label,row.crystals]));
     assert.deepEqual(after.slice(0,2), [['둘째 · 일반 월드 합산',12],['기본 계정 · 일반 월드 합산',80]]);
+    await page.clock.setFixedTime(new Date('2026-12-03T12:00:00+09:00'));
+    const monthly = await page.evaluate(() => {
+      const c=normalizeChar({name:'월간 집계 확인',worldName:'스카니아'});
+      db.chars=[c];
+      const sync=date=>applySchedulerData(c,{date,boss_contents:[{
+        content_name:'검은 마법사',difficulty:'하드',cycle:'월간',complete_flag:true
+      }]});
+      const first=sync('2026-11-19');
+      const repeat=sync('2026-11-26');
+      const novemberWeeks=['2026-11-19','2026-11-26'].map(week=>bossTotals(week).monthlyCrystals);
+      const december=sync('2026-12-01');
+      sync('2026-12-03');
+      const decemberWeek=monthBossClearWeek(c,'2026-12','hblack');
+      // 과거 장부가 보스 완료만 보존한 경우, 누락 주차를 한 번 채우고 저장을 요청합니다.
+      delete c.monthBossClearWeeks['2026-12'].hblack;
+      const recovered=sync('2026-12-03'), unchanged=sync('2026-12-03');
+      return {added:[first.added,repeat.added,december.added],novemberWeeks,decemberWeek,
+        recovered:[recovered.added,recovered.changed],unchanged:unchanged.changed};
+    });
+    assert.deepEqual(monthly,{added:[1,0,1],novemberWeeks:[1,0],decemberWeek:'2026-11-26',recovered:[0,true],unchanged:false});
+    const manual=await page.evaluate(()=>{
+      const week='2026-11-19',month='2026-11';
+      const c=normalizeChar({name:'과거 수동 기록',worldName:'크로아',crystalAccountAlias:'둘째',
+        monthBossMonths:{[month]:{hblack:2}},monthBossClearWeeks:{[month]:{hblack:week}}});
+      db.chars=[c];
+      const before=bossTotals(week).monthCrystal;
+      applySchedulerData(c,{date:'2026-11-26',boss_contents:[{content_name:'검은 마법사',difficulty:'하드',cycle:'월간',complete_flag:true}]});
+      const restored=trackerDbFromData(exportBackupBundle(),'',db.backupSnapshots).chars[0];
+      return {before,after:bossTotals(week).monthCrystal,week:restored.monthBossClearWeeks[month].hblack,
+        party:restored.monthBossMonths[month].hblack,account:restored.crystalAccountAlias};
+    });
+    assert.ok(manual.before>0);
+    assert.equal(manual.before,manual.after);
+    assert.equal(manual.week,'2026-11-19');
+    assert.equal(manual.party,2);
+    assert.equal(manual.account,'둘째');
     assert.deepEqual(errors, []);
     console.log('11/19 이전 월드별 집계, 점검 전 메이플ID 한도, 90·92개, 일간 판매와 월간 귀속, 예외 월드와 복수 계정 저장 검증 완료');
   } finally {

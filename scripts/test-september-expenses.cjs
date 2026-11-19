@@ -168,6 +168,20 @@ async function setMode(page,mode,item,count,unit) {
     }
     await page.clock.setFixedTime(new Date('2026-11-19T12:00:00+09:00'));
     await page.fill('#expense-date','2026-11-19');
+    await setMode(page,'sora_meso_shop','karma_chaos','2');
+    await page.click('#september-expense-fill');
+    const initialDetail=await page.inputValue('#expense-memo');
+    await page.fill('#expense-memo',initialDetail+' · 주보 준비');
+    await page.fill('#september-expense-count','3');
+    await page.click('#september-expense-fill');
+    const correctedDetail=E.quote('sora_meso_shop','karma_chaos','3').detail;
+    assert.equal(await page.inputValue('#expense-memo'),correctedDetail+' · 주보 준비','수기로 덧붙인 메모에 예전 수량이 중복됨');
+    await page.fill('#expense-memo','메모를 직접 교체함');
+    await page.click('#september-expense-fill');
+    assert.equal(await page.inputValue('#expense-memo'),correctedDetail+' · 메모를 직접 교체함');
+    await page.fill('#expense-memo',correctedDetail);
+    await page.click('#september-expense-fill');
+    assert.equal(await page.inputValue('#expense-memo'),correctedDetail,'직접 지운 메모가 다시 생김');
     for(const [mode,item,count,total] of [
       ['sora_meso_shop','karma_chaos','3','135000000'],
       ['november_meso_scroll','astra_blade','2','2000000000']
@@ -177,6 +191,7 @@ async function setMode(page,mode,item,count,unit) {
       await page.click('#expense-save');
       assert.equal(await page.evaluate(()=>String(db.expenses[0].amount)),total);
       assert.equal(await page.evaluate(()=>db.expenses[0].category),mode);
+      assert.equal(await page.evaluate(()=>db.expenses[0].memo),E.quote(mode,item,count).detail);
     }
     const after=await snapshot(page);
     const existing=JSON.parse(after);
@@ -207,6 +222,24 @@ async function setMode(page,mode,item,count,unit) {
     }
     assert.deepEqual(errors,[]);
     process.stdout.write('통과: 4개 화면 너비와 브라우저 오류 검사\n');
+    await page.selectOption('#expense-category','equipment');
+    const amount=page.locator('#expense-amount');
+    const beforeInvalid=await snapshot(page);
+    for(const value of ['1.5억','-500','1.25','1,50,000','1 500','1e6']){
+      await amount.fill(value);
+      await page.click('#expense-save');
+      assert.match(dialogs.pop()||'',/양의 정수/,'직접 지출의 잘못된 금액 안내: '+value);
+      assert.equal(await amount.inputValue(),value,'고칠 수 있도록 잘못된 원문을 유지: '+value);
+      assert.equal(await snapshot(page),beforeInvalid,'잘못된 지출 금액이 저장됨: '+value);
+    }
+    await amount.fill('1,500,000');
+    await page.click('#expense-save');
+    assert.equal(await page.evaluate(()=>String(db.expenses[0].amount)),'1500000','쉼표를 넣은 지출 금액');
+    await amount.pressSequentially('1234567');
+    assert.equal(await amount.inputValue(),'1,234,567','연속 숫자 입력 중 천 단위 표시 유지');
+    await amount.press('Backspace');
+    assert.equal(await amount.inputValue(),'123,456','완성된 금액에서 자릿수 수정');
+    process.stdout.write('통과: 직접 지출에 잘못된 부호·단위·쉼표와 소수 거부, 원문 보존, 정수 자동 서식\n');
     await context.close();
   } finally {
     if(browser)await browser.close();

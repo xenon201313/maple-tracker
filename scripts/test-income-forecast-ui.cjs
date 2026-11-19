@@ -136,11 +136,14 @@ const pass = text => { checks++; console.log('PASS ' + text); };
         const result = await session.page.evaluate(() => {
           db.records = {}; db.profits = []; db.chars = [];
           db.expenses = [normalizeExpenseRecord({ id:'forecast-kst-october', date:'2026-10-31', amount:'11', category:'equipment' }), normalizeExpenseRecord({ id:'forecast-kst-november', date:'2026-11-01', amount:'22', category:'equipment' })];
-          const localMonth = todayStr().slice(0, 7), report = monthlyReportData(localMonth);
+          const device = new Date();
+          const localMonth = device.getFullYear() + '-' + String(device.getMonth() + 1).padStart(2,'0');
+          const report = monthlyReportData(localMonth);
           renderHomeAutomation(report, { empty:true });
-          return { localMonth, kstMonth:MapleIncomeForecast.kstDate().slice(0, 7), text:document.getElementById('home-automation').textContent, expected:signedKorMeso(-22n), originalExpenseCount:db.expenses.length };
+          return { localMonth, ledgerMonth:currentMonthKey(), kstMonth:MapleIncomeForecast.kstDate().slice(0, 7), text:document.getElementById('home-automation').textContent, expected:signedKorMeso(-22n), originalExpenseCount:db.expenses.length };
         });
         assert.equal(result.kstMonth, '2026-11');
+        assert.equal(result.ledgerMonth, result.kstMonth);
         assert.equal(result.localMonth, timezoneId==='Asia/Seoul' ? '2026-11' : '2026-10');
         assert(result.text.includes('현재 ' + result.expected), JSON.stringify(result));
         assert.equal(result.originalExpenseCount, 2); assert.deepEqual(session.errors, []);

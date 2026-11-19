@@ -124,7 +124,7 @@
     const amountInput = document.getElementById('expense-amount');
     const memoInput = document.getElementById('expense-memo');
     modeInput.innerHTML = modes.map(mode => '<option value="'+mode.id+'">'+mode.name+'</option>').join('');
-    let lastGeneratedMemo = '', lastUserMemo = '';
+    let previousFill;
     function selectedDate() { return options.normalizeDate(dateInput.value); }
     function refreshDateNote() {
       const date = selectedDate();
@@ -164,12 +164,22 @@
       if (!result.ok) { refreshQuote(); return; }
       categoryInput.value = result.category;
       amountInput.value = format(result.amount);
-      const originalMemo = memoInput.value === lastGeneratedMemo ? lastUserMemo : memoInput.value.trim();
-      lastUserMemo = originalMemo;
-      lastGeneratedMemo = (result.detail + (originalMemo ? ' · ' + originalMemo : '')).slice(0,200);
-      memoInput.value = lastGeneratedMemo;
+      const currentMemo = memoInput.value.trim();
+      let userMemo = currentMemo;
+      if (previousFill && currentMemo === previousFill.memo) {
+        userMemo = previousFill.userMemo;
+      } else if (previousFill && currentMemo.startsWith(previousFill.detail)) {
+        userMemo = currentMemo.slice(previousFill.detail.length).trim().replace(/^·\s*/, '');
+      }
+      const memo = (result.detail + (userMemo ? ' · ' + userMemo : '')).slice(0,200);
+      previousFill = {detail:result.detail,userMemo,memo};
+      memoInput.value = memo;
       get('fill-note').textContent = '유형·금액·메모를 채웠습니다. 아래 날짜와 실제 사용량을 확인한 뒤 ‘지출 저장’을 누르세요. 아직 장부에는 반영되지 않았습니다.';
       refreshDateNote();
+    });
+    // 저장에 성공하면 기존 저장 버튼이 금액과 메모를 비웁니다. 다음 기록은 새 메모로 시작합니다.
+    document.getElementById('expense-save').addEventListener('click', () => {
+      if (!amountInput.value && !memoInput.value) previousFill = undefined;
     });
     modeInput.value = selectedDate() >= '2026-11-19' && selectedDate() <= '2026-12-16' ? 'sora_meso_shop' : 'advanced_ability';
     refreshMode();

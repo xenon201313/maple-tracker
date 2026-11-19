@@ -3,9 +3,24 @@
   'use strict';
   const data=()=>root.MapleOctoberProfit;
   const novemberRoyal=root.MapleNovemberProfit?.royal;
-  const novemberRoyalStarted=()=>!!novemberRoyal && Date.now()>=Date.parse(novemberRoyal.startsAt);
-  const initialSeries=novemberRoyalStarted()?(data().today()<=novemberRoyal.lastPurchaseDate?'163':'legacy'):'162';
-  const state={royalSeries:initialSeries,drafts:new Map()};
+  const novemberRoyalStarted=(now=Date.now())=>!!novemberRoyal && now>=Date.parse(novemberRoyal.startsAt);
+  const royalBoundaries=novemberRoyal ? [
+    Date.parse(novemberRoyal.startsAt),
+    Date.parse(novemberRoyal.lastPurchaseDate+'T00:00:00+09:00')+86400000
+  ] : [];
+  function defaultRoyalSeries(now){
+    if(novemberRoyalStarted(now)) return now<royalBoundaries[1]?'163':'legacy';
+    return data().isActive('royal162',now)?'162':'legacy';
+  }
+  let royalPeriod=defaultRoyalSeries(Date.now()),royalPinned=false;
+  const state={royalSeries:royalPeriod,drafts:new Map()};
+  function refreshRoyalPeriod(now){
+    const period=defaultRoyalSeries(now);
+    if(royalPeriod===period)return false;
+    royalPeriod=period;
+    if(!royalPinned)state.royalSeries=period;
+    return true;
+  }
   const count=value=>/^\d{1,7}$/.test(String(value||'0')) && Number(value||0)<=1000000 ? Number(value||0) : null;
   const read=(box,key)=>box?.querySelector('[data-profit-input="'+key+'"]')?.value || '';
   function normalizeContext(raw){
@@ -45,13 +60,15 @@
     if(state.royalSeries==='163' && novemberRoyal)return novemberRoyal.outputs;
     return state.royalSeries==='162'?data().royalOutputs:legacy;
   }
-  function allItems(){return data().catalogs.flatMap(c=>c.costs.concat(c.outputs)).concat(data().royalOutputs,novemberRoyal?.outputs || []);}
+  function saleOutputs(c){return c.sealedSale?[c.sealedSale,...c.outputs]:c.outputs;}
+  function allItems(){return data().catalogs.flatMap(c=>c.costs.concat(saleOutputs(c))).concat(data().royalOutputs,novemberRoyal?.outputs || []);}
   function notice(text,h){return '<p class="muted october-product-note">'+h.esc(text)+'</p>';}
   function officialPriceNotes(c,h){
     return '<ul class="october-product-prices">'+c.costs.map(item=>'<li>'+h.esc(item.name)+' — '+h.esc(item.tradeNote || '')+'</li>').join('')+'</ul>';
   }
   function form(type,h){
     if(type==='royal'){
+      refreshRoyalPeriod(Date.now());
       const active=data().isActive('royal162');
       if(!active) state.royalSeries='legacy';
       const latest=state.royalSeries==='163' && novemberRoyal;
@@ -70,6 +87,9 @@
     let result='<div class="profit-entry-grid">'+h.profitDateBlock()+'</div>'+officialPriceNotes(c,h)+
       (type==='yeti_magnifier'?'':notice('캐시·크레딧·메이플포인트 금액은 메소에 자동 합산하지 않습니다. 메소로 구입했거나 메소로 환산해 관리할 비용만 직접 입력하세요. 무료 지급품의 구입비는 0으로 둡니다.',h))+
       '<h3>실제 구입 비용</h3>'+h.profitCostRowsHtml(c.costs,'개당 실제 메소 비용');
+    if(c.sealedSale){
+      result+='<h3>미개봉 상품 판매</h3>'+notice('개봉 전에 상자 자체를 판매했다면 판매한 가격과 수량을 여기에 입력하세요.',h)+h.profitOutputRowsHtml([c.sealedSale]);
+    }
     if(type==='boutique'){
       result+=notice('기프트 판매는 11월 18일 23:59까지, 티켓 사용은 11월 30일 23:59까지입니다. 기프트는 구입 후 7일 내 사용하세요. 판매 종료 후에는 남은 티켓·교환품의 판매 결과를 비용 0으로 정산할 수 있습니다.',h)+
         '<details class="october-fever"><summary>이번 시즌 피버 횟수 확인</summary><div class="profit-entry-grid">'+
@@ -95,7 +115,11 @@
   function bind(box,type,rerender){
     restore(box);
     const series=box.querySelector('#october-royal-series');
-    if(series)series.onchange=()=>{capture(box);state.royalSeries=series.value;rerender();};
+    if(series){
+      const pinSeries=()=>{royalPinned=true;};
+      box.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',pinSeries);el.addEventListener('change',pinSeries);});
+      series.onchange=()=>{royalPinned=true;capture(box);state.royalSeries=series.value;rerender();};
+    }
     const updateFever=()=>{
       const output=box.querySelector('[data-october-fever-result]');if(!output)return;
       const before=count(read(box,'boutiqueBefore')),used=count(read(box,'boutiqueUsed'));
@@ -154,5 +178,5 @@
     if(type==='boutique' && box.querySelector('[data-profit-input="ticketCheck"]')?.checked){const balance=ticketBalance(box);if(balance.error)return balance.error;}
     return '';
   }
-  root.MapleOctoberProfitUI=Object.freeze({state,normalizeContext,supported,available,draftKey,royalOutputs,allItems,form,bind,capture,clear,context,validation});
+  root.MapleOctoberProfitUI=Object.freeze({state,normalizeContext,supported,available,draftKey,royalOutputs,saleOutputs,allItems,form,bind,capture,clear,context,validation,royalBoundaries,refreshRoyalPeriod});
 })(globalThis);
