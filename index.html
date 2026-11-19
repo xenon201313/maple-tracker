@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261119-2"></script>
+<script src="assets/patch-notes-data.js?v=20261119-3"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <script src="assets/enhancement-ledger.js?v=20261022-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
@@ -28,7 +28,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>나만의 메계부</title>
-<meta name="description" content="재획 메소, 주간·월간·일간 결정석, 드랍 수익을 기록하는 나만의 메계부">
+<meta name="description" content="사냥터의 시간당 순수입, 보스 드랍의 파티 분배금, 아이템 판매 손익을 공개 사례로 계산해 보세요. 내 재획·결정석·강화 기록도 한 장부에서 관리할 수 있습니다.">
 <meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1017,7 +1017,7 @@
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
 <link rel="stylesheet" href="assets/maple-workspace.css?v=20261105-1">
-<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261111-4">
+<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261119-public">
 <link rel="stylesheet" href="assets/home-characters.css?v=20261119-1">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 <link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
@@ -1086,6 +1086,14 @@
     <section class="home-desk-masthead" aria-labelledby="desk-title">
       <div class="desk-hero-copy"><p id="desk-date">오늘의 기록장</p><h2 id="desk-title">오늘의 메소, 차곡차곡.</h2><p>재획과 보스 수입부터 판매·강화 지출까지.<br>내 모험의 수익을 한 장의 장부로 정리해요.</p></div>
       <div class="desk-hero-art" aria-hidden="true"></div>
+      <nav class="home-public-guides" id="home-public-guides" aria-labelledby="home-public-title">
+        <h3 id="home-public-title">로그인 없이 계산해 보기</h3>
+        <div class="public-guide-links">
+          <a href="guide/hunt-income/#compare-hunts"><strong>사냥터 수익 비교</strong><span>20분과 40분 기록을 한 시간 기준으로</span></a>
+          <a href="guide/boss-settlement/#try-settlement"><strong>보스 드랍 분배</strong><span>10억에 판 아이템, 파티원에게 보낼 금액</span></a>
+          <a href="guide/profit-expense/#try-calculator"><strong>판매 손익 계산</strong><span>3억에 사서 3억 5천만에 팔면 남는 메소</span></a>
+        </div>
+      </nav>
       <div class="desk-reset"><span><img src="assets/crystal-weekly.png" alt=""> 이번 주 <b id="desk-week"></b></span><span>주간 목요일 / 월간 1일 초기화</span></div>
     </section>
 <div class="workspace-quick-actions" aria-label="빠른 기록">
@@ -1215,7 +1223,7 @@
     <h2 id="home-welcome-title">처음 기록하는 분을 위한 안내</h2>
     <p>재획·보스 수입과 아이템 판매, 강화·구매 지출을 캐릭터와 기간별로 기록합니다. 로그인 없이 시작할 수 있고, 입력한 장부는 현재 브라우저에 저장됩니다.</p>
     <p class="home-first-action"><button type="button" onclick="openPage('daily')">재획 기록 열기</button> <a href="?page=planner">자산·성장 계획 살펴보기</a></p>
-    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/boss-settlement/#try-settlement">보스 분배 계산</a><a href="guide/profit-expense/#try-calculator">판매 손익·강화 비용 계산</a><a href="guide/">처음 사용하는 방법</a><a href="guide/#reading-guides">계산 사례와 기록 요령</a><a href="about/">제작·운영 안내</a></nav>
+    <nav class="home-reading-links" aria-label="시작 안내"><a href="guide/">처음 사용하는 방법</a><a href="guide/record-principles/#daily-crystal-case">일간 보스 처치와 판매 구분하기</a><a href="about/">제작·운영 안내</a></nav>
   </section>
   <section class="card home-reading" aria-labelledby="home-reading-title">
     <h2 id="home-reading-title">합계가 달라질 때, 계산부터 확인해 보세요</h2>
@@ -11483,7 +11491,7 @@ window.MapleEnhancementBridge={
 </dialog>
 <script src="assets/workspace.js?v=20261028-1"></script>
 <script src="assets/play-desk.js?v=20261105-1"></script>
-<script src="assets/maple-workspace.js?v=20261119-1"></script>
+<script src="assets/maple-workspace.js?v=20261119-public"></script>
 <script src="assets/maple-official-theme.js?v=20261111-3"></script>
 <script src="assets/home-characters.js?v=20261111-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>

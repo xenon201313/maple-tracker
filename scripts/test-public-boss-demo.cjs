@@ -23,6 +23,7 @@ const server = http.createServer((req, res) => {
   });
 });
 const keys = ['saleNet','leaderNet','transfer','memberNet','saleCost','transferCost','rounding','received'];
+const defaultAmounts = {saleNet:'970000000',leaderNet:'472564200',transfer:'497435800',memberNet:'472564010',saleCost:'30000000',transferCost:'24871790',rounding:'96',received:'945128210'};
 let checks = 0;
 const pass = label => { checks++; process.stdout.write('PASS ' + label + '\n'); };
 
@@ -38,7 +39,7 @@ function ledgerReference() {
     validDropFee: value => Number(value),
     dropPriceStore: value => ({item:value.sale}),
     bossPartyForDropKey: value => value.party,
-    dropShareMeta: value => ({role:'leader',fee:value.fee,ratio:{leader:BigInt(value.leader),member:BigInt(value.member)}})
+    dropShareMeta: value => ({role:'leader',auctionFee:value.saleFee,transferFee:value.transferFee,ratio:{leader:BigInt(value.leader),member:BigInt(value.member)}})
   });
   vm.runInContext(functions, context);
   return value => context.dropSplitInfo(value, '검증 주차', 'item');
@@ -67,25 +68,28 @@ function ledgerReference() {
     await page.goto(origin + '/guide/boss-settlement/');
     await page.evaluate(() => document.fonts.ready);
     const form = page.locator('[data-boss-demo] form');
-    const result = async () => page.locator('[data-boss-demo]').evaluate(node => Object.fromEntries([...node.querySelectorAll('[data-boss-result]')].map(item => [item.dataset.bossResult,item.textContent.replace(/[^\d-]/g,'')])));
+    const result = async (view=page) => view.locator('[data-boss-demo]').evaluate(node => Object.fromEntries([...node.querySelectorAll('[data-boss-result]')].map(item => [item.dataset.bossResult,item.textContent.replace(/[^\d-]/g,'')])));
     const set = data => form.evaluate((node, values) => {
       for (const [key,value] of Object.entries(values)) node.elements.namedItem(key).value = String(value);
       node.dispatchEvent(new Event('change', {bubbles:true}));
     }, data);
     const reset = async () => {
       await form.locator('[type="reset"]').click();
-      await page.waitForFunction(() => document.querySelector('[data-boss-result="leaderNet"]').textContent === '462,820,600 메소');
+      await page.waitForFunction(() => document.querySelector('[data-boss-result="leaderNet"]').textContent === '472,564,200 메소');
+      assert.deepEqual(await result(), defaultAmounts);
     };
     let amounts = await result();
-    assert.deepEqual(amounts, {saleNet:'950000000',leaderNet:'462820600',transfer:'487179400',memberNet:'462820430',saleCost:'50000000',transferCost:'24358970',rounding:'86',received:'925641030'});
-    pass('10억·2인·5% 실수령과 송금액·100메소 내림 잔액이 본문 예제와 일치');
+    assert.deepEqual(amounts, defaultAmounts);
+    assert.equal(await form.locator('[name="saleFee"]').inputValue(),'3');
+    assert.equal(await form.locator('[name="transferFee"]').inputValue(),'5');
+    pass('10억·2인·판매 3%·송금 5% 실수령과 송금액·내림 잔액이 본문 예제와 일치');
 
     await form.locator('[name="party"]').selectOption('3');
     await form.locator('[name="mode"]').selectOption('weighted');
     amounts = await result();
-    assert.equal(amounts.leaderNet, '499407200');
-    assert.equal(amounts.transfer, '225296400');
-    assert.equal(amounts.memberNet, '214031580');
+    assert.equal(amounts.leaderNet, '509921000');
+    assert.equal(amounts.transfer, '230039500');
+    assert.equal(amounts.memberNet, '218537525');
     assert.match(await page.locator('[data-boss-detail]').innerText(), /파티원 2명/);
     pass('3인 7:3을 파티장 7·파티원 각각 3으로 계산');
 
@@ -95,8 +99,9 @@ function ledgerReference() {
       for (const fee of [0,3,5]) {
         for (const [leader,member] of [[1,1],[7,3],[10,0],[0,1]]) {
           const sale = comparisons % 2 ? '9007199254740993123' : '1000000123';
-          await set({sale,saleFee:fee,transferFee:fee,party,mode:'weighted',leader,member});
-          const expected = reference({sale,party,fee,leader,member});
+          const transferFee = [0,3,5][comparisons % 3];
+          await set({sale,saleFee:fee,transferFee,party,mode:'weighted',leader,member});
+          const expected = reference({sale,party,saleFee:fee,transferFee,leader,member});
           amounts = await result();
           assert.equal(amounts.saleNet,String(expected.saleNet));
           assert.equal(amounts.leaderNet,String(expected.leaderNet));
@@ -141,7 +146,7 @@ function ledgerReference() {
     assert.match(await page.locator('[data-boss-error]').innerText(),/모두 0/);
     await form.locator('[name="mode"]').selectOption('equal');
     assert.equal(await page.locator('[data-boss-error]').innerText(),'');
-    assert.equal((await result()).leaderNet,'462820600');
+    assert.equal((await result()).leaderNet,defaultAmounts.leaderNet);
     pass('잘못된 정수·쉼표·비율·빈칸 오류 표시, 균등 분배에서 숨겨진 비율 무시');
 
     await form.locator('[name="sale"]').fill('0');
@@ -149,7 +154,7 @@ function ledgerReference() {
     await form.locator('[name="sale"]').fill('99');
     amounts = await result();
     assert.equal(amounts.transfer,'0');
-    assert.equal(amounts.leaderNet,'94');
+    assert.equal(amounts.leaderNet,'96');
     await reset();
     const url = page.url();
     await page.evaluate(() => { window.__bossDemoSentinel = '페이지 유지'; });
@@ -191,10 +196,9 @@ function ledgerReference() {
     await staticPage.goto(origin + '/guide/boss-settlement/');
     assert.equal(await staticPage.locator('h1').isVisible(),true);
     assert.equal(await staticPage.locator('[name="sale"]').isDisabled(),true);
-    assert.equal(await staticPage.locator('[data-boss-result="transfer"]').innerText(),'487,179,400 메소');
+    assert.deepEqual(await result(staticPage),defaultAmounts);
     const text = await staticPage.locator('main').innerText();
-    // 상단의 5% 비교 예제와 본문의 판매 3%·송금 5% 장부 예제가 모두 정적으로 남아야 합니다.
-    for (const value of ['462,820,430','970,000,000','472,564,010','509,921,000','218,537,525','3% 고정','100메소','JavaScript']) assert(text.includes(value),value+' 정적 본문');
+    for (const value of ['497,435,800','970,000,000','472,564,010','509,921,000','218,537,525','3% 고정','100메소','JavaScript']) assert(text.includes(value),value+' 정적 본문');
     await noJs.close();
     pass('JavaScript 없이도 계산 결과·본문 검산표 표시, 동작하지 않는 입력은 잠금');
     await context.close();

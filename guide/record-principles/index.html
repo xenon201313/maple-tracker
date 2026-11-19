@@ -32,7 +32,7 @@
       <p class="eyebrow">계산 기준과 기록 읽는 법</p>
       <h1>같은 메소를 한 번만, 실제 조건으로 기록합니다</h1>
       <p class="lead">아이템을 얻은 날과 판매한 날, 가져온 강화 이력과 확정한 지출, 앞으로 쓸 예산은 서로 다릅니다. 어떤 숫자가 합계에 들어가는지 확인하는 기준과 예제를 모았습니다.</p>
-      <p class="article-meta">운영·기록 기준: <a href="../../about/#experience">크로아/얀보</a> · <time datetime="2026-11-11">2026년 11월 11일 안내 정리</time> · 예제 금액은 가상 값</p>
+      <p class="article-meta">메계부 운영자 <a href="../../about/#experience">크로아/얀보</a> · <time datetime="2026-11-19">2026년 11월 19일 수정</time> · 숫자 예시는 가상 거래 기준</p>
       <p><a href="../../?page=planner">자산·성장 계획 열기</a> · <a href="../profit-expense/#try-calculator">저장 없이 손익 계산해 보기</a></p>
     </header>
     <section class="section calculation-key" aria-labelledby="numbers-meaning">
@@ -47,6 +47,8 @@
     <nav class="section article-toc" aria-label="이 글의 목차"><h2>확인할 내용</h2><ol>
       <li><a href="#real-income">판매가와 내 수령액, 손익의 차이</a></li>
       <li><a href="#settlement">획득일과 실제 판매일이 다른 기록</a></li>
+      <li><a href="#daily-crystal-case">아카이럼을 잡고 결정석을 버린 날의 장부</a></li>
+      <li><a href="#forecast">월말 예상에 포함되는 수입</a></li>
       <li><a href="#confirmed-expense">강화 추정 비용과 확정 지출</a></li>
       <li><a href="#planning-tools">자산·성장 계획의 여섯 기능</a></li>
       <li><a href="#api-boundary">API가 알 수 없는 정보</a></li>
@@ -72,8 +74,21 @@
         <p>10월 28일에 얻은 드랍을 11월 2일에 팔았다면 획득 사실은 10월 기록이고 실제 판매는 11월 거래입니다. 미정산함에서는 획득일, 판매일, 판매 수량과 파티 지급 상태를 나누어 확인합니다. 일부만 팔았다면 남은 수량을 유지합니다.</p>
         <p>원래 보스·손익 화면에 이미 수익을 반영한 거래를 미정산함으로 가져왔다고 같은 금액을 기존 통계에 다시 더하지 않습니다. 미정산함은 연결한 원본과 정산 과정을 확인하는 별도 기록입니다. 획득 기준 합계와 판매일 기준 금액을 비교할 때는 각 화면의 기준을 먼저 확인하세요.</p>
         <p>솔 에르다 조각도 보유 수량과 판매 수익을 구분합니다. 이미 메소로 환산한 조각을 다시 판매 정산에 넣기 전에는 <a href="../hunt-income/">조각 중복 반영 예제</a>를 확인하세요.</p>
-        <p>일간 보스도 처치와 판매를 구분합니다. 스케줄러의 완료 정보는 ‘처치 완료’에만 반영하고, 수익에는 직접 선택한 ‘결정석 판매’만 더합니다. 판매 체크를 해제해도 처치·드랍·가격 기록은 남습니다. 이전 버전에서 저장한 결정석 합계는 임의로 삭제하지 않으므로 실제 판매 내역과 다른 항목만 해당 날짜에서 수정하세요.</p>
         <p>드랍 아이템의 신규·가격 또는 분배 조건을 수정한 기록은 경매장 판매 수수료를 3%로 고정합니다. 송금 수수료는 별도로 선택하며, <a href="../boss-settlement/#party-split">판매 3%·송금 5%의 2인 분배 예제</a>에서 차이를 확인할 수 있습니다. 과거에 저장한 비율·수입은 조회만으로 일괄 변경하지 않습니다. 가격·분배를 정정하면 판매 3%로 다시 계산하므로 수정 전 조건도 함께 확인하세요.</p>
+      </section>
+      <section class="section" id="daily-crystal-case">
+        <h2>아카이럼을 잡고 결정석을 버리면 얼마가 남을까?</h2>
+        <p>일간 보스를 모두 잡아도 비싼 결정석만 골라 파는 이용자가 있었습니다. 예전 메계부에서는 판매하지 않은 항목을 풀어도 스케줄러가 처치 목록을 다시 읽으면 수익이 되살아났습니다. 특히 도미네이터 펜던트를 얻으려고 아카이럼을 잡는 날에 차이가 뚜렷했습니다. <a href="https://github.com/xenon201313/maple-tracker/issues/1">이용자의 원래 제보 읽기</a></p>
+        <p>아래는 제보 상황을 단순화한 가상 장부입니다. 한 캐릭터가 혼자 노멀 아카이럼과 노멀 핑크빈을 잡고, 핑크빈 결정석만 팔았다고 가정합니다. 드랍 아이템 판매 수입은 0입니다.</p>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="두 보스의 처치와 결정석 판매 비교">
+          <table><caption>11월 19일 메계부의 일간 결정석 금액 기준</caption>
+            <thead><tr><th scope="col">보스</th><th scope="col">처치 완료</th><th scope="col">결정석 판매</th><th scope="col">수입에 더할 메소</th></tr></thead>
+            <tbody><tr><th scope="row">아카이럼 (노멀)</th><td>완료</td><td>버림</td><td>0</td></tr><tr><th scope="row">핑크빈 (노멀)</th><td>완료</td><td>판매</td><td>799,000</td></tr></tbody>
+          </table>
+        </div>
+        <p class="formula">두 보스를 잡고 결정석 한 개를 팔았을 때의 수입은 799,000메소입니다.</p>
+        <p>같은 조건에서 1,909,000메소가 보이면 차액 1,110,000메소는 아카이럼 결정석 한 개 값입니다. <a href="../../?page=dailyboss">일간 보스</a>에서 해당 날짜의 아카이럼 카드에 ‘처치 완료’만 남기고 ‘결정석 판매’를 해제하세요. 다시 동기화해도 처치 상태만 갱신되므로 다음 확인 때도 판매 수입은 799,000메소입니다.</p>
+        <p>판매 체크를 고쳐도 그날의 드랍 기록은 남습니다. 과거에 실제로 판 결정석을 지우는 일을 피하기 위해 이전 장부는 일괄 수정하지 않았습니다. <a href="https://github.com/xenon201313/maple-tracker/blob/23837d0/RELEASE_2026_11_05_RECORD_CLARITY.md">11월 5일 변경 기록</a></p>
       </section>
       <section class="section" id="forecast">
         <h2>월말 예상은 반복 수입만 남은 기간에 적용합니다</h2>

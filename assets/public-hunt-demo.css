@@ -1,0 +1,38 @@
+#hunt-comparison-form {
+  min-width: 0;
+  margin: 24px 0;
+  padding: clamp(12px, 3vw, 24px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+#hunt-comparison-form fieldset {
+  min-width: 0;
+  margin: 14px 0;
+  padding: 0;
+  border: 0;
+}
+#hunt-comparison-form legend { padding: 0; font-weight: 700; }
+.hunt-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.hunt-fields label { display: grid; gap: 4px; color: var(--sub); font-size: 14px; }
+.hunt-fields input, #hunt-comparison-form button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--field);
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.hunt-fields input { width: 100%; }
+.hunt-fields input[aria-invalid="true"] { border: 2px solid var(--gold); }
+#hunt-comparison-form .extra-session { display: inline-flex; align-items: center; min-height: 44px; gap: 6px; }
+#hunt-second-session { width: 18px; height: 18px; }
+.hunt-result { margin: 18px 0 12px; padding: 14px; border-radius: 8px; background: var(--panel-soft); }
+.hunt-result p { margin: 0; font-variant-numeric: tabular-nums; }
+.hunt-result strong { color: var(--text); overflow-wrap: anywhere; }
+#hunt-comparison-form button { cursor: pointer; }
+@media (max-width: 620px) {
+  .hunt-fields { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}

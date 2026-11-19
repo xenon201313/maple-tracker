@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
 <title>재획 수익과 조각 판매를 중복 없이 기록하기 | 나만의 메계부</title>
-<meta name="description" content="두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.">
+<meta name="description" content="사냥 시간과 소모품 비용을 바꿔 두 사냥터의 시간당 수익을 비교하세요. 조각을 보유할 때와 팔 때의 차이, 회차별 단가와 나중 판매 정산을 사례로 확인합니다.">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="https://maple-trackers.com/guide/hunt-income/">
@@ -16,12 +16,15 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
 <meta property="og:title" content="재획 수익과 조각 판매를 중복 없이 기록하기">
-<meta property="og:description" content="두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.">
+<meta property="og:description" content="두 사냥터의 시간당 수익을 계산하고, 조각을 보유할 때와 팔 때의 차이를 실제 장부와 같은 방식으로 검산합니다.">
 <meta property="og:url" content="https://maple-trackers.com/guide/hunt-income/">
 <meta property="og:image" content="https://maple-trackers.com/thumbnail.png?v=20260908">
 <script defer src="../../ads-config.js?v=20260909-1"></script>
 <script defer src="../../assets/site-ads.js?v=20260909-1"></script>
 <link rel="stylesheet" href="../../assets/theme-mode.css?v=20261114-2">
+<link rel="stylesheet" href="../../assets/public-hunt-demo.css?v=20261119-1">
+<script defer src="../../assets/ledger-activity.js?v=20261028-1"></script>
+<script defer src="../../assets/public-hunt-demo.js?v=20261119-1"></script>
 </head>
 <body class="article-page">
 <div class="shell">
@@ -33,11 +36,66 @@
     <header class="hero">
       <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
       <h1>재획 수익과 조각 판매를 중복 없이 기록하기</h1>
-      <p class="lead">두 회차의 재획 기록과 솔 에르다 조각 판매를 가상 금액으로 검산합니다. 저장 단가, 나중 판매 정산, 이중 계산과 수량 확인 방법을 설명합니다.</p>
-      <p class="article-meta">작성: 나만의 메계부 · <time datetime="2026-09-09">2026년 9월 9일</time> · 가상 금액을 사용한 계산 예제</p>
+      <p class="lead">사냥 시간이 달라도 두 사냥터의 수익을 비교할 수 있습니다. 소모품 비용을 빼고 한 시간에 남는 메소를 계산한 뒤, 조각을 팔았을 때 결과가 어떻게 달라지는지 확인해 보세요.</p>
+      <p class="article-meta">나만의 메계부 · 2026년 9월 9일 작성 · <time datetime="2026-11-19">2026년 11월 19일 수정</time></p>
+      <p><a href="#compare-hunts">사냥터별 시간당 수익 비교하기</a></p>
     </header>
-    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#record-boundary">사냥으로 번 메소와 아직 팔지 않은 조각을 나누세요</a></li><li><a href="#session-example">같은 날 두 회차를 기록하고 하루 합계를 검산하기</a></li><li><a href="#sell-in-session">회차에서 바로 판 조각은 저장 당시 조건으로 계산됩니다</a></li><li><a href="#settle-later">조각을 모아 팔았다면 판매일에 정산을 추가하세요</a></li><li><a href="#avoid-double-count">자동 중복 방지가 확인해 주지 못하는 부분</a></li><li><a href="#hunt-checklist">주간·월간 보고 전에 확인할 다섯 가지</a></li></ol></nav>
+    <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#compare-hunts">내 회차로 사냥터별 시간당 수익 비교하기</a></li><li><a href="#record-boundary">사냥으로 번 메소와 아직 팔지 않은 조각을 나누세요</a></li><li><a href="#session-example">같은 날 두 회차를 기록하고 하루 합계를 검산하기</a></li><li><a href="#sell-in-session">회차에서 바로 판 조각은 저장 당시 조건으로 계산됩니다</a></li><li><a href="#settle-later">조각을 모아 팔았다면 판매일에 정산을 추가하세요</a></li><li><a href="#avoid-double-count">자동 중복 방지가 확인해 주지 못하는 부분</a></li><li><a href="#hunt-checklist">주간·월간 보고 전에 확인할 다섯 가지</a></li></ol></nav>
     <article aria-label="계산 사례 본문">
+<section class="section" id="compare-hunts" aria-labelledby="compare-hunts-title">
+  <h2 id="compare-hunts-title">어느 사냥터에서 한 시간에 더 벌었을까?</h2>
+  <p>같은 캐릭터와 버프로 A 사냥터에서는 20분과 40분, B에서는 60분을 사냥했다고 가정해 보겠습니다. 조각은 아직 팔지 않았고 부수입도 없습니다. 어느 곳에서 메소가 더 남았는지 알려면 소모품 비용을 뺀 뒤 <strong>각 사냥터에서 보낸 총시간</strong>으로 나눕니다.</p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="사냥터별 세 회차의 소득과 비용 예제">
+    <table><caption>가상 회차 3건 · 금액 단위는 만 메소</caption>
+      <thead><tr><th scope="col">사냥터·회차</th><th scope="col">시간</th><th scope="col">획득</th><th scope="col">소모품</th><th scope="col">남은 메소</th><th scope="col">미판매 조각</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A 첫 회차</th><td>20분</td><td>3,200만</td><td>200만</td><td>3,000만</td><td>3개</td></tr>
+        <tr><th scope="row">A 두 번째</th><td>40분</td><td>4,200만</td><td>200만</td><td>4,000만</td><td>3개</td></tr>
+        <tr><th scope="row">B 첫 회차</th><td>60분</td><td>7,600만</td><td>400만</td><td>7,200만</td><td>4개</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A의 첫 회차는 시간당 9,000만, 두 번째는 시간당 6,000만입니다. 두 값을 그대로 평균 내면 7,500만이 되어 A가 더 벌었다고 읽기 쉽습니다. 실제로는 수익이 낮은 두 번째 회차에서 두 배 오래 사냥했습니다.</p>
+  <p class="formula">A 시간당 수익 = (3,000만 + 4,000만) × 60 ÷ (20 + 40) = 7,000만 메소</p>
+  <p><strong>당장 쓸 메소는 B에서 시간당 200만 더 남았습니다.</strong> B의 수익은 (7,600만 − 400만) × 60 ÷ 60 = 7,200만 메소입니다.</p>
+  <form id="hunt-comparison-form" aria-labelledby="hunt-input-title" aria-describedby="hunt-input-help" autocomplete="off" hidden>
+    <h3 id="hunt-input-title">내 회차로 비교하기</h3>
+    <p id="hunt-input-help">실제로 얻은 메소와 사용한 소모품 비용을 각각 입력하세요. 비용이 없으면 0을 넣으세요. 시간은 0.5분부터 1,440분까지 0.5분 단위로 입력할 수 있습니다. 이 비교는 이 화면에서만 계산합니다.</p>
+    <fieldset data-map="A">
+      <legend>A · 첫 회차</legend>
+      <div class="hunt-fields">
+        <label>사냥 시간(분)<input name="a1-minutes" type="number" min="0.5" max="1440" step="0.5" required value="20"></label>
+        <label>획득 메소<input name="a1-income" type="text" inputmode="numeric" required maxlength="25" value="32,000,000"></label>
+        <label>소모품 비용(메소)<input name="a1-cost" type="text" inputmode="numeric" required maxlength="25" value="2,000,000"></label>
+      </div>
+    </fieldset>
+    <label class="extra-session"><input type="checkbox" id="hunt-second-session" aria-controls="hunt-extra-fields" checked> A의 두 번째 회차도 계산하기</label>
+    <fieldset data-map="A" id="hunt-extra-fields">
+      <legend>A · 두 번째 회차</legend>
+      <div class="hunt-fields">
+        <label>사냥 시간(분)<input name="a2-minutes" type="number" min="0.5" max="1440" step="0.5" required value="40"></label>
+        <label>획득 메소<input name="a2-income" type="text" inputmode="numeric" required maxlength="25" value="42,000,000"></label>
+        <label>소모품 비용(메소)<input name="a2-cost" type="text" inputmode="numeric" required maxlength="25" value="2,000,000"></label>
+      </div>
+    </fieldset>
+    <fieldset data-map="B">
+      <legend>B · 첫 회차</legend>
+      <div class="hunt-fields">
+        <label>사냥 시간(분)<input name="b1-minutes" type="number" min="0.5" max="1440" step="0.5" required value="60"></label>
+        <label>획득 메소<input name="b1-income" type="text" inputmode="numeric" required maxlength="25" value="76,000,000"></label>
+        <label>소모품 비용(메소)<input name="b1-cost" type="text" inputmode="numeric" required maxlength="25" value="4,000,000"></label>
+      </div>
+    </fieldset>
+    <div class="hunt-result" role="status" aria-live="polite" aria-atomic="true">
+      <p data-hunt-rates></p>
+      <strong data-hunt-conclusion></strong>
+    </div>
+    <button type="reset">가상 예제로 되돌리기</button>
+  </form>
+  <h3>조각까지 판다면 선택이 달라질까?</h3>
+  <p>위 표에서 조각을 전량 개당 200만 메소에 팔고 수수료 3%를 낸다고 가정해 봅시다. A는 6개로 1,164만을, B는 4개로 776만을 더 받습니다. 판매 후 예상 합계는 <strong>A 8,164만, B 7,976만</strong>입니다. 두 곳 모두 60분을 사냥했으므로 이 조건에서는 A가 시간당 188만 높습니다. 실제 판매 전에는 조각 개수와 예상 가치만 따로 적어 둡니다.</p>
+  <p>이 비교를 장부에서 반복하려면 <a href="/?page=daily">재획 기록</a>에 회차를 저장하고 <a href="/?page=planner&amp;tool=hunting">재획 비교</a>에서 같은 캐릭터·사냥터·버프로 묶으세요. 11월 19일 패치 이후 캐릭터가 몬스터보다 6레벨 이상 높다면 실제로 주운 메소를 입력하면 됩니다. 여기에 감소율을 다시 곱하면 이중 차감됩니다. <a href="../../updates/2026-11/#hunt">11월 사냥 메소 변경 기준</a></p>
+</section>
 <section class="section" id="record-boundary">
   <h2>1. 사냥으로 번 메소와 아직 팔지 않은 조각을 나누세요</h2>
   <p>재획을 마친 뒤 늘어난 메소와 솔 에르다 조각의 예상 판매액을 한 칸에 넣으면, 조각을 실제로 판매하는 날 같은 수입을 다시 적기 쉽습니다. 나만의 메계부의 <a href="/?page=daily">재획 기록</a>은 이 둘을 구분합니다. <strong>획득 메소</strong>에는 사냥으로 직접 얻은 메소를, <strong>추가 부수입</strong>에는 그 회차에 함께 기록할 다른 판매 수입을, <strong>솔 에르다 조각</strong>에는 얻은 개수를 입력합니다. 조각 개수만 입력했다고 조각 값이 바로 수익에 더해지지는 않습니다.</p>
