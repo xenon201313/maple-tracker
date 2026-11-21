@@ -99,6 +99,131 @@ async function snapshot(page) {
   });
 }
 
+async function checkExpenseImages(page, origin) {
+  // The red and pink pendants share one atlas but must decode to different item art.
+  const examples = ['에테르넬 나이트헬름', '베어스 그린 펜던트', '아스트라 매그넘', '고통의 근원', '파풀라투스 마크',
+    '베어스 레드 펜던트', '베어스 핑크 펜던트'];
+  const unknown = '아이콘 테스트 전용 미등록 장비';
+  const namedRow = (selector, name) => page.locator(selector).filter({has:page.getByText(name,{exact:true})});
+  await page.goto(origin+'/?page=expense');
+  const official='https://open.api.nexon.com/static/maplestory/item/icon/KEPCOOGB';
+  const snapshotLookup=await page.evaluate(official=>{
+    const original=db.planner;
+    try {
+      db.planner={investments:[
+        {equipment:{name:'스냅샷 합성장비',icon:official}},
+        {equipment:{name:'삭제한 합성장비',icon:official},deletedAt:Date.now()},
+        {equipment:{name:'주소가 다른 합성장비',icon:'https://example.invalid/KEPCOOGB'}},
+        {equipment:{name:'경로가 다른 합성장비',icon:'https://open.api.nexon.com/account'}},
+        {equipment:{name:'로그인 정보',icon:'https://open.api.nexon.com/static/maplestory/item/icon/KEPCOOGB?token=fixture'}}
+      ]};
+      return ['스냅샷합성장비','스냅샷 합성장비 장식','삭제한 합성장비','주소가 다른 합성장비','경로가 다른 합성장비','로그인 정보']
+        .map(name=>resolveItemImage({name,img:' NULL '}));
+    } finally { db.planner=original; }
+  },official);
+  assert.deepEqual(snapshotLookup,[official,'','','','',''],'Only an exact, active equipment snapshot on the Nexon item CDN can supply missing art');
+  await page.evaluate(({examples,unknown}) => {
+    const date = todayStr();
+    // These are saved history records from the previous schema, with no item image or equipment ID.
+    const events = [...examples,unknown].map((item,i) => MapleEnhancements.event('potential',{
+      id:'icon-example-'+i, character_name:'예시 캐릭터', target_item:item, item_level:[250,100,200,160,145,110,120][i] || 160,
+      date_create:date+'T01:02:03+09:00', potential_type:'잠재능력',
+      before_potential_option:[{grade:'에픽'}], after_potential_option:[{grade:'에픽'}]
+    },'icon-fixture'));
+    db.profits = [normalizeProfitRecord({id:'manual-icon',date,type:'starforce',itemName:examples[1],
+      costs:[{id:'manual',price:'100',count:1}]})];
+    db.expenses = [normalizeExpenseRecord({id:'receipt-icon',date,category:'equipment',amount:'100',memo:'이름 없는 구매 메모'})];
+    MapleEnhancementBridge.commit({events});
+  },{examples,unknown});
+  await page.reload();
+  const saved = await snapshot(page);
+  const sources = await page.evaluate(names => names.map(name => resolveItemImage({name})),examples);
+  assert.deepEqual(examples.filter((name,i)=>!sources[i]),[],'Missing exact equipment image');
+  // Original PNGs from open.api.nexon.com/static/maplestory/item/icon/{code} on 2026-11-22.
+  for(const [i,digest] of ['a3af1a2eafc4d60ebd49651b3ff091d4d7ad40830a74e822f548886f0e69d285',
+    '68be5fd45ae03f62b87725536f321f98eed09e85c96c56aaabbfb80a7e060a6f'].entries()) {
+    assert.equal(hash(fs.readFileSync(path.join(root,sources[i]))),digest,examples[i]+' should use the original Nexon image');
+  }
+  assert.equal(new Set(sources).size,examples.length,'Different equipment resolved to the same image');
+  assert.equal(await page.evaluate(name=>resolveItemImage({name}),unknown),'','An unknown name resolved to another item');
+  const referenceDigests = {
+    '베어스 레드 펜던트':'a09b709f1146d28fdefac57ab8067a7e5a00cc393996c0b2def4f982b05d0c69',
+    '베어스 핑크 펜던트':'7ce52971d14683c87bde6bab2556d5211d8fba31e35a66a2784de4933f2384bd'
+  };
+  const references = {};
+  for(const [name,digest] of Object.entries(referenceDigests)) {
+    const url=new URL(sources[examples.indexOf(name)],origin);
+    const atlas=fs.readFileSync(path.join(root,url.pathname),'utf8');
+    const original=[...atlas.matchAll(/data:image\/png;base64,([a-z\d+/=]+)/gi)].map(match=>match[1])
+      .find(png=>hash(Buffer.from(png,'base64'))===digest);
+    assert(original,name+' original Nexon PNG must be present in its atlas');
+    references[name]=original;
+  }
+  await page.click('[data-enhancement-tab="potential"]');
+  const pixels = [];
+  for(const [i,name] of examples.entries()) {
+    const row=namedRow('.enhancement-row',name), img=row.locator('.enhancement-item-image img');
+    assert.equal(await img.count(),1,name+' grouped record');
+    pixels.push(await img.evaluate(async (el,{src,png})=>{
+      el.loading='eager'; await el.decode();
+      if(el.src!==new URL(src,location.href).href) throw Error('Incorrect item source for '+el.alt+': '+el.src+' expected '+src);
+      const canvas=document.createElement('canvas'); canvas.width=el.naturalWidth; canvas.height=el.naturalHeight;
+      const ctx=canvas.getContext('2d'); ctx.drawImage(el,0,0);
+      if(!ctx.getImageData(0,0,canvas.width,canvas.height).data.some((v,i)=>i%4===3&&v>20)) throw Error('Empty item art');
+      const actual=canvas.toDataURL();
+      if(png){
+        // Draw a single, known Nexon PNG with the same SVG fitting rules, without an atlas/fragment.
+        // This detects swapped fragments even if Chrome's currentSrc names the first ref to a shared file.
+        const single='<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><image width="64" height="64" href="data:image/png;base64,'+png+'"/></svg>';
+        const reference=new Image(); reference.src='data:image/svg+xml,'+encodeURIComponent(single); await reference.decode();
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(reference,0,0);
+        if(canvas.toDataURL()!==actual) throw Error('Incorrect item pixels for '+el.alt+': requested '+src+'; src='+el.src+'; currentSrc='+el.currentSrc);
+      }
+      return actual;
+    },{src:sources[i],png:references[name]}));
+  }
+  assert.equal(new Set(pixels).size,examples.length,'Different equipment displayed identical pixels');
+  assert.equal(await namedRow('.enhancement-row',unknown).locator('.expense-item-initials').count(),1,'Unknown name has its own labelled fallback');
+  await page.click('[data-enhancement-tab="all"]');
+  await page.selectOption('[data-history-kind]','potential');
+  for(const [i,name] of examples.entries()) {
+    const img=namedRow('.eh-event',name).locator('.eh-art img');
+    assert.equal(await img.count(),1,name+' chronological record');
+    const url=await img.evaluate(async el=>{el.loading='eager';await el.decode();return el.src;});
+    assert.equal(url,new URL(sources[i],origin).href,name+' mismatch between expense views');
+  }
+  await page.selectOption('[data-history-kind]','manual');
+  const manual=namedRow('.eh-event',examples[1]).locator('.eh-art img');
+  assert.equal(await manual.count(),1,'Manually saved item name should resolve the same equipment');
+  assert.equal(await manual.evaluate(el=>el.src),new URL(sources[1],origin).href);
+  assert.equal(await page.locator('.eh-event').filter({hasText:'이름 없는 구매 메모'}).locator('.eh-art img').count(),0,'Free-form purchase memo should not select an equipment icon');
+
+  // A failed image download should not erase the label, mutate saved data or trigger endless retries.
+  const failedUrl=new URL(sources[2],origin).href;
+  let failures=0;
+  await page.route(failedUrl,route=>{failures++;return route.abort();});
+  await page.reload();
+  await page.selectOption('[data-history-kind]','potential');
+  const failedArt=namedRow('.eh-event',examples[2]).locator('.eh-art');
+  await failedArt.scrollIntoViewIfNeeded();
+  await failedArt.locator('.expense-item-initials').waitFor({state:'visible'});
+  assert(failures>0 && failures<=2,'Repeated retries for one broken image: '+failures);
+  await page.unroute(failedUrl);
+  assert.equal(await snapshot(page),saved,'Looking up art changed recorded amounts or history');
+
+  // Capture the originally reported pair from the grouped expense view using only sample records.
+  await page.setViewportSize({width:1440,height:1000});
+  await page.evaluate(names=>{
+    db.enhancements={...db.enhancements,events:db.enhancements.events.filter(e=>names.includes(e.item))};
+    renderAll();
+  },examples.slice(0,2));
+  await page.click('[data-enhancement-tab="potential"]');
+  assert.equal(await page.locator('.enhancement-row').count(),2);
+  await assertImages(page,'.enhancement-item-image img');
+  await page.locator('#enhancement-list').screenshot({path:path.join(output,'repaired-equipment.png')});
+  return examples.length;
+}
+
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = 'http://127.0.0.1:' + server.address().port;
@@ -200,6 +325,7 @@ async function snapshot(page) {
     assert.equal(await snapshot(page), before, 'Viewing and repairing icons changed ledger records');
     await page.reload();
     assert.equal(await snapshot(page), before, 'Reload changed existing records');
+    const expenseSamples=await checkExpenseImages(page,origin);
     assert.deepEqual(errors, [], 'Browser errors');
 
     const gallery = await context.newPage();
@@ -215,7 +341,7 @@ async function snapshot(page) {
     }, {items:allSources,origin});
     await assertImages(gallery, 'img');
     await gallery.screenshot({path:path.join(output,'drop-icon-catalog.png'),fullPage:true});
-    console.log('Item icons passed:',items.size,'drop IDs,',icons.length,'bundled icons,',coverage.icons,'rendered drop/settlement images; records unchanged.');
+    console.log('Item icons passed:',items.size,'drop IDs,',icons.length,'bundled icons,',coverage.icons,'rendered drop/settlement images,',expenseSamples,'expense items across history and detail views; records unchanged.');
   } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

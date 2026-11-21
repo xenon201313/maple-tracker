@@ -8,6 +8,25 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const time = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul',hourCycle:'h23',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const money = value => window.MapleEnhancementBridge.money(String(value));
+  const ledgerSymbols=new Map([
+    ['월묘의당근','moon-carrot'],['나무새총','wooden-slingshot'],['플라스틱새총','plastic-slingshot'],
+    ['꼬마유니콘','little-unicorn'],['유니콘네온사인','unicorn-neon'],['출항','setting-sail']
+  ]);
+
+  function iconHtml(item,size) {
+    const name=String(item?.name || '').trim();
+    if (!name) return '<svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#receipt"></use></svg>';
+    const words=name.split(/\s+/);
+    const initials=words.length===1 ? Array.from(name).slice(0,2).join('') :
+      Array.from(words[0])[0]+Array.from(words[words.length-1])[0];
+    const original=window.resolveItemImage(item);
+    const symbol=original ? '' : ledgerSymbols.get(name.normalize('NFC').replace(/\s+/g,''));
+    const url=original || (symbol ? 'assets/equipment-symbols/'+symbol+'.svg' : '');
+    const attribution=symbol ? ' title="'+escape(name+' · 메계부 제작 식별 아이콘')+'"' : '';
+    const badge='<span class="expense-item-initials" title="'+escape(name+' · 원본 이미지 미확인')+'">'+escape(initials)+'</span>';
+    const image=url ? '<img src="'+escape(url)+'" alt="'+escape(name)+'"'+attribution+' width="'+size+'" height="'+size+'" loading="lazy">' : '';
+    return '<span class="expense-item-art" style="--item-icon-size:'+size+'px" aria-hidden="true">'+image+badge+'</span>';
+  }
 
   function eventAmount(event, detail) {
     const unit = event.kind === 'starforce' && detail.basis !== 'saved-rate'
@@ -73,7 +92,7 @@
       const costs = (row.record.costs || []).filter(line => line.count > 0 && /^\d+$/.test(String(line.price)));
       const memo = row.record.memo ? '<p>'+escape(row.record.memo)+'</p>' : '';
       return memo + (costs.length ? '<ul class="eh-manual-lines">'+costs.map(line =>
-        '<li>'+escape(line.name)+' · '+money(line.price)+' × '+escape(line.count)+'</li>').join('')+'</ul>' : '<p>'+escape(row.method)+'</p>');
+        '<li>'+iconHtml({id:line.id,name:line.name},24)+' '+escape(line.name)+' · '+money(line.price)+' × '+escape(line.count)+'</li>').join('')+'</ul>' : '<p>'+escape(row.method)+'</p>');
     }
     const detail = [];
     if (e.equipmentPart) detail.push(e.equipmentPart);
@@ -140,9 +159,7 @@
         date=r.date;
         const price=r.amount==null ? '비용 미확인' : money(r.amount);
         const priceType = r.kind==='cube' ? '환산액' : r.kind==='manual' ? '기록액' : '계산액';
-        const icon = r.event && E.itemInfo(r.item).icon;
-        const art = icon ? '<img width="32" height="32" loading="lazy" src="'+escape(icon)+'" alt="">' :
-          '<svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#'+(r.event?'equipment':'receipt')+'"></use></svg>';
+        const art=iconHtml(r.event ? {name:r.item} : r.record.itemArt,32);
         return heading+'<details class="eh-event"><summary><span class="eh-time">'+escape(r.time || '수기')+'</span>'+
           '<span class="eh-item"><span class="eh-art" aria-hidden="true">'+art+'</span><span><strong>'+escape(r.item)+'</strong><small>'+escape([r.character,r.world,r.method===r.item?'':r.method].filter(Boolean).join(' · '))+'</small></span></span>'+
           '<span class="eh-result">'+escape(r.event?result(r.event):r.record.memo || '')+'</span>'+
@@ -165,5 +182,5 @@
     update();
   }
 
-  window.MapleExpenseHistory=Object.freeze({build,draw,eventAmount});
+  window.MapleExpenseHistory=Object.freeze({build,draw,eventAmount,iconHtml});
 })();

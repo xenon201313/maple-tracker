@@ -97,7 +97,8 @@
     ["아스트라 토파즈 이지스",200,"astra-topaz-aegis"],
     ["데스티니 카르타",250,"destiny-carta"]
   ];
-  const cleanName = value => String(value||'').replace(/\s/g,'');
+  const cleanName = value => String(value||'').normalize('NFC').replace(/\s/g,'');
+  const equipmentByName = new Map(equipment.map(row=>[cleanName(row[0]),row]));
   function potentialType(value) {
     const name=cleanName(value);
     if(/^에디셔널잠재능력(?:재설정)?$/.test(name)) return '에디셔널 잠재능력';
@@ -111,9 +112,10 @@
     return '메소 · '+(potentialType(e.potentialType)||'잠재능력');
   }
   function itemInfo(name) {
-    const match=equipment.find(row=>cleanName(row[0])===cleanName(name));
+    const match=equipmentByName.get(cleanName(name));
     const level=match?.[1] ?? (/^(에테르넬|데스티니)/.test(name)?250:/^(아케인셰이드|아스트라|제네시스)/.test(name)?200:/^앱솔랩스/.test(name)?160:/^파프니르/.test(name)?150:null);
-    return {level,icon:match?.[2]?'assets/enhancements/'+match[2]+'.png':''};
+    const icon=match?.[2]?'assets/enhancements/'+match[2]+'.png':root.MapleEquipmentIcons?.get(name);
+    return {level,icon:icon||''};
   }
   const string = value => typeof value === 'string' ? value.trim().slice(0, 500) : '';
   const amount = value => /^(0|[1-9]\d{0,29})$/.test(String(value)) ? String(value) : null;

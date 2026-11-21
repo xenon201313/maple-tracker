@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1005512, "name": "바구니 장착!",
+    "url": "https://maplestory.io/api/KMS/389/item/1005512",
+    "layers": [
+      ["default2", "5f09b051c03c3783b163b42cd364c53c0d3258c4bfaf5329993fa70c8b34c323"],
+      ["default", "97a2d69a5bc715498990d6a92f153abbbeeac7b77d47126400ded30dd776396f"]
+    ]
+  },
+  {
+    "id": 1012693, "name": "티그리스 위스커",
+    "url": "https://maplestory.io/api/KMS/389/item/1012693",
+    "layers": [["default", "0255f281c0d7bab083896daee91e0674e226cf0da57c4ac48c4c92cd446393af"]]
+  },
+  {
+    "id": 1372079, "name": "에반 완드", "archivedName": "Evan Wand",
+    "url": "https://maplestory.io/api/GMS/255/item/1372079/icon",
+    "sha256": "4a88ccf9ecf0ce82a6a06a738a2a78bdf783593f1ee538ad584b9a739f7ff737"
+  },
+  {
+    "id": 1452050, "name": "초급 궁수의 활", "archivedName": "Beginner Bowman's Bow",
+    "url": "https://maplestory.io/api/GMS/255/item/1452050/icon",
+    "sha256": "101b4fe532cad76d4b1d92e6324a326dfd197c3c77f4eecc81fe52ba460153bb"
+  },
+  {
+    "id": 1902008, "name": "개구리", "archivedName": "Frog",
+    "url": "https://maplestory.io/api/GMS/270/item/1902008/icon",
+    "sha256": "a0e47f1bb3f2661a9fbb83a1d78b8819402a2cdaf2bbfde41015913fdcdfa6e2"
+  },
+  {
+    "id": 1912003, "name": "개구리 안장", "archivedName": "Frog Cover",
+    "url": "https://maplestory.io/api/GMS/270/item/1912003/icon",
+    "sha256": "701a0ddbb47118bd9dfa3c28296a6e4e48fc4c51edb874d64ffe5eb6fb6b6ff3"
+  }
+]

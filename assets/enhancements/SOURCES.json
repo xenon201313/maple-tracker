@@ -4,6 +4,20 @@
   "astraRoster": "https://maplestory.nexon.com/News/Update/794",
   "items": [
     {
+      "name": "에테르넬 나이트헬름",
+      "verifiedOn": "2026-11-22",
+      "code": "KEPCOOGB",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEPCOOGB",
+      "source": "https://maple.dwjeong.com/archive/equipitem/1005980"
+    },
+    {
+      "name": "베어스 그린 펜던트",
+      "verifiedOn": "2026-11-22",
+      "code": "KEOAJHGJ",
+      "url": "https://open.api.nexon.com/static/maplestory/item/icon/KEOAJHGJ",
+      "source": "https://maple.dwjeong.com/archive/equipitem/1122088"
+    },
+    {
       "name": "데스티니 가즈",
       "url": "https://open.api.nexon.com/static/maplestory/item/icon/KELFJFGJ",
       "source": "https://chuchu.gg/jobs/%EB%82%98%EC%9D%B4%ED%8A%B8%EB%A1%9C%EB%93%9C/equipment",

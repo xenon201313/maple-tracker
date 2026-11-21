@@ -22,6 +22,10 @@
       image.src=local;
       return;
     }
+    if(image.parentElement?.classList.contains('expense-item-art')){
+      image.remove(); // Reveal the item's name badge when its original artwork is unavailable.
+      return;
+    }
     image.dataset.imageUnavailable = 'true';
     image.title = (image.alt ? image.alt + ': ' : '') + '원본 이미지를 불러올 수 없습니다.';
     image.src = imageFallback;
