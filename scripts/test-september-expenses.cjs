@@ -162,6 +162,13 @@ async function setMode(page,mode,item,count,unit) {
       const beforeFill=await snapshot(page);
       await page.click('#september-expense-fill');
       assert.equal(await snapshot(page),beforeFill);
+      if(mode==='soul_potential'){
+        assert.equal(await page.locator('#expense-amount').isEditable(),false);
+        await page.locator('#expense-amount').evaluate(input=>{input.value='17';});
+        await page.click('#expense-save');
+        assert.equal(await snapshot(page),beforeFill,'소울 재설정에 임의 금액을 저장할 수 없음');
+        await page.click('#september-expense-fill');
+      }
       await page.click('#expense-save');
       assert.equal(await page.evaluate(()=>String(db.expenses[0].amount)),total);
       assert.equal(await page.evaluate(()=>db.expenses[0].category),mode);

@@ -58,7 +58,7 @@ const snapshot=page=>page.evaluate(()=>JSON.stringify({records:db.records,expens
   }
   assert.equal(await snapshot(page),before,'navigation and planning view leave source ledger unchanged');
   await page.setViewportSize({width:1440,height:1000});await page.evaluate(()=>openPage('expense'));await settle(page);
-  assert.equal(await page.evaluate(()=>!!(document.getElementById('expense-entry-card').compareDocumentPosition(document.getElementById('enhancement-panel'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'manual expense precedes API list');
+  assert.equal(await page.evaluate(()=>!!(document.getElementById('enhancement-panel').compareDocumentPosition(document.getElementById('expense-entry-card'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'history opens above the purchase form');
   for(const id of ['expense-date','expense-character','expense-category','expense-amount','expense-memo'])assert.equal(await page.locator('label[for="'+id+'"]').count(),1,id+' accessible label');
   await page.locator('[data-renewal-jump="enhancement-title"]').click();assert.equal(await page.locator('#enhancement-title').evaluate(el=>document.activeElement===el),true,'API jump focuses target');
   await page.locator('[data-renewal-jump="expense-entry-title"]').click();assert.equal(await page.locator('#expense-entry-title').evaluate(el=>document.activeElement===el),true,'manual jump focuses target');

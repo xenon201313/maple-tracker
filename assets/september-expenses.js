@@ -135,6 +135,7 @@
     }
     function refreshQuote() {
       const result = quote(modeInput.value,itemInput.value,countInput.value,unitInput.value);
+      if(categoryInput.value==='soul_potential') amountInput.value='';
       const item = modeById(modeInput.value).items.find(entry => entry.id === itemInput.value);
       const limit = modeInput.value === 'sora_meso_shop' ? (item.limit ? item.scope + '당 ' + item.limit + '개까지' : '구매 수량 제한 없음') : '';
       get('unit-note').textContent = [result.ok ? result.detail : '',limit].filter(Boolean).join(' · ');
@@ -155,6 +156,16 @@
     itemInput.addEventListener('change',refreshQuote);
     countInput.addEventListener('input',refreshQuote);
     unitInput.addEventListener('input',refreshQuote);
+    categoryInput.addEventListener('change',() => {
+      if(amountInput.readOnly || categoryInput.value==='soul_potential') amountInput.value='';
+      amountInput.readOnly=categoryInput.value==='soul_potential';
+      if(amountInput.readOnly) {
+        host.open=true;
+        modeInput.value='soul_potential';
+        refreshMode();
+        itemInput.focus();
+      }
+    });
     dateInput.addEventListener('input',refreshDateNote);
     dateInput.addEventListener('change',refreshDateNote);
     dateInput.addEventListener('blur',refreshDateNote);
@@ -163,6 +174,7 @@
       const result = quote(modeInput.value,itemInput.value,countInput.value,unitInput.value);
       if (!result.ok) { refreshQuote(); return; }
       categoryInput.value = result.category;
+      amountInput.readOnly = result.category==='soul_potential';
       amountInput.value = format(result.amount);
       const currentMemo = memoInput.value.trim();
       let userMemo = currentMemo;

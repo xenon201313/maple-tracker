@@ -21,7 +21,8 @@ const server=http.createServer((req,res)=>{
   let browser;
   try {
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
-    const context=await browser.newContext({viewport:{width:1440,height:1000}});
+    // These assertions read newly opened detail rows. Exercise the instant disclosure path.
+    const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
     await fixtureDismissPatchNotes(context);
     let fail=false,historyCalls=0,oauthReady=false,finishCalls=0,repairHistory=false,oauthFailure=false;
     let expectedAuthCode='fixture-code';
@@ -75,6 +76,34 @@ const server=http.createServer((req,res)=>{
     await page.waitForFunction(()=>document.querySelector('#enhancement-status').textContent.includes('조회 완료'));
     assert.equal(await page.locator('[data-enhancement-tab="soul_ether"]').getAttribute('aria-selected'),'true','API 조회 완료가 선택한 수기 탭을 변경함');
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
+    await page.click('[data-enhancement-tab="all"]');
+    assert.equal(await page.locator('.eh-event').count(),4,'전체 이력은 두 API 시도와 직접 기록한 강화·구매를 포함해야 함');
+    await page.locator('#enhancement-panel').screenshot({path:path.join(output,'expenses-overview.png')});
+    await page.evaluate(()=>MapleThemeMode.setPreference('dark'));
+    await page.locator('#enhancement-panel').screenshot({path:path.join(output,'expenses-overview-dark.png')});
+    await page.evaluate(()=>MapleThemeMode.setPreference('light'));
+    await page.selectOption('[data-history-kind]','manual');
+    assert.equal(await page.locator('.eh-event').count(),2);
+    await page.selectOption('[data-history-kind]','');
+    await page.fill('[data-history-search]','가디언');
+    assert.equal(await page.locator('.eh-event').count(),1);
+    await page.fill('[data-history-search]','존재하지 않는 장비');
+    assert.match(await page.locator('.eh-days').innerText(),/조건에 맞는 기록이 없습니다/);
+    await page.fill('[data-history-search]',today);
+    await page.selectOption('[data-history-month]',today.slice(0,7));
+    assert.equal(await page.locator('.eh-event').count(),4);
+    await page.fill('[data-history-search]','');
+    await page.selectOption('[data-history-month]','');
+    await page.fill('#expense-date',today);
+    await page.selectOption('#expense-category','equipment');
+    await page.fill('#expense-amount','43210');
+    await page.fill('#expense-memo','임시 장부 확인');
+    await page.click('#expense-save');
+    await page.fill('[data-history-search]','임시 장부 확인');
+    assert.equal(await page.locator('.eh-event').count(),1,'구매 지출 즉시 반영');
+    await page.locator('.expense-record').filter({hasText:'임시 장부 확인'}).locator('[data-expense-delete]').click();
+    assert.equal(await page.locator('.eh-event').count(),0,'삭제한 구매 지출 즉시 반영');
+    await page.fill('[data-history-search]','');
     await page.click('[data-enhancement-tab="starforce"]');
     assert.equal(await page.locator('.enhancement-row').count(),1);
     assert.equal(await page.evaluate(()=>profitTotals(()=>true).cost.toString()),'1000000','Estimates changed existing totals');
@@ -121,6 +150,11 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>spendingCategoryRows(()=>true).reduce((sum,row)=>sum+row.calculator,0n).toString()),'46000000');
     await page.reload();
     assert.equal(await page.evaluate(()=>profitTotals(()=>true).cost.toString()),'46000000','Confirmed costs survive reload');
+    assert.equal(await page.locator('[data-enhancement-tab="all"]').getAttribute('aria-selected'),'true');
+    await page.selectOption('[data-history-status]','confirmed');
+    assert.equal(await page.locator('.eh-event').count(),1,'반영한 강화 이력이 다시 로드한 전체 목록에서도 보여야 함');
+    await page.selectOption('[data-history-status]','');
+    await page.click('[data-enhancement-tab="starforce"]');
     await page.selectOption('#enhancement-source','key');
     await page.fill('#enhancement-from',today);await page.fill('#enhancement-to',today);
     await page.click('#enhancement-refresh');
@@ -267,23 +301,21 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'Grade repair changed confirmed spending');
     assert.equal(await page.evaluate(()=>JSON.stringify({records:db.records,profits:db.profits,expenses:db.expenses,chars:db.chars})),manualBefore,'Grade repair mutated manual records');
     assert(historyCalls>=4);
-    await page.evaluate(()=>MapleEnhancementBridge.commit({events:[MapleEnhancements.event('soul-potential',{id:'soul-usage',character_name:'테스트 캐릭터',target_item:'제네시스 스태프',date_create:todayStr()+'T14:00:00+09:00',soul_potential_amplified_grade:2,before_soul_potential_option:[{grade:'유니크',value:'이전 옵션'}],after_soul_potential_option:[{grade:'레전드리',value:'다음 옵션'}]},'fixture-soul')]}));
+    await page.evaluate(()=>{
+      const raw={id:'soul-usage',character_name:'테스트 캐릭터',target_item:'제네시스 스태프',date_create:todayStr()+'T14:00:00+09:00',soul_potential_amplified_grade:2,before_soul_potential_option:[{grade:'유니크',value:'이전 옵션'}],after_soul_potential_option:Array.from({length:9},(_,i)=>({grade:'레전드리',value:'다음 옵션 '+(i+1)}))};
+      MapleEnhancementBridge.commit({events:[MapleEnhancements.event('soul-potential',raw,'fixture-soul'),MapleEnhancements.event('soul-potential',{...raw,id:'soul-unknown',target_item:'과거 소울 무기',after_soul_potential_option:[]},'fixture-soul')]});
+    });
     await page.click('[data-enhancement-tab="soul_ether"]');
     assert(await page.locator('#enhancement-api-panel').isVisible(),'소울 탭에 API 이력 표시');
     assert(await page.locator('#manual-enhancement-panel').isVisible(),'소울 증폭·에테르 구입비 수기 입력 유지');
-    const soulRow=page.locator('.enhancement-row[data-kind="soul-potential"]');
-    assert.match(await soulRow.innerText(),/횟수·비용 확인 필요/);
+    const soulRow=page.locator('.enhancement-row[data-kind="soul-potential"]').filter({hasText:'제네시스 스태프'});
+    const unknownSoul=page.locator('.enhancement-row[data-kind="soul-potential"]').filter({hasText:'과거 소울 무기'});
+    assert.match(await soulRow.innerText(),/1억 9,500만/);
+    assert.match(await unknownSoul.innerText(),/재조회 필요/);
+    assert.equal(await unknownSoul.locator('[data-confirm]').isDisabled(),true);
     assert.match(await page.locator('#enhancement-summary').innerText(),/무료 에테르/);
     await soulRow.locator('.enhancement-details > summary').click();
-    assert.equal(await soulRow.locator('[data-attempts]').inputValue(),'');
-    assert.equal(await soulRow.locator('[data-amount]').inputValue(),'');
-    await soulRow.locator('[data-settings]').click();
-    assert.match(await page.locator('#enhancement-status').innerText(),/1회 또는 3회/);
-    await soulRow.locator('[data-attempts]').selectOption('3');
-    await soulRow.locator('[data-settings]').click();
-    assert.equal(await soulRow.locator('[data-amount]').inputValue(),'195000000');
-    await soulRow.locator('[data-confirm]').click();
-    assert.match(await page.locator('#enhancement-status').innerText(),/실제 메소/);
+    assert.equal(await soulRow.locator('[data-attempts],[data-unit],[data-amount],[data-actual-cost]').count(),0);
     assert.equal(await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements))),beforeCube,'소울 추정액을 자동으로 통계에 더하지 않음');
     for(const width of [1440,390,320]) {
       await page.setViewportSize({width,height:1000});
@@ -292,10 +324,36 @@ const server=http.createServer((req,res)=>{
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'Soul API and manual panels overflow at '+width);
       if(width!==320) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'soul-api-'+width+'.png')});
     }
-    await soulRow.locator('[data-actual-cost]').check();
     await soulRow.locator('[data-confirm]').click();
     assert.equal(await page.evaluate(()=>MapleEnhancements.profits(db.enhancements).find(p=>p.type==='soul_ether').costs[0].price),'195000000');
     assert.equal(await page.evaluate(()=>JSON.stringify({records:db.records,profits:db.profits,expenses:db.expenses,chars:db.chars})),manualBefore,'소울 API가 수기·무료 재료 기록을 변경함');
+    await page.click('[data-enhancement-tab="all"]');
+    assert.equal(await page.locator('.eh-event').count(),20);
+    const firstPage=await page.locator('.eh-event summary').first().innerText();
+    await page.click('[data-history-next]');
+    assert.notEqual(await page.locator('.eh-event summary').first().innerText(),firstPage);
+    await page.selectOption('[data-history-kind]','soul-potential');
+    await page.selectOption('[data-history-status]','confirmed');
+    assert.equal(await page.locator('.eh-event').count(),1);
+    await page.locator('.eh-event summary').click();
+    assert.match(await page.locator('.eh-event-detail').innerText(),/이전 옵션/);
+    assert.match(await page.locator('.eh-event-detail').innerText(),/다음 옵션 9/);
+    assert.match(await page.locator('.eh-event-detail').innerText(),/1억 9,500만/);
+    for(const width of [1440,390,320]) {
+      await page.setViewportSize({width,height:1000});
+      await page.waitForTimeout(100);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'전체 이력 넘침 '+width);
+      if(width!==320) await page.locator('#enhancement-panel').screenshot({path:path.join(output,'all-expenses-'+width+'.png')});
+    }
+    await page.selectOption('[data-history-kind]','starforce');
+    await page.evaluate(()=>{
+      const group=MapleEnhancements.reports(db.enhancements).find(g=>g.kind==='starforce' && g.count===25);
+      MapleEnhancementBridge.commit(MapleEnhancements.confirm(db.enhancements,group,'9900','fixture-custom-payment'));
+    });
+    await page.waitForFunction(()=>document.querySelector('.eh-count').textContent.includes('25건'));
+    assert(!(await page.locator('.eh-cost').allTextContents()).some(cost=>cost.includes('9,900 메소')),'묶음 확정액이 각 시도 비용으로 중복 표시됨');
+    await page.locator('.eh-event summary').first().click();
+    assert.match(await page.locator('.eh-event-detail').first().innerText(),/25건의 확정 지출 · 9,900 메소/);
     oauthReady=true;
     await page.evaluate(()=>sessionStorage.setItem('maple:friends:flow',JSON.stringify({state:'c'.repeat(64),proof:'a'.repeat(64),createdAt:Date.now()})));
     await page.goto(origin+'/?page=home&state='+'c'.repeat(64)+'&code=fixture-code');

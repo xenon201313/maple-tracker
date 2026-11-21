@@ -118,12 +118,15 @@
   const string = value => typeof value === 'string' ? value.trim().slice(0, 500) : '';
   const amount = value => /^(0|[1-9]\d{0,29})$/.test(String(value)) ? String(value) : null;
   const key = values => JSON.stringify(values);
-  const identity = e => key([e.kind,e.id,e.at,e.character,e.world,e.item]);
+  const identity = e => key([e.kind,e.id,Date.parse(e.at),e.character,e.world,e.item]);
   const validDay = value => typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value+'T00:00:00Z')) && new Date(value+'T00:00:00Z').toISOString().slice(0,10)===value;
   function dateKst(value) {
     if (typeof value !== 'string' || !/T.*(?:Z|[+-]\d\d:\d\d)$/.test(value)) return '';
     const time = Date.parse(value);
     return Number.isFinite(time) ? new Date(time + 9 * 3600000).toISOString().slice(0,10) : '';
+  }
+  function optionLines(options) {
+    return Array.isArray(options) ? options.map(line=>({value:string(line?.value),grade:string(line?.grade)})) : [];
   }
   function event(kind, raw, account, observedAt = Date.now()) {
     if (!kinds.has(kind) || !raw || !string(raw.id) || !string(account)) throw new Error('잘못된 강화 이력입니다.');
@@ -132,22 +135,33 @@
     const additional = potentialType(raw.potential_type) === '에디셔널 잠재능력' || (kind==='cube' && /에디셔널/.test(raw.cube_type||''));
     const before = kind==='soul-potential'?raw.before_soul_potential_option:additional ? raw.before_additional_potential_option : raw.before_potential_option;
     const after = kind==='soul-potential'?raw.after_soul_potential_option:additional ? raw.after_additional_potential_option : raw.after_potential_option;
+    const equipmentPotential = kind==='potential' || kind==='cube';
+    const otherBefore = additional ? raw.before_potential_option : raw.before_additional_potential_option;
+    const otherAfter = additional ? raw.after_potential_option : raw.after_additional_potential_option;
+    const reportedGrade = kind==='soul-potential' ? raw.soul_potential_grade : additional ? raw.additional_potential_option_grade : raw.potential_option_grade;
     const result = {
       key:key([account,kind,raw.id]), account:string(account), id:string(raw.id), kind, date,
       at:string(raw.date_create), character:string(raw.character_name), world:string(raw.world_name),
       item:string(raw.target_item), result:string(raw.item_upgrade_result),
       level:Number.isInteger(raw.item_level) ? raw.item_level : null,
       potentialType:string(raw.potential_type), grade:string(before?.[0]?.grade),
-      cubeType:string(raw.cube_type), nextGrade:string(after?.[0]?.grade),
+      cubeType:string(raw.cube_type), nextGrade:string(after?.[0]?.grade)||string(reportedGrade),
       // 10/22 추가된 소울 미라클 여부도 보존합니다. 누락된 과거 응답을 미적용으로 단정하지 않습니다.
       miracleTimeFlag:string(raw.miracle_time_flag),
-      options:Array.isArray(after)?after.slice(0,9).map(o=>({value:string(o.value),grade:string(o.grade)})):[],
+      options:optionLines(after),
+      ...(kind!=='starforce'?{beforeOptions:optionLines(before),optionTrack:kind==='soul-potential'?'소울 잠재능력':additional?'에디셔널 잠재능력':'잠재능력'}:{}),
+      ...(equipmentPotential && otherBefore?.length?{otherBeforeOptions:optionLines(otherBefore)}:{}),
+      ...(equipmentPotential && otherAfter?.length?{otherOptions:optionLines(otherAfter)}:{}),
+      ...(string(raw.item_equipment_part)?{equipmentPart:string(raw.item_equipment_part)}:{}),
+      ...(string(raw.starcatch_result)?{starcatchResult:string(raw.starcatch_result)}:{}),
+      ...(typeof raw.upgrade_guarantee==='boolean'?{guaranteed:raw.upgrade_guarantee}:{}),
+      ...(Number.isSafeInteger(raw.upgrade_guarantee_count) && raw.upgrade_guarantee_count>=0?{guaranteeCount:raw.upgrade_guarantee_count}:{}),
       multiResult:Array.isArray(after) && after.length > 3,
       stars:Number.isInteger(raw.before_starforce_count) ? raw.before_starforce_count : null,
       nextStars:Number.isInteger(raw.after_starforce_count) ? raw.after_starforce_count : null,
       conditions:kind === 'starforce' ? key([raw.superior_item_flag,raw.destroy_defence,raw.chance_time,raw.event_field_flag,raw.upgrade_item,raw.protect_shield,raw.bonus_stat_upgrade,(raw.starforce_event_list || []).map(e=>[e.cost_discount_rate,e.starforce_event_range,e.recovery_cost_discount_rate])]) : '',
-      ...(kind==='soul-potential'?{soulStage:Number.isInteger(raw.soul_potential_amplified_grade)?raw.soul_potential_amplified_grade:null,guaranteed:raw.upgrade_guarantee===true,beforeOptions:Array.isArray(before)?before.slice(0,9).map(o=>({value:string(o.value),grade:string(o.grade)})):[]}:{}),
-      observedAt:Number(observedAt) || 0, schemaVersion:2
+      ...(kind==='soul-potential'?{soulStage:Number.isInteger(raw.soul_potential_amplified_grade)?raw.soul_potential_amplified_grade:null,soulOptionCount:Array.isArray(after)?after.length:null}:{}),
+      observedAt:Number(observedAt) || 0, schemaVersion:3
     };
     // Keep pre-fix manual rates addressable when an API reimport repairs the grade.
     if(kind==='potential' && additional && raw.potential_type!=='에디셔널 잠재능력') {
@@ -200,10 +214,14 @@
   function rateKey(e) {
     const parts=[e.account,e.date,e.kind,e.character,e.world,e.item,e.level,e.potentialType,e.grade,e.stars,e.conditions,e.multiResult];
     if(e.kind==='cube') parts.push(e.cubeType);
-    if(e.kind==='soul-potential') parts.push(e.soulStage);
+    if(e.kind==='soul-potential') parts.push(e.soulStage,soulAttempts(e));
     return key(parts);
   }
-  const reportKey=e=>key(['item',e.account,e.date,e.kind,e.character,e.world,e.item,e.kind==='cube'?e.cubeType:e.potentialType]);
+  function reportKey(e) {
+    const fields=['item',e.account,e.date,e.kind,e.character,e.world,e.item,e.kind==='cube'?e.cubeType:e.potentialType];
+    if(e.kind==='soul-potential' && (soulAttempts(e)===null || defaultUnit(e)===null)) fields.push('unpriced');
+    return key(fields);
+  }
   function flag(value) {
     if(value===true) return true;
     const text=String(value||'').trim();
@@ -253,6 +271,15 @@
     const safeguard=flag(c[1])?(Date.parse(e.at)>=Date.parse('2025-03-20T10:00:00+09:00')?2:1):0;
     return String(Math.round(base*(100-extra)*(100-discount)/10000+base*safeguard));
   }
+  function soulAttempts(e) {
+    const count=e.soulOptionCount ?? e.options?.length;
+    // 넥슨은 세 옵션으로 된 결과와 3회 묶음을 제공한다. 불완전한 세트는 과금 횟수를 추측하지 않는다.
+    if(!Array.isArray(e.options) || e.options.length!==count || ![3,9].includes(count)) return null;
+    if(count===9 && !Number.isInteger(e.soulOptionCount) && (e.schemaVersion||1)<3) return null;
+    const optionGrades=['노멀',...grades];
+    if(e.options.some((o,i)=>!o || !(i%3?optionGrades:grades).includes(o.grade))) return null;
+    return count/3;
+  }
   function defaultUnit(e) {
     // 공식 가이드 416 (2026-09-17): 재설정 전 등급 기준. 에테르 구입비는 별도입니다.
     if(e.kind==='soul-potential') return e.date>='2026-09-17' && grades.includes(e.grade)?String([20000000,40000000,65000000,88000000][grades.indexOf(e.grade)]):null;
@@ -270,24 +297,51 @@
     const table=type==='잠재능력' ? potentialCosts : additionalCosts;
     return String(table[level<160?0:level<200?1:level<250?2:3][grade]);
   }
+  function settingKeys(...lists) {
+    return [...new Set(lists.filter(Array.isArray).flat())];
+  }
+  function latestSetting(settings,main,aliases) {
+    return settingKeys([main],aliases).map(id=>settings.get(id)).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)[0];
+  }
   function groups(value) {
-    const state=normalize(value), {used}=allocated(state), map=new Map(), seen=new Set(), rates=new Map(state.rates.map(r=>[r.key,r])), profiles=new Map(state.profiles.map(p=>[p.key,p]));
-    state.events.filter(e=>!used.has(e.key)).forEach(e=>{
-      if(seen.has(identity(e))) return;
-      seen.add(identity(e));
+    const state=normalize(value), {used}=allocated(state), map=new Map(), distinct=new Map(), rates=new Map(state.rates.map(r=>[r.key,r])), profiles=new Map(state.profiles.map(p=>[p.key,p]));
+    for(const event of state.events) {
+      if(used.has(event.key)) continue;
+      const id=identity(event), old=distinct.get(id);
+      if(!old) {
+        distinct.set(id,event);
+        continue;
+      }
+      // 두 연결 경로의 동일한 넥슨 이력은 한 번만 표시한다. 기존 설정 키와 새로 조회된 옵션을 함께 유지한다.
+      const generation=(event.schemaVersion||1)-(old.schemaVersion||1);
+      const best=generation>0 || (generation===0 && Number(event.observedAt)>Number(old.observedAt)) ? event : old;
+      const merged={...best,account:old.account,key:old.key};
+      const currentRateKey=rateKey(merged);
+      merged.rateAliases=settingKeys([rateKey(old),rateKey(event)],old.rateAliases,event.rateAliases).filter(k=>k!==currentRateKey);
+      merged.profileAliases=settingKeys([reportKey(old),reportKey(event)],old.profileAliases);
+      distinct.set(id,merged);
+    }
+    distinct.forEach(e=>{
       const id=rateKey(e);
       if (!map.has(id)) map.set(id,{key:id,...e,eventKeys:[],events:[],count:0});
       const group=map.get(id); group.key=id; group.eventKeys.push(e.key); group.count++;
+      if(e.rateAliases?.length) group.rateAliases=settingKeys(group.rateAliases,e.rateAliases);
+      if(e.profileAliases?.length) group.profileAliases=settingKeys(group.profileAliases,e.profileAliases);
       group.events.push(e);
     });
     return [...map.values()].map(g=>{
-      const profile=profiles.get(reportKey(g))||{}, level=g.level??profile.level??itemInfo(g.item).level;
-      const saved=[g.key,...(Array.isArray(g.rateAliases)?g.rateAliases:[])].map(k=>rates.get(k)).filter(Boolean).sort((a,b)=>b.updatedAt-a.updatedAt)[0], rate=saved?.auto===true?undefined:saved;
+      const profile=latestSetting(profiles,reportKey(g),g.profileAliases)||{};
+      const level=g.level??profile.level??itemInfo(g.item).level;
+      const saved=latestSetting(rates,g.key,g.rateAliases), rate=saved?.auto===true?undefined:saved;
       const attemptSettings=profile.updatedAt>=(rate?.updatedAt||0)?profile:rate;
-      const attempts=['potential','soul-potential'].includes(g.kind)?(attemptSettings?.attempts||rate?.attempts||profile.attempts||1):1;
+      if(g.kind==='soul-potential') {
+        const attempts=soulAttempts(g),unit=defaultUnit(g);
+        const estimate=unit!==null && attempts!==null ? String(BigInt(unit)*BigInt(attempts)*BigInt(g.count)) : null;
+        return {...g,resolvedLevel:level,profile,unit,attempts,estimate,basis:estimate===null?'needs-history':'official-table'};
+      }
+      const attempts=g.kind==='potential'?(attemptSettings?.attempts||rate?.attempts||profile.attempts||1):1;
       const resolved={...g,level,multiResult:g.multiResult && !profile.attempts};
-      // 소울 API에는 1회/3회 비용 구분이 없으므로 사용자가 조건을 확인하기 전에는 계산하지 않습니다.
-      const costs=g.events.map(e=>rate?.unit ?? (g.kind==='soul-potential' && !profile.attempts?null:g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
+      const costs=g.events.map(e=>rate?.unit ?? (g.kind==='starforce'?starCost({...e,level},profile):defaultUnit(resolved)));
       const unit=costs.every(cost=>cost===costs[0])?costs[0]:null;
       const estimate=costs.some(cost=>cost===null)?null:String(costs.reduce((sum,cost)=>sum+BigInt(cost)*BigInt(attempts),0n));
       return {...g,resolvedLevel:level,profile,unit,attempts,estimate,basis:rate?'saved-rate':estimate===null?'needs-rate':g.kind==='starforce'?'star-formula':g.kind==='cube'?'cube-equivalent':'official-table'};
@@ -303,7 +357,7 @@
       if(g.estimate===null) report.missing+=g.count; else report.total+=BigInt(g.estimate);
     });
     return [...map.values()].map(r=>{
-      const events=r.events.sort((a,b)=>a.at.localeCompare(b.at)||a.id.localeCompare(b.id));
+      const events=r.events.sort((a,b)=>Date.parse(a.at)-Date.parse(b.at)||a.id.localeCompare(b.id));
       const first=events[0],last=events[events.length-1];
       r.details.sort((a,b)=>(a.stars??grades.indexOf(a.grade))-(b.stars??grades.indexOf(b.grade))||a.key.localeCompare(b.key));
       const {total,...report}=r;
@@ -317,6 +371,7 @@
     if (amount(value)===null || (status==='confirmed' && BigInt(value)<=0n)) throw new Error('확정할 메소를 입력해 주세요.');
     const current=(group.details?reports(state):groups(state)).find(g=>g.key===group.key);
     if (!current || key([...current.eventKeys].sort())!==key([...group.eventKeys].sort())) throw new Error('이력이 변경되었습니다. 목록을 다시 확인해 주세요.');
+    if(current.kind==='soul-potential' && status==='confirmed' && current.estimate!==String(value)) throw new Error('소울 재설정 전 등급과 전체 결과를 다시 조회해 공식 비용을 확인해 주세요.');
     const batch={id,eventKeys:current.eventKeys,status,amount:String(value),kind:current.kind,potentialType:current.potentialType,cubeType:current.cubeType,date:current.date,item:current.item,character:current.character,createdAt:now,updatedAt:Date.parse(now)};
     return merge(state,{batches:[batch]});
   }
@@ -332,16 +387,17 @@
       const rows=body?.[kind.replace(/-/g,'_')+'_history'];
       if (!Array.isArray(rows)) throw new Error('API 응답에 강화 이력이 없습니다. 기존 기록은 유지됩니다.');
       for (const raw of rows) {
-        const row=event(kind,raw,account);
-        if (row.date!==date) throw new Error('조회 날짜와 다른 이력이 반환되었습니다. 저장하지 않았습니다.');
-        events.push(row);
+        const day=dateKst(raw?.date_create);
+        if(day && day!==date) continue;
+        events.push(event(kind,raw,account));
       }
-      cursor=typeof body.next_cursor==='string'?body.next_cursor:'';
+      if(body.next_cursor!=null && typeof body.next_cursor!=='string') throw new Error('API의 다음 페이지 정보를 확인할 수 없습니다. 다시 조회해 주세요.');
+      cursor=body.next_cursor || '';
       if (!cursor) return merge({events}).events;
       if (cursors.has(cursor)) throw new Error('API 페이지가 반복되어 조회를 중단했습니다.');
       cursors.add(cursor);
     }
     throw new Error('하루 조회 한도를 넘었습니다. 기존 기록은 유지됩니다.');
   }
-  root.MapleEnhancements={event,normalize,merge,groups,reports,confirm,profits,allocated,collect,dateKst,defaultUnit,amount,starBase,starCost,starConditions,itemInfo,equipment,flag,potentialType,methodLabel};
+  root.MapleEnhancements={event,normalize,merge,groups,reports,confirm,profits,allocated,collect,dateKst,defaultUnit,soulAttempts,amount,starBase,starCost,starConditions,itemInfo,equipment,flag,potentialType,methodLabel,identity};
 })(typeof window==='undefined'?globalThis:window);

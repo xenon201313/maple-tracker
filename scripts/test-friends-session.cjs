@@ -163,6 +163,26 @@ function environment({initial=session,url='https://maple-trackers.com/?page=home
   await partial.elements.get('enhancement-refresh').onclick();
   assert.equal(partial.commits(),1,'장부 선택 전에는 이력을 가져오지 않음');
 
+  // A long import crosses a checkpoint, hits a rate limit, then resumes the unsaved dates.
+  const relativeDay=n=>new Date(Date.now()+9*3600000+n*86400000).toISOString().slice(0,10);
+  let throttle=true;
+  const range=environment({panel:true,fetchHook:(action,body)=>{
+    if(action!=='history') return;
+    if(throttle && body.date===relativeDay(-7)) return respond({error:'호출 한도'},429);
+    const row={id:body.date+'-'+body.kind,character_name:'조회용 캐릭터',target_item:'아케인셰이드 스태프',date_create:body.date+'T12:00:00+09:00'};
+    return respond({[body.kind.replace(/-/g,'_')+'_history']:[row],next_cursor:''});
+  }});
+  await spin(()=>range.api.getState().connected);
+  range.elements.get('enhancement-from').value=relativeDay(-8);
+  range.elements.get('enhancement-to').value=relativeDay(0);
+  await range.elements.get('enhancement-refresh').onclick();
+  assert.equal(range.ledger().events.length,28,'완료한 7일은 호출 한도 이전에 저장됨');
+  assert.equal(range.elements.get('enhancement-to').value,relativeDay(-7));
+  assert.match(range.elements.get('enhancement-status').textContent,/조회 한도.*이어갑니다/);
+  throttle=false;
+  await range.elements.get('enhancement-refresh').onclick();
+  assert.equal(range.ledger().events.length,36,'다시 조회하면 남은 2일을 중복 없이 추가');
+
   let release;
   const switching=environment({panel:true,fetchHook:(action,body)=>action==='history' && body.kind==='starforce'?new Promise(resolve=>{release=()=>resolve(historyReply(body.kind,body.date));}):action==='history'?historyReply(body.kind,body.date):undefined});
   await spin(()=>switching.api.getState().connected);

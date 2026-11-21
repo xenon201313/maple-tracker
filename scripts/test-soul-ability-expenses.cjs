@@ -97,14 +97,14 @@ async function checkLayout(page,label) {
     });
     const original=await preserved(page),before=await totals(page);
     const form=page.locator('#manual-enhancement-calculator');
-    assert.deepEqual(await page.locator('[data-enhancement-tab]').evaluateAll(elements=>elements.map(el=>el.dataset.enhancementTab)),['starforce','potential','soul_ether','advanced_ability','legacy']);
+    assert.deepEqual(await page.locator('[data-enhancement-tab]').evaluateAll(elements=>elements.map(el=>el.dataset.enhancementTab)),['all','starforce','potential','soul_ether','advanced_ability','legacy']);
     assert.equal(await page.locator('[data-manual-expense-tab]').count(),0,'기존 별도 수기 탭이 중복으로 남음');
     assert.equal(await page.locator('#enhancement-panel [role="tablist"]').count(),1,'강화 탭이 한 곳에 통합되지 않음');
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),false,'API 탭에서 수기 입력이 함께 표시됨');
     assert.equal(await page.locator('#enhancement-api-panel').isVisible(),true);
     assert.deepEqual(await page.locator('#manual-enhancement-type option').evaluateAll(options=>options.map(o=>o.value)),['starforce','potential','scroll','bonus','ability']);
     await tab(page,'starforce').focus();
-    for(const [key,selected] of [['ArrowRight','potential'],['ArrowRight','soul_ether'],['End','legacy'],['ArrowLeft','advanced_ability'],['Home','starforce'],['ArrowLeft','legacy']]) {
+    for(const [key,selected] of [['ArrowRight','potential'],['ArrowRight','soul_ether'],['End','legacy'],['ArrowLeft','advanced_ability'],['Home','all'],['ArrowLeft','legacy']]) {
       await page.keyboard.press(key);
       assert.equal(await tab(page,selected).getAttribute('aria-selected'),'true','키보드 탭 선택 실패');
       assert.equal(await page.evaluate(()=>document.activeElement.dataset.enhancementTab),selected,'키보드 탭 포커스 실패');
@@ -136,16 +136,18 @@ async function checkLayout(page,label) {
       await costCount(form,'soul_ether_'+(i+1)).fill(String(i+2));
     }
     await input(form,'soulAmplificationMeso').fill('7500000');
-    await input(form,'soulPotentialMeso').fill('99999999');
+    assert.equal(await input(form,'soulPotentialMeso').count(),0);
+    await input(form,'soul_potential_rare').fill('1');
+    await input(form,'soul_potential_epic').fill('2');
     await tab(page,'potential').click();
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),false);
     assert.equal(await page.locator('#enhancement-api-panel').isVisible(),true);
     await tab(page,'soul_ether').click();
-    assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999','API 탭 왕복 중 수기 초안 삭제');
+    assert.equal(await input(form,'soul_potential_epic').inputValue(),'2','API 탭 왕복 중 수기 초안 삭제');
     await page.evaluate(()=>document.dispatchEvent(new CustomEvent('workspace:render')));
     assert.equal(await tab(page,'soul_ether').getAttribute('aria-selected'),'true','API 화면 새로고침이 수기 탭 선택을 변경함');
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
-    assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999','API 화면 새로고침이 수기 초안을 삭제함');
+    assert.equal(await input(form,'soul_potential_epic').inputValue(),'2','API 화면 새로고침이 수기 초안을 삭제함');
     await tab(page,'advanced_ability').click();
     assert.equal(await page.locator('#enhancement-api-panel').isVisible(),false,'고급 어빌리티 탭에는 지원하지 않는 API 이력을 표시하지 않음');
     await input(form,'itemName').fill('고급 어빌리티 테스트');
@@ -159,8 +161,8 @@ async function checkLayout(page,label) {
     await navigate(page,'stats');await navigate(page,'expense');
     assert.equal(await input(form,'date').inputValue(),'2026-09-17');
     assert.equal(await input(form,'itemName').inputValue(),'테스트 <소울 장비>');
-    assert.equal(await input(form,'soulPotentialMeso').inputValue(),'99,999,999');
-    assert.equal(await page.evaluate(()=>String(profitRecordTotals(buildManualEnhancementRecord()).cost)),'147969133');
+    assert.equal(await input(form,'soul_potential_epic').inputValue(),'2');
+    assert.equal(await page.evaluate(()=>String(profitRecordTotals(buildManualEnhancementRecord()).cost)),'147969134');
     assert.equal(await preserved(page),original,'입력·탭 전환이 기존 데이터를 변경함');
 
     for(const badDate of ['2026-09-16','2026-09-19']) {
@@ -176,14 +178,14 @@ async function checkLayout(page,label) {
     assert.equal(soul.itemName,'테스트 <소울 장비>');assert.deepEqual(soul.outputs,[]);
     assert.deepEqual(soul.costs.filter(c=>Number(c.price)>0).map(c=>[c.id,String(c.price),c.count]),[
       ['soul_ether_1','1234567',2],['soul_ether_2','2000000',3],['soul_ether_3','3000000',4],['soul_ether_4','4000000',5],
-      ['soul_amplification_meso','7500000',1],['soul_potential_meso','99999999',1]
+      ['soul_amplification_meso','7500000',1],['soul_potential_rare','20000000',1],['soul_potential_epic','40000000',2]
     ]);
     assert.equal(await page.evaluate(()=>String(profitRecordTotals(buildManualEnhancementRecord()).cost)),'0','저장 후 입력값이 남음');
     let current=await totals(page);
-    assert.equal(BigInt(current.dayCost)-BigInt(before.dayCost),147969133n);
-    assert.equal(BigInt(before.dayNet)-BigInt(current.dayNet),147969133n);
-    assert.equal(BigInt(current.monthCost)-BigInt(before.monthCost),147969133n);
-    assert.equal(BigInt(before.monthNet)-BigInt(current.monthNet),147969133n);
+    assert.equal(BigInt(current.dayCost)-BigInt(before.dayCost),147969134n);
+    assert.equal(BigInt(before.dayNet)-BigInt(current.dayNet),147969134n);
+    assert.equal(BigInt(current.monthCost)-BigInt(before.monthCost),147969134n);
+    assert.equal(BigInt(before.monthNet)-BigInt(current.monthNet),147969134n);
 
     await tab(page,'advanced_ability').click();
     assert.equal(await input(form,'advancedAbilityMeso').inputValue(),'900,000,000','다른 탭 저장이 어빌리티 초안을 지움');
@@ -204,13 +206,13 @@ async function checkLayout(page,label) {
     await page.click('#manual-enhancement-save');
     assert.equal(await page.evaluate(()=>db.profits.length),countAfterSave,'0원 빈 기록이 저장됨');
     current=await totals(page);
-    assert.equal(BigInt(current.allCost)-BigInt(before.allCost),1064203700n);
-    assert.equal(BigInt(current.monthCost)-BigInt(before.monthCost),1064203700n);
-    assert.equal(BigInt(before.monthNet)-BigInt(current.monthNet),1064203700n);
+    assert.equal(BigInt(current.allCost)-BigInt(before.allCost),1064203701n);
+    assert.equal(BigInt(current.monthCost)-BigInt(before.monthCost),1064203701n);
+    assert.equal(BigInt(before.monthNet)-BigInt(current.monthNet),1064203701n);
     assert.equal(current.allCount-before.allCount,3);
     assert.equal(current.directCount,before.directCount,'수기 기록이 직접 구매 지출에도 중복 저장됨');
     assert.deepEqual(await page.evaluate(()=>spendingCategoryRows(()=>true).filter(r=>['soul_ether','advanced_ability'].includes(r.id)).map(r=>({id:r.id,total:String(r.total),count:r.count})).sort((a,b)=>a.id.localeCompare(b.id))),[
-      {id:'advanced_ability',total:'916234567',count:2},{id:'soul_ether',total:'147969133',count:1}
+      {id:'advanced_ability',total:'916234567',count:2},{id:'soul_ether',total:'147969134',count:1}
     ]);
     assert.equal(await preserved(page),original,'신규 저장이 기존 장부/API/복구/인증 데이터를 변경함');
     for(const record of [soul,ability]) {
@@ -266,7 +268,7 @@ async function checkLayout(page,label) {
     assert.equal(await ledger(page),after,'반응형 화면 변경이 저장된 기록을 변경함');
     await page.click('[data-profit-delete="'+onlyMeso.id+'"]');
     assert.equal(await page.evaluate(id=>db.profits.some(r=>r.id===id),onlyMeso.id),false);
-    assert.equal(BigInt((await totals(page)).allCost)-BigInt(before.allCost),1062969133n,'삭제 금액이 집계에서 정확히 한 번 빠지지 않음');
+    assert.equal(BigInt((await totals(page)).allCost)-BigInt(before.allCost),1062969134n,'삭제 금액이 집계에서 정확히 한 번 빠지지 않음');
     assert.equal(await preserved(page),original,'새 기록 삭제가 기존 데이터를 변경함');
     assert.deepEqual(errors,[],'브라우저 실행 오류');
     console.log('소울 에테르·고급 어빌리티 지출: 비용 합계, 날짜, 초안, 상세 조회, 일·월 집계, 기존 기록·인증 보존, JSON/클라우드/새로고침, 삭제, 320/390/1440px 통과.');

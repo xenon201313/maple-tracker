@@ -5,7 +5,7 @@
   const labels = {
     cost: '구입 비용', sale: '판매 금액', fee: '판매 수수료',
     price: '재료 구입 단가', count: '재료 수량',
-    direct: '직접 사용한 메소', extra: '잠재능력 재설정 메소',
+    direct: '직접 사용한 메소',
     attempts: '실제 증폭 시도 횟수', resets: '실제 재설정 횟수', fame: '실제 사용한 명성치'
   };
   const money = value => value.toLocaleString('ko-KR') + ' 메소';
@@ -33,7 +33,7 @@
     const item = mode?.items.find(item => item.id === field.value);
     if (!item) {
       field.setAttribute('aria-invalid', 'true');
-      throw new Error('공식 단가를 확인할 수 없습니다. 페이지를 새로 열거나 실제 사용액 직접 입력을 선택해 주세요.');
+      throw new Error('공식 단가를 확인할 수 없습니다. 조건을 다시 선택해 주세요.');
     }
     return { name:item.name, meso:BigInt(item.meso), fame:BigInt(item.fame || 0) };
   }
@@ -78,17 +78,13 @@
         let direct, extra = 0n, detail;
         if (method === 'actual') {
           direct = readInteger(form, 'direct');
-          extra = mode === 'soul' ? readInteger(form, 'extra') : 0n;
           if (mode === 'ability') put('fame', number(readInteger(form, 'fame')) + ' (메소 합산 제외)');
-          detail = '직접 확인한 사용 메소 ' + money(direct) + (mode === 'soul' ? ' + 소울 잠재 재설정 ' + money(extra) : '');
+          detail = '직접 확인한 사용 메소 ' + money(direct);
         } else if (mode === 'soul') {
           const amplification = rate(form, 'stage', 'soul_amplification');
-          const potential = rate(form, 'grade', 'soul_potential');
-          const attempts = readInteger(form, 'attempts'), resets = readInteger(form, 'resets');
+          const attempts = readInteger(form, 'attempts');
           direct = amplification.meso * attempts;
-          extra = potential.meso * resets;
-          detail = amplification.name + ' ' + number(amplification.meso) + ' × ' + number(attempts) + '회 = ' + money(direct)
-            + '. ' + potential.name + ' 소울 잠재 ' + number(potential.meso) + ' × ' + number(resets) + '회 = ' + money(extra);
+          detail = amplification.name + ' ' + number(amplification.meso) + ' × ' + number(attempts) + '회 = ' + money(direct);
         } else {
           const ability = rate(form, 'locks', 'advanced_ability');
           const resets = readInteger(form, 'resets');
@@ -97,6 +93,12 @@
           put('fame', number(fame) + ' (메소 합산 제외)');
           detail = ability.name + ' 고급 재설정 ' + number(ability.meso) + ' × ' + number(resets) + '회 = ' + money(direct)
             + '. 명성치 ' + number(ability.fame) + ' × ' + number(resets) + '회 = ' + number(fame) + ' 별도 소모';
+        }
+        if (mode === 'soul') {
+          const potential = rate(form, 'grade', 'soul_potential');
+          const resets = readInteger(form, 'resets');
+          extra = potential.meso * resets;
+          detail += '. ' + potential.name + ' 소울 잠재 ' + number(potential.meso) + ' × ' + number(resets) + '회 = ' + money(extra);
         }
         cost = materials + direct + extra;
         put('materials', money(materials));

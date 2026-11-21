@@ -3,17 +3,18 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261119-3"></script>
+<script src="assets/patch-notes-data.js?v=20261122-1"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
-<script src="assets/enhancement-ledger.js?v=20261022-1"></script>
+<script src="assets/enhancement-ledger.js?v=20261122-1"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
-<script src="assets/friends-expenses.js?v=20261114-3"></script>
+<script src="assets/expense-history.js?v=20261122-1"></script>
+<script src="assets/friends-expenses.js?v=20261122-1"></script>
 <script src="assets/account-storage.js?v=20261028-1"></script>
 <script src="assets/account-sync.js?v=20261114-1"></script>
 <script src="assets/friends-characters.js?v=20261114-1"></script>
 <link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
-<script src="assets/september-expenses.js?v=20261119-2"></script>
-<script src="assets/soul-ability-expenses.js?v=20261022-1"></script>
+<script src="assets/september-expenses.js?v=20261122-1"></script>
+<script src="assets/soul-ability-expenses.js?v=20261122-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
 <script src="assets/september-boss-rules.js?v=20260918-1"></script>
 <script src="assets/october-boss-rules.js?v=20261022-1"></script>
@@ -23,7 +24,7 @@
 <script src="assets/october-profit.js?v=20261119-1"></script>
 <script src="assets/october-profit-ui.js?v=20261119-2"></script>
 <link rel="stylesheet" href="assets/october-profit.css?v=20261022-1">
-<link rel="stylesheet" href="assets/friends-expenses.css?v=20260918-1">
+<link rel="stylesheet" href="assets/friends-expenses.css?v=20261122-1">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
@@ -1017,7 +1018,7 @@
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
 <link rel="stylesheet" href="assets/maple-workspace.css?v=20261105-1">
-<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261119-public">
+<link rel="stylesheet" href="assets/maple-official-theme.css?v=20261122-1">
 <link rel="stylesheet" href="assets/home-characters.css?v=20261119-1">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
 <link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
@@ -1711,7 +1712,44 @@
 
 <!-- ══════════ 지출 기록 ══════════ -->
 <div class="page" id="page-expense">
-  <section class="page-purpose"><div><h2>쓴 메소도 빠짐없이.</h2><p>구매 비용은 바로 입력하고, 강화 이력은 확인한 금액만 지출로 반영하세요.</p></div><div class="purpose-actions"><button type="button" data-renewal-jump="expense-entry-title">일반 지출 입력</button><button type="button" class="ghost" data-renewal-jump="enhancement-title">강화 이력 확인</button><a href="guide/profit-expense/">지출·환산액 구분</a></div></section>
+  <section class="page-purpose"><div><h2>지출 기록</h2><p>날짜순으로 강화 결과와 구입 내역을 확인하고, 장부에 반영할 비용을 선택하세요.</p></div><div class="purpose-actions"><button type="button" data-renewal-jump="expense-entry-title">구매 지출 입력</button><button type="button" class="ghost" data-renewal-jump="enhancement-title">이력 보기</button><a href="guide/profit-expense/">지출·환산액 구분</a></div></section>
+
+  <section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
+    <div class="enhancement-heading"><h2 id="enhancement-title" tabindex="-1">강화·구매 이력</h2><span class="enhancement-badge" id="enhancement-badge">지출 반영 전까지 통계 제외</span></div>
+    <div class="enhancement-tabs" role="tablist" aria-label="이력 보기">
+      <button type="button" role="tab" id="enhancement-tab-all" data-enhancement-tab="all" aria-selected="true" aria-controls="enhancement-api-panel">전체 이력 <span>0</span></button>
+      <button type="button" role="tab" id="enhancement-tab-starforce" data-enhancement-tab="starforce" aria-selected="false" tabindex="-1" aria-controls="enhancement-api-panel">스타포스 <span>0</span></button>
+      <button type="button" role="tab" id="enhancement-tab-potential" data-enhancement-tab="potential" aria-selected="false" aria-controls="enhancement-api-panel" tabindex="-1">잠재능력 <span>0</span></button>
+      <button type="button" role="tab" id="enhancement-tab-soul_ether" data-enhancement-tab="soul_ether" aria-selected="false" aria-controls="enhancement-api-panel manual-enhancement-panel" tabindex="-1">소울 에테르 <span>0</span></button>
+      <button type="button" role="tab" id="enhancement-tab-advanced_ability" data-enhancement-tab="advanced_ability" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">고급 어빌리티</button>
+      <button type="button" role="tab" id="enhancement-tab-legacy" data-enhancement-tab="legacy" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">직접 입력</button>
+    </div>
+    <div id="enhancement-api-panel" role="tabpanel" aria-labelledby="enhancement-tab-all">
+    <div class="enhancement-controls">
+      <label>연결 방식<select id="enhancement-source"><option value="friends">넥슨 프렌즈</option><option value="key">등록한 개인 API 키</option></select></label>
+      <button type="button" id="enhancement-connect" class="nexon-login"><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
+      <button type="button" id="enhancement-disconnect" class="ghost" hidden>연결 해제</button>
+      <label>조회 시작일<input type="date" id="enhancement-from"></label>
+      <label>조회 종료일<input type="date" id="enhancement-to"></label>
+      <button type="button" id="enhancement-refresh">이력 가져오기</button>
+      <button type="button" id="enhancement-cancel" class="ghost" hidden>조회 중단</button>
+    </div>
+    <div class="history-date-presets" aria-label="조회 기간 선택"><span>조회 기간</span><button type="button" class="ghost" data-history-days="7">최근 7일</button><button type="button" class="ghost" data-history-days="30">최근 30일</button><button type="button" class="ghost" data-history-days="all">최근 2년</button></div>
+    <p id="enhancement-status" class="muted" role="status" aria-live="polite"></p>
+    <div class="enhancement-summary" id="enhancement-summary"></div>
+    <datalist id="enhancement-levels"><option value="140"><option value="160"><option value="200"><option value="250"></datalist>
+    <div id="enhancement-list"></div>
+    <div id="enhancement-pagination" class="enhancement-pagination"></div>
+    <details class="enhancement-confirmed"><summary>확정 / 제외한 강화 이력</summary><div id="enhancement-confirmed-list"></div></details>
+<details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 동일 레벨·등급의 메소 재설정 비용으로 환산합니다. 무료·캐시 큐브의 환산액은 실제 메소 지출이 아니며, 확인한 메소 구매분만 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 조회 항목의 동의를 요청하며, 스타포스·잠재능력 재설정·큐브 사용·소울 잠재능력 이력을 불러옵니다. 고급 어빌리티 비용은 직접 입력합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
+    </div>
+    <div id="manual-enhancement-panel" role="tabpanel" aria-labelledby="enhancement-tab-legacy" hidden>
+    <h3 id="manual-enhancement-title">강화 지출 직접 입력</h3>
+    <p class="muted">API 없이도 입력할 수 있습니다. API에서 이미 반영한 지출은 제외하세요.</p>
+    <label class="manual-enhancement-type">강화 종류<select id="manual-enhancement-type"></select></label>
+    <div id="manual-enhancement-calculator"></div>
+    </div>
+  </section>
 
   <div class="card expense-entry-card" id="expense-entry-card">
     <h2 id="expense-entry-title" tabindex="-1">메소 지출 입력</h2>
@@ -1741,40 +1779,6 @@
       <button id="expense-save" type="button">지출 저장</button>
     </div>
   </div>
-<section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
-    <div class="enhancement-heading"><h2 id="enhancement-title">강화 내역</h2><span class="enhancement-badge" id="enhancement-badge">지출 반영 전까지 통계 제외</span></div>
-    <div class="enhancement-tabs" role="tablist" aria-label="강화 종류">
-      <button type="button" role="tab" id="enhancement-tab-starforce" data-enhancement-tab="starforce" aria-selected="true" aria-controls="enhancement-api-panel">스타포스 <span>0</span></button>
-      <button type="button" role="tab" id="enhancement-tab-potential" data-enhancement-tab="potential" aria-selected="false" aria-controls="enhancement-api-panel" tabindex="-1">잠재능력 <span>0</span></button>
-      <button type="button" role="tab" id="enhancement-tab-soul_ether" data-enhancement-tab="soul_ether" aria-selected="false" aria-controls="enhancement-api-panel manual-enhancement-panel" tabindex="-1">소울 에테르 <span>0</span></button>
-      <button type="button" role="tab" id="enhancement-tab-advanced_ability" data-enhancement-tab="advanced_ability" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">고급 어빌리티</button>
-      <button type="button" role="tab" id="enhancement-tab-legacy" data-enhancement-tab="legacy" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">직접 입력</button>
-    </div>
-    <div id="enhancement-api-panel" role="tabpanel" aria-labelledby="enhancement-tab-starforce">
-    <div class="enhancement-controls">
-      <label>연결 방식<select id="enhancement-source"><option value="friends">넥슨 프렌즈</option><option value="key">등록한 개인 API 키</option></select></label>
-      <button type="button" id="enhancement-connect" class="nexon-login"><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
-      <button type="button" id="enhancement-disconnect" class="ghost" hidden>연결 해제</button>
-      <label>조회 시작일<input type="date" id="enhancement-from"></label>
-      <label>조회 종료일<input type="date" id="enhancement-to"></label>
-      <button type="button" id="enhancement-refresh">이력 가져오기</button>
-      <button type="button" id="enhancement-cancel" class="ghost" hidden>조회 중단</button>
-    </div>
-    <p id="enhancement-status" class="muted" role="status" aria-live="polite"></p>
-    <div class="enhancement-summary" id="enhancement-summary"></div>
-    <datalist id="enhancement-levels"><option value="140"><option value="160"><option value="200"><option value="250"></datalist>
-    <div id="enhancement-list"></div>
-    <div id="enhancement-pagination" class="enhancement-pagination"></div>
-    <details class="enhancement-confirmed"><summary>확정 / 제외한 강화 이력</summary><div id="enhancement-confirmed-list"></div></details>
-<details class="enhancement-help"><summary>조회 설정 · 계산 기준</summary><label class="enhancement-auto"><input type="checkbox" id="enhancement-auto">최근 2일 자동 갱신 · 5분 간격</label><p>스타포스는 장비 레벨·강화 단계·이력 당시 이벤트·파괴방지를 적용한 추정 비용입니다. MVP와 PC방 할인은 장비별로 조정할 수 있습니다. 흔적 복구와 장비 구입 비용은 별도입니다.</p><p>잠재능력은 재설정 전 등급과 장비 레벨의 메소 단가로 계산합니다. 일반 큐브는 동일 레벨·등급의 메소 재설정 비용으로 환산합니다. 무료·캐시 큐브의 환산액은 실제 메소 지출이 아니며, 확인한 메소 구매분만 반영하세요. 수동으로 기록한 지출은 중복 반영하지 마세요.</p><p>NEXON Open API를 이용합니다. 로그인 시 등록된 조회 항목의 동의를 요청하며, 스타포스·잠재능력 재설정·큐브 사용·소울 잠재능력 이력을 불러옵니다. 고급 어빌리티 비용은 직접 입력합니다. <a href="https://maplestory.nexon.com/news/update/767" target="_blank" rel="noopener noreferrer">스타포스 비용 기준</a> · <a href="https://maplestory.nexon.com/news/update/737" target="_blank" rel="noopener noreferrer">잠재능력 비용 기준</a></p></details>
-    </div>
-    <div id="manual-enhancement-panel" role="tabpanel" aria-labelledby="enhancement-tab-legacy" hidden>
-    <h3 id="manual-enhancement-title">강화 지출 직접 입력</h3>
-    <p class="muted">API 없이도 입력할 수 있습니다. API에서 이미 반영한 지출은 제외하세요.</p>
-    <label class="manual-enhancement-type">강화 종류<select id="manual-enhancement-type"></select></label>
-    <div id="manual-enhancement-calculator"></div>
-    </div>
-  </section>
   <div class="card">
     <h2>📉 지출 요약</h2>
     <div id="expense-summary" class="expense-summary-grid"></div>
@@ -8463,7 +8467,7 @@ function renderProfitRecords(manual=false){
       (expenseOnly?'':'<div class="profit-record-stat good"><span>실수령 수익</span><b>'+korMeso(totals.revenue)+'</b></div>'+
       '<div class="profit-record-stat '+(totals.net>=0n?'good':'bad')+'"><span>손익</span><b>'+signedKorMeso(totals.net)+'</b></div>')+
       (r.id.startsWith('enhancement:') ? '<a href="?page=expense" class="ghost">API 지출 관리</a>' : '<button type="button" class="danger" data-profit-delete="'+esc(r.id)+'">삭제</button>')+
-      (manual && MapleSoulAbilityExpenses.modes[r.type] ? '<details class="manual-cost-breakdown"><summary>비용 내역 보기</summary><ul>'+r.costs.filter(line=>line.count>0).map(line=>'<li><span>'+profitIconHtml(line)+esc(line.name)+' <small>'+(MapleSoulAbilityExpenses.modes[r.type].moneyFields.some(field=>field.id===line.id)?'직접 사용액':formatDigits(String(line.count))+'개 × '+korMeso(line.price))+'</small></span><b>'+korMeso(profitLineValue(line))+'</b></li>').join('')+'</ul></details>' : '')+
+      (manual && MapleSoulAbilityExpenses.modes[r.type] ? '<details class="manual-cost-breakdown"><summary>비용 내역 보기</summary><ul>'+r.costs.filter(line=>line.count>0).map(line=>'<li><span>'+profitIconHtml(line)+esc(line.name)+' <small>'+(line.id==='soul_potential_meso' || MapleSoulAbilityExpenses.modes[r.type].moneyFields.some(field=>field.id===line.id)?'직접 사용액':formatDigits(String(line.count))+(line.id.startsWith('soul_potential_')?'회':'개')+' × '+korMeso(line.price))+'</small></span><b>'+korMeso(profitLineValue(line))+'</b></li>').join('')+'</ul></details>' : '')+
     '</div>';
   }).join('');
   el.querySelectorAll('[data-profit-delete]').forEach(btn=>{
@@ -8509,6 +8513,16 @@ function buildManualEnhancementRecord(showErrors=false){
       const amount=mesoValueFromDigits(value(field.key));
       if(toMesoBig(amount)>0n) record.costs.push({id:field.id,name:field.name,icon:'💰',price:amount,count:1});
     });
+    for(const grade of resourceMode.resetGrades || []){
+      const id='soul_potential_'+grade.id;
+      const input=box.querySelector('[data-profit-input="'+id+'"]');
+      const count=Number(input.value);
+      if(input.validity.badInput || (input.value && !/^\d+$/.test(input.value)) || !Number.isSafeInteger(count)){
+        if(showErrors) alert(grade.name+' 재설정 횟수에 0 이상의 정수를 입력해 주세요.');
+        return null;
+      }
+      if(count>0) record.costs.push({id,name:'소울 잠재 재설정 · '+grade.name,price:grade.meso,count});
+    }
   }else if(type==='starforce' || type==='potential'){
     record.itemName=String(value('itemName')).trim();
     const item=profitEquipItemsForType(type).find(item=>item.name===record.itemName);
@@ -8589,7 +8603,14 @@ function renderManualEnhancementForm(reset=false){
   if(resourceMode){
     intro='<p class="manual-resource-notice"><strong>'+esc(resourceMode.title)+' · 수기 기록</strong><br>'+esc(resourceMode.description)+'</p>';
     fields+='<div class="profit-field wide"><label for="manual-resource-name">기록 이름 (선택)</label><input id="manual-resource-name" data-profit-input="itemName" type="text" maxlength="100" placeholder="예: 캐릭터 이름 · 무기 이름"></div>';
-    rows='<h3>'+esc(resourceMode.costTitle)+'</h3>'+profitCostRowsHtml(resourceMode.costs,'구입 단가 (메소)')+'<h3>직접 사용한 메소</h3><div class="profit-entry-grid">'+resourceMode.moneyFields.map(field=>profitMoneyBlock(field.label,field.key)).join('')+'</div>'+manualResourceGuideHtml(resourceMode)+'<p class="manual-resource-warning">다른 지출 화면에서 이미 기록한 구입비나 사용 메소는 다시 입력하지 마세요. API 조회 여부와 관계없이 이 기록은 저장 즉시 지출에 반영됩니다.</p>';
+    rows='<h3>'+esc(resourceMode.costTitle)+'</h3>'+profitCostRowsHtml(resourceMode.costs,'구입 단가 (메소)')+'<h3>직접 사용한 메소</h3><div class="profit-entry-grid">'+resourceMode.moneyFields.map(field=>profitMoneyBlock(field.label,field.key)).join('')+'</div>';
+    if(resourceMode.resetGrades){
+      rows+='<h3>소울 잠재 재설정 횟수</h3><p class="muted">API에서 아직 반영하지 않은 시도만 적으세요. 등급이 오른 시도는 변경 전 등급에 포함합니다.</p><div class="profit-entry-grid">'+resourceMode.resetGrades.map(grade=>{
+        const id='soul_potential_'+grade.id;
+        return '<div class="profit-field"><label for="'+id+'">'+grade.name+' · 1회 '+korMeso(grade.meso)+'</label><input id="'+id+'" data-profit-input="'+id+'" type="number" inputmode="numeric" min="0" step="1" placeholder="0회"></div>';
+      }).join('')+'</div>';
+    }
+    rows+=manualResourceGuideHtml(resourceMode)+'<p class="manual-resource-warning">다른 지출 화면에서 이미 기록한 구입비나 사용 메소는 다시 입력하지 마세요. API 조회 여부와 관계없이 이 기록은 저장 즉시 지출에 반영됩니다.</p>';
   }else if(type==='starforce' || type==='potential'){
     fields+='<div class="profit-field"><label for="manual-enhancement-item">아이템 (선택)</label><input id="manual-enhancement-item" data-profit-input="itemName" type="text" list="manual-enhancement-items" placeholder="아이템 이름"><datalist id="manual-enhancement-items">'+profitEquipItemsForType(type).map(item=>'<option value="'+esc(item.name)+'">').join('')+'</datalist></div>'+profitMoneyBlock('실제 사용 메소','used');
   }else if(type==='bonus'){
@@ -8682,7 +8703,7 @@ function renderExpenses(){
       if(!confirm('이 지출 기록을 삭제할까요?')) return;
       db.expenses=(Array.isArray(db.expenses)?db.expenses:[]).filter(record=>String(record.id)!==String(button.dataset.expenseDelete));
       save();
-      renderExpenses();
+      renderAll();
     };
   });
 }
@@ -8700,6 +8721,16 @@ function saveExpenseRecord(){
   const patchDateError=MapleSeptemberExpenses.validateRecordDate(categoryInput.value,date);
   if(patchDateError){ alert(patchDateError); return; }
   const rawAmount=amountInput.value.trim();
+  if(categoryInput.value==='soul_potential'){
+    const mode=document.getElementById('september-expense-mode')?.value;
+    const grade=document.getElementById('september-expense-item')?.value;
+    const count=document.getElementById('september-expense-count')?.value;
+    const calculated=MapleSeptemberExpenses.quote('soul_potential',grade,count);
+    if(mode!=='soul_potential' || !calculated.ok || calculated.amount!==rawAmount.replace(/,/g,'')){
+      alert('소울 잠재 재설정 전 등급과 횟수를 고른 뒤 계산 금액 채우기를 눌러 주세요.');
+      return;
+    }
+  }
   if(rawAmount && !MESO_INPUT_PATTERN.test(rawAmount)){
     alert('지출 메소는 양의 정수로 입력하세요. 예: 150000000 또는 150,000,000');
     amountInput.focus();
@@ -8721,7 +8752,7 @@ function saveExpenseRecord(){
   save();
   amountInput.value='';
   memoInput.value='';
-  renderExpenses();
+  renderAll();
 }
 
 function initExpenseControls(){
@@ -9238,7 +9269,7 @@ async function nexonFetch(path, params={}, signal){
     try{ data=await res.json(); }catch(e){}
   }
   signal?.throwIfAborted();
-  if(status<200 || status>=300) throw new Error(nexonApiErrorMessage(status,data));
+  if(status<200 || status>=300) throw Object.assign(new Error(nexonApiErrorMessage(status,data)),{status});
   return data;
 }
 function serverFromNexonWorld(world, fallback='main'){
@@ -11464,12 +11495,33 @@ window.MapleFriendsCharacterBridge={
     if(rows.length){save();renderAll();}return {added,matched};
   }
 };
+// Keep the display projection outside the ledger. Only saved purchase costs enter this list.
+let historyProfitSource, historyExpenseSource, manualExpenseRows;
+function manualExpenseHistory(){
+  if(historyProfitSource===db.profits && historyExpenseSource===db.expenses && manualExpenseRows) return manualExpenseRows;
+  const rows=[];
+  for(const record of db.profits || []){
+    const amount=profitRecordTotals(record).cost;
+    if(amount<=0n) continue;
+    const method=profitCategory(record.type).title;
+    rows.push({id:record.id,type:record.type,date:record.date,createdAt:record.createdAt,item:record.itemName || record.title || method,character:'',method,amount:String(amount),costs:record.costs || []});
+  }
+  for(const record of db.expenses || []){
+    const method=expenseCategoryById(record.category).name;
+    rows.push({id:record.id,type:'expense',category:record.category,date:record.date,createdAt:record.createdAt,item:method,character:record.charName || '',method,amount:String(record.amount),memo:record.memo || '',costs:[]});
+  }
+  historyProfitSource=db.profits;
+  historyExpenseSource=db.expenses;
+  manualExpenseRows=rows;
+  return rows;
+}
 window.MapleEnhancementBridge={
   get:()=>db.enhancements,
   key:()=>nexonApiKey(),
   api:(path,params,signal)=>nexonFetch(path,params,signal),
   money:value=>korMeso(value),
   manual:()=>db.profits,
+  manualHistory:manualExpenseHistory,
   commit(value){
     const previous=db.enhancements;
     let stored;
@@ -11492,7 +11544,7 @@ window.MapleEnhancementBridge={
 <script src="assets/workspace.js?v=20261028-1"></script>
 <script src="assets/play-desk.js?v=20261105-1"></script>
 <script src="assets/maple-workspace.js?v=20261119-public"></script>
-<script src="assets/maple-official-theme.js?v=20261111-3"></script>
+<script src="assets/maple-official-theme.js?v=20261122-1"></script>
 <script src="assets/home-characters.js?v=20261111-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>
 <footer class="site-footer">

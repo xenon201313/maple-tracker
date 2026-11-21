@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import {access} from 'node:fs/promises';
 import '../assets/enhancement-ledger.js';
+import '../assets/september-expenses.js';
 const E=globalThis.MapleEnhancements;
+for(const grade of globalThis.MapleSeptemberExpenses.modes.find(mode=>mode.id==='soul_potential').items) {
+  assert.equal(E.defaultUnit({kind:'soul-potential',date:'2026-11-22',grade:grade.name}),grade.meso,'API와 수기·공개 계산기의 소울 단가 일치');
+}
 const at='2026-09-06T12:00:00+09:00';
 for(const [level,zero,seventeen,nineteen] of [[140,77200,44826900,198588800],[160,114800,66913100,296435300],[200,223200,130688600,578974200],[250,435000,255250300,1130808000]]) {
   assert.equal(E.starBase(level,0,at),zero);
@@ -142,6 +146,18 @@ const missingBefore=E.event('potential',{...potRaw,before_potential_option:[],po
 assert.equal(E.reports({events:[missingBefore]})[0].estimate,null,'Never price a missing pre-upgrade grade from the after grade');
 assert.equal(E.equipment.filter(e=>e[0].startsWith('데스티니 ')).length,36);
 assert.equal(E.equipment.filter(e=>e[0].startsWith('아스트라 ')).length,47);
+// 금액이 확정 가능한 소울 이력은 같은 장비의 누락된 이력과 독립적으로 반영한다.
+const soulOption={grade:'에픽',value:'테스트 옵션'};
+const soulHistory={date_create:'2026-11-22T12:00:00+09:00',character_name:'테스트',target_item:'제네시스 무기',before_soul_potential_option:[soulOption]};
+const soulRows=[3,9,6,10].map(count=>E.event('soul-potential',{...soulHistory,id:'soul-'+count,after_soul_potential_option:Array(count).fill(soulOption)},'account'));
+const soulLedger=E.merge({events:soulRows});
+const ready=E.reports(soulLedger).find(r=>r.missing===0),unpriced=E.reports(soulLedger).find(r=>r.missing>0);
+assert.deepEqual([ready.count,ready.estimate,unpriced.missing,unpriced.estimate],[4,'160000000',2,null]);
+assert.throws(()=>E.confirm(soulLedger,ready,'123','wrong'));
+assert.throws(()=>E.confirm(soulLedger,unpriced,'40000000','unknown'));
+assert.equal(E.profits(E.confirm(soulLedger,ready,ready.estimate,'ready'))[0].costs[0].price,'160000000');
+const previousSettings={rates:ready.details.map(d=>({key:d.key,unit:'777',attempts:3,updatedAt:2})),profiles:[{key:ready.key,attempts:3,updatedAt:3}]};
+assert.equal(E.reports(E.merge(soulLedger,previousSettings)).find(r=>r.missing===0).estimate,ready.estimate);
 assert.equal(E.itemInfo('아스트라 마법화살').icon,E.itemInfo('아스트라 마법 화살').icon);
 for(const [name,,code] of E.equipment) if(code) await access(new URL('../'+E.itemInfo(name).icon,import.meta.url));
 console.log('Item costs, date-scoped settings, grouped history and icon checks passed.');

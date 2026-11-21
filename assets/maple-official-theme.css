@@ -272,7 +272,9 @@ body.maple-official-theme::after{background:transparent;pointer-events:none}
 .maple-official-theme .maple-nav-group>summary .maple-tab-icon--item{width:26px;height:26px;flex-basis:26px}
 .maple-official-theme .maple-nav-links button{display:flex;align-items:center;gap:10px}
 .maple-official-theme .planner-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:82px;padding:12px 8px}
-.maple-official-theme .enhancement-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.maple-official-theme .enhancement-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.maple-official-theme .history-date-presets{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin:8px 0;color:var(--sub);font-size:14px}
+.maple-official-theme .history-date-presets button{min-height:44px;padding:5px 12px;font-size:14px}
 .maple-official-theme .enhancement-panel .enhancement-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:56px;padding:10px 8px;line-height:1.5}
 .maple-official-theme .enhancement-tabs .maple-tab-icon{width:24px;height:24px;flex-basis:24px}
 .maple-official-theme .clarity-period-nav button,.maple-official-theme .clarity-section-nav button,.maple-official-theme [data-renewal-jump]{display:inline-flex;align-items:center;justify-content:center;gap:8px}

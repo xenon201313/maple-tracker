@@ -54,7 +54,7 @@
   nav.addEventListener('focusout',event=>{if(event.relatedTarget&&!nav.contains(event.relatedTarget))for(const details of nav.querySelectorAll('details'))details.open=false;});
   bar.append(brand,nav);header.prepend(bar);
   const plannerIcons={investment:{symbol:'equipment'},settlement:{symbol:'package'},budget:mesoIcon,hunting:{symbol:'compare'},bossplan:{symbol:'clock'},symbol:{symbol:'symbol'}};
-  const enhancementIcons={starforce:{item:'profit/starforce-scroll.png'},potential:{symbol:'cube'},soul_ether:{item:'drops/soul_ether_3.webp'},advanced_ability:{item:'profit/large-boss-honor.png'},legacy:{symbol:'daily'}};
+  const enhancementIcons={all:{symbol:'receipt'},starforce:{item:'profit/starforce-scroll.png'},potential:{symbol:'cube'},soul_ether:{item:'drops/soul_ether_3.webp'},advanced_ability:{item:'profit/large-boss-honor.png'},legacy:{symbol:'daily'}};
   // img/svg를 바로 넣어 기존 강화 탭의 첫 span(이력 개수)을 그대로 유지합니다.
   for(const button of document.querySelectorAll('[data-planner-tool]'))button.prepend(tabIcon(plannerIcons[button.dataset.plannerTool]));
   for(const button of document.querySelectorAll('[data-enhancement-tab]'))button.prepend(tabIcon(enhancementIcons[button.dataset.enhancementTab]));

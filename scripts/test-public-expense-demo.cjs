@@ -152,8 +152,10 @@ async function checkLayout(page, width, mode) {
     await form('soul').locator('[name="calculation"]').selectOption('actual');
     assert.equal(await form('soul').locator('[name="stage"]').isEnabled(), false);
     await form('soul').locator('[name="direct"]').fill('1200000000');
-    await form('soul').locator('[name="extra"]').fill('30000000');
-    assert.equal(await amount('soul','cost'), '1230000000');
+    assert.equal(await form('soul').locator('[name="extra"]').count(),0);
+    await form('soul').locator('[name="grade"]').selectOption('unique');
+    await form('soul').locator('[name="resets"]').fill('2');
+    assert.equal(await amount('soul','cost'), '1330000000');
     await reset('soul');
     assert.equal(await form('soul').locator('[name="calculation"]').inputValue(), 'standard');
     assert.equal(await form('soul').locator('[name="direct"]').isEnabled(), false);

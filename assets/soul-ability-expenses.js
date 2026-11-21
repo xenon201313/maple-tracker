@@ -12,12 +12,12 @@
   const modes = {
     soul_ether: {
       title:'소울 에테르', costs:etherCosts,
-      description:'에테르 구입비와 증폭에 소모한 메소는 직접 적어 주세요. 잠재 재설정은 위 API 이력에서 확인하여 반영하거나 여기에서 직접 기록합니다. 이미 반영한 비용과 보스로 획득·무료 지급된 에테르는 구입비에서 제외합니다.',
+      description:'에테르는 실제로 구입한 수량과 단가를 적어 주세요. 소울 잠재 재설정은 API 이력에서 지출로 반영할 수 있습니다. 따로 기록할 때는 변경 전 등급별 시도 횟수를 입력하면 비용이 계산됩니다.',
       costTitle:'에테르 구입 비용',
       moneyFields:[
-        {key:'soulAmplificationMeso',id:'soul_amplification_meso',name:'소울 증폭 사용 메소',label:'증폭에 사용한 메소 합계'},
-        {key:'soulPotentialMeso',id:'soul_potential_meso',name:'소울 잠재능력 재설정 사용 메소',label:'소울 잠재 재설정 메소 합계'}
+        {key:'soulAmplificationMeso',id:'soul_amplification_meso',name:'소울 증폭 사용 메소',label:'증폭에 사용한 메소 합계'}
       ],
+      resetGrades:window.MapleSeptemberExpenses.modes.find(mode=>mode.id==='soul_potential').items,
       guide:'소울 증폭은 200레벨 이상 무기에 장착된 위대한 소울에 적용합니다. 성공·실패를 모두 포함한 실제 시도 비용을 적어 주세요. 잠재 재설정은 증폭과 별개로 메소만 소모합니다.',
       guideGroups:[
         {title:'소울 증폭',mode:'soul_amplification',extra:item=>item.name.replace('로 증폭','')+' 소울 에테르 1개'},

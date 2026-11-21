@@ -10,7 +10,8 @@ assert.equal(E.flag(refreshed.miracleTimeFlag),true);
 assert.equal(E.groups({events:[legacy]})[0].key,E.groups({events:[refreshed]})[0].key,'API 메타데이터 보강으로 저장한 단가 키가 바뀌면 안 됨');
 assert.equal(E.defaultUnit(legacy),E.defaultUnit(refreshed),'미라클 표시는 실제 재설정 단가를 변경하지 않음');
 const state=E.merge({events:[legacy]});
-const confirmed=E.confirm(state,E.groups(state)[0],'195000000','fixture-batch');
+// 구버전에서 직접 확정했던 장부를 그대로 불러와 재조회 후에도 금액이 보존되는지 확인한다.
+const confirmed=E.merge(state,{batches:[{id:'fixture-batch',eventKeys:[legacy.key],status:'confirmed',amount:'195000000',date:legacy.date,character:legacy.character,item:legacy.item,kind:legacy.kind,createdAt:'2026-09-24T12:10:00+09:00',updatedAt:2}]});
 const repaired=E.merge(confirmed,{events:[refreshed]});
 assert.equal(repaired.events.length,1);
 assert.equal(repaired.events[0].miracleTimeFlag,'1');
