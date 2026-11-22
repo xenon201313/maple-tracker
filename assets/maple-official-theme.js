@@ -9,15 +9,7 @@
     profit:{symbol:'profit'},expense:{symbol:'expense'},stats:{symbol:'stats'},planner:{symbol:'target'},intro:{symbol:'intro'},patch:{symbol:'receipt'}
   };
   const mesoIcon={item:document.getElementById('logo-meso').src};
-  function tabIcon(spec={symbol:'receipt'}){
-    if(spec.item){
-      const img=document.createElement('img');img.src=spec.item.startsWith('data:')?spec.item:'assets/'+spec.item;
-      img.className='maple-tab-icon maple-tab-icon--item';img.alt='';img.setAttribute('aria-hidden','true');img.draggable=false;img.width=26;img.height=26;return img;
-    }
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('ui-icon','maple-tab-icon');
-    svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
-    const use=document.createElementNS('http://www.w3.org/2000/svg','use');use.setAttribute('href','assets/ui-icons.svg?v=20261111-icons-2#'+spec.symbol);svg.append(use);return svg;
-  }
+  const tabIcon=window.MapleTabIcon;
   const bar=document.createElement('div');bar.className='maple-sitebar';
   const brand=document.createElement('a');brand.className='maple-site-brand';brand.href='?page=home';
   const icon=document.createElement('img');icon.src=document.getElementById('logo-meso').src;icon.alt='';

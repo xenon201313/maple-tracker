@@ -7,6 +7,49 @@ const server=http.createServer((req,res)=>{let name=new URL(req.url,'http://loca
 const snapshot=page=>page.evaluate(key=>JSON.stringify({local:Object.fromEntries(Object.keys(localStorage).filter(name=>name!==key).sort().map(name=>[name,localStorage.getItem(name)])),session:Object.fromEntries(Object.keys(sessionStorage).sort().map(name=>[name,sessionStorage.getItem(name)]))}),KEY);
 async function settle(page){await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));}
 async function contrast(page,selector){return page.locator(selector).first().evaluate(el=>{const rgb=value=>(value.match(/[\d.]+/g)||[]).map(Number),blend=(a,b)=>{const alpha=a.length>3?a[3]:1;return [0,1,2].map(i=>a[i]*alpha+b[i]*(1-alpha));},chain=[];let bg=[255,255,255];for(let n=el;n;n=n.parentElement)chain.push(n);for(const n of chain.reverse())bg=blend(rgb(getComputedStyle(n).backgroundColor),bg);const fg=blend(rgb(getComputedStyle(el).color),bg),lum=value=>value.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);return {ratio:(Math.max(lum(fg),lum(bg))+.05)/(Math.min(lum(fg),lum(bg))+.05),fg,bg};});}
+async function checkToolFinder(page,width,theme) {
+  await page.setViewportSize({width,height:width===320?844:1000});
+  await page.evaluate(mode=>MapleThemeMode.setPreference(mode),theme);
+  await page.mouse.move(0,0);
+  await page.keyboard.press('Control+k');
+  const selector='.desk-search-result', rows=page.locator(selector);
+  assert.equal(await page.locator('#desk-search-input').evaluate(input=>input===document.activeElement),true);
+  const groups=new Map(),surfaces=new Map();
+  for(const [index,row] of (await rows.all()).entries()){
+    const position=selector+':nth-child('+(index+1)+')';
+    for(const child of ['strong','span','small']){
+      const result=await contrast(page,position+' > '+child);
+      assert(result.ratio>=4.5,theme+'/'+width+' '+position+' '+child+' contrast '+result.ratio.toFixed(2));
+    }
+    const badge=await row.locator('small').evaluate(el=>{
+      const icon=el.querySelector('svg,img'), box=el.getBoundingClientRect();
+      const row=el.closest('button'),title=row.querySelector('strong').getBoundingClientRect();
+      const symbol=icon?.querySelector('use')?.getAttribute('href') || icon?.getAttribute('src');
+      const drawn=icon?.tagName.toLowerCase()==='svg'?icon.getBBox().width>0:icon?.naturalWidth>0;
+      return {label:el.textContent.trim(),symbol,drawn,background:getComputedStyle(el).backgroundColor,rightOfTitle:box.left>=title.right-1,
+        fits:box.right<=row.getBoundingClientRect().right+1,hiddenIcon:icon?.getAttribute('aria-hidden')==='true'||icon?.getAttribute('alt')===''};
+    });
+    assert(badge.drawn && badge.symbol && badge.hiddenIcon,'visible decorative category pictogram: '+JSON.stringify(badge));
+    assert(badge.rightOfTitle && badge.fits,theme+'/'+width+' category fits at right: '+badge.label);
+    if(groups.has(badge.label))assert.equal(badge.symbol,groups.get(badge.label));
+    groups.set(badge.label,badge.symbol);
+    surfaces.set(badge.label,badge.background);
+  }
+  assert.deepEqual([...groups.keys()].sort(),['장부','보스','수익과 자산','자산·성장 계획','보관과 안내'].sort());
+  assert.equal(new Set(groups.values()).size,groups.size,'each category has a distinct pictogram');
+  assert.notEqual(surfaces.get('장부'),surfaces.get('보스'),'ledger and boss badges have visibly distinct backgrounds');
+  await page.locator('#desk-search-dialog').screenshot({path:path.join(out,'tool-finder-'+theme+'-'+width+'.png')});
+  await page.keyboard.press('ArrowDown');
+  assert(await rows.first().evaluate(row=>{
+    const style=getComputedStyle(row);
+    return row===document.activeElement && row.matches(':focus-visible') && style.outlineStyle!=='none' && parseFloat(style.outlineWidth)>=2;
+  }),'keyboard focus ring on the first result');
+  for(const child of ['strong','span','small']){
+    const result=await contrast(page,selector+':focus-visible > '+child);
+    assert(result.ratio>=4.5,theme+' focused result '+child+' contrast '+result.ratio.toFixed(2));
+  }
+  await page.keyboard.press('Escape');
+}
 (async()=>{
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const origin='http://127.0.0.1:'+server.address().port;
  const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'chrome',headless:true});
@@ -14,6 +57,8 @@ async function contrast(page,selector){return page.locator(selector).first().eva
   const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark',reducedMotion:'reduce'});await fixtureDismissPatchNotes(context);await context.route('**/*',route=>route.request().url().startsWith(origin)?route.continue():route.abort());
   const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));await page.goto(origin);await settle(page);
   assert.equal(await page.evaluate(()=>MapleThemeMode.getState().resolved),'light','existing light appearance remains default even with dark OS');
+  for(const width of [320,1440])for(const mode of ['light','dark'])await checkToolFinder(page,width,mode);
+  await page.evaluate(()=>MapleThemeMode.setPreference('light'));
   const before=await snapshot(page);await page.locator('.theme-mode-trigger').click();await page.getByRole('radio',{name:'어둡게',exact:true}).check();assert.equal(await page.locator('html').getAttribute('data-maple-theme'),'dark');assert.equal(await page.evaluate(key=>localStorage.getItem(key),KEY),'dark');
   await page.keyboard.press('Escape');assert.equal(await page.locator('.theme-mode-panel').isVisible(),false);assert.equal(await page.locator('.theme-mode-trigger').evaluate(el=>el===document.activeElement),true);assert.equal(await snapshot(page),before,'changing appearance preserves all ledger and auth storage');
   await page.reload();await settle(page);assert.equal(await page.evaluate(()=>MapleThemeMode.getState().resolved),'dark','preference restores on reload');

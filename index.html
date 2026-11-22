@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261122-4"></script>
+<script src="assets/patch-notes-data.js?v=20261122-5"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <link rel="preload" as="script" href="assets/equipment-icons.js?v=20261122-1">
 <script src="assets/enhancement-ledger.js?v=20261122-2"></script>
@@ -1015,7 +1015,7 @@
 </style>
 <link rel="stylesheet" href="assets/workspace.css?v=20261028-2">
 <link rel="stylesheet" href="assets/ledger-planner.css?v=20261028-2">
-<link rel="stylesheet" href="assets/play-desk.css?v=20261028-4">
+<link rel="stylesheet" href="assets/play-desk.css?v=20261122-finder">
 <link rel="stylesheet" href="assets/typography.css?v=20260907-1">
 <link rel="stylesheet" href="assets/patch-notes.css?v=20260919-2">
 <link rel="stylesheet" href="assets/soul-ability-expenses.css?v=20260918-2">
@@ -11557,14 +11557,18 @@ window.MapleEnhancementBridge={
 <script src="assets/ledger-planner.js?v=20261111-1"></script>
 <dialog id="desk-search-dialog" class="desk-search-dialog" aria-labelledby="desk-search-title">
   <div class="desk-search-head"><h2 id="desk-search-title">메뉴·도구 찾기</h2><button type="button" class="icon-button" data-desk-close aria-label="도구 찾기 닫기"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#close"></use></svg></button></div>
-  <label for="desk-search-input">찾을 기능</label><input id="desk-search-input" type="search" placeholder="예: 정산, 소울, 심볼, 백업" autocomplete="off" aria-controls="desk-search-results">
+  <label for="desk-search-input">찾을 기능</label>
+  <div class="desk-search-field">
+    <svg class="ui-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+    <input id="desk-search-input" type="search" placeholder="예: 정산, 소울, 심볼, 백업" autocomplete="off" aria-controls="desk-search-results">
+  </div>
   <p id="desk-search-count" role="status" aria-live="polite" aria-atomic="true"></p><div id="desk-search-results" class="desk-search-results"></div>
-  <p class="desk-search-hint">방향키로 이동하고 Enter로 열 수 있습니다. Esc로 닫습니다.</p>
+  <p class="desk-search-hint"><span><kbd>↑</kbd> <kbd>↓</kbd> 이동</span><span><kbd>Enter</kbd> 열기</span><span><kbd>Esc</kbd> 닫기</span></p>
 </dialog>
-<script src="assets/workspace.js?v=20261122-1"></script>
-<script src="assets/play-desk.js?v=20261105-1"></script>
+<script src="assets/workspace.js?v=20261122-finder"></script>
+<script src="assets/play-desk.js?v=20261122-finder"></script>
 <script src="assets/maple-workspace.js?v=20261119-public"></script>
-<script src="assets/maple-official-theme.js?v=20261122-1"></script>
+<script src="assets/maple-official-theme.js?v=20261122-finder"></script>
 <script src="assets/home-characters.js?v=20261111-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>
 <footer class="site-footer">

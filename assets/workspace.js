@@ -1,6 +1,28 @@
 /* Navigation is deliberately independent from the ledger and its storage. */
 (() => {
   'use strict';
+  // Use the same map artwork and outline icons in the menus and tool finder.
+  window.MapleTabIcon = function tabIcon(spec = {symbol: 'receipt'}) {
+    if (spec.item) {
+      const image = document.createElement('img');
+      image.src = spec.item.startsWith('data:') ? spec.item : 'assets/' + spec.item;
+      image.className = 'maple-tab-icon maple-tab-icon--item';
+      image.alt = '';
+      image.setAttribute('aria-hidden', 'true');
+      image.draggable = false;
+      image.width = image.height = 26;
+      return image;
+    }
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.classList.add('ui-icon', 'maple-tab-icon');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    const use = document.createElementNS(ns, 'use');
+    use.setAttribute('href', 'assets/ui-icons.svg?v=20261111-icons-2#' + spec.symbol);
+    svg.append(use);
+    return svg;
+  };
   const sidebar = document.getElementById('workspace-sidebar');
   const scrim = document.querySelector('.sidebar-scrim');
   const heading = document.getElementById('workspace-title');

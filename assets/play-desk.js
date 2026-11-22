@@ -1,6 +1,13 @@
 /* 표시와 탐색만 담당합니다. 장부·계정·설정 저장소를 쓰지 않습니다. */
 (() => {
   'use strict';
+  const categories = {
+    '장부': {key: 'ledger', icon: {symbol: 'daily'}},
+    '보스': {key: 'boss', icon: {item: 'crystal-weekly.png'}},
+    '수익과 자산': {key: 'finance', icon: {symbol: 'expense'}},
+    '자산·성장 계획': {key: 'planning', icon: {symbol: 'target'}},
+    '보관과 안내': {key: 'help', icon: {symbol: 'package'}}
+  };
   const tools = [
     {name:'홈',group:'장부',page:'home',description:'오늘 기록과 수익 흐름 확인',words:'오늘 데스크 대시보드'},
     {name:'캐릭터 등록',group:'장부',page:'character',description:'캐릭터와 API 연결 관리',words:'넥슨 연동 프로필'},
@@ -37,8 +44,10 @@
     for(const tool of matches){
       const button=document.createElement('button');button.type='button';button.className='desk-search-result';
       const title=document.createElement('strong');title.textContent=tool.name;
-      const detail=document.createElement('span');detail.textContent=tool.description;
-      const group=document.createElement('small');group.textContent=tool.group;
+      const detail=document.createElement('span');detail.className='desk-search-description';detail.textContent=tool.description;
+      const category=categories[tool.group];
+      const group=document.createElement('small');group.className='desk-search-category';group.dataset.category=category.key;
+      group.append(window.MapleTabIcon(category.icon),tool.group);
       button.append(title,detail,group);button.addEventListener('click',()=>{dialog.close();go(tool);});results.append(button);
     }
     document.getElementById('desk-search-count').textContent=matches.length?matches.length+'개 도구':'찾는 도구가 없습니다. 재획, 정산, 심볼처럼 짧은 이름으로 검색해 주세요.';
