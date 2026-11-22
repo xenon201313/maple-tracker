@@ -12,8 +12,9 @@ const server=http.createServer((req,res)=>{
   const file=path.resolve(root,'.'+decodeURIComponent(name));if(!file.startsWith(root+path.sep))return res.writeHead(403).end();
   fs.readFile(file,(error,data)=>{if(error)return res.writeHead(404).end();res.writeHead(200,{'Content-Type':({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ttf':'font/ttf'})[path.extname(file)]||'application/octet-stream'});res.end(data);});
 });
-const accounts=new Map([A,B].map(id=>[id,{account:id,key:(id===A?'1':'2').repeat(64),revision:0,payload:null,history:[]}])) ;
-let origin,browser,legacyCalls=0,saves=0;const errors=[];
+const largeAccount='c'.repeat(64);
+const accounts=new Map([A,B,largeAccount].map((id,index)=>[id,{account:id,key:String(index+1).repeat(64),revision:0,payload:null,history:[]}]));
+let origin,browser,ledgerProtocol,legacyCalls=0,saves=0;const errors=[];
 const fixture={records:{'2026-09-24':{sessions:[{id:'keep-hunt',meso:'123456789',erda:2,runs:1}]}},chars:[],profits:[],expenses:[],settings:{nexonApiKey:'FIXTURE-SECRET-KEY'},backupSnapshots:[]};
 async function context(seed,account=A){
   const c=await browser.newContext({viewport:{width:1360,height:1000},acceptDownloads:true});c.setDefaultTimeout(15000);await fixtureDismissPatchNotes(c);
@@ -39,6 +40,8 @@ async function context(seed,account=A){
     if(action==='ledger-key')return send({account:acc.account,key:acc.key});
     if(action==='ledger-read')return send({account:acc.account,revision:acc.revision,payload:acc.payload});
     if(action==='ledger-save'){
+      if(route.request().postDataBuffer().length>ledgerProtocol.LEDGER_REQUEST_LIMIT)return send({error:'Request too large'},413);
+      if(!ledgerProtocol.validLedgerPayload(body.payload))return send({error:'암호화된 장부 형식이 올바르지 않습니다.'},400);
       if(body.revision!==acc.revision)return send({error:'다른 기기 변경',errorCode:'LEDGER_CONFLICT',account:acc.account,revision:acc.revision},409);
       saves++;acc.revision++;acc.payload=body.payload;acc.history.unshift({revision:acc.revision,savedAt:Date.now(),payload:body.payload});return send({account:acc.account,revision:acc.revision,savedAt:Date.now()});
     }
@@ -71,7 +74,81 @@ async function change(p,name){await p.evaluate(name=>{
 },name);}
 async function switchTo(p,id){await p.evaluate(id=>sessionStorage.setItem('maple:friends:session',JSON.stringify({state:id,proof:'f'.repeat(64),account:id})),id);await p.reload();await pending(p);}
 async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buffer.from(acc.key,'hex'),{name:'AES-GCM'},false,['decrypt']);return JSON.parse(Buffer.from(await webcrypto.subtle.decrypt({name:'AES-GCM',iv:Buffer.from(acc.payload.iv,'base64')},key,Buffer.from(acc.payload.ciphertext,'base64'))).toString());}
+async function snapshotDigest(page){
+  return page.evaluate(async()=>{
+    const snapshot=MapleAccountBridge.snapshot();
+    snapshot.updatedAt=0;snapshot.data.updatedAt=0;
+    const serialized=JSON.stringify(snapshot,(_key,v)=>{
+      if(v&&typeof v==='object'&&!Array.isArray(v))return Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]]));
+      return v;
+    });
+    return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(serialized))),b=>b.toString(16).padStart(2,'0')).join('');
+  });
+}
+async function checkLargeLedger(){
+  const account=accounts.get(largeAccount),source=await context(fixture,largeAccount),page=await open(source);
+  await pending(page);await page.click('#account-use-local');await synced(page);
+  assert.equal((await decode(account)).data.records['2026-09-24'].sessions[0].id,'keep-hunt','small ledgers remain readable as plain JSON after decryption');
+  const [saved,plainLength]=await Promise.all([
+    page.waitForResponse(response=>new URL(response.url()).pathname==='/v1/friends/ledger-save'),
+    page.evaluate(()=>{
+      const options=[{grade:'레전드리',value:'공격력 +12%'},{grade:'레전드리',value:'보스 몬스터 공격 시 데미지 +40%'},{grade:'유니크',value:'데미지 +9%'}];
+      const events=Array.from({length:1450},(_,i)=>MapleEnhancements.event('potential',{
+        id:'potential-'+i,character_name:'검증캐릭터',target_item:'아케인셰이드 무기',date_create:'2026-09-06T16:00:00+09:00',
+        item_level:200,potential_type:'잠재능력',before_potential_option:options,after_potential_option:options
+      },'fixture',1));
+      db.enhancements=MapleEnhancements.normalize({events});
+      db.expenses=normalizeExpenseRecords([{id:'direct-expense',date:'2026-09-24',amount:'9876543210'}]);
+      db.backupSnapshots=[1250,1100,900].map((count,index)=>{
+        const monthDate=new Date(todayStr()+'T12:00:00Z');
+        monthDate.setUTCDate(1);monthDate.setUTCMonth(monthDate.getUTCMonth()-index);
+        const createdAt=monthDate.toISOString(),month=createdAt.slice(0,7);
+        const historical=backupDataPayload({...db,backupSnapshots:[],enhancements:MapleEnhancements.normalize({events:events.slice(0,count)})});
+        return {id:'monthly-'+month,createdAt,month,data:historical};
+      });
+      storeHuntRecoveryPoint(db,'기존 재획 복구본');
+      mergeWeeklyDropRecoveryHistory([{id:'drop-only',createdAt:'2026-09-24',data:{chars:[{name:'검증캐릭터',drops:{fixture:1}}]}}]);
+      save();
+      return new TextEncoder().encode(JSON.stringify(MapleAccountBridge.snapshot())).length;
+    })
+  ]);
+  const previousWireBytes=4*Math.ceil((plainLength+16)/3);
+  assert(previousWireBytes>ledgerProtocol.LEDGER_REQUEST_LIMIT&&previousWireBytes<8_000_000,'uncompressed fixture must reproduce the reported 5–8 MB request');
+  assert.equal(saved.status(),200,'a locally persisted multi-month ledger exceeding the old limit must sync');
+  await synced(page);
+  const latestRevision=account.revision;
+  // If a request still encounters a server size error, the origin keeps its changes and can retry.
+  await page.route('**/v1/friends/ledger-save',route=>route.fulfill({status:413,contentType:'application/json',body:'{"error":"Request too large"}'}),{times:1});
+  await change(page,'unsynced-after-413');
+  await page.waitForFunction(()=>MapleAccountSync.getState().dirty&&!MapleAccountSync.getState().busy&&document.getElementById('account-status').textContent.includes('실패'));
+  const sizeMessage=await page.locator('#account-status').innerText();
+  assert.match(sizeMessage,/저장 한도/);
+  assert.match(sizeMessage,/백업/);
+  assert.doesNotMatch(sizeMessage,/Request too large/i);
+  assert.equal(account.revision,latestRevision);
+  assert(await page.evaluate(()=>JSON.parse(localStorage.getItem('mapleTracker.v2')).records['2026-09-24'].sessions.some(row=>row.id==='unsynced-after-413')));
+  await page.click('#account-save');await synced(page);
+  const expected=await snapshotDigest(page);
+  const target=await context(null,largeAccount),restored=await open(target);await pending(restored);
+  await restored.click('#account-use-remote');await synced(restored);
+  assert.equal(await snapshotDigest(restored),expected,'cross-device restore preserves all event rows, expenses, backups and recovery history');
+  const restoredValues=await restored.evaluate(()=>{
+    const s=MapleAccountBridge.snapshot();
+    return [s.data.enhancements.events.length,String(s.data.expenses[0].amount),s.data.backupSnapshots.map(b=>b.data.enhancements.events.length),s.weeklyDropRecovery[0].id,s.huntRecovery[0].reason,s.huntJournal.some(r=>r.session.id==='unsynced-after-413')];
+  });
+  assert.deepEqual(restoredValues,[1450,'9876543210',[1250,1100,900],'drop-only','기존 재획 복구본',true]);
+  await restored.locator('.account-sync details summary').click();await restored.click('#account-history');
+  const previousBackup=restored.locator('#account-server-history').getByRole('button',{name:new RegExp('세대 '+latestRevision+' JSON 백업')});
+  const [file]=await Promise.all([restored.waitForEvent('download'),previousBackup.click()]);
+  const historical=JSON.parse(fs.readFileSync(await file.path(),'utf8'));
+  assert.equal(historical.enhancements.events.length,1450);
+  assert.equal(historical.huntRecovery[0].reason,'기존 재획 복구본');
+  assert(!historical.records['2026-09-24'].sessions.some(row=>row.id==='unsynced-after-413'),'download the previous large revision, not the current one');
+  console.log('PASS: large expense ledger, legacy JSON, 413 retry and lossless cross-device restore ('+previousWireBytes+' bytes before compression)');
+  await target.close();await source.close();
+}
 (async()=>{
+  ledgerProtocol=await import('../cloudflare-worker/friends-ledger.mjs');
   await new Promise(r=>server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+server.address().port;
   try{
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
@@ -81,6 +158,7 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     assert.equal(await p1.evaluate(()=>db.records['2026-09-24'].sessions[0].id),'keep-hunt');
     assert.equal(await p1.evaluate(async()=>(await MapleAccountStorage.get('maple:account-ledger:vault:v1:legacy')).values['mapleTracker.legacyRecovery.fixture']!==undefined),true);
     assert(!JSON.stringify(await decode(accounts.get(A))).includes('FIXTURE-SECRET-KEY'),'API key must not reach account server');
+    await checkLargeLedger();
     // Another save of identical contents or a lost save acknowledgement can advance only the cloud revision.
     // The already selected ledger reopens without prompting or uploading the same record again.
     accounts.get(A).revision++;

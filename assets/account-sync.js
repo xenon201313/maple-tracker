@@ -8,9 +8,14 @@
   const read=key=>{const text=localStorage.getItem(key);return text?JSON.parse(text):null;};
   const write=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
   const preserved=()=>window.MapleAccountStorage;
+  // The Worker measures the entire JSON envelope (including its Base64), not just encrypted bytes.
+  const maxEnvelopeBytes=5_000_000;
+  const maxSnapshotBytes=24*1024*1024;
+  const sizeHelp='장부가 계정 저장 한도를 넘었습니다. 상단 ‘백업’에서 이 기기의 장부 파일을 내려받을 수 있습니다.';
+  const browserHelp='이 브라우저에서는 큰 장부를 압축하거나 열 수 없습니다. 브라우저를 업데이트한 뒤 다시 시도해 주세요.';
   const storageMessage=error=>error?.name==='QuotaExceededError'
     ?'브라우저 저장 공간이 부족합니다. 장부는 유지됩니다. 상단 백업으로 기록을 내려받은 뒤 저장 공간을 확인하고 다시 시도해 주세요.'
-    :/^STORAGE_/.test(error?.code||'')?error.message:(error?.message||'저장 상태를 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
+    :error?.status===413?sizeHelp:(error?.message||'저장 상태를 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
   const capture=()=>Object.fromEntries(Object.keys(localStorage).filter(isLedgerKey).map(key=>[key,localStorage.getItem(key)]));
   function replaceStore(values) {
     if(!values||typeof values!=='object'||Array.isArray(values))throw new Error('전환할 장부 형식을 확인하지 못했습니다. 보관본은 유지됩니다.');
@@ -131,10 +136,50 @@
   }
   function bytes64(bytes){let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);}
   function unbase64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
+  async function encryptSnapshot(snapshot,key){
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+    const payload={version:1,updatedAt:snapshot.updatedAt,iv:bytes64(iv),ciphertext:''};
+    // AES-GCM appends a 16-byte tag; Base64 uses four characters per three bytes.
+    const maxPlainBytes=3*Math.floor((maxEnvelopeBytes-JSON.stringify(payload).length)/4)-16;
+    let bytes=new TextEncoder().encode(JSON.stringify(snapshot,(k,v)=>k==='nexonApiKey'?undefined:v));
+    if(bytes.length>maxSnapshotBytes)throw new Error(sizeHelp);
+    if(bytes.length>maxPlainBytes){
+      if(typeof CompressionStream!=='function'||typeof DecompressionStream!=='function')throw new Error(browserHelp);
+      const stream=new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));
+      bytes=new Uint8Array(await new Response(stream).arrayBuffer());
+      if(bytes.length>maxPlainBytes)throw new Error(sizeHelp);
+    }
+    const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,bytes);
+    payload.ciphertext=bytes64(new Uint8Array(ciphertext));
+    return payload;
+  }
+  async function snapshotText(bytes){
+    const decoder=new TextDecoder('utf-8',{fatal:true});
+    // Older snapshots start with a JSON object. Gzip is only used inside authenticated ciphertext.
+    if(bytes[0]!==0x1f||bytes[1]!==0x8b)return decoder.decode(bytes);
+    if(typeof DecompressionStream!=='function')throw new Error(browserHelp);
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const reader=stream.getReader(), parts=[];
+    let total=0;
+    try{
+      for(;;){
+        const {done,value}=await reader.read();
+        if(done)break;
+        total+=value.byteLength;
+        if(total>maxSnapshotBytes)throw new Error('장부 복원 용량 초과');
+        parts.push(decoder.decode(value,{stream:true}));
+      }
+      parts.push(decoder.decode());
+      return parts.join('');
+    }catch{
+      await reader.cancel().catch(()=>{});
+      throw new Error('압축된 계정 장부를 열지 못했습니다. 현재 기기의 기록은 유지됩니다.');
+    }finally{reader.releaseLock();}
+  }
   async function decrypt(payload,ctx){
     if(!payload||payload.version!==1||typeof payload.iv!=='string'||typeof payload.ciphertext!=='string')throw new Error('저장된 장부 형식이 올바르지 않습니다.');
     const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unbase64(payload.iv)},ctx.key,unbase64(payload.ciphertext));
-    const result=JSON.parse(new TextDecoder().decode(plain));
+    const result=JSON.parse(await snapshotText(new Uint8Array(plain)));
     if(result?.version!==1||!result.data?.records)throw new Error('장부를 해석하지 못했습니다. 현재 기록은 유지됩니다.');
     return result;
   }
@@ -232,12 +277,12 @@
     busy=true;clearTimeout(timer);timer=0;announce('넥슨 계정에 저장하는 중…');
     try {
       checkOwner();
-      const snapshot=bridge().snapshot(), contents=ledgerContents(snapshot), iv=crypto.getRandomValues(new Uint8Array(12));
+      const snapshot=bridge().snapshot(), contents=ledgerContents(snapshot);
       const hash=await contentHash(contents);
-      const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},ctx.key,new TextEncoder().encode(JSON.stringify(snapshot,(key,value)=>key==='nexonApiKey'?undefined:value)));
+      const payload=await encryptSnapshot(snapshot,ctx.key);
       if(!valid(ctx))return false;
       checkOwner();
-      const result=await window.MapleFriends.request('ledger-save',{revision:meta.revision,payload:{version:1,updatedAt:snapshot.updatedAt,iv:bytes64(iv),ciphertext:bytes64(new Uint8Array(ciphertext))}});
+      const result=await window.MapleFriends.request('ledger-save',{revision:meta.revision,payload});
       if(!valid(ctx))return false;
       checkOwner();
       if(result.account!==ctx.account||!Number.isSafeInteger(result.revision))throw new Error('저장 결과의 계정이 일치하지 않습니다.');
