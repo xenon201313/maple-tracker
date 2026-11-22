@@ -15,6 +15,25 @@ const server=http.createServer((req,res)=>{
   if(!file.startsWith(root+path.sep)) return res.writeHead(403).end();
   fs.readFile(file,(error,data)=>{if(error)return res.writeHead(404).end();res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(data);});
 });
+
+async function checkExpenseContrast(page, selectors) {
+  for(const selector of selectors) {
+    const ratio=await page.locator(selector).first().evaluate(element=>{
+      const solid=value=>value.startsWith('rgb(');
+      let surface=element;
+      while(surface && !solid(getComputedStyle(surface).backgroundColor)) surface=surface.parentElement;
+      if(!surface) throw Error('Missing opaque background for '+element.className);
+      const luminance=color=>color.match(/[\d.]+/g).slice(0,3).map(Number)
+        .map(channel=>channel/255)
+        .map(channel=>channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4)
+        .reduce((sum,channel,index)=>sum+channel*[.2126,.7152,.0722][index],0);
+      const foreground=luminance(getComputedStyle(element).color);
+      const background=luminance(getComputedStyle(surface).backgroundColor);
+      return (Math.max(foreground,background)+.05)/(Math.min(foreground,background)+.05);
+    });
+    assert(ratio>=4.5,selector+' contrast '+ratio.toFixed(2));
+  }
+}
 (async()=>{
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const origin='http://127.0.0.1:'+server.address().port;
@@ -78,13 +97,25 @@ const server=http.createServer((req,res)=>{
     assert.equal(await page.locator('#manual-enhancement-panel').isVisible(),true);
     await page.click('[data-enhancement-tab="all"]');
     assert.equal(await page.locator('.eh-event').count(),4,'전체 이력은 두 API 시도와 직접 기록한 강화·구매를 포함해야 함');
+    assert.match(await page.locator('#expense-summary>div').first().innerText(),/이번 달 확정 지출/);
+    const readingChecks=['#expense-summary>div:first-child b','.eh-cost[data-cost=estimate] b','.eh-cost[data-cost=booked] b','.eh-status[data-state=pending]','.eh-status[data-state=manual]','#enhancement-tab-all'];
+    await checkExpenseContrast(page,readingChecks);
+    await page.locator('.expense-overview').screenshot({path:path.join(output,'expense-summary-light.png')});
     await page.locator('#enhancement-panel').screenshot({path:path.join(output,'expenses-overview.png')});
     await page.evaluate(()=>MapleThemeMode.setPreference('dark'));
+    await checkExpenseContrast(page,readingChecks);
     await page.locator('#enhancement-panel').screenshot({path:path.join(output,'expenses-overview-dark.png')});
     await page.evaluate(()=>MapleThemeMode.setPreference('light'));
+    await page.setViewportSize({width:390,height:900});
+    await page.locator('.expense-overview').screenshot({path:path.join(output,'expense-summary-mobile.png')});
+    await page.setViewportSize({width:1440,height:1000});
     await page.selectOption('[data-history-kind]','manual');
     assert.equal(await page.locator('.eh-event').count(),2);
-    await page.selectOption('[data-history-kind]','');
+    assert.equal(await page.locator('[data-history-kind]').evaluate(e=>e.classList.contains('eh-filter-active')),true);
+    await page.click('[data-history-reset]');
+    assert.equal(await page.locator('[data-history-kind]').inputValue(),'');
+    assert.equal(await page.locator('[data-history-reset]').isHidden(),true);
+    assert.equal(await page.locator('[data-history-search]').evaluate(e=>e===document.activeElement),true);
     await page.fill('[data-history-search]','가디언');
     assert.equal(await page.locator('.eh-event').count(),1);
     await page.fill('[data-history-search]','존재하지 않는 장비');
@@ -211,6 +242,10 @@ const server=http.createServer((req,res)=>{
     const cube=page.locator('.enhancement-row[data-kind="cube"]');
     assert.match(await cube.innerText(),/수상한 큐브/);
     assert.match(await cube.locator('.enhancement-estimate').innerText(),/큐브 환산액/);
+    await checkExpenseContrast(page,['.enhancement-row[data-kind=cube] .enhancement-estimate strong']);
+    await page.evaluate(()=>MapleThemeMode.setPreference('dark'));
+    await checkExpenseContrast(page,['.enhancement-row[data-kind=cube] .enhancement-estimate strong']);
+    await page.evaluate(()=>MapleThemeMode.setPreference('light'));
     await cube.locator('.enhancement-details > summary').click();
     assert.equal(await cube.locator('[data-amount]').inputValue(),'4250000','Auto-fill the same-level meso-reset equivalent');
     const beforeCube=await page.evaluate(()=>JSON.stringify(MapleEnhancements.profits(db.enhancements)));

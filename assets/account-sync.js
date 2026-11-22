@@ -70,7 +70,18 @@
     for(let i=0;i<text.length;i++){const n=text.charCodeAt(i);a=Math.imul(a^n,16777619);b=Math.imul(b^n,2246822519);c=Math.imul(c^n,3266489917);d=Math.imul(d^n,668265263);}
     return [a,b,c,d].map(n=>(n>>>0).toString(16).padStart(8,'0')).join('');
   }
-  const fingerprint=()=>mark(bridge().snapshot().data);
+  // Save timestamps can differ after a retry. Compare every record, archived backup and recovery entry.
+  function ledgerContents(snapshot){
+    return JSON.stringify({...snapshot,updatedAt:0,data:{...snapshot.data,updatedAt:0}},(key,value)=>{
+      if(key==='nexonApiKey')return undefined;
+      if(!value||typeof value!=='object'||Array.isArray(value))return value;
+      return Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]]));
+    });
+  }
+  async function contentHash(text){
+    const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('');
+  }
   function persist(){write(META,meta);}
   function announce(text,error=false){statusText=text;isError=error;render();}
   function checkOwner(allowSwitch=false){
@@ -89,15 +100,19 @@
     return id;
   }
   async function bank(){checkOwner();const owner=loadedOwner;await preserved().put(VAULT+owner,{meta:{...meta},values:capture()});vaultOwners.add(owner);}
-  async function activate(values,nextMeta,label){
-    document.dispatchEvent(new CustomEvent('maple:account-ledger-changing'));
+  async function activate(values,nextMeta,label,ctx=null,canStart=null){
+    const assertSession=()=>{if(ctx&&!valid(ctx))throw new Error('넥슨 계정이 바뀌어 장부 전환을 중단했습니다.');};
     const perform=async()=>{
+    assertSession();
     checkOwner();
+    if(canStart&&!canStart())return;
+    document.dispatchEvent(new CustomEvent('maple:account-ledger-changing'));
     const before={meta:{...meta},values:capture()};
     switching=true;busy=true;render();let journaled=false;
     try {
       const key=await archive(label,before.values);
       await preserved().put(VAULT+loadedOwner,before);
+      assertSession();
       checkOwner(true);
       if(mark(capture())!==mark(before.values))throw new Error('보관 중 장부가 변경되었습니다. 최신 기록을 새로 열어 주세요.');
       write(TX,{storage:'indexedDB',key,beforeMeta:before.meta,createdAt:Date.now()});journaled=true;
@@ -134,6 +149,32 @@
     ledgerVerified=false;pending={ctx,...value,kind};busy=false;
     announce(kind==='connect'?'기존 기록을 보관한 뒤 사용할 장부를 선택해 주세요.':'다른 기기의 변경을 확인했습니다. 자동 덮어쓰기를 멈췄습니다.',kind!=='connect');
   }
+  async function matchesLastSync(ctx,revision,local){
+    if(meta.base?.revision===revision&&/^[a-f0-9]{64}$/.test(meta.base.hash))return meta.base.hash===await contentHash(local);
+    // Older versions did not keep a fingerprint of the recovery records. Check that exact
+    // server generation once; if it has expired, keep the user's choice available.
+    if(revision<1)return false;
+    try{
+      const history=await window.MapleFriends.request('ledger-history',{beforeRevision:revision+1});
+      if(!valid(ctx)||history.account!==ctx.account)return false;
+      const row=history.snapshots?.find(entry=>entry.revision===revision);
+      return !!row && local===ledgerContents(await decrypt(row.payload,ctx));
+    }catch{return false;}
+  }
+  function ledgerReady(){
+    if(ledgerVerified)return;
+    ledgerVerified=true;document.dispatchEvent(new CustomEvent('maple:account-ledger-ready'));
+  }
+  async function acknowledgeSame(ctx,value,local){
+    if(!value.snapshot||loadedOwner!=='friends:'+ctx.account||value.revision<meta.revision)return false;
+    local??=ledgerContents(bridge().snapshot());
+    if(local!==ledgerContents(value.snapshot))return false;
+    const hash=await contentHash(local);
+    if(!valid(ctx))return false;checkOwner();
+    if(local!==ledgerContents(bridge().snapshot()))return false;
+    meta.revision=value.revision;meta.dirty=false;meta.base={revision:value.revision,hash};
+    persist();pending=null;ledgerReady();return true;
+  }
   async function initialize(){
     if(!started||!bridge()||fatal||stale)return;
     const state=auth();
@@ -158,27 +199,41 @@
       if(!valid(ctx))return;
       if(key.account!==ctx.account||!/^[a-f0-9]{64}$/.test(key.key))throw new Error('계정 암호화 정보가 올바르지 않습니다.');
       ctx.key=await crypto.subtle.importKey('raw',Uint8Array.from(key.key.match(/../g),s=>parseInt(s,16)),{name:'AES-GCM'},false,['encrypt','decrypt']);
-      const before=fingerprint(), value=await remote(ctx);
+      const value=await remote(ctx);
       if(!value||!valid(ctx))return;
+      checkOwner();
       if(loadedOwner!=='friends:'+ctx.account){offer(ctx,value,'connect');return;}
-      if(before!==fingerprint()){offer(ctx,value,'conflict');return;}
-      if(value.revision===meta.revision){
-        ledgerVerified=true;document.dispatchEvent(new CustomEvent('maple:account-ledger-ready'));
-        busy=false;announce('넥슨 계정 장부 연결됨','');
-        if(meta.dirty)await upload();
-      } else if(!meta.dirty&&value.snapshot){
-        await useRemote(false,value);
-      } else {offer(ctx,value,'conflict');}
+      if(value.revision!==meta.revision){
+        if(value.revision<meta.revision||!value.snapshot){offer(ctx,value,'conflict');return;}
+        const local=ledgerContents(bridge().snapshot());
+        if(!await acknowledgeSame(ctx,value,local)){
+          if(!valid(ctx))return;
+          const unchanged=!meta.dirty&&await matchesLastSync(ctx,meta.revision,local);
+          if(!valid(ctx))return;
+          if(unchanged)await useRemote(false,value,local);
+          else offer(ctx,value,'conflict');
+          return;
+        }
+      }
+      if(value.snapshot && meta.base?.revision!==meta.revision){
+        const hash=await contentHash(ledgerContents(value.snapshot));
+        if(!valid(ctx))return;checkOwner();
+        meta.base={revision:value.revision,hash};persist();
+      }
+      ledgerReady();
+      busy=false;announce('넥슨 계정 장부 연결됨');
+      if(meta.dirty)await upload();
     } catch(error){if(valid(ctx)){context=null;announce(storageMessage(error),true);}}
     finally{if(seq===generation){busy=false;render();}}
   }
   async function upload(){
     const ctx=context;
-    if(!ctx||!valid(ctx)||!ctx.key||busy||pending||loadedOwner!=='friends:'+ctx.account)return false;
+    if(!ctx||!valid(ctx)||!ctx.key||!ledgerVerified||busy||pending||loadedOwner!=='friends:'+ctx.account)return false;
     busy=true;clearTimeout(timer);timer=0;announce('넥슨 계정에 저장하는 중…');
     try {
       checkOwner();
-      const snapshot=bridge().snapshot(), at=mark(snapshot.data), iv=crypto.getRandomValues(new Uint8Array(12));
+      const snapshot=bridge().snapshot(), contents=ledgerContents(snapshot), iv=crypto.getRandomValues(new Uint8Array(12));
+      const hash=await contentHash(contents);
       const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},ctx.key,new TextEncoder().encode(JSON.stringify(snapshot,(key,value)=>key==='nexonApiKey'?undefined:value)));
       if(!valid(ctx))return false;
       checkOwner();
@@ -186,12 +241,21 @@
       if(!valid(ctx))return false;
       checkOwner();
       if(result.account!==ctx.account||!Number.isSafeInteger(result.revision))throw new Error('저장 결과의 계정이 일치하지 않습니다.');
-      meta.revision=result.revision;meta.fingerprint=at;meta.dirty=at!==fingerprint();persist();
+      meta.revision=result.revision;meta.fingerprint=mark(snapshot.data);meta.base={revision:result.revision,hash};
+      meta.dirty=contents!==ledgerContents(bridge().snapshot());persist();
       announce('넥슨 계정에 저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
       return true;
     } catch(error){
       if(!valid(ctx))return false;
-      if(error.status===409){const value=await remote(ctx);if(value)offer(ctx,value,'conflict');}
+      if(error.status===409){
+        try{
+          const value=await remote(ctx);if(!value)return false;
+          if(await acknowledgeSame(ctx,value)){announce('이미 최신 계정 장부입니다.');return true;}
+          if(valid(ctx))offer(ctx,value,'conflict');
+        }catch(readError){
+          if(valid(ctx))announce('다른 기기의 장부를 비교하지 못했습니다. 최신 장부 확인을 눌러 다시 시도해 주세요. '+storageMessage(readError),true);
+        }
+      }
       else announce('계정 저장 실패 · '+storageMessage(error)+' 현재 기기 기록은 유지됩니다.',true);
       return false;
     } finally {if(valid(ctx)){busy=false;render();if(meta.dirty&&!pending&&!isError)timer=setTimeout(upload,900);}}
@@ -206,23 +270,32 @@
     if(!context){await initialize();return;}
     const ctx=context;if(busy||!valid(ctx))return;
     busy=true;announce('계정의 최신 기록을 확인하는 중…');
-    try{checkOwner();const value=await remote(ctx);if(value){checkOwner();if(value.revision===meta.revision&&!meta.dirty)announce('이미 최신 계정 장부입니다.');else offer(ctx,value,loadedOwner==='friends:'+ctx.account?'conflict':'connect');}}
+    try{
+      checkOwner();const value=await remote(ctx);if(!value)return;
+      checkOwner();
+      if((loadedOwner==='friends:'+ctx.account&&value.revision===meta.revision&&!meta.dirty&&!pending)||await acknowledgeSame(ctx,value))announce('이미 최신 계정 장부입니다.');
+      else if(valid(ctx))offer(ctx,value,loadedOwner==='friends:'+ctx.account?'conflict':'connect');
+    }
     catch(error){if(valid(ctx))announce(error.message,true);}
     finally{if(valid(ctx)){busy=false;render();}}
   }
-  async function useRemote(ask=true,given=pending){
-    const ctx=context,value=given;if(!value||!ctx||!valid(ctx))return;
+  async function useRemote(ask=true,given=pending,expectedLocal=null){
+    const ctx=context,value=given;if(!value||!ctx||!valid(ctx)||(value.ctx&&value.ctx!==ctx))return;
     try{
       checkOwner();
       if(ask&&!confirm('현재 장부와 복구 기록을 이 기기에 별도로 보관한 뒤 넥슨 계정 장부를 열까요?'))return;
       const owner='friends:'+ctx.account, saved=await preserved().get(VAULT+owner);
       if(!valid(ctx))return;checkOwner();
       // 다른 계정으로 돌아올 때 서버보다 먼저 그 계정의 미전송 로컬 기록을 복원합니다.
-      if(loadedOwner!==owner&&saved){await activate(saved.values,saved.meta,'계정 전환 전 원본');return;}
+      if(loadedOwner!==owner&&saved){if(saved.meta?.owner!==owner)throw new Error('이 계정의 기기 보관본 소유자를 확인해 주세요.');await activate(saved.values,saved.meta,'계정 전환 전 원본',ctx);return;}
       const snapshot=value.snapshot||bridge().emptySnapshot();
       const values=bridge().storeFromSnapshot(snapshot);
-      await activate(values,{owner,revision:value.revision,dirty:!value.snapshot,fingerprint:mark(snapshot.data)},'클라우드 장부 열기 전 원본');
-    }catch(error){announce('원본 보관 또는 장부 전환 실패 · '+storageMessage(error),true);}
+      const canStart=expectedLocal===null?null:()=>{
+        if(!meta.dirty&&ledgerContents(bridge().snapshot())===expectedLocal)return true;
+        offer(ctx,value,'conflict');return false;
+      };
+      await activate(values,{owner,revision:value.revision,dirty:!value.snapshot,fingerprint:mark(snapshot.data)},'클라우드 장부 열기 전 원본',ctx,canStart);
+    }catch(error){if(valid(ctx))announce('원본 보관 또는 장부 전환 실패 · '+storageMessage(error),true);}
   }
   async function useLocal(){
     const ctx=context,value=pending;if(!ctx||!value||!valid(ctx))return;
@@ -233,7 +306,7 @@
       if(loadedOwner!==owner){
         // 다음 로드부터 계정 소유권이 고정됩니다. 기존 저장 원본은 legacy 보관함에 유지됩니다.
         const next={owner,revision:value.revision,dirty:true,fingerprint:''};
-        await activate(capture(),next,'기존 기록을 계정으로 복사하기 전');return;
+        await activate(capture(),next,'기존 기록을 계정으로 복사하기 전',ctx);return;
       }
       busy=true;render();
       await archive('계정 장부 연결 전 원본');await bank();
@@ -290,17 +363,20 @@
       $('account-recheck').disabled=busy||checking;$('account-recheck').textContent=state.checking?'연결 상태 확인 중…':'연결 상태 다시 확인';
     }
     $('account-logout').hidden=!connected;$('account-logout').disabled=busy;
-    $('account-save').hidden=!mine;$('account-save').disabled=busy||!!pending||!context;
+    $('account-save').hidden=!mine;$('account-save').disabled=busy||!!pending||!ledgerVerified;
     $('account-pull').hidden=!connected;$('account-pull').disabled=busy;
     $('account-legacy').hidden=loadedOwner==='legacy';$('account-legacy').disabled=busy;
     $('account-history').hidden=!mine;$('account-history').disabled=busy;
     $('account-choice').hidden=!pending;
     if(pending){
+      const conflict=pending.kind==='conflict';
+      $('account-choice-title').textContent=conflict?'기기와 계정의 변경 내용 확인':'이 계정에서 사용할 장부 선택';
       $('account-choice-current').textContent='이 기기: '+summary(bridge().snapshot().data);
       $('account-choice-remote').textContent=pending.snapshot?'넥슨 계정: '+summary(pending.snapshot.data):'넥슨 계정: 저장된 장부 없음';
       $('account-use-local').hidden=loadedOwner!=='legacy'&&!mine;
       $('account-use-local').disabled=busy;$('account-use-remote').disabled=busy;
-      $('account-use-remote').textContent=vaultOwners.has('friends:'+state.account)?'이 계정의 기기 보관함 열기':'넥슨 계정 장부 열기';
+      $('account-use-local').textContent=conflict?'이 기기의 기록을 계정에 저장':'이 기기 장부를 계정에 연결';
+      $('account-use-remote').textContent=!mine&&vaultOwners.has('friends:'+state.account)?'이 계정의 기기 보관함 열기':'넥슨 계정 장부 열기';
     }
     document.querySelectorAll('.storage-badge').forEach(el=>{el.textContent=mine?'넥슨 계정 저장':loadedOwner==='legacy'?'브라우저 저장':'계정 장부 · 오프라인';el.title='기록은 이 기기에 먼저 저장되며, 연결한 계정에 암호화하여 동기화합니다.';});
     renderArchives();
@@ -327,7 +403,13 @@
     started=true;if(!bridge()||!$('account-status'))return;
     $('account-login').onclick=()=>window.MapleFriends.connect('home').catch(error=>announce(error.message,true));
     if($('account-recheck'))$('account-recheck').onclick=()=>window.MapleFriends.recheck().catch(error=>announce(error.message,true));
-    $('account-logout').onclick=async()=>{try{busy=true;render();await bank();await window.MapleFriends.disconnect();}catch(error){announce(storageMessage(error),true);}finally{busy=false;render();}};
+    $('account-logout').onclick=async()=>{
+      busy=true;render();
+      const [backup,logout]=await Promise.allSettled([bank(),window.MapleFriends.disconnect()]);
+      const messages=[logout.status==='fulfilled'?'넥슨 로그아웃을 완료했습니다.':'이 탭에서 로그아웃했습니다. 서버 또는 기기의 자동 로그인 해제 상태를 다시 확인해 주세요.'];
+      if(backup.status==='rejected')messages.push('전환 전 보관본을 만들지 못했습니다. 현재 장부는 이 기기에 남아 있습니다.');
+      busy=false;announce(messages.join(' '),backup.status==='rejected'||logout.status==='rejected');
+    };
     $('account-save').onclick=upload;$('account-pull').onclick=pull;$('account-legacy').onclick=legacy;
     $('account-use-local').onclick=useLocal;$('account-use-remote').onclick=()=>useRemote();$('account-history').onclick=history;
     $('account-local-download').onclick=async()=>{try{const owner=loadedOwner,row=await preserved().get($('account-local-history').value);if(!row||row.owner!==loadedOwner||owner!==loadedOwner)return;download(bridge().snapshotFromStore(row.values),'mesobook-local-preserved-'+row.createdAt+'.json');}catch(error){announce('보관본을 읽지 못했습니다. '+storageMessage(error),true);}};

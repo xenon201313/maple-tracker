@@ -160,3 +160,92 @@
   .enhancement-timeline-row time { grid-column:1 / -1; }
   .enhancement-timeline-row>span:nth-child(2) { grid-column:1 / -1; }
 }
+
+#page-expense {
+  --expense-ink:#202839; --expense-secondary:#505b6e; --expense-paper:#fff; --expense-wash:#f4f6fa;
+  --expense-line:#cdd3dd; --expense-booked:#982e43; --expense-booked-bg:#fff1f3;
+  --expense-estimate:#855014; --expense-estimate-bg:#fff3de; --expense-cube:#584699;
+  --expense-cube-bg:#f1edfb; --expense-done:#17634a; --expense-done-bg:#e5f5ed;
+  --expense-accent:#813e12; --expense-selected:#ffead8;
+}
+html[data-maple-theme=dark] #page-expense {
+  --expense-ink:#f0f3f9; --expense-secondary:#b4bfd2; --expense-paper:#202633; --expense-wash:#282f3e;
+  --expense-line:#4a556b; --expense-booked:#ffa9b3; --expense-booked-bg:#392831;
+  --expense-estimate:#ffca7e; --expense-estimate-bg:#392f25; --expense-cube:#cab9ff;
+  --expense-cube-bg:#302e44; --expense-done:#8bdfb7; --expense-done-bg:#21392f;
+  --expense-accent:#ffbf8a; --expense-selected:#3b302b;
+}
+#page-expense .expense-overview { border-color:var(--expense-line); }
+#page-expense .expense-overview .page-purpose { align-items:center; padding-bottom:18px; margin-bottom:16px; }
+#page-expense .expense-overview .page-purpose h2 { margin:0 0 4px; font-size:clamp(23px,2.2vw,31px); color:var(--expense-ink); }
+#page-expense .expense-overview .page-purpose p { color:var(--expense-secondary); }
+#expense-summary { grid-template-columns:1.45fr repeat(3,minmax(0,1fr)); align-items:stretch; gap:0; }
+#expense-summary .expense-summary { display:grid; align-content:center; row-gap:2px; padding:9px 16px; border:0; border-inline-start:1px solid var(--expense-line); border-radius:0; background:none; }
+#expense-summary .expense-summary:first-child { border:none; border-inline-start:4px solid var(--expense-booked); background:var(--expense-booked-bg); border-radius:0 8px 8px 0; }
+#expense-summary .expense-summary:nth-child(2) { border-inline-start:0; }
+#expense-summary .expense-summary :is(span,small) { margin:0; color:var(--expense-secondary); font-size:13px; word-break:keep-all; overflow-wrap:anywhere; }
+#expense-summary .expense-summary span { font-weight:700; }
+#expense-summary .expense-summary b { color:var(--expense-ink); line-height:1.4; font-size:clamp(17px,1.6vw,22px); font-variant-numeric:tabular-nums; }
+#expense-summary .expense-summary:first-child :is(span,b) { color:var(--expense-booked); }
+#expense-summary .expense-summary:first-child b { font-size:clamp(20px,2.25vw,31px); }
+#page-expense .expense-totals-detail { margin-top:10px; }
+#page-expense .expense-totals-detail summary { display:list-item; width:fit-content; padding:7px 4px; color:var(--expense-secondary); font-size:14px; font-weight:700; cursor:pointer; }
+#page-expense .expense-totals-detail p { font-size:14px; color:var(--expense-secondary); line-height:1.65; }
+#page-expense .enhancement-heading { margin-bottom:14px; }
+#page-expense .enhancement-badge { color:var(--expense-secondary); font-size:13px; }
+#page-expense .enhancement-tabs { gap:5px; border:0; padding:5px; background:var(--expense-wash); border-radius:10px; }
+#page-expense .enhancement-tabs button { border-radius:7px; border:1px solid transparent; color:var(--expense-secondary); min-height:45px; padding:7px 6px; font-size:14px; }
+#page-expense .enhancement-tabs button[aria-selected=true] { color:var(--expense-accent); background:var(--expense-selected); border-color:var(--expense-accent); font-weight:800; }
+#page-expense .enhancement-tabs button[aria-selected=true]::after { content:none; }
+#page-expense .enhancement-tabs button span { margin:0; font-size:13px; font-variant-numeric:tabular-nums; }
+#page-expense .expense-import { border-block:1px solid var(--expense-line); }
+#page-expense .expense-import>summary { display:list-item; padding:9px 4px; width:fit-content; font-size:14px; font-weight:700; color:var(--expense-ink); cursor:pointer; }
+#page-expense .expense-import[open] { padding-bottom:10px; }
+#page-expense .expense-import .history-date-presets { margin-bottom:0; }
+#page-expense #enhancement-status { margin:8px 0 14px; font-size:13px; }
+#page-expense .eh-toolbar { gap:10px; margin:16px 0 0; }
+#page-expense .eh-toolbar label { font-size:14px; }
+#page-expense .eh-filter-active { border-color:var(--expense-accent); box-shadow:inset 0 -2px var(--expense-accent); }
+#page-expense .eh-filter-result { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:41px; }
+#page-expense .eh-filter-result button { min-height:36px; padding:3px 12px; font-size:13px; }
+#page-expense .eh-count { margin:4px 0; color:var(--expense-secondary); }
+#page-expense .eh-days .eh-date { margin:12px 0 0; padding:8px 12px; border:0; border-inline-start:3px solid var(--expense-accent); background:var(--expense-wash); font-size:16px; font-weight:800; color:var(--expense-ink); }
+#page-expense .eh-event { border-color:var(--expense-line); }
+#page-expense .eh-event>summary { padding:12px 8px; color:var(--expense-ink); }
+#page-expense .eh-item strong,#page-expense .enhancement-row-title strong { font-size:16px; font-weight:750; color:var(--expense-ink); }
+#page-expense :is(.eh-time,.eh-item small,.eh-result,.enhancement-result span,.enhancement-row-title small,.enhancement-row-title span,.enhancement-summary-note) { color:var(--expense-secondary); font-size:13px; }
+#page-expense .eh-art,#page-expense .enhancement-item-image { background:var(--expense-wash); border-color:var(--expense-line); }
+#page-expense .eh-cost { display:grid; gap:1px; align-content:center; text-align:right; }
+#page-expense .eh-cost small { font-size:12px; color:inherit; }
+#page-expense .eh-cost b { font-size:16px; line-height:1.45; }
+#page-expense [data-cost=booked],#page-expense .eh-booked { color:var(--expense-booked); }
+#page-expense [data-cost=estimate],#page-expense .enhancement-estimate { color:var(--expense-estimate); }
+#page-expense [data-cost=conversion],#page-expense [data-kind=cube] .enhancement-estimate { color:var(--expense-cube); }
+#page-expense .enhancement-estimate :is(strong,span),#page-expense .enhancement-summary [data-cost] :is(strong,span) { color:inherit; }
+#page-expense .eh-cost[data-cost=unknown] { color:var(--expense-secondary); }
+#page-expense .eh-status { display:inline-flex; align-items:center; padding:3px 8px; color:var(--expense-secondary); background:var(--expense-wash); border-color:var(--expense-line); border-radius:5px; font-weight:750; }
+#page-expense .eh-status[data-state=pending] { color:var(--expense-estimate); background:var(--expense-estimate-bg); border:1px dashed currentColor; }
+#page-expense .eh-status:is([data-state=confirmed],[data-state=manual]) { color:var(--expense-done); background:var(--expense-done-bg); }
+#page-expense .eh-status[data-state=conflict] { color:var(--expense-booked); background:var(--expense-booked-bg); border-color:currentColor; }
+#page-expense .eh-event[open] { background:var(--expense-wash); }
+#page-expense .enhancement-summary { border-block:1px solid var(--expense-line); padding:12px; gap:12px; }
+#page-expense .enhancement-summary>div { gap:2px; }
+#page-expense .enhancement-summary span { color:var(--expense-secondary); font-size:13px; }
+#page-expense .enhancement-row { padding-block:14px; }
+#page-expense .enhancement-item { padding-block:4px; }
+#page-expense .enhancement-row .enhancement-method { color:var(--expense-secondary); }
+#page-expense .enhancement-estimate>span { font-size:13px; }
+#page-expense .enhancement-estimate strong { font-size:18px; }
+
+@media(max-width:760px) {
+  #expense-summary { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  #expense-summary .expense-summary { padding:8px 10px; border-inline-start:0; border-radius:6px; background:var(--expense-wash); }
+  #page-expense .expense-overview .page-purpose { align-items:flex-start; }
+}
+@media(max-width:540px) {
+  #page-expense .expense-overview .page-purpose { gap:10px; }
+  #page-expense .expense-overview .purpose-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; }
+  #page-expense .expense-overview .purpose-actions button { width:100%; padding-inline:6px; }
+  #page-expense .enhancement-tabs button { min-height:44px; }
+  #page-expense .eh-event>summary { padding:10px 2px; }
+}

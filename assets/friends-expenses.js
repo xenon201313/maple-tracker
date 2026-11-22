@@ -26,9 +26,19 @@
   }
   const read=key=>{try{return JSON.parse(sessionStorage.getItem(key)||'null');}catch{return null;}};
   const bridge=()=>window.MapleEnhancementBridge;
+  const device=window.MapleDeviceLogin;
+  let deviceId=device?.current()||'', rememberChoice=!!deviceId, savingPreference=false;
   let session=read(sessionKey), ready=false, verified=false, configured=false, page=0, running=null, lastAuto=0, tab='all';
+  // A restored browser tab may still carry a copy from before another tab logged out.
+  if(session?.deviceId && (session.deviceId!==deviceId || session.deviceUntil<=Date.now())) {
+    session=null;
+    try {sessionStorage.removeItem(sessionKey);} catch {}
+  }
+  if(session && !session.deviceId)rememberChoice=false;
   let configuring=null,checking=false,authError='',sessionWriteError='',loginFailure='',lastVerifiedAt=0;
   let scopes=[], generation=0;
+  let peers;
+  try {peers=new BroadcastChannel('maple:friends:sessions:v1');} catch {}
   let renderedState=null, renderedManual=null, renderedTab='', renderedPage=-1;
   const historyFilters={query:'',month:'',kind:'',status:'',page:0};
   let historySource, historyManual, historyRows=[];
@@ -68,7 +78,7 @@
     $('enhancement-status').textContent=text;
     $('enhancement-status').classList.toggle('err',error);
   }
-  const getState=()=>({connected:!!(session && verified && !finishing),account:verified?session?.account||null:null,ready,finishing,checking,hasSession:!!session,error:loginFailure||authError||sessionWriteError,scopes:[...scopes]});
+  const getState=()=>({connected:!!(session && verified && !finishing),account:verified?session?.account||null:null,ready,finishing,checking,hasSession:!!session||!!deviceId,remembered:!!session?.deviceId,error:loginFailure||authError||sessionWriteError,scopes:[...scopes]});
   let announcedAuthority='';
   const announce=()=>{
     const state=getState(),authority=JSON.stringify([state.connected,state.account,[...state.scopes].sort()]);
@@ -85,6 +95,41 @@
     try {sessionStorage.removeItem(sessionKey);} catch {}
     announce(); controls();
   }
+  function dropDevice(id) {
+    if(!id)return Promise.resolve();
+    if(id===deviceId){deviceId='';rememberChoice=false;}
+    return device.forget(id);
+  }
+  async function updateRemember(enabled) {
+    if(savingPreference)return;
+    if(enabled && session && !verified){controls();return;}
+    rememberChoice=enabled;sessionWriteError='';
+    if(!session && !deviceId){controls();return;}
+    const before=generation, snapshot=session;
+    savingPreference=true;controls();
+    try {
+      if(enabled && verified && snapshot && !snapshot.deviceId) {
+        const stillCurrent=()=>before===generation && sameSession(snapshot);
+        const saved=await device.remember(snapshot,stillCurrent);
+        if(!saved){if(stillCurrent())rememberChoice=false;return;}
+        if(!stillCurrent()){await device.forget(saved.deviceId);return;}
+        deviceId=saved.deviceId;session={...session,...saved};persistSession();
+      } else if(!enabled) {
+        const id=snapshot?.deviceId || deviceId;
+        if(snapshot?.deviceId) {session={state:snapshot.state,proof:snapshot.proof,account:snapshot.account};persistSession();}
+        await dropDevice(id);
+      }
+    } catch {
+      if(before===generation) {
+        rememberChoice=!!session?.deviceId;
+        sessionWriteError=enabled?'이 브라우저에 자동 로그인을 저장하지 못했습니다. 사이트 저장 권한을 확인해 주세요.':'기기의 자동 로그인 해제를 마치지 못했습니다. 공용 기기라면 넥슨 로그아웃을 눌러 주세요.';
+        status(sessionWriteError,true);
+      }
+    } finally {
+      savingPreference=false;controls();announce();
+      if(!enabled && !session && !deviceId && !ready)void recheck();
+    }
+  }
   async function call(path,body,signal) {
     const requestedGeneration=generation;
     const timeout=AbortSignal.timeout(30000);
@@ -93,13 +138,23 @@
     try {data=await response.json();} catch {throw Object.assign(new Error('프렌즈 서버 응답을 확인할 수 없습니다.'),{status:response.status,httpStatus:response.status,errorCode:'INVALID_RESPONSE'});}
     if (!response.ok) {
       // 이전 계정에서 늦게 돌아온 401 응답으로 새 로그인 세션을 지우지 않습니다.
-      if (response.status===401 && path!=='finish' && session && typeof body?.state==='string' && typeof body?.proof==='string' && requestedGeneration===generation && body.state===session.state && body.proof===session.proof) clearSession('넥슨 연결이 만료되었습니다. 현재 장부는 유지되며 다시 로그인하면 동기화를 이어갈 수 있습니다.');
+      if (response.status===401 && path!=='finish' && session && typeof body?.state==='string' && typeof body?.proof==='string' && requestedGeneration===generation && body.state===session.state && body.proof===session.proof) {
+        void dropDevice(session.deviceId).catch(()=>{});
+        clearSession('넥슨 연결이 만료되었습니다. 현재 장부는 유지되며 다시 로그인하면 동기화를 이어갈 수 있습니다.');
+      }
       const code=typeof data.errorCode==='string' && /^[A-Z_]+(?: \/ (?:OPENAPI\d{5}|\d{3}|UNAVAILABLE))?$/.test(data.errorCode)?' ('+data.errorCode+')':'';
       throw Object.assign(new Error((typeof data.error==='string'?data.error:'프렌즈 서버에 연결할 수 없습니다.')+code),{status:response.status,httpStatus:response.status,errorCode:data.errorCode||'',code:data.errorCode||''});
     }
     return data;
   }
   function controls() {
+    for(const input of document.querySelectorAll('[data-remember-login]')) {
+      input.checked=rememberChoice;
+      input.disabled=!device||savingPreference||finishing||checking||(!rememberChoice&&!!session&&!verified);
+      const hint=input.closest('label')?.querySelector('small');
+      if(hint) hint.textContent=sessionWriteError || (session?.deviceId?'이 브라우저에서 최대 14일 유지됩니다.':'개인 기기에서만 선택하세요. 최대 14일 유지됩니다.');
+      if(input.dataset.rememberLogin==='expense')input.closest('label').hidden=$('enhancement-source')?.value==='key';
+    }
     if(!$('enhancement-source')) return;
     const useFriends=$('enhancement-source').value==='friends',state=getState();
     $('enhancement-connect').hidden=!useFriends || state.hasSession;
@@ -120,12 +175,22 @@
     let operation;
     operation=Promise.resolve().then(async()=>{
       try {
+        if(!session && deviceId) {
+          const id=deviceId, restored=await device.restore(id);
+          if(before!==generation || id!==deviceId)return;
+          if(restored) session=restored;
+          else {deviceId=device.current();rememberChoice=!!deviceId;}
+        }
         ready=!!(await call('config')).ready;
         if(before!==generation)return;
         if(session && ready) {
           const snapshot=session, info=await call('status',{state:snapshot.state,proof:snapshot.proof});
           if(before!==generation||!sameSession(snapshot))return;
           if(info.connected!==true || typeof info.account!=='string' || !info.account)throw new Error('넥슨 계정 정보를 확인할 수 없습니다.');
+          if(snapshot.account && info.account!==snapshot.account) {
+            void dropDevice(snapshot.deviceId).catch(()=>{});
+            clearSession('저장한 연결의 계정이 달라 다시 로그인해야 합니다.');return;
+          }
           session={...snapshot,account:info.account};verified=true;lastVerifiedAt=Date.now();
           scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
           persistSession();
@@ -145,13 +210,21 @@
   }
   async function recheck(){await configure(false,true);return getState();}
   function retryWhenVisible(){
-    if(session&&!finishing&&!checking&&(!verified||Date.now()-lastVerifiedAt>=60000))void recheck();
+    if(session?.deviceId && device.current()!==session.deviceId) {
+      deviceId=device.current();rememberChoice=!!deviceId;clearSession();
+    } else if(session?.deviceId && session.deviceUntil<=Date.now()) {
+      void dropDevice(session.deviceId).catch(()=>{});
+      if(verified) {session={state:session.state,proof:session.proof,account:session.account};persistSession();}
+      else clearSession();
+      controls();announce();
+    }
+    if((session || deviceId)&&!finishing&&!checking&&(!verified||Date.now()-lastVerifiedAt>=60000))void recheck();
   }
   async function connect(returnPage='home') {
     if(finishing||getState().connected)return;
     await configure(true);
     if(finishing||getState().connected)return;
-    if(session)throw Object.assign(new Error('저장된 넥슨 연결 상태를 먼저 다시 확인해 주세요. 기존 연결 정보와 장부는 유지됩니다.'),{errorCode:'SESSION_UNVERIFIED'});
+    if(session || deviceId)throw Object.assign(new Error('저장된 넥슨 연결 상태를 먼저 다시 확인해 주세요. 기존 연결 정보와 장부는 유지됩니다.'),{errorCode:'SESSION_UNVERIFIED'});
     if(!ready)throw new Error(authError||'넥슨 로그인 서버를 확인한 뒤 다시 시도해 주세요.');
     finishing=true;authError='';loginFailure='';running?.abort();generation++;const before=generation;controls();announce();
     try {
@@ -160,15 +233,27 @@
       if(before!==generation||!finishing)return;
       const url=new URL(result.url);
       if(url.origin!=='https://openid.nexon.com' || url.pathname!=='/oauth2/authorize' || url.searchParams.get('state')!==result.state) throw new Error('로그인 주소 검증에 실패했습니다.');
-      sessionStorage.setItem(flowKey,JSON.stringify({state:result.state,proof,createdAt:Date.now(),returnPage:returnPage==='expense'?'expense':'home'}));
+      sessionStorage.setItem(flowKey,JSON.stringify({state:result.state,proof,remember:rememberChoice,createdAt:Date.now(),returnPage:returnPage==='expense'?'expense':'home'}));
       location.assign(url.href);
     } catch(error) {if(before===generation){finishing=false;authError=error.message;controls();announce();status(error.message,true);}throw error;}
   }
+  async function forgetSessionDevice(previous) {
+    const id=previous?.deviceId || deviceId;
+    if(!id)return;
+    if(previous && !previous.deviceId) {
+      const stored=await device.restore(id);
+      if(stored?.state!==previous.state || stored?.proof!==previous.proof)return;
+    }
+    await dropDevice(id);
+  }
   async function disconnect() {
-    const previous=session;
+    const previous=session, forget=forgetSessionDevice(previous);
+    rememberChoice=false;
+    if(previous)peers?.postMessage({logout:previous.state});
     clearSession();
-    try {if(previous) await call('logout',{state:previous.state,proof:previous.proof});}
-    finally {status('넥슨 연결을 해제했습니다. 저장한 장부와 지출 기록은 유지됩니다.');}
+    try {await Promise.all([forget,previous?call('logout',{state:previous.state,proof:previous.proof}):null]);}
+    catch(error){status('이 탭에서 로그아웃했습니다. 서버 연결 또는 기기 저장소의 해제 상태를 확인하지 못했습니다.',true);throw error;}
+    status('넥슨 연결을 해제했습니다. 저장한 장부와 지출 기록은 유지됩니다.');
   }
   async function request(path,body={},signal) {
     if(!getState().connected) throw Object.assign(new Error('넥슨 계정을 먼저 연결해 주세요.'),{status:401,httpStatus:401,errorCode:'SESSION_REQUIRED'});
@@ -180,6 +265,24 @@
     return data;
   }
   window.MapleFriends=Object.freeze({connect,disconnect,request,getState,recheck});
+  if(peers)peers.onmessage=event=>{
+    if(typeof event.data?.logout==='string' && session?.state===event.data.logout) {
+      void dropDevice(session.deviceId).catch(()=>{});rememberChoice=false;clearSession();
+    }
+  };
+  window.addEventListener?.('storage',event=>{
+    if(!device || (event.key!==device.marker && event.key!==null))return;
+    const latest=device.current();
+    if(latest===deviceId)return;
+    deviceId=latest;
+    if(session?.deviceId && session.deviceId!==latest) clearSession();
+    rememberChoice=!!session?.deviceId || (!session && !!latest);
+    if(!session && !finishing && latest) {
+      if(configuring)void configuring.then(()=>{if(!session&&!finishing&&deviceId===latest)void recheck();});
+      else void recheck();
+    }
+    announce();controls();
+  });
   document.addEventListener('maple:account-ledger-changing',()=>{
     running?.abort();
     savedPage=0;
@@ -201,9 +304,11 @@
       if(info.connected!==true || typeof info.account!=='string' || !info.account) throw new Error('넥슨 계정 정보를 확인할 수 없습니다. 다시 연결해 주세요.');
       running?.abort(); generation++;
       session={state:flow.state,proof:flow.proof,account:info.account};
+      rememberChoice=false;
       verified=info.connected===true && typeof info.account==='string';lastVerifiedAt=Date.now();authError='';loginFailure='';
       scopes=Array.isArray(info.scopes)?info.scopes.filter(s=>typeof s==='string'):[];
       persistSession();
+      if(flow.remember===true && device)await updateRemember(true);
       if($('enhancement-source')) $('enhancement-source').value='friends';
       ready=true; status('넥슨 계정이 연결되었습니다. 이력을 가져올 수 있습니다.');
     } catch(error) {
@@ -366,16 +471,16 @@
     const total=rows=>rows.reduce((sum,g)=>sum+BigInt(g.subtotal),0n);
     const count=rows=>rows.reduce((sum,g)=>sum+g.count,0).toLocaleString();
     const missing=rows=>{const unknown=rows.filter(g=>g.estimate===null).length;return unknown?' · '+unknown+'개 미확인':'';};
-    if(tab==='soul_ether') return '<div><span>소울 잠재 이력</span><strong>'+groups.reduce((sum,g)=>sum+g.events.length,0).toLocaleString()+'건</strong></div><div><span>계산 가능한 이력의 예상 메소'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div><p class="enhancement-summary-note">변경 전 등급의 공식 단가와 결과 옵션으로 비용을 계산합니다. 소울 증폭·에테르 구입비는 아래에서 기록하세요. 무료 에테르는 구입비에서 제외합니다.</p>';
+    if(tab==='soul_ether') return '<div><span>소울 잠재 이력</span><strong>'+groups.reduce((sum,g)=>sum+g.events.length,0).toLocaleString()+'건</strong></div><div data-cost="estimate"><span>계산 가능한 이력의 예상 메소'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div><p class="enhancement-summary-note">변경 전 등급의 공식 단가와 결과 옵션으로 비용을 계산합니다. 소울 증폭·에테르 구입비는 아래에서 기록하세요. 무료 에테르는 구입비에서 제외합니다.</p>';
     if(tab==='potential') {
       const meso=groups.filter(g=>g.kind==='potential'), cubes=groups.filter(g=>g.kind==='cube');
       return '<div><span>메소 재설정 횟수</span><strong>'+count(meso)+'회</strong></div>'+
-        '<div><span>메소 사용액 (추정)'+missing(meso)+'</span><strong>'+bridge().money(String(total(meso)))+'</strong></div>'+
+        '<div data-cost="estimate"><span>메소 사용액 (추정)'+missing(meso)+'</span><strong>'+bridge().money(String(total(meso)))+'</strong></div>'+
         '<div><span>사용한 큐브</span><strong>'+count(cubes)+'개</strong></div>'+
-        '<div><span>큐브 환산액 · 메소 지출과 별도'+missing(cubes)+'</span><strong>'+bridge().money(String(total(cubes)))+'</strong></div>'+
+        '<div data-cost="conversion"><span>큐브 환산액 · 메소 지출과 별도'+missing(cubes)+'</span><strong>'+bridge().money(String(total(cubes)))+'</strong></div>'+
         '<p class="enhancement-summary-note">큐브 환산액은 메소 사용액과 별도로 표시합니다. 무료·캐시 큐브는 실제 메소 지출 여부를 확인한 뒤 반영하세요.</p>';
     }
-    return '<div><span>확인할 장비</span><strong>'+groups.length+'개</strong></div><div><span>강화 시도</span><strong>'+count(groups)+'회</strong></div><div><span>메소 사용액 (추정)'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div>';
+    return '<div><span>확인할 장비</span><strong>'+groups.length+'개</strong></div><div><span>강화 시도</span><strong>'+count(groups)+'회</strong></div><div data-cost="estimate"><span>메소 사용액 (추정)'+missing(groups)+'</span><strong>'+bridge().money(String(total(groups)))+'</strong></div>';
   }
   function timelineHtml(g) {
     return '<details class="enhancement-timeline"><summary>사용 시각별 내역 '+g.events.length.toLocaleString()+'건</summary><div data-timeline-list></div><div class="enhancement-pagination"><button type="button" class="ghost" data-timeline-prev>이전</button><span data-timeline-page></span><button type="button" class="ghost" data-timeline-next>다음</button></div></details>';
@@ -543,6 +648,7 @@
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
+    for(const input of document.querySelectorAll('[data-remember-login]'))input.onchange=()=>void updateRemember(input.checked);
     if(!$('enhancement-panel') || !bridge()) {finish();configure();return;}
     $('enhancement-to').value=today(); $('enhancement-from').value=offset(today(),-1);
     $('enhancement-to').max=today(); $('enhancement-from').max=today();
@@ -552,7 +658,7 @@
       $('enhancement-to').value=end;
       $('enhancement-from').value=days==='all'?historyStart(end):offset(end,1-Number(days));
     });
-    if(!session && bridge().key()) $('enhancement-source').value='key';
+    if(!session && !deviceId && bridge().key()) $('enhancement-source').value='key';
     $('enhancement-source').onchange=controls;
     const tabs=[...document.querySelectorAll('[data-enhancement-tab]')];
     tabs.forEach((button,index)=>{

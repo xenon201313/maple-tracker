@@ -90,6 +90,9 @@ async function contrast(page, selector) {
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('#workspace-sidebar').evaluate(el => el.classList.contains('is-open')), false);
         contrastResults['mobile-nav-'+width] = await contrast(page, '.mobile-nav button span');
+        await page.locator('.mobile-nav [data-mobile-page="expense"]').click();
+        assert.equal(await page.locator('.mobile-nav [aria-current="page"]').getAttribute('data-mobile-page'), 'expense');
+        assert.equal(await page.locator('#service-login-notice').isVisible(), false, 'past login notice is kept on home');
       }
       for (const name of ['home', 'character', 'daily', 'boss', 'monthlyboss', 'dailyboss', 'profit', 'expense', 'stats', 'intro']) {
         await page.evaluate(name => { openPage(name); scrollTo(0, 0); }, name); await settle(page);

@@ -29,3 +29,9 @@
 .home-account-panel .account-actions>button{white-space:normal}
 @media(max-width:900px){.account-entry-head{align-items:flex-start;flex-direction:column;gap:14px}.account-entry-copy{flex-basis:auto}.account-entry-head>.account-actions{flex-basis:auto;justify-content:flex-start}}
 @media(max-width:540px){.home-account-panel{padding:18px}.account-entry-head>.account-actions{width:100%}.home-account-panel #account-title{font-size:20px}.home-account-panel #account-login{max-width:230px}}
+.device-login-choice{display:flex;align-items:center;gap:10px;min-height:44px;width:fit-content;margin:8px 0;line-height:1.45;cursor:pointer}
+.device-login-choice[hidden]{display:none}
+.device-login-choice input[type=checkbox]{width:18px;height:18px;margin:0;flex:none;accent-color:var(--accent,#ab460a)}
+.device-login-choice span{font-size:14px;font-weight:700}
+.device-login-choice small{display:block;font-size:12px;font-weight:500}
+.device-login-choice:focus-within{outline:2px solid currentColor;outline-offset:3px}

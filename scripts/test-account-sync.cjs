@@ -64,7 +64,11 @@ async function navigate(p,name){
 }
 async function pending(p){await p.waitForFunction(()=>window.MapleAccountSync?.getState().pending);}
 async function synced(p){try{await p.waitForFunction(()=>{const s=window.MapleAccountSync?.getState();return s?.connected&&!s.dirty&&!s.pending&&!s.busy&&s.revision>0;});}catch(error){console.error('Fixture state',await p.evaluate(()=>({state:MapleAccountSync.getState(),status:document.getElementById('account-status').textContent,owner:JSON.parse(localStorage.getItem('maple:account-ledger:active:v1'))?.owner,errors:document.querySelector('dialog')?.textContent})));throw error;}}
-async function change(p,name){await p.evaluate(name=>{db.records['2026-09-24'].sessions.push({id:name,meso:'77',runs:1});save();},name);}
+async function change(p,name){await p.evaluate(name=>{
+  db.records['2026-09-24'].sessions.push({id:name,meso:'77',runs:1});
+  db.records=normalizeRecords(db.records,db.settings);
+  save();
+},name);}
 async function switchTo(p,id){await p.evaluate(id=>sessionStorage.setItem('maple:friends:session',JSON.stringify({state:id,proof:'f'.repeat(64),account:id})),id);await p.reload();await pending(p);}
 async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buffer.from(acc.key,'hex'),{name:'AES-GCM'},false,['decrypt']);return JSON.parse(Buffer.from(await webcrypto.subtle.decrypt({name:'AES-GCM',iv:Buffer.from(acc.payload.iv,'base64')},key,Buffer.from(acc.payload.ciphertext,'base64'))).toString());}
 (async()=>{
@@ -77,10 +81,64 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     assert.equal(await p1.evaluate(()=>db.records['2026-09-24'].sessions[0].id),'keep-hunt');
     assert.equal(await p1.evaluate(async()=>(await MapleAccountStorage.get('maple:account-ledger:vault:v1:legacy')).values['mapleTracker.legacyRecovery.fixture']!==undefined),true);
     assert(!JSON.stringify(await decode(accounts.get(A))).includes('FIXTURE-SECRET-KEY'),'API key must not reach account server');
+    // Another save of identical contents or a lost save acknowledgement can advance only the cloud revision.
+    // The already selected ledger reopens without prompting or uploading the same record again.
+    accounts.get(A).revision++;
+    const beforeResumeSaves=saves;
+    await p1.evaluate(key=>{
+      const meta=JSON.parse(localStorage.getItem(key));
+      localStorage.setItem(key,JSON.stringify({...meta,dirty:true}));
+    },META);
+    await p1.reload();await synced(p1);
+    assert.equal(saves,beforeResumeSaves,'동일 장부 재방문 중 중복 저장 금지');
+    assert.equal(await p1.locator('#account-choice').isHidden(),true,'이미 연결한 동일 장부를 다시 선택하지 않음');
+    for(const action of ['#account-pull','#account-save']){
+      accounts.get(A).revision++;
+      await p1.click(action);
+      await p1.waitForFunction(revision=>{
+        const state=MapleAccountSync.getState();
+        return !state.busy&&!state.pending&&state.revision===revision;
+      },accounts.get(A).revision);
+      assert.equal(saves,beforeResumeSaves,'최신 확인·409 재시도 모두 동일 내용을 중복 저장하지 않음');
+    }
+    accounts.get(A).revision++;
+    await p1.route('**/v1/friends/ledger-read',route=>route.fulfill({status:503,contentType:'application/json',body:'{"error":"fixture offline"}'}),{times:1});
+    await p1.click('#account-save');
+    await p1.waitForFunction(()=>document.getElementById('account-status').textContent.includes('다른 기기의 장부를 비교하지 못했습니다'));
+    assert(await p1.evaluate(()=>MapleFriends.getState().connected),'재확인 통신 실패로 로그인 상태를 해제하지 않음');
+    await p1.click('#account-pull');
+    await p1.waitForFunction(rev=>MapleAccountSync.getState().revision===rev,accounts.get(A).revision);
+    accounts.get(A).revision++;
+    await p1.evaluate(key=>{
+      const meta=JSON.parse(localStorage.getItem(key));
+      const archives=JSON.parse(localStorage.getItem(HUNT_RECOVERY_KEY)||'[]');
+      if(meta.dirty)throw new Error('fixture requires a last-synced ledger');
+      archives.unshift({id:'only-local-recovery',createdAt:1,data:{records:{}}});
+      localStorage.setItem(HUNT_RECOVERY_KEY,JSON.stringify(archives));
+    },META);
+    await p1.reload();await pending(p1);
+    assert.equal(saves,beforeResumeSaves,'본문이 같아도 복구본이 다르면 자동 연결·덮어쓰기 금지');
+    await p1.click('#account-use-local');await synced(p1);
+    assert((await decode(accounts.get(A))).huntRecovery.some(row=>row.id==='only-local-recovery'));
     const c2=await context(null),p2=await open(c2);await pending(p2);await p2.click('#account-use-remote');await synced(p2);
     assert.equal(await p2.evaluate(()=>db.records['2026-09-24'].sessions[0].id),'keep-hunt');
     assert.equal(await p2.evaluate(()=>localStorage.getItem('mapleTracker.legacyRecovery.fixture')),null);
-    await change(p1,'first-device');await synced(p1);const revision=accounts.get(A).revision;
+    await change(p1,'first-device');await synced(p1);
+    await p2.reload();await synced(p2);
+    assert(await p2.evaluate(()=>db.records['2026-09-24'].sessions.some(row=>row.id==='first-device')),'깨끗한 기기는 다른 기기에서 저장한 최신 장부를 자동으로 염');
+    await p2.evaluate(key=>{const meta=JSON.parse(localStorage.getItem(key));delete meta.base;localStorage.setItem(key,JSON.stringify(meta));},META);
+    await change(p1,'second-server-change');await synced(p1);
+    await p2.reload();await synced(p2);
+    assert(await p2.evaluate(()=>db.records['2026-09-24'].sessions.some(row=>row.id==='second-server-change')),'이전 버전도 서버 기준 세대가 입증되면 최신 장부 자동 복원');
+    const missingBase=await p2.evaluate(key=>{const meta=JSON.parse(localStorage.getItem(key));delete meta.base;localStorage.setItem(key,JSON.stringify(meta));return meta.revision;},META);
+    await change(p1,'remote-without-base');await synced(p1);
+    const historyWithBase=accounts.get(A).history;
+    accounts.get(A).history=historyWithBase.filter(row=>row.revision!==missingBase);
+    await p2.reload();await pending(p2);
+    assert.equal(await p2.evaluate(()=>db.records['2026-09-24'].sessions.some(row=>row.id==='remote-without-base')),false,'기준 세대를 확인할 수 없으면 자동 교체 금지');
+    accounts.get(A).history=historyWithBase;
+    await p2.click('#account-use-remote');await synced(p2);
+    await change(p1,'different-device-edit');await synced(p1);const revision=accounts.get(A).revision;
     await change(p2,'second-device');await pending(p2);assert.equal(accounts.get(A).revision,revision,'충돌시 자동 덮어쓰기 금지');
     await p2.click('#account-use-remote');await synced(p2);
     assert.equal(await p2.evaluate(()=>db.records['2026-09-24'].sessions.some(x=>x.id==='first-device')),true);
@@ -112,7 +170,17 @@ async function decode(acc){const key=await webcrypto.subtle.importKey('raw',Buff
     const [download]=await Promise.all([p1.waitForEvent('download'),p1.locator('#account-server-history button').first().click()]);const bundle=JSON.parse(fs.readFileSync(await download.path(),'utf8'));assert(bundle.records);assert(Array.isArray(bundle.huntRecovery));assert(!JSON.stringify(bundle).includes('FIXTURE-SECRET-KEY'));
     const p3=await open(c1);await synced(p3);await change(p1,'same-browser-other-tab');await synced(p1);await p3.locator('dialog.account-stale').waitFor();
     assert.equal(await p3.evaluate(()=>{try{save();return false;}catch{return true;}}),true,'stale tab must not overwrite ledger');await p3.close();
-    await p1.click('#account-logout');await p1.waitForFunction(()=>!window.MapleFriends.getState().connected);await change(p1,'offline-after-logout');
+    await p1.evaluate(()=>{
+      const original=window.MapleAccountStorage;
+      window.MapleAccountStorage={...original,put:async(key,value)=>{
+        if(key.includes(':vault:'))throw new DOMException('fixture quota','QuotaExceededError');
+        return original.put(key,value);
+      }};
+      window.restoreFixtureLedgerStorage=()=>{window.MapleAccountStorage=original;};
+    });
+    await p1.click('#account-logout');await p1.waitForFunction(()=>!window.MapleFriends.getState().connected && document.getElementById('account-status').textContent.includes('보관본을 만들지 못했습니다'));
+    assert.equal(await p1.evaluate(()=>sessionStorage.getItem('maple:friends:session')),null,'보관본 쓰기 실패 때도 로그아웃');
+    await p1.evaluate(()=>window.restoreFixtureLedgerStorage());await change(p1,'offline-after-logout');
     assert.equal(await p1.evaluate(()=>MapleAccountSync.blocksLegacy()),true,'no legacy upload fallback after logout');
     assert.equal(legacyCalls,0,'계정 사용 중 이전 API 키 보관함 요청 금지');
     await p1.click('#account-legacy');await p1.waitForFunction(()=>window.MapleAccountSync?.getState().owner==='legacy'&&window.MapleAccountBridge);

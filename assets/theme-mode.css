@@ -146,3 +146,87 @@ html[data-maple-theme=dark] .maple-official-theme .workspace-sidebar .tab{backgr
 .maple-official-theme .workspace-sidebar .tab.active{background:#fff0e1;border-color:#edc9a5;box-shadow:inset 3px 0 0 #ff8545}
 html[data-maple-theme=dark] .maple-official-theme .workspace-sidebar .tab.active{background:#3d302b;border-color:#8f694e;box-shadow:inset 3px 0 0 #ffad74}
 @media(prefers-reduced-motion:reduce){.theme-mode *{transition:none!important}}
+
+/* 반복해서 보는 장부에서 같은 종류의 숫자와 행동에는 같은 색을 사용합니다. */
+.maple-official-theme {
+  --ledger-income: #116046;
+  --ledger-boss: #584094;
+  --ledger-expense: #a02d47;
+  --ledger-action-surface: #fffaf4;
+  --ledger-boss-surface: #f4f0fb;
+  --ledger-expense-surface: #fff2f4;
+  --ledger-current: #81390e;
+  --ledger-current-bg: #ffecd9;
+}
+html[data-maple-theme=dark] .maple-official-theme {
+  --ledger-income: #8ae3bd;
+  --ledger-boss: #d4bcff;
+  --ledger-expense: #ffb2c2;
+  --ledger-action-surface: #342c27;
+  --ledger-boss-surface: #302c41;
+  --ledger-expense-surface: #382a33;
+  --ledger-current: #ffd1a4;
+  --ledger-current-bg: #443227;
+}
+@media (min-width:901px) {
+  .maple-official-theme .maple-sitebar,
+  .maple-official-theme .maple-nav-group > summary {min-height:64px}
+  .maple-official-theme .workspace-heading {min-height:56px;padding-block:8px}
+  .maple-official-theme .workspace-header-actions {padding-block:6px}
+}
+.maple-official-theme #maple-top-nav .maple-nav-group.is-current > summary {
+  background:var(--ledger-current-bg);color:var(--ledger-current);font-weight:800;
+}
+.maple-official-theme .mobile-nav button[aria-current=page] {
+  box-shadow:inset 0 3px var(--ledger-current);font-weight:800;
+}
+#page-home .workspace-quick-actions button {
+  --shortcut-color: var(--ledger-current);
+  --shortcut-bg: var(--ledger-action-surface);
+  background:var(--shortcut-bg);color:var(--shortcut-color);border-color:var(--line);
+  box-shadow:inset 0 3px var(--shortcut-color);
+}
+#page-home .workspace-quick-actions [data-open-page=boss] {
+  --shortcut-color:var(--ledger-boss);--shortcut-bg:var(--ledger-boss-surface);
+}
+#page-home .workspace-quick-actions [data-open-page=expense] {
+  --shortcut-color:var(--ledger-expense);--shortcut-bg:var(--ledger-expense-surface);
+}
+#page-home .workspace-quick-actions small {color:var(--sub);opacity:1}
+#page-home .workspace-quick-actions button:hover strong {text-decoration:underline;text-underline-offset:.19em}
+#page-home .workspace-quick-actions button:focus-visible {outline:3px solid var(--shortcut-color);outline-offset:-5px}
+#page-home .home-account-panel {background:#42485f}
+#page-home .home-summary span {color:var(--text);font-weight:700}
+#page-home .home-summary b {color:var(--text)}
+#page-home .home-summary b.good {color:var(--ledger-income)}
+#page-home .home-summary b.bad {color:var(--ledger-expense)}
+#page-home .home-summary:last-child b {color:var(--blue)}
+#page-home .clarity-fold > summary small {color:var(--sub);font-size:13px}
+#page-home .clarity-fold[open] > summary {background:var(--panel-soft);box-shadow:inset 3px 0 var(--ledger-current)}
+#page-stats .stats-period-kicker {
+  background:var(--panel2);color:var(--sub);font-size:12px;padding-inline:9px;
+}
+#page-stats .stats-period-card.is-current .stats-period-kicker {
+  color:var(--ledger-current);background:var(--ledger-current-bg);
+}
+#page-stats .stats-period-net b {color:var(--ledger-income);font-variant-numeric:tabular-nums}
+#page-stats .stats-period-net b.bad,
+#page-stats .stats-period-metric.expense b,
+#page-stats .stats-period-metric.profit b.bad {color:var(--ledger-expense)}
+#page-stats .stats-period-metric > span,
+#page-stats .stats-period-net > span {color:var(--sub);font-size:13px;font-weight:650}
+.maple-official-theme .clarity-period-nav button[aria-current=page],
+.maple-official-theme .planner-tabs button[aria-selected=true] {box-shadow:inset 0 -3px currentColor;font-weight:800}
+#page-profit .profit-type-btn[aria-pressed=true] {box-shadow:inset 3px 0 var(--ledger-current)}
+#page-profit .profit-metric.good b {color:var(--ledger-income)}
+#page-profit .profit-metric.bad b {color:var(--ledger-expense)}
+#page-profit .profit-net {
+  border-inline-start:4px solid var(--ledger-income);background:var(--positive-surface);
+}
+#page-profit .profit-net.bad {border-inline-start-color:var(--ledger-expense);background:var(--danger-surface)}
+#page-profit .profit-net b {font-size:clamp(18px,1.5vw,24px);font-variant-numeric:tabular-nums}
+#page-profit .profit-estimate {border-style:dashed}
+#page-profit .profit-estimate b {color:var(--text)}
+#page-daily .daily-day-metric span, #page-daily .daily-day-metric small {font-size:12px;line-height:1.5}
+#page-daily .daily-day-metric b {font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
+#page-daily .daily-day-metric.meso b {color:var(--ledger-income)}

@@ -4,7 +4,7 @@
   const E = window.MapleEnhancements;
   const pageSize = 20;
   const labels = {starforce:'스타포스', potential:'메소 잠재능력', cube:'큐브', 'soul-potential':'소울 잠재능력', manual:'직접 기록'};
-  const states = {pending:'미반영', confirmed:'반영됨', excluded:'제외됨', conflict:'중복 확인', manual:'직접 기록'};
+  const states = {pending:'미반영', confirmed:'장부 반영', excluded:'제외됨', conflict:'중복 확인', manual:'직접 기록'};
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const time = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul',hourCycle:'h23',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const money = value => window.MapleEnhancementBridge.money(String(value));
@@ -126,7 +126,7 @@
         html += '<div class="eh-options">'+optionList(other+' 변경 전',e.otherBeforeOptions)+optionList(other+' 변경 후',e.otherOptions)+'</div>';
       }
     }
-    if (row.batch && row.status === 'confirmed') html += '<p>이 시도가 속한 '+row.batch.eventKeys.length+'건의 확정 지출 · '+money(row.batch.amount)+'</p>';
+    if (row.batch && row.status === 'confirmed') html += '<p class="eh-booked">이 시도가 속한 '+row.batch.eventKeys.length+'건의 확정 지출 · '+money(row.batch.amount)+'</p>';
     if (row.status === 'pending') html += '<button type="button" class="ghost" data-history-manage="'+escape(e.kind)+'" data-event-key="'+escape(e.key)+'">장비별 지출 관리</button>';
     return html || '<p>'+escape(result(e))+'</p>';
   }
@@ -138,14 +138,16 @@
       '<label>기록 월<select data-history-month><option value="">전체 기간</option>'+months.map(month=>'<option value="'+escape(month)+'">'+escape(month)+'</option>').join('')+'</select></label>'+
       '<label>기록 종류<select data-history-kind><option value="">전체 종류</option>'+navOptions(labels)+'</select></label>'+
       '<label>반영 상태<select data-history-status><option value="">전체 상태</option>'+navOptions(states)+'</select></label></div>'+
-      '<p class="eh-count" role="status" aria-live="polite"></p><div class="eh-days"></div>'+
+      '<div class="eh-filter-result"><p class="eh-count" role="status" aria-live="polite"></p><button type="button" class="ghost" data-history-reset hidden>필터 초기화</button></div><div class="eh-days"></div>'+
       '<div class="enhancement-pagination" data-history-pages><button type="button" class="ghost" data-history-prev>이전</button><span></span><button type="button" class="ghost" data-history-next>다음</button></div>';
     const find = selector => host.querySelector(selector);
     const search = find('[data-history-search]'), month = find('[data-history-month]'), kind = find('[data-history-kind]'), status = find('[data-history-status]');
-    const list = find('.eh-days'), prev = find('[data-history-prev]'), next = find('[data-history-next]');
+    const list = find('.eh-days'), prev = find('[data-history-prev]'), next = find('[data-history-next]'), reset = find('[data-history-reset]');
     search.value=filters.query; month.value=months.includes(filters.month)?filters.month:''; kind.value=filters.kind; status.value=filters.status;
     function update() {
       const query = search.value.trim().toLocaleLowerCase();
+      for (const input of [search,month,kind,status]) input.classList.toggle('eh-filter-active',Boolean(input.value));
+      reset.hidden=![search,month,kind,status].some(input=>input.value);
       const matches = rows.filter(r => (!month.value || r.date.startsWith(month.value)) && (!kind.value || r.kind===kind.value) && (!status.value || r.status===status.value) &&
         (!query || [r.date,r.item,r.character,r.world,r.method,r.record?.memo].join(' ').toLocaleLowerCase().includes(query)));
       const pages=Math.ceil(matches.length/pageSize);
@@ -158,12 +160,13 @@
         const heading = date!==r.date ? '<h3 class="eh-date">'+escape(r.date.replace(/-/g,'. '))+'</h3>' : '';
         date=r.date;
         const price=r.amount==null ? '비용 미확인' : money(r.amount);
-        const priceType = r.kind==='cube' ? '환산액' : r.kind==='manual' ? '기록액' : '계산액';
+        const priceType = r.kind==='cube' ? '큐브 환산액' : r.kind==='manual' ? '확정 지출' : '예상 비용';
+        const costKind = r.amount==null ? 'unknown' : r.kind==='cube' ? 'conversion' : r.kind==='manual' ? 'booked' : 'estimate';
         const art=iconHtml(r.event ? {name:r.item} : r.record.itemArt,32);
         return heading+'<details class="eh-event"><summary><span class="eh-time">'+escape(r.time || '수기')+'</span>'+
           '<span class="eh-item"><span class="eh-art" aria-hidden="true">'+art+'</span><span><strong>'+escape(r.item)+'</strong><small>'+escape([r.character,r.world,r.method===r.item?'':r.method].filter(Boolean).join(' · '))+'</small></span></span>'+
           '<span class="eh-result">'+escape(r.event?result(r.event):r.record.memo || '')+'</span>'+
-          '<span class="eh-cost"><small>'+priceType+'</small> '+price+'</span><span class="eh-status" data-state="'+r.status+'">'+states[r.status]+'</span></summary>'+
+          '<span class="eh-cost" data-cost="'+costKind+'"><small>'+priceType+'</small><b>'+price+'</b></span><span class="eh-status" data-state="'+r.status+'">'+states[r.status]+'</span></summary>'+
           '<div class="eh-event-detail">'+eventDetails(r)+'</div></details>';
       }).join('') || '<p class="muted enhancement-empty">'+(rows.length?'조건에 맞는 기록이 없습니다. 검색어나 필터를 바꿔 보세요.':'저장된 이력이 없습니다. 조회 기간을 선택하고 ‘이력 가져오기’를 누르세요.')+'</p>';
       find('[data-history-pages]').hidden=pages<2;
@@ -174,6 +177,7 @@
       Object.assign(filters,{query:search.value,month:month.value,kind:kind.value,status:status.value,page:0}); update();
     }
     search.oninput=filter; month.onchange=filter; kind.onchange=filter; status.onchange=filter;
+    reset.onclick=()=>{for(const input of [search,month,kind,status]) input.value=''; filter(); search.focus();};
     prev.onclick=()=>{filters.page--;update();}; next.onclick=()=>{filters.page++;update();};
     list.onclick=event=>{
       const button=event.target.closest('[data-history-manage]');

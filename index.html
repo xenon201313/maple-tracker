@@ -3,17 +3,18 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261122-2"></script>
+<script src="assets/patch-notes-data.js?v=20261122-3"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <link rel="preload" as="script" href="assets/equipment-icons.js?v=20261122-1">
 <script src="assets/enhancement-ledger.js?v=20261122-2"></script>
 <script src="assets/planner-state.js?v=20261028-1"></script>
-<script src="assets/expense-history.js?v=20261122-2"></script>
-<script src="assets/friends-expenses.js?v=20261122-2"></script>
+<script src="assets/expense-history.js?v=20261122-3"></script>
+<script src="assets/device-login.js?v=20261122-1"></script>
+<script src="assets/friends-expenses.js?v=20261122-device"></script>
 <script src="assets/account-storage.js?v=20261028-1"></script>
-<script src="assets/account-sync.js?v=20261114-1"></script>
+<script src="assets/account-sync.js?v=20261122-1"></script>
 <script src="assets/friends-characters.js?v=20261114-1"></script>
-<link rel="stylesheet" href="assets/account-sync.css?v=20261028-1">
+<link rel="stylesheet" href="assets/account-sync.css?v=20261122-device">
 <script src="assets/september-expenses.js?v=20261122-1"></script>
 <script src="assets/soul-ability-expenses.js?v=20261122-1"></script>
 <link rel="stylesheet" href="assets/september-expenses.css?v=20260911-1">
@@ -25,7 +26,7 @@
 <script src="assets/october-profit.js?v=20261119-1"></script>
 <script src="assets/october-profit-ui.js?v=20261119-2"></script>
 <link rel="stylesheet" href="assets/october-profit.css?v=20261022-1">
-<link rel="stylesheet" href="assets/friends-expenses.css?v=20261122-2">
+<link rel="stylesheet" href="assets/friends-expenses.css?v=20261122-3">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="google-adsense-account" content="ca-pub-7107280230386162">
@@ -1022,7 +1023,7 @@
 <link rel="stylesheet" href="assets/maple-official-theme.css?v=20261122-1">
 <link rel="stylesheet" href="assets/home-characters.css?v=20261119-1">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
-<link rel="stylesheet" href="assets/theme-mode.css?v=20261114-2">
+<link rel="stylesheet" href="assets/theme-mode.css?v=20261122-ledger">
 <link rel="stylesheet" href="assets/service-notice.css?v=20261119-1">
 </head>
 <body class="maple-workspace maple-official-theme">
@@ -1065,13 +1066,6 @@
 </header>
 <main class="workspace-main" id="workspace-main" tabindex="-1">
 <noscript><p class="card">기록장 입력 기능은 JavaScript가 필요합니다. <a href="guide/">사용 가이드와 계산 사례</a>는 JavaScript 없이도 읽을 수 있습니다.</p></noscript>
-<aside class="service-login-notice" id="service-login-notice" role="note" aria-labelledby="service-login-notice-title" tabindex="-1">
-  <svg class="service-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/></svg>
-  <div class="service-notice-copy">
-    <div class="service-notice-heading"><h2 class="service-notice-title" id="service-login-notice-title">넥슨 로그인 복구 안내</h2><span class="service-notice-badge">복구 완료</span><time datetime="2026-11-19">2026.11.19</time></div>
-    <p>넥슨 로그인을 마쳐도 로그인 버튼이 다시 나타나던 문제가 해결됐습니다. 홈에서 넥슨 계정으로 로그인하면 저장해 둔 장부를 다시 열 수 있습니다.</p>
-  </div>
-</aside>
 <div class="nexon-api-disclosure" role="note" aria-label="NEXON Open API 이용 고지">
   <span><strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>
   <div class="nexon-api-links">
@@ -1117,10 +1111,11 @@
       <button type="button" class="ghost" id="account-legacy" hidden>이전 브라우저 장부로 돌아가기</button>
     </div>
     </div>
+    <label class="device-login-choice"><input type="checkbox" data-remember-login="home"><span>이 기기에서 자동 로그인<small>개인 기기에서만 선택하세요. 최대 14일 유지됩니다.</small></span></label>
     <p class="service-notice-link"><a href="#service-login-notice">넥슨 로그인 복구 안내 보기</a></p>
     <p id="account-status" role="status" aria-live="polite">로그인 상태를 확인하는 중…</p>
     <div id="account-choice" class="account-choice" hidden>
-      <h3>사용할 장부 선택</h3>
+      <h3 id="account-choice-title">사용할 장부 선택</h3>
       <p id="account-choice-current"></p><p id="account-choice-remote"></p>
       <p>선택하기 전에는 계정에 저장하지 않습니다. 서로 다른 장부를 자동으로 합치지 않으며, 선택하지 않은 기기 기록도 전환 전 보관본으로 남깁니다.</p>
       <div class="account-actions"><button type="button" id="account-use-local">이 기기 장부를 계정에 연결</button><button type="button" class="ghost" id="account-use-remote">넥슨 계정 장부 열기</button></div>
@@ -1152,9 +1147,16 @@
   </section>
   </div>
   <div class="ledger-evidence" aria-label="계산과 기록 안내">
-    <div><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg><span><strong>숫자에도 근거가 있어야 하니까.</strong> 실제 수입·예상 금액·계획을 구분해 기록합니다.</span></div>
+    <div><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#intro"></use></svg><span><strong>집계 기준</strong> 순수익에는 장부에 반영한 수입과 지출이 포함됩니다.</span></div>
     <a href="guide/record-principles/">계산·기록 기준</a><a href="about/">제작·운영 및 문의</a>
   </div>
+  <aside class="service-login-notice" id="service-login-notice" role="note" aria-labelledby="service-login-notice-title" tabindex="-1">
+    <svg class="service-notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7.5 12 3 3 6-6"/></svg>
+    <div class="service-notice-copy">
+      <div class="service-notice-heading"><h2 class="service-notice-title" id="service-login-notice-title">넥슨 로그인 복구 안내</h2><span class="service-notice-badge">복구 완료</span><time datetime="2026-11-19">2026.11.19</time></div>
+      <p>로그인을 마친 뒤 로그인 버튼이 다시 나타나던 문제를 수정했습니다.</p>
+    </div>
+  </aside>
   <div class="home-workbench"><div class="home-core">
 <div class="home-grid">
     <div class="card">
@@ -1713,7 +1715,14 @@
 
 <!-- ══════════ 지출 기록 ══════════ -->
 <div class="page" id="page-expense">
-  <section class="page-purpose"><div><h2>지출 기록</h2><p>날짜순으로 강화 결과와 구입 내역을 확인하고, 장부에 반영할 비용을 선택하세요.</p></div><div class="purpose-actions"><button type="button" data-renewal-jump="expense-entry-title">구매 지출 입력</button><button type="button" class="ghost" data-renewal-jump="enhancement-title">이력 보기</button><a href="guide/profit-expense/">지출·환산액 구분</a></div></section>
+  <section class="card expense-overview" aria-labelledby="expense-overview-title">
+    <header class="page-purpose"><div><h2 id="expense-overview-title">지출 기록</h2><p>장부에 반영한 메소를 확인하고, 강화 이력에서 실제로 쓴 금액을 기록하세요.</p></div><div class="purpose-actions"><button type="button" data-renewal-jump="expense-entry-title">구매 지출 입력</button><button type="button" class="ghost" data-renewal-jump="enhancement-title">강화 이력 보기</button></div></header>
+    <div id="expense-summary" class="expense-summary-grid" role="group" aria-label="장부에 반영된 지출"></div>
+    <details class="expense-totals-detail"><summary>지출 유형별 합계</summary>
+      <p>구매 지출, 직접 입력한 강화 비용, 확정한 강화 이력과 손익 계산기의 뽑기 비용을 합산합니다. <a href="guide/profit-expense/">지출·환산액 기준</a></p>
+      <div id="expense-categories" class="expense-category-grid"></div>
+    </details>
+  </section>
 
   <section class="card enhancement-panel" id="enhancement-panel" aria-labelledby="enhancement-title">
     <div class="enhancement-heading"><h2 id="enhancement-title" tabindex="-1">강화·구매 이력</h2><span class="enhancement-badge" id="enhancement-badge">지출 반영 전까지 통계 제외</span></div>
@@ -1726,6 +1735,7 @@
       <button type="button" role="tab" id="enhancement-tab-legacy" data-enhancement-tab="legacy" aria-selected="false" aria-controls="manual-enhancement-panel" tabindex="-1">직접 입력</button>
     </div>
     <div id="enhancement-api-panel" role="tabpanel" aria-labelledby="enhancement-tab-all">
+    <details class="expense-import" open><summary>넥슨 이력 불러오기</summary>
     <div class="enhancement-controls">
       <label>연결 방식<select id="enhancement-source"><option value="friends">넥슨 프렌즈</option><option value="key">등록한 개인 API 키</option></select></label>
       <button type="button" id="enhancement-connect" class="nexon-login"><img src="assets/nexon-login.png" alt="넥슨 로그인"></button>
@@ -1735,7 +1745,9 @@
       <button type="button" id="enhancement-refresh">이력 가져오기</button>
       <button type="button" id="enhancement-cancel" class="ghost" hidden>조회 중단</button>
     </div>
+    <label class="device-login-choice"><input type="checkbox" data-remember-login="expense"><span>이 기기에서 자동 로그인<small>개인 기기에서만 선택하세요. 최대 14일 유지됩니다.</small></span></label>
     <div class="history-date-presets" aria-label="조회 기간 선택"><span>조회 기간</span><button type="button" class="ghost" data-history-days="7">최근 7일</button><button type="button" class="ghost" data-history-days="30">최근 30일</button><button type="button" class="ghost" data-history-days="all">최근 2년</button></div>
+    </details>
     <p id="enhancement-status" class="muted" role="status" aria-live="polite"></p>
     <div class="enhancement-summary" id="enhancement-summary"></div>
     <datalist id="enhancement-levels"><option value="140"><option value="160"><option value="200"><option value="250"></datalist>
@@ -1779,12 +1791,6 @@
       </div>
       <button id="expense-save" type="button">지출 저장</button>
     </div>
-  </div>
-  <div class="card">
-    <h2>📉 지출 요약</h2>
-    <div id="expense-summary" class="expense-summary-grid"></div>
-    <div class="muted" style="margin-top:12px;">구매 지출, 직접 입력한 강화 비용, 확정한 API 지출, 손익 계산기의 뽑기 비용을 합산합니다.</div>
-    <div id="expense-categories" class="expense-category-grid"></div>
   </div>
   <div class="card">
     <h2>강화 지출 입력 기록</h2>
@@ -8437,10 +8443,10 @@ function renderProfitResult(){
   const metrics=[
     profitMetric('총 지출', korMeso(totals.cost), 'bad'),
     profitMetric('수수료 후 판매 수익', korMeso(totals.revenue), totals.revenue>0n?'good':''),
-    profitMetric('실제 손익', signedKorMeso(totals.net), totals.net>=0n?'good':'bad')
+    profitMetric('실제 손익', signedKorMeso(totals.net), 'profit-net '+(totals.net>=0n?'good':'bad'))
   ];
   if(toMesoBig(record.expected)>0n){
-    metrics.push(profitMetric('기대값 대비', signedKorMeso(totals.expectedDiff), totals.expectedDiff>=0n?'good':'bad'));
+    metrics.push(profitMetric('기대값 대비', signedKorMeso(totals.expectedDiff), 'profit-estimate'));
   }
   out.innerHTML=metrics.join('');
 }
@@ -8693,10 +8699,10 @@ function renderExpenses(){
   const calculatorMonth=profitTotals(d=>String(d).slice(0,7)===month);
   const calculatorTotal=profitTotals(()=>true);
   const summaryRows=[
-    ['이번 주 총 지출',outflowKorMeso(directWeek.total+calculatorWeek.cost),(directWeek.count+calculatorWeek.count)+'건'],
-    ['이번 달 총 지출',outflowKorMeso(directMonth.total+calculatorMonth.cost),(directMonth.count+calculatorMonth.count)+'건'],
-    ['전체 총 지출',outflowKorMeso(directTotal.total+calculatorTotal.cost),(directTotal.count+calculatorTotal.count)+'건'],
-    ['전체 구매 지출',outflowKorMeso(directTotal.total),'강화·뽑기 비용 '+korMeso(calculatorTotal.cost)]
+    ['이번 달 확정 지출',outflowKorMeso(directMonth.total+calculatorMonth.cost),(directMonth.count+calculatorMonth.count)+'건 반영'],
+    ['이번 주 확정 지출',outflowKorMeso(directWeek.total+calculatorWeek.cost),(directWeek.count+calculatorWeek.count)+'건 반영'],
+    ['누적 확정 지출',outflowKorMeso(directTotal.total+calculatorTotal.cost),(directTotal.count+calculatorTotal.count)+'건 반영'],
+    ['누적 구매 지출',outflowKorMeso(directTotal.total),'강화·뽑기 비용 '+korMeso(calculatorTotal.cost)]
   ];
   summary.innerHTML=summaryRows.map(row=>'<div class="expense-summary"><span>'+row[0]+'</span><b>'+row[1]+'</b><small>'+row[2]+'</small></div>').join('');
 
@@ -11463,7 +11469,7 @@ refreshOctoberProfitAvailability();
   <button type="button" data-mobile-page="home" aria-current="page"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#home"></use></svg><span>홈</span></button>
   <button type="button" data-mobile-page="daily"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#daily"></use></svg><span>재획</span></button>
   <button type="button" data-mobile-page="boss"><img class="crystal-icon" src="assets/crystal-weekly.png" alt=""><span>주간 보스</span></button>
-  <button type="button" data-mobile-page="stats"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#stats"></use></svg><span>통계</span></button>
+  <button type="button" data-mobile-page="expense"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#expense"></use></svg><span>지출</span></button>
   <button type="button" data-menu-toggle aria-controls="workspace-sidebar" aria-expanded="false"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#menu"></use></svg><span>전체</span></button>
 </nav>
 <script>
