@@ -20,6 +20,7 @@
     {name:'통계',group:'수익과 자산',page:'stats',description:'기간별 합계와 목표 진행 확인',words:'수익 요약 그래프 결산'},
     {name:'장비 투자 장부',group:'자산·성장 계획',page:'planner',tool:'investment',description:'확정 지출을 장비별로 연결',words:'강화 장비 예산 누적'},
     {name:'미정산함',group:'자산·성장 계획',page:'planner',tool:'settlement',description:'부분 판매와 파티 지급 상태 관리',words:'드랍 미판매 미지급 분배 정산'},
+    {name:'보스 드랍 정산',group:'보스',action:'boss-settlement',description:'판매한 아이템의 파티원별 송금액 계산',words:'파티 분배 분배금 분배율 경매장 수수료 드롭 정산 계산기'},
     {name:'자금·목표 계획',group:'자산·성장 계획',page:'planner',tool:'budget',description:'기록 기준 잔액·준비금·복수 목표',words:'자금 예산 이동 조정'},
     {name:'재획 효율 비교',group:'자산·성장 계획',page:'planner',tool:'hunting',description:'사냥터·시간·소모품 조건 비교',words:'경험치 순수익 시간당 버프'},
     {name:'보스 시간 계획',group:'자산·성장 계획',page:'planner',tool:'bossplan',description:'가능한 시간에 맞는 보스 조합',words:'일정 결정석 추천 계획'},
@@ -31,6 +32,10 @@
   const dialog=document.getElementById('desk-search-dialog'),input=document.getElementById('desk-search-input'),results=document.getElementById('desk-search-results');
   const fold=value=>String(value||'').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g,'');
   function go(route){
+    if(route.action==='boss-settlement'){
+      window.MapleBossSettlementEntry.open(document.activeElement);
+      return;
+    }
     if(route.action){
       openPage('home');
       const target=document.getElementById(route.action==='account'?'account-title':'home-backup');

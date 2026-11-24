@@ -64,6 +64,70 @@ async function prepare(page, { duplicates=false, apiKey=false } = {}) {
   }, {duplicates,apiKey});
 }
 
+async function assertExternalCharacterRecords(page) {
+  await prepare(page);
+  const name='다른계정검증';
+  await page.locator('#in-character-source').selectOption('manual');
+  await page.locator('#in-char').fill(name);
+  await page.locator('#in-character-account').fill('두 번째 계정');
+  await page.locator('#btn-addchar').click();
+  const card=page.locator('.registered-card').filter({hasText:name});
+  assert(await card.isVisible());
+  assert.equal(await card.locator('.char-refresh-btn, .scheduler-scope-toggle').count(),0);
+  assert.equal(await page.evaluate(name=>loginFixture.calls.some(call=>call.body.characterName===name),name),false);
+  await page.evaluate(()=>runNexonAutoRefresh());
+  await page.locator('#btn-refresh-all-chars').click();
+  assert(await page.evaluate(name=>loginFixture.calls.filter(call=>call.action==='character-profile').every(call=>call.body.characterName!==name),name));
+  for(const [view,selector] of [['boss','.boss-check'],['monthlyboss','.boss-check'],['dailyboss','.daily-boss-clear'],['dailyboss','.daily-boss-check']]){
+    await page.evaluate(view=>openPage(view),view);
+    const check=page.locator('#page-'+view+' [data-char-name="'+name+'"] '+selector+':enabled').first();
+    await check.check();
+    assert(await check.isChecked(),view+' 선택 저장');
+  }
+  await page.evaluate(()=>openPage('daily'));
+  assert.equal(await page.locator('#hunt-registered-characters option[value="'+name+'"]').count(),1);
+  await page.locator('#in-hunt-char').fill(name);
+  await page.locator('#in-meso').fill('987654');
+  await page.locator('#btn-save').click();
+  const saved=await page.evaluate(name=>{
+    const c=db.chars.find(row=>row.name===name),day=todayStr(),week=currentWeekKey(),month=currentMonthKey();
+    const restored=trackerDbFromData(exportBackupBundle(),'',db.backupSnapshots).chars.find(row=>row.name===name);
+    const snapshot=MapleAccountBridge.snapshot();
+    const restoredSnapshot=MapleAccountBridge.snapshotFromStore(MapleAccountBridge.storeFromSnapshot(snapshot));
+    const other={...c,name:'다른직접기록',crystalAccountAlias:''};
+    const group=char=>crystalLimitGroup(char,true).key;
+    const ignored=applySchedulerData(c,{date:day,boss_contents:[{content_name:'스우',difficulty:'normal',cycle:'weekly',complete_flag:true}]});
+    return {
+      manual:c.manualOnly,alias:c.crystalAccountAlias,restored:restored.manualOnly,cloud:restoredSnapshot.data.chars.find(row=>row.name===name).manualOnly,
+      weekly:Object.keys(c.bossWeeks[week]).length,monthly:Object.keys(c.monthBossMonths[month]).length,daily:Object.keys(c.dailyBossDays[day]).length,
+      recorded:db.records[day].sessions.some(s=>s.charName===name&&String(s.meso)==='987654'),
+      defaultSeparate:group({...c,crystalAccountAlias:''})!==group(other)&&group(other)!==group(db.chars[0]),
+      aliasGrouping:group(c)===group({...other,crystalAccountAlias:c.crystalAccountAlias})&&group(c)!==group(db.chars[0]),
+      scheduler:ignored.changed
+    };
+  },name);
+  assert.deepEqual(saved,{manual:true,alias:'두 번째 계정',restored:true,cloud:true,weekly:1,monthly:1,daily:1,recorded:true,defaultSeparate:true,aliasGrouping:true,scheduler:false});
+  await page.reload();
+  await page.evaluate(()=>openPage('daily'));
+  assert.equal(await page.locator('#hunt-registered-characters option[value="'+name+'"]').count(),1);
+  assert(await page.evaluate(name=>db.chars.find(c=>c.name===name)?.manualOnly,name));
+  await page.evaluate(()=>openPage('character'));
+  await prepare(page,{apiKey:true});
+  await page.evaluate(()=>{db.chars[0].ocid='e'.repeat(32);});
+  await page.locator('#in-character-source').selectOption('manual');
+  await page.locator('#in-char').fill('로그인검증');
+  await page.locator('#btn-addchar').click();
+  await page.evaluate(()=>runNexonAutoRefresh());
+  assert(await page.evaluate(()=>db.chars[0].manualOnly && loginRecordSnapshot()===loginBefore));
+  assert.equal(await page.evaluate(()=>MapleFriendsCharacterBridge.registered().length),0);
+  assert.equal(await page.evaluate(()=>loginFixture.calls.length),0);
+  await page.locator('#friends-characters-load').click();
+  await page.locator('#friends-characters-list button').first().click();
+  assert(await page.evaluate(()=>db.chars.length===1 && !db.chars[0].manualOnly && loginRecordSnapshot()===loginBefore));
+  await page.locator('#in-character-source').selectOption('auto');
+  console.log('PASS: 다른 계정 캐릭터 등록, 보스 3종·재획·계정별 한도·조회 제외·기기/계정/백업 보존');
+}
+
 async function assertProfiles(page, expectedCount=1) {
   try { await page.waitForFunction(count=>db.chars.length===count&&db.chars.every(c=>c.characterImage&&c.characterLevel===280&&c.characterExp==='987654'&&c.combatPower==='123456789'),expectedCount); }
   catch(error) {
@@ -102,6 +166,7 @@ async function assertProfiles(page, expectedCount=1) {
     page.on('pageerror',error=>errors.push(error.message));
     page.on('dialog',dialog=>{dialogs.push(dialog.message());return dialog.accept();});
     await page.goto(origin+'/?page=character');
+    await assertExternalCharacterRecords(page);
 
     await prepare(page);
     await page.locator('.char-refresh-btn').click();await assertProfiles(page);

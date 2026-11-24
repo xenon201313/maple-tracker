@@ -13,8 +13,8 @@
 <link rel="icon" type="image/png" href="../../assets/icon.png?v=20260908">
 <link rel="stylesheet" href="../../assets/public-pages.css?v=20261111-1">
 <link rel="stylesheet" href="../../assets/typography.css?v=20260907-1">
-<link rel="stylesheet" href="../../assets/public-boss-demo.css?v=20261111-1">
-<script defer src="../../assets/public-boss-demo.js?v=20260919-2"></script>
+<link rel="stylesheet" href="../../assets/public-boss-demo.css?v=20261124-1">
+<script defer src="../../assets/public-boss-demo.js?v=20261124-1"></script>
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="나만의 메계부">
 <meta property="og:title" content="보스 드랍 분배와 월말 결산 검산하기">
@@ -36,14 +36,14 @@
       <p class="eyebrow"><a href="../#reading-guides">계산 사례와 기록 요령</a></p>
       <h1>보스 드랍 분배와 월말 결산 검산하기</h1>
       <p class="lead">10억 메소 판매 사례로 파티장·파티원 실수령을 비교합니다. 송금 수수료, 100메소 내림, 7:3 비율과 월말 주차의 집계 차이를 설명합니다.</p>
-      <p class="article-meta">작성: 나만의 메계부 · 2026년 9월 9일 작성 · <time datetime="2026-11-19">2026년 11월 19일 수정</time> · 가상 금액을 사용한 계산 예제</p>
+      <p class="article-meta">작성: 나만의 메계부 · 2026년 9월 9일 작성 · <time datetime="2026-11-24">2026년 11월 24일 수정</time> · 가상 금액을 사용한 계산 예제</p>
       <p><a href="#try-settlement">판매가를 넣어 파티 분배액 계산하기</a></p>
     </header>
     <nav class="section article-toc" aria-label="이 글의 목차"><h2>이 글에서 확인할 내용</h2><ol><li><a href="#try-settlement">판매가·인원·수수료를 바꿔 분배액 계산하기</a></li><li><a href="#boss-entry">클리어, 획득 아이템, 판매 수익은 각각 확인합니다</a></li><li><a href="#solo-sale">혼자 얻은 드랍부터 계산을 맞춰 보세요</a></li><li><a href="#party-split">2인 이상에서는 판매 수수료와 전달 과정이 함께 계산됩니다</a></li><li><a href="#unequal-ratio">7:3은 파티장과 각 파티원 한 명의 비율입니다</a></li><li><a href="#period-close">주간 합계와 두 월간 화면의 기간 기준을 구분하세요</a></li><li><a href="#boss-review">금액이 맞지 않을 때는 입력 조건부터 좁혀 보세요</a></li></ol></nav>
     <article aria-label="계산 사례 본문">
 <section class="section" id="try-settlement" data-boss-demo>
   <h2>판매가를 넣어 파티 분배액 계산하기</h2>
-  <p>판매 수수료를 뺀 돈을 파티장이 보유하고, 파티원에게 송금하는 상황의 <strong>수수료 비교 계산기</strong>입니다. 송금 수수료까지 차감된 최종 몫이 약속한 비율에 가깝도록 송금액을 역산합니다. 로그인 없이 사용할 수 있으며 입력값과 계산 결과는 저장하거나 전송하지 않습니다.</p>
+  <p>경매장 판매가 또는 실수령액을 입력하고 함께 잡은 인원을 고르세요. 파티장이 보낼 금액과 각 파티원이 실제로 받는 금액을 확인하고, 정산 결과를 복사해 파티 채팅에 붙여넣을 수 있습니다.</p>
   <p class="callout">메계부 드랍 장부의 신규·수정 판매 수수료는 <strong>3% 고정</strong>입니다. 처음에는 10억 메소에 판 아이템을 두 명이 균등하게 나누고, 송금 수수료가 5%인 경우를 보여줍니다. 예전에 다른 수수료로 기록한 거래도 아래에서 조건을 바꿔 비교할 수 있습니다.</p>
   <form>
     <fieldset disabled>
@@ -118,7 +118,7 @@
   <p>분배율 입력의 의미는 <strong>파티장:파티원 한 명</strong>입니다. 2인 파티의 7:3과 3인 파티의 7:3은 총액 배분이 같지 않습니다. 3인이라면 파티장 가중치 7, 첫 파티원 3, 둘째 파티원 3으로 해석합니다. 파티원 전체가 합쳐서 3을 나누어 갖는 구조가 아닙니다. 3인에서 파티장이 전체의 70%, 두 파티원이 합쳐서 30%라는 합의를 표현하려면 이 차이를 먼저 이해해야 합니다.</p>
   <p>판매가 10억, 3인, <strong>판매 수수료 3%·송금 수수료 5%</strong>, 7:3을 가정하면 파티장 잔여는 509,921,000메소, 파티원 한 명의 실수령은 218,537,525메소입니다. 파티원 한 명에게 전달하는 수수료 전 금액은 230,039,500메소입니다. 따라서 파티장 잔여 검산은 <code>970,000,000 − 230,039,500 × 2 = 509,921,000</code>입니다. 두 파티원에게 똑같은 조건을 적용하는 모형이라는 점도 함께 확인하세요.</p>
   <p>보다 직접적으로 검산하려면 판매 수수료를 뺀 금액을 N, 송금 수수료를 뺀 비율을 q, 파티 인원을 n, 파티장·파티원 가중치를 a와 b라고 둘 수 있습니다. 파티원 목표 실수령은 대략 <code>N × b × q ÷ (a × q + (n−1) × b)</code>입니다. 실제 화면에서는 이 값에서 전달액을 역산하고 100메소 단위 내림을 거치므로 마지막 몇 자리까지는 앞 절의 정수 계산 순서로 비교해야 합니다.</p>
-  <p>파티원마다 서로 다른 몫을 받거나 한 사람이 수수료를 전부 부담하는 약속은 이 입력 모형으로 그대로 표현되지 않을 수 있습니다. 그런 경우 하나의 비율만 바꿔 숫자를 억지로 맞추기보다, 실제 판매금·송금액·각 실수령을 별도 기록하여 차이를 확인하는 편이 안전합니다. 이 도구의 계산값은 입력한 모형의 결과이지 파티 간 정산 합의를 대신 정하는 규칙이 아닙니다.</p>
+  <p>세 사람이 서로 다른 몫을 받기로 했다면 계산기에서 <strong>한 사람씩 비율 지정</strong>을 고릅니다. 파티장, 첫 번째 파티원, 두 번째 파티원 순으로 5·3·2를 입력하면 각자의 송금액과 실수령을 볼 수 있습니다. 0을 입력한 파티원에게 보낼 금액은 0메소입니다. 파티장에게는 100메소 단위 내림으로 생긴 잔액이 남을 수 있습니다.</p>
 </section>
 <section class="section" id="period-close">
   <h2>5. 주간 합계와 두 월간 화면의 기간 기준을 구분하세요</h2>

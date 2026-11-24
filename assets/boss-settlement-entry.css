@@ -1,0 +1,47 @@
+#page-home .workspace-quick-actions {grid-template-columns:repeat(4,minmax(0,1fr))}
+#page-home .workspace-quick-actions [data-open-boss-settlement] {
+  --shortcut-color:var(--ledger-income);
+  --shortcut-bg:var(--panel);
+}
+.boss-settlement-heading, .boss-settlement-dialog-head, .boss-settlement-dialog-foot {
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 16px;
+}
+.boss-settlement-heading {margin-block-end:12px}
+.boss-settlement-heading h2, #boss-settlement-dialog h2 {margin:0}
+.maple-official-theme .boss-settlement-launch, .maple-official-theme .boss-settlement-preview {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px;
+  border:1px solid var(--ledger-boss); background:var(--ledger-boss-surface);
+  color:var(--ledger-boss); border-radius:9px; padding:8px 14px; font-weight:750;
+}
+.boss-settlement-preview {grid-column:1/-1}
+.maple-official-theme :is(.boss-settlement-launch,.boss-settlement-preview):hover {text-decoration:underline;text-underline-offset:3px}
+#boss-settlement-dialog {
+  box-sizing:border-box; width:min(660px,calc(100% - 24px)); max-height:calc(100dvh - 32px);
+  padding:0 clamp(16px,3vw,28px); margin:auto; overflow:auto; overscroll-behavior:contain;
+  background:var(--panel); color:var(--text); border:1px solid var(--border-strong,var(--line));
+  border-radius:18px; box-shadow:0 22px 80px #100e293b;
+}
+#boss-settlement-dialog::backdrop {background:rgb(24 21 38 / .62)}
+#boss-settlement-dialog .boss-settlement-dialog-head {
+  position:sticky; top:0; z-index:2; flex-wrap:nowrap; padding:14px 0 10px;
+  background:var(--panel); border-bottom:1px solid var(--line);
+}
+#boss-settlement-dialog h2 {display:flex;align-items:center;gap:9px;color:var(--text);font-size:clamp(20px,4vw,25px)}
+#boss-settlement-title .ui-icon {width:25px;height:25px;color:var(--ledger-boss)}
+#boss-settlement-dialog [data-close-boss-settlement] {
+  display:grid;place-items:center; padding:0; width:44px;height:44px; flex:0 0 44px;
+  border:1px solid var(--line);border-radius:50%;background:var(--panel-soft);color:var(--text);
+}
+#boss-settlement-context {margin:14px 0 0; color:var(--ledger-boss); font-weight:700}
+#boss-settlement-dialog .boss-settlement-dialog-foot {border-top:1px solid var(--line);margin-top:16px;padding:14px 0;color:var(--sub);font-size:.9rem}
+#boss-settlement-dialog [data-settlement-ledger] {min-height:44px;padding:8px 14px;color:var(--text);background:var(--panel-soft);border:1px solid var(--line);border-radius:8px}
+#boss-settlement-dialog button:focus-visible, .boss-settlement-heading button:focus-visible, .boss-settlement-preview:focus-visible {
+  outline:3px solid var(--ledger-boss);outline-offset:2px;
+}
+@media(max-width:1100px) {
+  #page-home .workspace-quick-actions {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px) {
+  #page-home .workspace-quick-actions button {display:grid;grid-template-columns:20px minmax(0,1fr);min-height:50px;padding:8px;gap:7px;text-align:left}
+  #page-home .workspace-quick-actions button>span {width:auto;justify-self:stretch;align-items:flex-start}
+}

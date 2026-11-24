@@ -131,6 +131,7 @@ function ledgerReference() {
     pass('판매·송금 수수료 개별 입력 및 혼자 판매할 때 송금 조건 제외');
 
     await reset();
+    await form.locator('.boss-split-breakdown > summary').click();
     for (const bad of ['', '-1', '1.5', '1e9', '1,00', '<img>', ' '.repeat(3), '9'.repeat(41)]) {
       await form.locator('[name="sale"]').fill(bad);
       for (const key of keys) assert.equal(await page.locator('[data-boss-result="' + key + '"]').innerText(),'—');
@@ -163,6 +164,67 @@ function ledgerReference() {
     assert.equal(page.url(),url);
     assert.equal(await page.evaluate(() => window.__bossDemoSentinel),'페이지 유지');
     pass('0메소·100메소 미만 정산·예제 복원·Enter와 제출 시 이동 및 전송 없음');
+
+    await form.locator('[name="saleNet"]').fill('970,000,000');
+    assert.equal(await form.locator('[name="sale"]').inputValue(), '1,000,000,000');
+    assert.deepEqual(await result(),defaultAmounts);
+    await form.locator('[name="saleNet"]').fill('1');
+    assert.equal(await form.locator('[name="sale"]').inputValue(), '2');
+    assert.equal((await result()).saleNet,'1');
+    await reset();
+    await set({party:4,mode:'individual',weight0:5,weight1:3,weight2:2,weight3:0});
+    const rowAmounts = await form.locator('[data-boss-member]').evaluateAll(rows => rows.map(row =>
+      ['[data-transfer]','[data-received]'].map(selector => row.querySelector(selector).textContent.replace(/\D/g,''))));
+    const split = rowAmounts.map(row => row.map(BigInt));
+    amounts = await result();
+    assert.deepEqual(split[2],[0n,0n]);
+    assert(split[0][0] > split[1][0] && split[1][0] > 0n);
+    for (const [gross,net] of split) {
+      assert.equal(gross % 100n,0n);
+      assert.equal(net,gross*95n/100n);
+    }
+    assert.equal(split.reduce((sum,[gross]) => sum+gross,BigInt(amounts.leaderNet)),970000000n);
+    assert.equal(split.reduce((sum,[,net]) => sum+net,BigInt(amounts.leaderNet)),BigInt(amounts.received));
+    await page.evaluate(() => Object.defineProperty(navigator,'clipboard',{
+      configurable:true, value:{writeText: async text => { window.testCopiedText = text; }}
+    }));
+    await form.locator('[data-boss-copy]').click();
+    const message = await page.evaluate(() => window.testCopiedText);
+    assert.match(message,/4인 \(5:3:2:0\)/);
+    assert.match(message,/파티원 3에게 보낼 금액 0 메소 · 실수령 0 메소/);
+    await set({weight0:0,weight1:0,weight2:0,weight3:0});
+    assert(await form.locator('[data-boss-copy]').isDisabled());
+    assert.match(await form.locator('[data-boss-error]').innerText(),/모두 0/);
+    await reset();
+    pass('실수령 역산 · 개인별 비율과 0지분 · 송금/실수령 총합 보존 · 공유 문구');
+
+    const historic = await page.evaluate(() => {
+      const host = document.createElement('div');
+      host.setAttribute('data-boss-demo','');
+      host.setAttribute('data-boss-calculator','');
+      const api = window.MapleBossSettlement;
+      const snapshot = () => ({
+        fee:host.querySelector('[data-fee-label]').textContent,
+        net:host.querySelector('[data-boss-result="saleNet"]').textContent,
+        sale:host.querySelector('[name="sale"]').value,
+        editable:!!host.querySelector('[name="saleFee"]')
+      });
+      api.setPreset(host,{sale:'1000000000',party:2,transferFee:5,recordedAuctionFee:5});
+      const five = snapshot();
+      host.querySelector('[data-boss-copy]').click();
+      const copied = window.testCopiedText;
+      api.setPreset(host,{sale:'1000000000',party:2,recordedAuctionFee:0});
+      const zero = snapshot();
+      api.setPreset(host,{sale:'1000000000',party:3});
+      return {five,zero,fresh:snapshot(),copied,forms:host.querySelectorAll('form').length};
+    });
+    assert.deepEqual(historic.five,{fee:'기존 기록 판매 수수료 5%',net:'950,000,000 메소',sale:'1000000000',editable:false});
+    assert.equal(historic.zero.net,'1,000,000,000 메소');
+    assert.match(historic.copied,/기존 기록 판매 수수료 5%/);
+    assert.equal(historic.fresh.net,'970,000,000 메소');
+    assert.match(historic.fresh.fee,/3% 고정/);
+    assert.equal(historic.forms,1);
+    pass('앱 계산기 반복 열기 · 기존 0%/5% 검산 및 복사 · 새 거래 3% 고정');
 
     for (const width of [1440,390,320]) {
       await page.setViewportSize({width,height:1000});
