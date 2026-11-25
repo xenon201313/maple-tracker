@@ -276,13 +276,14 @@
       entry.plannedCost = cost.total; entry.stepCosts = cost.steps;
       upsert(bridge, 'symbolPlans', entry);
     }); });
+    form.elements.charId.addEventListener('change', () => el.querySelector('[data-la-imported]').replaceChildren());
     el.querySelector('[data-la-import]')?.addEventListener('click', async event => {
       const button = event.currentTarget, charId = form.elements.charId.value;
-      if (!charId || !bridge.fetchEquipment) { message(el, '연결된 캐릭터를 먼저 선택해 주세요.', true); return; }
+      if (!charId || !bridge.fetchEquipment) { message(el, '심볼을 조회할 캐릭터를 먼저 선택해 주세요.', true); return; }
       button.disabled = true; message(el, '심볼 정보를 확인하고 있습니다.');
       try {
         const result = await bridge.fetchEquipment(charId, 'symbols');
-        if (!button.isConnected) return;
+        if (!button.isConnected || form.elements.charId.value !== charId) return;
         const symbols = Array.isArray(result.symbols) ? result.symbols : [];
         const box = el.querySelector('[data-la-imported]');
         if (!symbols.length) { message(el, '불러온 장착 심볼이 없습니다. 직접 입력할 수 있습니다.' + (result.warning ? ' ' + result.warning : '')); return; }

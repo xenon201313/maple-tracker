@@ -78,6 +78,7 @@
       world:String((character?.manualOnly && character?.publicWorldName)||character?.worldName||character?.world_name||character?.world||(character?.server==='challenger'?'과거 챌린저스':'본서버')),
       job:String(character?.characterClass||character?.character_class||character?.className||''),
       level:Number(character?.characterLevel||character?.character_level||character?.level||0),
+      combat:String(character?.combatPower||''),
       image:imageURL(character?.characterImage||character?.character_image||character?.image)
     }));
   }
@@ -97,7 +98,12 @@
     const name=document.createElement('strong');name.className='home-character-name';name.textContent=row.name;
     const world=document.createElement('span');world.className='home-character-world';world.textContent=row.world;
     const detail=document.createElement('small');detail.className='home-character-detail';detail.textContent=[Number.isFinite(row.level)&&row.level>0?'Lv.'+Math.floor(row.level):'',row.job].filter(Boolean).join(' · ')||'등록 정보에서 프로필 갱신';
-    button.append(stage,name,world,detail);item.append(button);return item;
+    button.append(stage,name,world,detail);
+    if(row.combat){
+      const power=document.createElement('small');power.className='home-character-detail';
+      power.textContent='전투력 '+fmt(row.combat);button.append(power);
+    }
+    item.append(button);return item;
   }
   function empty(text='캐릭터를 등록하면 이곳에서 크게 볼 수 있어요.'){
     const item=document.createElement('li');item.className='home-characters-empty';item.append(icon());

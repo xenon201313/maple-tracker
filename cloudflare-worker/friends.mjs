@@ -1,5 +1,6 @@
 import { boundedRequestText, LEDGER_REQUEST_LIMIT, validLedgerPayload } from './friends-ledger.mjs';
 import { authFailureDiagnostic, safeAuthDiagnostic } from './friends-auth-diagnostic.mjs';
+import { equipmentProfile } from './character-equipment.mjs';
 
 const CLIENT_ID = '94027613-24a9-4bab-9c74-c5d4ae55bf5e';
 const APP_ORIGIN = 'https://maple-trackers.com';
@@ -172,13 +173,8 @@ export class FriendsSession {
     const read=kind=>{const url=new URL('https://open.api.nexon.com/maplestory/v1/character/'+kind);url.searchParams.set('ocid',input.ocid);return upstream(url,{headers:{'x-nxopen-api-key':this.env.NEXON_API_KEY},signal:signal()},'PROFILE');};
     const results=await Promise.allSettled([read('item-equipment'),read('symbol-equipment')]);
     const item=results[0].status==='fulfilled'?results[0].value:null,symbol=results[1].status==='fulfilled'?results[1].value:null;
-    const result={ocid:input.ocid,date:item?.date||symbol?.date||null};
-    const itemFields=['item_equipment_part','item_equipment_slot','item_name','item_icon','starforce','potential_option_grade','additional_potential_option_grade','potential_option_1','potential_option_2','potential_option_3','additional_potential_option_1','additional_potential_option_2','additional_potential_option_3'];
-    const symbolFields=['symbol_name','symbol_icon','symbol_level','symbol_force','symbol_exp','symbol_growth_count','symbol_require_growth_count'];
-    if(Array.isArray(item?.item_equipment))result.equipment=item.item_equipment.map(row=>pick(row,itemFields));
-    if(Array.isArray(symbol?.symbol))result.symbols=symbol.symbol.map(row=>pick(row,symbolFields));
-    if(!result.equipment&&!result.symbols)return json({error:'장비·심볼 정보를 불러오지 못했습니다. 저장한 계획은 유지됩니다.',errorCode:'EQUIPMENT_UNAVAILABLE'},502);
-    if(!result.equipment||!result.symbols)result.warning='일부 정보는 불러오지 못했습니다. 기존 값을 확인하세요.';
+    const result=equipmentProfile(input.ocid,item,symbol);
+    if(!result)return json({error:'장비·심볼 정보를 불러오지 못했습니다. 저장한 계획은 유지됩니다.',errorCode:'EQUIPMENT_UNAVAILABLE'},502);
     for(const [cacheKey,entry]of this.profileCache)if(entry.until<=Date.now())this.profileCache.delete(cacheKey);
     if(this.profileCache.size>=30)this.profileCache.delete(this.profileCache.keys().next().value);
     this.profileCache.set(key,{account:session.account,until:Date.now()+PROFILE_CACHE_TTL,data:result});

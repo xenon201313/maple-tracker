@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261125-1"></script>
+<script src="assets/patch-notes-data.js?v=20261125-2"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <link rel="preload" as="script" href="assets/equipment-icons.js?v=20261122-1">
 <script src="assets/enhancement-ledger.js?v=20261122-2"></script>
@@ -1472,7 +1472,7 @@
       <label for="in-character-account">장부용 계정 별명 (선택)</label>
       <input type="text" id="in-character-account" maxlength="24" placeholder="예: 두 번째 계정">
       <p class="muted">같은 메이플ID의 캐릭터에는 같은 별명을 입력하세요. 비워 두면 이 캐릭터의 결정석 한도를 따로 셉니다.</p>
-      <p class="muted">닉네임으로 넥슨 공개 프로필에서 코디·월드·직업·레벨을 불러옵니다. 개인 API 키 없이도 이용할 수 있고, 보스와 재획 수익은 직접 기록합니다.</p>
+      <p class="muted">닉네임을 입력하면 코디·월드·직업·레벨·전투력과 최근 7일 경험치를 불러옵니다. 별도 로그인이나 개인 API 키 없이 조회할 수 있습니다. 보스 처치와 재획 수익은 직접 기록하세요.</p>
     </div>
     <div class="muted" style="margin-top:8px;">주간/월간/일간 보스 메뉴에서 캐릭터의 '보스 펼치기'를 누르면 체크 목록이 열립니다.</div>
     <div class="muted" style="margin-top:8px;">챌린저스 시즌 4 육성과 9월 리프는 종료되었습니다. ‘과거 챌린저스 기록’은 이전 장부를 정리할 때만 선택하세요. 10월 22일~11월 5일 오전 10시에는 별도의 일반 월드 리프가 진행됩니다. 이동한 캐릭터는 기존 기록을 지우거나 중복 등록하지 말고 정보를 새로고침해 주세요. <a href="https://maplestory.nexon.com/News/Event/1401" target="_blank" rel="noopener noreferrer">현재 월드 리프 안내</a></div>
@@ -1482,7 +1482,7 @@
     <div class="registered-head">
       <div>
         <h2>🪪 등록된 캐릭터</h2>
-        <div class="muted">다른 계정 캐릭터는 ‘코디 갱신’으로 공개 외형을 확인하세요. 페이지를 열어 둔 동안 공개 프로필은 15분 간격으로 확인합니다. 내 계정에 연결한 캐릭터는 보스 완료와 경험치도 갱신합니다.</div>
+        <div class="muted">‘정보 갱신’을 누르면 코디·전투력·경험치를 확인할 수 있습니다. 페이지를 열어 두면 15분마다 공개 정보를 확인합니다. 보스 완료 자동 반영은 연결한 내 캐릭터에서 이용할 수 있습니다.</div>
       </div>
       <div class="registered-tools">
         <button class="ghost" id="btn-character-guide" type="button">등록방법</button>
@@ -1502,7 +1502,7 @@
     </div>
     <p class="guide-lead">넥슨 로그인 또는 개인 API 키 중 한 가지 방식으로 연결하면 캐릭터 이미지·전투력·경험치와 보스 완료 기록을 갱신합니다. 등록한 캐릭터는 주간·월간·일간 보스 탭에서 함께 사용하며, 경험치 그래프는 재획 기록 탭에서 확인합니다.</p>
     <div class="guide-grid">
-      <div class="guide-item"><b>다른 계정의 캐릭터</b><p>‘다른 계정 · 직접 기록’을 고르고 이름을 입력하면 코디와 공개 프로필을 불러옵니다. 등록 카드의 ‘코디 갱신’으로 다시 확인할 수 있습니다. 보스 처치와 드랍은 보스 탭에서, 사냥 수익은 재획 탭에서 기록하세요.</p></div>
+      <div class="guide-item"><b>다른 계정의 캐릭터</b><p>‘다른 계정 · 직접 기록’을 고르고 이름을 입력하세요. ‘정보 갱신’으로 코디·전투력·경험치를 확인하고 재획 탭에서 최근 7일 경험치 그래프를 볼 수 있습니다. 보스 처치와 드랍, 재획 수익은 직접 기록하세요.</p></div>
       <div class="guide-item"><b>API 키가 있는 경우</b><p>NEXON Open API 키를 저장하고 캐릭터명을 입력하면 월드, 직업, 레벨, 캐릭터 이미지를 자동으로 불러옵니다. 열린 페이지에서는 보스 완료 상태와 경험치가 주기적으로 갱신되며, 경험치 변화는 재획 기록 탭에서 확인합니다.</p></div>
       <div class="guide-item"><b>넥슨 로그인으로 이용</b><p>홈에서 로그인과 사용할 장부 선택을 마친 뒤 내 캐릭터 조회에서 골라 등록하거나 본인 캐릭터 이름을 입력합니다. 개인 API 키를 추가로 등록할 필요가 없습니다. 기존 캐릭터는 전체 새로고침으로 정보를 갱신하세요.</p></div>
       <div class="guide-item"><b>연결 없이 기록·기기 변경</b><p>로그인과 API 키 없이도 이름과 서버를 수동 등록할 수 있습니다. 새 기기에서는 같은 넥슨 계정으로 로그인해 계정 장부를 열거나, 개인 API 키 보관함 또는 백업 JSON으로 이전 기록을 불러옵니다.</p></div>
@@ -6666,8 +6666,8 @@ function expTrackerDate(snapshot){
   return Number.isNaN(d.getTime()) ? '' : d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 function expSnapshotRate(snapshot){
-  const rate=Number(normalizeCharacterExpRate(snapshot?.rate));
-  return Number.isFinite(rate) ? rate : null;
+  const rate=normalizeCharacterExpRate(snapshot?.rate);
+  return rate==='' ? null : Number(rate);
 }
 function expProgressUnit(snapshot){
   const rate=expSnapshotRate(snapshot);
@@ -6803,7 +6803,7 @@ function renderExpTracker(){
   if(!chars.length){
     select.innerHTML='<option>등록된 캐릭터 없음</option>';
     select.disabled=true;
-    el.innerHTML='<div class="exp-tracker-empty">캐릭터 등록 탭에서 넥슨 API 캐릭터를 추가하면 최근 7일 경험치 변화와 레벨업 예상일을 확인할 수 있습니다.</div>';
+    el.innerHTML='<div class="exp-tracker-empty">캐릭터를 등록하면 최근 7일 경험치 변화와 레벨업 예상일을 확인할 수 있습니다.</div>';
     return;
   }
   if(!chars.some(c=>c.name===expTrackerCharacterName)) expTrackerCharacterName=chars[0].name;
@@ -6813,13 +6813,9 @@ function renderExpTracker(){
   select.onchange=()=>{ expTrackerCharacterName=select.value; renderExpTracker(); };
   const character=chars.find(c=>c.name===expTrackerCharacterName) || chars[0];
   const history=normalizeExpHistory(character.expHistory);
-  const latest=history[history.length-1];
-  if(character.manualOnly && !latest){
-    el.textContent=character.name+'의 재획 수익은 위 입력란에서 기록할 수 있습니다. 경험치 그래프에는 API로 가져온 기록이 표시됩니다.';
-    return;
-  }
-  if(!latest || expProgressUnit(latest)===null){
-    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 경험치 기록이 아직 없습니다. API 갱신 시 최근 7일 과거 기록도 함께 조회하며, 수익 통계에는 포함되지 않습니다.</div>';
+  const latest=history.filter(snapshot=>expProgressUnit(snapshot)!==null).at(-1);
+  if(!latest){
+    el.innerHTML='<div class="exp-tracker-empty"><b>'+esc(character.name)+'</b>의 경험치 기록이 아직 없습니다. 캐릭터 등록 탭에서 ‘정보 갱신’을 누르면 넥슨이 제공하는 최근 7일 기록을 불러옵니다.</div>';
     return;
   }
   const days=expWeekData(character);
@@ -9451,7 +9447,7 @@ function combatPowerFromStat(statData){
   if(bossRow) return onlyDigits(bossRow.stat_value || bossRow.statValue || bossRow.value || '');
   const row=rows.find(s=>{
     const name=String(s?.stat_name || s?.statName || s?.name || '').replace(/\s/g,'');
-    return (name.includes('전투력') && !name.includes('사냥')) || /combatpower/i.test(name);
+    return !/사냥|hunt/i.test(name) && (name.includes('전투력') || /combatpower/i.test(name));
   });
   return row ? onlyDigits(row.stat_value || row.statValue || row.value || '') : '';
 }
@@ -9620,7 +9616,7 @@ function applySchedulerData(c, data){
 }
 function recordCharacterExpSnapshot(c, profile){
   const level=Math.max(0,Math.floor(Number(profile.characterLevel)||0));
-  const exp=onlyDigits(profile.characterExp || '');
+  const exp=onlyDigits(profile.characterExp);
   const rate=normalizeCharacterExpRate(profile.characterExpRate);
   const at=normalizeApiTimestamp(profile.lastApiSyncAt) || Date.now();
   c.lastApiSyncAt=at;
@@ -9629,8 +9625,9 @@ function recordCharacterExpSnapshot(c, profile){
   c.characterExpRate=rate;
   c.expHistory=normalizeExpHistory(c.expHistory);
   const last=c.expHistory[c.expHistory.length-1];
-  if(last && last.level===level && last.exp===exp && last.rate===rate) return false;
-  c.expHistory.push({at,level,exp,rate,date:MapleIncomeForecast.kstDate(at)});
+  const date=MapleIncomeForecast.kstDate(at);
+  if(last && expTrackerDate(last)===date && last.level===level && last.exp===exp && last.rate===rate) return false;
+  c.expHistory.push({at,level,exp,rate,date});
   c.expHistory=c.expHistory.slice(-120);
   return true;
 }
@@ -9640,19 +9637,20 @@ function expHistoryDateTimestamp(date){
 }
 function recordHistoricalExpSnapshot(c,basic,date){
   const level=Math.max(0,Math.floor(Number(basic?.character_level)||0));
-  const exp=onlyDigits(basic?.character_exp || '');
+  const exp=onlyDigits(basic?.character_exp);
   const rate=normalizeCharacterExpRate(basic?.character_exp_rate);
   const at=expHistoryDateTimestamp(date);
   if(!at || !level || (!exp && rate==='')) return false;
   c.expHistory=normalizeExpHistory(c.expHistory);
-  if(c.expHistory.some(snapshot=>expTrackerDate(snapshot)===date)) return false;
+  // 보존된 경험치량만 있는 날짜도 나중에 비율을 받으면 그래프를 보완한다.
+  if(c.expHistory.some(snapshot=>expTrackerDate(snapshot)===date && (rate==='' || expSnapshotRate(snapshot)!==null))) return false;
   c.expHistory.push({at,level,exp,rate,date});
   c.expHistory=normalizeExpHistory(c.expHistory);
   return true;
 }
 function historicalExpDatesToFetch(c,today=todayStr()){
   const start=addDays(today,-(EXP_TRACKER_DAYS-1));
-  const present=new Set(normalizeExpHistory(c.expHistory).map(expTrackerDate).filter(Boolean));
+  const present=new Set(normalizeExpHistory(c.expHistory).filter(snapshot=>expSnapshotRate(snapshot)!==null).map(expTrackerDate));
   const attempts=ensureObj(c.expHistoryFetchAttempts);
   c.expHistoryFetchAttempts=attempts;
   const now=Date.now();
@@ -9738,27 +9736,33 @@ async function refreshStoredCharacterScheduler(c){
   }finally{ctx.release();}
 }
 const publicAppearanceChecks=new WeakMap();
-// 같은 탭을 새로고침해도 변경 없는 코디 때문에 장부를 저장·동기화하지 않는다.
+let publicProfileRetryAt=0;
+function publicProfileRateError(){
+  return Object.assign(new Error('공개 정보 조회가 많습니다. 페이지를 열어 두면 잠시 후 자동으로 다시 확인합니다.'),{status:429});
+}
+// 같은 탭을 새로고침해도 변경 없는 공개 정보 때문에 장부를 저장·동기화하지 않는다.
 const publicAppearanceCacheKey='maple:public-profile-checks:v1';
 let recentPublicChecks=new Map();
 try{recentPublicChecks=new Map(JSON.parse(sessionStorage.getItem(publicAppearanceCacheKey) || '[]').slice(-100));}catch{}
 function lastPublicAppearanceCheck(c){
-  const version=Number(c.publicAppearanceAt)||0;
+  const version=Number(c.publicProfileUpdatedAt)||0;
+  if(!version || !c.publicProfileOcid) return 0; // 이전 코디 전용 기록은 첫 방문에 전체 프로필을 조회한다.
   const cached=recentPublicChecks.get(c.publicProfileOcid);
   return cached?.version===version?Math.max(version,Number(cached.at)||0):version;
 }
 function rememberPublicAppearanceCheck(c,at){
   recentPublicChecks.delete(c.publicProfileOcid);
-  recentPublicChecks.set(c.publicProfileOcid,{version:c.publicAppearanceAt,at});
+  recentPublicChecks.set(c.publicProfileOcid,{version:c.publicProfileUpdatedAt,at});
   if(recentPublicChecks.size>100) recentPublicChecks.delete(recentPublicChecks.keys().next().value);
   try{sessionStorage.setItem(publicAppearanceCacheKey,JSON.stringify([...recentPublicChecks]));}catch{}
 }
 function publicAppearanceStatus(c){
   const check=publicAppearanceChecks.get(c);
   if(check?.error) return check.error;
-  if(check?.pending) return '공개 코디를 확인하고 있습니다.';
+  if(check?.pending) return '공개 정보를 확인하고 있습니다.';
   const at=lastPublicAppearanceCheck(c);
-  return at?'공개 코디 확인 · '+new Date(at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'공개 코디 확인 전';
+  if(!at) return '캐릭터 정보 갱신 전';
+  return '공개 정보 확인 · '+new Date(at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+(c.profileWarning?' · '+c.profileWarning:'');
 }
 function updatePublicAppearanceView(c){
   const index=db.chars.indexOf(c);
@@ -9780,25 +9784,46 @@ function refreshPublicAppearance(c){
   const name=c.name,ocid=c.ocid || c.publicProfileOcid || '';
   const request=async()=>{
     ctx.guard();
+    if(Date.now()<publicProfileRetryAt) throw publicProfileRateError();
     const url=new URL(CLOUD_SYNC_ENDPOINT+'/v1/public-character');
     url.searchParams.set(ocid?'ocid':'name',ocid || name);
     const response=await fetch(url,{signal:ctx.signal,credentials:'omit',referrerPolicy:'no-referrer'});
     if(!response.ok){
       if(response.status===400 || response.status===404) throw new Error('넥슨에서 공개 캐릭터를 찾지 못했습니다. 닉네임을 확인하세요.');
-      if(response.status===429) throw new Error('조회 요청이 많습니다. 잠시 뒤 코디를 다시 갱신하세요.');
-      throw new Error('공개 코디를 불러오지 못했습니다. 잠시 뒤 다시 갱신하세요.');
+      if(response.status===429){
+        const delay=Number(response.headers.get('Retry-After')) || 60;
+        publicProfileRetryAt=Date.now()+Math.max(1,delay)*1000;
+        throw publicProfileRateError();
+      }
+      throw new Error('공개 정보를 불러오지 못했습니다. 잠시 뒤 다시 갱신하세요.');
     }
-    const {basic,ocid:found}=await response.json();
+    const {basic,ocid:found,stat,history,profileWarning}=await response.json();
     ctx.guard();
     if(name!==c.name || ocid!==(c.ocid || c.publicProfileOcid || '')) throw new DOMException('캐릭터가 변경되었습니다.','AbortError');
     if(!basic?.character_image || !basic?.character_name || !found || (ocid && ocid!==found)
-      || (!ocid && basic.character_name.normalize('NFC').toLowerCase()!==name.normalize('NFC').toLowerCase())) throw new Error('요청한 캐릭터의 공개 코디를 확인할 수 없습니다.');
+      || (!ocid && basic.character_name.normalize('NFC').toLowerCase()!==name.normalize('NFC').toLowerCase())) throw new Error('요청한 캐릭터의 공개 정보를 확인할 수 없습니다.');
     // 현재 공개 월드·닉네임과 기록 당시 장부의 월드·닉네임은 따로 보관한다.
+    const at=Date.now();
     const fields={publicProfileOcid:found,publicProfileName:basic.character_name,publicWorldName:basic.world_name,
-      characterImage:basic.character_image,characterClass:basic.character_class,characterLevel:basic.character_level};
-    if(Object.entries(fields).some(([key,value])=>c[key]!==value) || !c.publicAppearanceAt){
+      characterImage:basic.character_image,characterClass:basic.character_class,characterLevel:basic.character_level,
+      lastApiSync:MapleIncomeForecast.kstDate(at),profileWarning:profileWarning || ''};
+    const combat=combatPowerFromStat(stat),exp=onlyDigits(basic.character_exp),rate=normalizeCharacterExpRate(basic.character_exp_rate);
+    if(combat) fields.combatPower=combat;
+    if(exp!=='') fields.characterExp=exp;
+    if(rate!=='') fields.characterExpRate=rate;
+    // 누락된 수치를 0이나 이전 레벨의 값으로 채워 새 경험치 기록을 만들지 않는다.
+    const draft={expHistory:c.expHistory};
+    let historyChanged=false;
+    for(const row of history || []){
+      if(recordHistoricalExpSnapshot(draft,row.basic,row.date)) historyChanged=true;
+    }
+    if(exp!=='' || rate!==''){
+      if(recordCharacterExpSnapshot(draft,{characterLevel:basic.character_level,characterExp:exp,characterExpRate:rate,lastApiSyncAt:at})) historyChanged=true;
+    }
+    if(historyChanged || !c.publicProfileUpdatedAt || Object.entries(fields).some(([key,value])=>c[key]!==value)){
       window.MapleAccountSync?.beforeSave();
-      Object.assign(c,fields,{publicAppearanceAt:Date.now()});
+      Object.assign(c,fields,{publicProfileUpdatedAt:at,lastApiSyncAt:at});
+      if(historyChanged) c.expHistory=draft.expHistory;
       save();
       for(const entry of document.querySelectorAll('[data-char-name],.registered-card[data-character-index]')){
         if(entry.matches('.registered-card')?db.chars[Number(entry.dataset.characterIndex)]!==c:entry.dataset.charName!==name) continue;
@@ -9806,13 +9831,15 @@ function refreshPublicAppearance(c){
         if(profile) profile.outerHTML=charProfileHtml(c);
       }
       window.MapleHomeCharacters?.render();
+      if(activePageName()==='daily') renderExpTracker();
     }
     rememberPublicAppearanceCheck(c,Date.now());
     return c;
   };
   check.pending=request().catch(error=>{
     try{ctx.guard();}catch(invalidated){publicAppearanceChecks.delete(c);throw invalidated;}
-    check.error=error instanceof TypeError?'네트워크 연결을 확인한 뒤 코디를 다시 갱신하세요.':error.message;
+    if(error.status===429) check.retryAt=publicProfileRetryAt;
+    check.error=error instanceof TypeError?'네트워크 연결을 확인한 뒤 정보를 다시 갱신하세요.':error.message;
     throw error;
   }).finally(()=>{
     ctx.release();
@@ -9842,8 +9869,10 @@ async function runNexonAutoRefresh(){
     for(const c of [...db.chars]){
       ctx.guard();
       if(c.manualOnly){
-        const checked=Math.max(publicAppearanceChecks.get(c)?.at || 0,lastPublicAppearanceCheck(c));
-        if(now-checked>=NEXON_PROFILE_REFRESH_MS){
+        if(now<publicProfileRetryAt) continue;
+        const check=publicAppearanceChecks.get(c);
+        const checked=Math.max(check?.at || 0,lastPublicAppearanceCheck(c));
+        if((check?.retryAt && now>=check.retryAt) || now-checked>=NEXON_PROFILE_REFRESH_MS){
           try{await refreshPublicAppearance(c);}catch{ctx.guard();}
         }
         continue;
@@ -9948,6 +9977,8 @@ function characterMetaText(c){
   if(c.characterClass) parts.push(c.characterClass);
   if(c.characterLevel) parts.push('Lv.'+fmt(c.characterLevel));
   if(c.combatPower) parts.push('전투력 '+fmt(c.combatPower));
+  const rate=normalizeCharacterExpRate(c.characterExpRate);
+  if(rate!=='') parts.push('경험치 '+expRateLabel(rate));
   if(c.lastApiSync) parts.push('갱신 '+c.lastApiSync);
   return parts.join(' · ');
 }
@@ -10018,7 +10049,7 @@ function renderRegisteredCharacters(){
       refreshAll.disabled=true;
       refreshAll.textContent='갱신 중...';
       const failed=[];
-      let updated=0,ownUpdated=0,skipped=0;
+      let updated=0,ownUpdated=0,skipped=0,deferred=0;
       try{
       for(const c of [...db.chars]){
         ctx.guard();
@@ -10029,13 +10060,14 @@ function renderRegisteredCharacters(){
           updated++;
         }catch(err){
           ctx.guard();
-          failed.push(c.name+': '+err.message);
+          if(c.manualOnly && err.status===429) deferred++;
+          else failed.push(c.name+': '+err.message);
         }
       }
       ctx.guard();if(ownUpdated)save();
-      updateNexonApiStatus(failed.length?'일부 갱신 실패':'캐릭터 정보 갱신 완료',failed.length?'err':'ok');
+      updateNexonApiStatus(failed.length?'일부 갱신 실패':deferred?'일부 공개 정보 갱신 대기':'캐릭터 정보 갱신 완료',failed.length?'err':'ok');
       renderAll();
-      alert('캐릭터 '+updated+'명의 최신 정보를 갱신했습니다.'+(skipped?'\n본인 캐릭터 '+skipped+'명은 넥슨 로그인 또는 API 키 연결 후 갱신할 수 있습니다.':'')+(failed.length?'\n갱신 실패:\n'+failed.join('\n'):''));
+      alert('캐릭터 '+updated+'명의 최신 정보를 갱신했습니다.'+(deferred?'\n공개 정보 조회 한도로 '+deferred+'명은 잠시 후 자동 갱신합니다. 페이지를 열어 두세요.':'')+(skipped?'\n본인 캐릭터 '+skipped+'명은 넥슨 로그인 또는 API 키 연결 후 갱신할 수 있습니다.':'')+(failed.length?'\n갱신 실패:\n'+failed.join('\n'):''));
       }catch(error){if(error.name!=='AbortError')alert(error.message);}finally{
       ctx.release();
       refreshAll.disabled=!db.chars.length;
@@ -10061,7 +10093,7 @@ function renderRegisteredCharacters(){
       '<label>월드 구분 <select class="crystal-world-type"><option value="">캐릭터 정보 기준</option><option value="normal">일반</option><option value="challenger">챌린저스</option><option value="special">스페셜</option></select></label> '+
       '<button type="button" class="ghost crystal-account-apply">적용</button></details>'+
       '<div class="registered-actions">'+
-        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'"'+(c.manualOnly && publicAppearanceChecks.get(c)?.pending?' disabled':'')+'>'+(c.manualOnly?'코디 갱신':'정보 갱신')+'</button>'+
+        '<button class="ghost char-refresh-btn" type="button" data-idx="'+idx+'"'+(c.manualOnly && publicAppearanceChecks.get(c)?.pending?' disabled':'')+'>정보 갱신</button>'+
         '<button class="danger char-delete-btn" type="button" data-idx="'+idx+'">캐릭터 삭제</button>'+
         (c.manualOnly?'<span class="muted public-appearance-status" aria-live="polite">'+esc(publicAppearanceStatus(c))+'</span>':'<span class="muted">'+synced+(c.profileWarning?' · '+esc(c.profileWarning):'')+'</span>')+
       '</div>';
@@ -11726,9 +11758,9 @@ window.MapleEnhancementBridge={
   }
 };
 </script>
-<script src="assets/ledger-finance.js?v=20261111-1"></script>
-<script src="assets/ledger-activity.js?v=20261028-1"></script>
-<script src="assets/ledger-planner.js?v=20261111-1"></script>
+<script src="assets/ledger-finance.js?v=20261125-2"></script>
+<script src="assets/ledger-activity.js?v=20261125-2"></script>
+<script src="assets/ledger-planner.js?v=20261125-2"></script>
 <dialog id="boss-settlement-dialog" aria-labelledby="boss-settlement-title">
   <header class="boss-settlement-dialog-head">
     <h2 id="boss-settlement-title" tabindex="-1"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#receipt"></use></svg>보스 드랍 정산</h2>
@@ -11754,7 +11786,7 @@ window.MapleEnhancementBridge={
 <script src="assets/play-desk.js?v=20261124-settlement"></script>
 <script src="assets/maple-workspace.js?v=20261119-public"></script>
 <script src="assets/maple-official-theme.js?v=20261122-finder"></script>
-<script src="assets/home-characters.js?v=20261125-1"></script>
+<script src="assets/home-characters.js?v=20261125-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>
 <footer class="site-footer">
   <span class="site-footer-api-notice">본 서비스는 <strong>NEXON Open API</strong>를 이용하는 비공식 서비스입니다.</span>

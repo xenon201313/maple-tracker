@@ -14,6 +14,26 @@ const server=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(r
   await fixtureDismissPatchNotes(page);
   await page.goto(origin+'/?page=planner');await page.evaluate(()=>document.fonts.ready);
   assert.equal(await page.locator('[data-planner-tool]').count(),6);
+  const publicId='a'.repeat(32),publicRequests=[];
+  await page.route('**/v1/public-character/equipment?*',route=>{
+    const req=route.request();
+    publicRequests.push({id:new URL(req.url()).searchParams.get('ocid'),auth:req.headers().authorization,key:req.headers()['x-nxopen-api-key']});
+    return route.fulfill({json:{ocid:publicId,equipment:[{item_name:'검증용 반지',item_equipment_slot:'반지1',starforce:'22'}],symbols:[{symbol_name:'검증용 심볼',symbol_level:12,symbol_growth_count:3}]}});
+  });
+  await page.evaluate(ocid=>{
+    db.chars=[normalizeChar({name:'다른캐릭터',manualOnly:true,publicProfileOcid:ocid})];
+    MapleLedgerPlanner.open('investment');
+  },publicId);
+  const planner=page.locator('#planner-panel');
+  await planner.locator('select[name=charId]').selectOption({label:'다른캐릭터'});
+  await planner.getByRole('button',{name:'장착 장비 불러오기'}).click();
+  await planner.locator('select[name=equipment] option').filter({hasText:'검증용 반지'}).waitFor({state:'attached'});
+  page.once('dialog',dialog=>dialog.accept());
+  await page.evaluate(()=>MapleLedgerPlanner.open('symbol'));
+  await planner.getByRole('button',{name:'선택 캐릭터 심볼 불러오기'}).click();
+  await planner.getByText('검증용 심볼',{exact:true}).waitFor();
+  assert.deepEqual(publicRequests,[1,2].map(()=>({id:publicId,auth:undefined,key:undefined})));
+  assert(await page.evaluate(()=>!db.chars[0].ocid && db.chars[0].manualOnly && !db.planner.investments.length && !db.planner.symbolPlans.length),'공개 장비·심볼 조회는 계획 저장 또는 계정 연결과 별개');
   await page.evaluate(()=>{
    const date=MaplePlannerState.dateKst(),week=MaplePlannerState.weekKst(date);
    const c=normalizeChar({name:'기능검증 캐릭터',worldName:'크로아',server:'main'});

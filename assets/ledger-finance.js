@@ -185,6 +185,10 @@
       const value = {...editing,id:editingId || id('investment'),name:requireText(data.name,'프로젝트 이름을 입력해 주세요.'),charId:data.charId,charName:char?.name || '',date:date(data.date),budget:amount(data.budget).toString(),purchaseCost:amount(data.purchaseCost).toString(),note:String(data.note || '').trim(),links,equipment:selectedEquipment};
       save(bridge,bridge.getContext(),'investments',value); renderInvestment(rootElement,bridge,'','프로젝트를 저장했습니다. 원본 지출 금액은 그대로 유지됩니다.');
     }); });
+    form.elements.charId.addEventListener('change', () => {
+      selectedEquipment=null;
+      form.elements.equipment.replaceChildren(new Option('장착 장비를 먼저 불러오세요',''));
+    });
     form.elements.equipment.addEventListener('change', () => {
       const option = form.elements.equipment.selectedOptions[0];
       if (!option?.dataset.equipment) return;

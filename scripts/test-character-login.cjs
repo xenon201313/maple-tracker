@@ -5,7 +5,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { chromium } = require('playwright');
 const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
-const { verifyManualCharacterAppearance } = require('./helpers/manual-character-appearance.cjs');
+const { verifyManualCharacterProfile } = require('./helpers/manual-character-appearance.cjs');
 const root = path.resolve(__dirname, '..');
 const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.ttf':'font/ttf' };
 const server = http.createServer((req,res) => {
@@ -65,6 +65,44 @@ async function prepare(page, { duplicates=false, apiKey=false } = {}) {
   }, {duplicates,apiKey});
 }
 
+async function verifyPublicProfileBackoff(page) {
+  await prepare(page);
+  const names=['공개검증하나','공개검증둘'], calls=[];
+  const routePattern='**/v1/public-character?*';
+  const cors={'Access-Control-Allow-Origin':'*'};
+  await page.route(routePattern,route=>{
+    const name=new URL(route.request().url()).searchParams.get('name');
+    calls.push(name);
+    if(calls.length===1)return route.fulfill({status:429,headers:{...cors,'Retry-After':'60'},json:{error:'조회 한도'}});
+    return route.fulfill({headers:cors,json:{ocid:(name===names[0]?'1':'2').repeat(32),
+      basic:{character_name:name,world_name:'크로아',character_level:274,character_class:'제논',character_image:'assets/icon.png'},
+      stat:{final_stat:[{stat_name:'전투력',stat_value:'567890'}]},history:[]}});
+  });
+  try{
+    await page.evaluate(names=>{
+      db.chars.unshift(...names.map(name=>normalizeChar({name,manualOnly:true,combatPower:'1234'})));
+      renderAll();
+    },names);
+    const [summary]=await Promise.all([page.waitForEvent('dialog'),page.locator('#btn-refresh-all-chars').evaluate(button=>button.onclick())]);
+    assert.match(summary.message(),/캐릭터 1명/);
+    assert.match(summary.message(),/한도로 2명/);
+    assert.deepEqual(calls,[names[0]],'429를 받은 뒤 같은 일괄 조회의 다음 공개 요청은 대기');
+    assert.deepEqual(await page.evaluate(()=>db.chars.slice(0,2).map(c=>c.combatPower)),['1234','1234']);
+    await page.clock.setFixedTime('2026-09-29T00:30:59Z');
+    await page.evaluate(async()=>{loginFixture.calls=[];await runNexonAutoRefresh();});
+    assert.equal(calls.length,1,'대기 시간 안에 자동 폴링이 추가 공개 요청을 보내지 않음');
+    assert(await page.evaluate(()=>loginFixture.calls.some(call=>call.action==='scheduler')),'본인 캐릭터의 동기화는 계속 진행');
+    await page.clock.setFixedTime('2026-09-29T00:31:01Z');
+    await page.evaluate(()=>runNexonAutoRefresh());
+    assert.deepEqual(calls,[names[0],...names],'대기 시간 이후 다음 폴링에서 두 캐릭터 모두 재조회');
+    assert.deepEqual(await page.evaluate(()=>db.chars.slice(0,2).map(c=>c.combatPower)),['567890','567890']);
+    console.log('PASS: 외부 캐릭터 일괄 조회 429 시 요청 중단·기존 수치 유지·본인 보스 조회 지속·다음 폴링 재시도');
+  }finally{
+    await page.unroute(routePattern);
+    await page.clock.setFixedTime('2026-09-29T00:30:00Z');
+  }
+}
+
 async function assertExternalCharacterRecords(page) {
   await prepare(page);
   const name='다른계정검증';
@@ -74,7 +112,7 @@ async function assertExternalCharacterRecords(page) {
   await page.locator('#btn-addchar').click();
   const card=page.locator('.registered-card').filter({hasText:name});
   assert(await card.isVisible());
-  assert.equal(await card.getByRole('button',{name:'코디 갱신'}).count(),1);
+  assert.equal(await card.getByRole('button',{name:'정보 갱신',exact:true}).count(),1);
   assert.equal(await card.locator('.scheduler-scope-toggle').count(),0);
   assert.equal(await page.evaluate(name=>loginFixture.calls.some(call=>call.body.characterName===name),name),false);
   await page.evaluate(()=>runNexonAutoRefresh());
@@ -152,7 +190,7 @@ async function assertProfiles(page, expectedCount=1) {
   let browser;
   try {
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
-    await verifyManualCharacterAppearance(browser,origin);
+    await verifyManualCharacterProfile(browser,origin);
     const context=await browser.newContext({viewport:{width:1280,height:900},timezoneId:'America/Los_Angeles'});context.setDefaultTimeout(10000);
     await fixtureDismissPatchNotes(context);
     let directCalls=0;
@@ -170,6 +208,7 @@ async function assertProfiles(page, expectedCount=1) {
     page.on('dialog',dialog=>{dialogs.push(dialog.message());return dialog.accept();});
     await page.goto(origin+'/?page=character');
     await assertExternalCharacterRecords(page);
+    await verifyPublicProfileBackoff(page);
 
     await prepare(page);
     await page.locator('.char-refresh-btn').click();await assertProfiles(page);

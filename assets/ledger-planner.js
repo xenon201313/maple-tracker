@@ -83,12 +83,23 @@
   }
   async function fetchEquipment(id,requested){
     const c=db.chars.find(c=>charId(c)===id);if(!c)throw new Error('등록된 캐릭터를 선택해 주세요.');
-    const ctx=characterQueryContext(c),epoch=requestEpoch;
+    const ctx=characterQueryContext(c,{publicAppearance:c.manualOnly}),epoch=requestEpoch;
     try{
-      if(!ctx.source)throw new Error(characterConnectionMessage());
-      if(!c.ocid)throw new Error('캐릭터 등록에서 정보를 갱신한 뒤 다시 조회해 주세요.');
+      ctx.guard();
       let data;
-      if(ctx.source==='friends')data=await window.MapleFriends.request('character-equipment',{ocid:c.ocid},ctx.signal);
+      if(c.manualOnly){
+        if(!c.ocid&&!c.publicProfileOcid)await refreshPublicAppearance(c);
+        ctx.guard();
+        const ocid=c.ocid||c.publicProfileOcid;
+        if(!ocid)throw new Error('캐릭터 등록에서 정보를 갱신한 뒤 다시 조회해 주세요.');
+        const url=new URL(CLOUD_SYNC_ENDPOINT+'/v1/public-character/equipment');
+        url.searchParams.set('ocid',ocid);
+        const response=await fetch(url,{signal:ctx.signal,credentials:'omit',referrerPolicy:'no-referrer'});
+        if(!response.ok)throw new Error(response.status===429?'조회 요청이 많습니다. 잠시 뒤 다시 시도하세요.':'공개 장비·심볼 정보를 불러오지 못했습니다. 잠시 뒤 다시 시도하세요.');
+        data=await response.json();
+        if(data?.ocid!==ocid || (c.ocid||c.publicProfileOcid)!==ocid)throw new Error('선택한 캐릭터가 변경되었습니다. 다시 조회해 주세요.');
+      }else if(!c.ocid)throw new Error('캐릭터 등록에서 정보를 갱신한 뒤 다시 조회해 주세요.');
+      else if(ctx.source==='friends')data=await window.MapleFriends.request('character-equipment',{ocid:c.ocid},ctx.signal);
       else{
         const results=await Promise.allSettled([nexonFetch('/character/item-equipment',{ocid:c.ocid},ctx.signal),nexonFetch('/character/symbol-equipment',{ocid:c.ocid},ctx.signal)]);ctx.guard();
         const equipment=results[0].status==='fulfilled'?results[0].value:null,symbols=results[1].status==='fulfilled'?results[1].value:null;
