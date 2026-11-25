@@ -3,7 +3,7 @@
 <head>
 <meta name="referrer" content="no-referrer">
 <script src="assets/theme-mode.js?v=20261114-1"></script>
-<script src="assets/patch-notes-data.js?v=20261125-2"></script>
+<script src="assets/patch-notes-data.js?v=20261125-3"></script>
 <script src="assets/patch-notes.js?v=20261031-1"></script>
 <link rel="preload" as="script" href="assets/equipment-icons.js?v=20261122-1">
 <script src="assets/enhancement-ledger.js?v=20261122-2"></script>
@@ -154,9 +154,6 @@
   .calc-result{margin-top:10px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px;}
   .calc-result .pill{background:rgba(6,10,18,.48); border:1px solid rgba(220,230,255,.18); border-radius:8px; padding:9px 10px; font-size:13px; color:var(--sub);}
   .calc-result .pill b{display:block; color:var(--gold); font-size:15px; margin-top:3px;}
-  .erda-settlement-grid{display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)) auto; gap:10px; align-items:end;}
-  .erda-settlement-grid input{width:100%; box-sizing:border-box;}
-  .erda-settlement-grid button{min-height:42px;}
   .settlement-preview{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px; margin-top:10px;}
   .settlement-preview .pill{background:rgba(6,10,18,.48); border:1px solid rgba(220,230,255,.18); border-radius:8px; padding:9px 10px; color:var(--sub); font-size:13px;}
   .settlement-preview .pill b{display:block; color:var(--green); font-size:15px; margin-top:3px;}
@@ -568,7 +565,12 @@
   .chart-plot{min-width:0;}
   .chart-grid-line{position:absolute; left:0; right:0; transform:translateY(50%); border-top:1px solid rgba(220,230,255,.2);}
   .chart-bars{position:absolute; inset:0; display:flex; align-items:flex-end; gap:4px;}
-  .chart-bars .bar-col{flex:1; height:100%; display:flex; align-items:flex-end; min-width:0;}
+  .chart-bars .bar-col{flex:1; height:100%; position:relative; min-width:0;}
+  .chart-bars .bar{position:absolute;}
+  .chart-bars .bar.loss,.chart-tip-loss .chart-swatch{background:var(--ledger-expense);}
+  .chart-bars .bar.loss{border-radius:0 0 4px 4px;}
+  #chart-float .chart-tip-loss b{color:var(--ledger-expense);}
+  .chart-grid-line.zero-line{border-color:var(--sub);}
   .bar{width:100%; background:linear-gradient(180deg,var(--gold),#8f6d13); border-radius:4px 4px 0 0; min-height:2px; cursor:help; transition:filter .15s ease, transform .15s ease, opacity .15s ease;}
   .bar:hover,.bar:focus{filter:brightness(1.16); transform:translateY(-1px); outline:none;}
   .bar.empty{background:rgba(70,80,112,.78); opacity:.75;}
@@ -825,7 +827,7 @@
     #page-daily>.card:first-child .row button{height:42px; margin-top:0;}
     #page-daily>.card:first-child .row>div[style],.row>div[style]{min-width:0 !important; width:100% !important;}
     .daily-date-row input,.calc-card input,.calc-card select{width:100%;}
-    .calc-controls,.goal-form,.erda-settlement-grid{grid-template-columns:1fr;}
+    .calc-controls,.goal-form{grid-template-columns:1fr;}
     .goal-actions{display:grid; grid-template-columns:1fr;}
     .calc-options{display:grid; grid-template-columns:1fr;}
     .inline-check{width:100%; align-items:flex-start;}
@@ -1023,7 +1025,7 @@
 <link rel="stylesheet" href="assets/maple-official-theme.css?v=20261122-1">
 <link rel="stylesheet" href="assets/home-characters.css?v=20261119-1">
 <link rel="stylesheet" href="assets/disclosure-motion.css?v=20261111-1">
-<link rel="stylesheet" href="assets/theme-mode.css?v=20261122-ledger">
+<link rel="stylesheet" href="assets/theme-mode.css?v=20261125-contrast">
 <link rel="stylesheet" href="assets/public-boss-demo.css?v=20261124-1">
 <link rel="stylesheet" href="assets/boss-settlement-entry.css?v=20261124-1">
 <link rel="stylesheet" href="assets/service-notice.css?v=20261119-1">
@@ -1322,7 +1324,7 @@
       <li><b>추가 부수입</b>은 코어 젬스톤, 장비 판매, 기타 판매 수익처럼 재획과 함께 잡고 싶은 수익을 자유롭게 입력하는 칸입니다.</li>
       <li><b>솔 에르다 조각</b>은 개수로 저장됩니다. 기록을 저장한 회차의 단가·판매 수수료·수익 반영 여부가 함께 고정되어, 다른 날짜의 설정이나 이후 시세가 과거 기록을 바꾸지 않습니다.</li>
     </ul>
-    <div class="guide-note">그 회차에 조각을 판매한 경우에만 재획 입력 영역의 “이 회차 조각 판매 수익 반영”을 체크하세요.</div>
+    <div class="guide-note">그 회차에 주운 조각을 바로 팔았다면 ‘이 회차의 사냥 조각은 이미 판매함’을 체크하세요. 재획 메소로 따로 산 조각은 ‘메소로 구매한 조각 입력’에 수량과 총 구매 금액을 적고, 나중에 팔 때 ‘정산’에서 판매가를 입력하세요.</div>
   </div>
 
   <div class="card">
@@ -1553,25 +1555,33 @@
         <div class="hint" id="extra-hint"></div>
       </div>
       <div>
-        <label for="in-erda"><img class="icon-sm" id="i-orb1" alt="">솔 에르다 조각 (개)</label>
+        <label for="in-erda"><img class="icon-sm" id="i-orb1" alt="">사냥으로 얻은 조각 (개)</label>
         <input type="number" id="in-erda" placeholder="예: 12" min="0" style="width:150px;">
       </div>
       <div style="flex:1; min-width:250px;">
         <label>조각 판매 수익</label>
-        <label class="inline-check"><input type="checkbox" id="in-erda-include-meso"><span>이 회차 조각 판매 수익 반영</span></label>
-      </div>
-      <div>
-        <button id="btn-save">기록 저장</button>
+        <label class="inline-check"><input type="checkbox" id="in-erda-include-meso"><span>이 회차의 사냥 조각은 이미 판매함</span></label>
+        <div class="muted">체크하면 정산 카드의 단가와 수수료로 이 회차 수입에 반영합니다.</div>
       </div>
     </div>
+    <details id="hunt-erda-purchase-fields">
+      <summary>메소로 구매한 조각 입력</summary>
+      <div class="row">
+        <div><label for="in-erda-purchased">구매한 조각 (개)</label><input type="number" id="in-erda-purchased" min="0" step="1" inputmode="numeric" placeholder="예: 10"></div>
+        <div><label for="in-erda-purchase-cost">총 구매 금액 (메소)</label><input type="text" id="in-erda-purchase-cost" inputmode="numeric" autocomplete="off" placeholder="예: 30,000,000"></div>
+      </div>
+      <p class="muted">구매에 쓴 메소는 이번 회차 수익에서 차감하고, 구매한 조각은 정산할 때까지 보관합니다.</p>
+    </details>
+    <button id="btn-save">기록 저장</button>
     <div class="muted" style="margin-top:8px;">같은 날짜에도 재획 회차를 계속 추가할 수 있습니다. 하루 합계와 회차별 수익을 함께 확인할 수 있습니다.</div>
   </div>
 
   <div class="card calc-card">
-    <h2>🧮 솔 에르다 조각 계산기</h2>
+    <h2>💠 솔 에르다 조각 정산</h2>
+    <p class="muted">모아 둔 사냥 조각과 구매한 조각을 함께 판매합니다. 판매 단가를 입력하면 수수료를 뺀 금액이 판매일 수입에 기록됩니다.</p>
     <div class="calc-controls">
       <div>
-        <label for="in-erda-price"><img class="icon-sm" id="i-orb-calc" alt="">조각 1개 가격</label>
+        <label for="in-erda-price"><img class="icon-sm" id="i-orb-calc" alt="">조각 1개 판매 단가 (메소)</label>
         <input type="text" id="in-erda-price" placeholder="예: 3,000,000" inputmode="numeric" autocomplete="off">
       </div>
       <div>
@@ -1582,33 +1592,25 @@
           <option value="0">0%</option>
         </select>
       </div>
-      <div class="muted">직접 입력한 단가에서 수수료를 제외한 실수령 기준으로 조각 수를 메소 가치로 환산합니다.</div>
-    </div>
-    <div class="calc-options">
-      <div class="guide-note">조각 판매 수익 반영 여부는 위 재획 입력에서 회차별로 선택하고 저장합니다.</div>
-    </div>
-    <div class="calc-result" id="erda-price-result"></div>
-  </div>
-
-  <div class="card">
-    <h2>💠 솔 에르다 조각 판매 정산</h2>
-    <div class="erda-settlement-grid">
       <div>
         <label for="in-erda-settlement-date">판매 날짜</label>
         <input type="text" id="in-erda-settlement-date" placeholder="예: 2026-07-15" inputmode="numeric" autocomplete="off">
       </div>
-      <div>
+    </div>
+    <details id="erda-settlement-range">
+      <summary>일부 기간만 정산</summary>
+      <div class="row"><div>
         <label for="in-erda-settlement-start">정산 시작일</label>
-        <input type="text" id="in-erda-settlement-start" placeholder="예: 2026-07-01" inputmode="numeric" autocomplete="off">
+        <input type="text" id="in-erda-settlement-start" placeholder="처음부터" inputmode="numeric" autocomplete="off">
       </div>
       <div>
         <label for="in-erda-settlement-end">정산 종료일</label>
-        <input type="text" id="in-erda-settlement-end" placeholder="예: 2026-07-15" inputmode="numeric" autocomplete="off">
-      </div>
-      <div><button id="btn-erda-settle" type="button">선택 기간 정산 추가</button></div>
-    </div>
-    <div class="muted" style="margin-top:8px;">위 계산기의 조각 단가와 판매 수수료로, 아직 정산하지 않은 조각만 판매일의 별도 수입으로 추가합니다. 정산 완료한 조각은 보유 조각 환산에서 제외되어 이중으로 반영되지 않습니다.</div>
+        <input type="text" id="in-erda-settlement-end" placeholder="판매일까지" inputmode="numeric" autocomplete="off">
+      </div></div>
+    </details>
     <div class="settlement-preview" id="erda-settlement-preview"></div>
+    <button id="btn-erda-settle" type="button" disabled>정산</button>
+    <details><summary>기간별 조각 수집 내역</summary><div class="calc-result" id="erda-price-result"></div></details>
   </div>
 
   <div class="card">
@@ -4630,7 +4632,9 @@ function normalizeErdaSettlementSources(value){
     const date=normalizeDateInput(o.date);
     const id=String(o.id || '').trim();
     const count=Math.max(0,Math.floor(Number(o.count)||0));
-    return date && id && count ? {date,id,count} : null;
+    const purchasedCount=Math.min(count,Math.max(0,Math.floor(Number(o.purchasedCount)||0)));
+    return date && id && Number.isSafeInteger(count) && count>0
+      ? {date,id,count,...(purchasedCount ? {purchasedCount} : {})} : null;
   }).filter(Boolean) : [];
 }
 function normalizeHuntRunValue(value, fallback=1){
@@ -4664,6 +4668,7 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
   const runs=kind==='hunt' ? normalizeHuntRunValue(o.runs ?? o.huntCount ?? o.runCount ?? 1) : 0;
   const erda=Math.max(0,Math.floor(Number(o.erda)||0));
   const erdaSettled=Math.max(0,Math.min(erda,Math.floor(Number(o.erdaSettled)||0)));
+  const erdaPurchased=kind==='hunt' && Number.isSafeInteger(Number(o.erdaPurchased)) ? Math.max(0,Number(o.erdaPurchased)) : 0;
   const createdAt=String(o.createdAt || o.timestamp || Date.now());
   const idPrefix=kind==='erda-settlement' ? 'settlement' : (kind==='recovery-adjustment' ? 'recovery' : 'hunt');
   const defaultLabel=kind==='erda-settlement'
@@ -4677,6 +4682,9 @@ function normalizeHuntSession(value, fallbackSettings=db.settings, index=0){
     meso:mesoValueFromDigits(o.meso),
     erda,
     erdaSettled,
+    erdaPurchased,
+    erdaPurchaseCost:erdaPurchased ? mesoValueFromDigits(o.erdaPurchaseCost) : 0,
+    erdaPurchasedSettled:Math.max(0,Math.min(erdaPurchased,Math.floor(Number(o.erdaPurchasedSettled)||0))),
     erdaUnitPrice:mesoValueFromDigits(hasErdaPrice ? o.erdaUnitPrice : defaults.erdaPrice),
     erdaFee:validDropFee(hasErdaFee ? o.erdaFee : defaults.erdaFee),
     erdaMesoIncluded:kind==='hunt' && (hasErdaMesoIncluded ? !!o.erdaMesoIncluded : (hasLegacyErdaIncluded ? !!o.includeErdaMeso : !!defaults.includeErdaMeso)),
@@ -4767,7 +4775,10 @@ function huntRecoveryHash(value){
 }
 function huntSessionFingerprint(date,session){
   const s=normalizeHuntSession(session);
-  return [normalizeDateInput(date)||date,s.kind,formatHuntRuns(s.runs),s.label,s.meso,s.erda,s.erdaSettled,s.erdaUnitPrice,s.erdaFee,s.erdaMesoIncluded,s.extraIncome,s.charName,s.settlementFrom,s.settlementTo,JSON.stringify(s.settlementSources)].join('|');
+  const fields=[normalizeDateInput(date)||date,s.kind,formatHuntRuns(s.runs),s.label,s.meso,s.erda,s.erdaSettled,s.erdaUnitPrice,s.erdaFee,s.erdaMesoIncluded,s.extraIncome,s.charName,s.settlementFrom,s.settlementTo,JSON.stringify(s.settlementSources)];
+  // 구매 내역이 없는 예전 장부는 복구용 식별값도 그대로 유지합니다.
+  if(s.erdaPurchased) fields.push(s.erdaPurchased,s.erdaPurchaseCost,s.erdaPurchasedSettled);
+  return fields.join('|');
 }
 function huntRecordEntries(source){
   const raw=ensureObj(source), records=ensureObj(raw.records), settings=normalizeSettings(Object.assign({},ensureObj(raw.settings)));
@@ -5593,7 +5604,7 @@ function maybeCreateMonthlyBackup(){
   db.backupSnapshots=normalizeBackupSnapshots(db.backupSnapshots);
   return true;
 }
-function save(){
+function save({journalAfterStorage=false}={}){
   window.MapleAccountSync?.beforeSave();
   if(globalThis.MaplePlannerState){
     const stored=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
@@ -5601,11 +5612,12 @@ function save(){
   }
   preserveWeeklyDropsBeforeWrite(db);
   preserveHuntRecordsBeforeWrite(db);
-  storeHuntJournalFromSource(db);
+  if(!journalAfterStorage) storeHuntJournalFromSource(db);
   maybeCreateMonthlyBackup();
   db.huntTombstones=normalizeHuntTombstones(db.huntTombstones);
   db.updatedAt=Date.now();
   localStorage.setItem(LS_KEY,JSON.stringify(db));
+  if(journalAfterStorage) storeHuntJournalFromSource(db);
   window.MapleAccountSync?.changed();
   queueCloudSync();
   queueCommunityStats();
@@ -5668,6 +5680,7 @@ function fmt(n){
 function formatDigits(digits){ return fmt(onlyDigits(digits)); }
 function korMeso(value){
   let n = toMesoBig(value);
+  if(n<0n) return '-'+korMeso(-n);
   if(n === 0n) return '0 메소';
   const units = ['', '만', '억', '조', '경', '해', '자', '양', '구', '간', '정'];
   const parts = [];
@@ -5682,6 +5695,7 @@ function korMeso(value){
 }
 function korShort(value){ /* 짧은 표기: 억/만 */
   const n = toMesoBig(value);
+  if(n<0n) return '-'+korShort(-n);
   if(n >= 1000000000000n) return korMeso(n).replace(' 메소','');
   const eok = n / 100000000n;
   const man = (n % 100000000n) / 10000n;
@@ -6191,6 +6205,9 @@ const dailyBossDate=document.getElementById('dailyboss-date');
 const inErdaPrice=document.getElementById('in-erda-price');
 const erdaFeeSelect=document.getElementById('erda-fee');
 const inErdaIncludeMeso=document.getElementById('in-erda-include-meso');
+const inErdaPurchased=document.getElementById('in-erda-purchased');
+const inErdaPurchaseCost=document.getElementById('in-erda-purchase-cost');
+const huntErdaPurchaseFields=document.getElementById('hunt-erda-purchase-fields');
 const erdaSettlementDate=document.getElementById('in-erda-settlement-date');
 const erdaSettlementStart=document.getElementById('in-erda-settlement-start');
 const erdaSettlementEnd=document.getElementById('in-erda-settlement-end');
@@ -6200,14 +6217,14 @@ const goalResetBtn=document.getElementById('goal-reset');
 function erdaUnitPrice(){ return toMesoBig(db.settings.erdaPrice||0); }
 function erdaFee(){ return validDropFee(db.settings.erdaFee); }
 function unsettledErdaForSession(session){
-  const s=normalizeHuntSession(session);
-  return Math.max(0,Number(s.erda||0)-Number(s.erdaSettled||0));
+  const dropped=session.erdaMesoIncluded ? 0 : session.erda-session.erdaSettled;
+  return dropped+session.erdaPurchased-session.erdaPurchasedSettled;
 }
 function erdaMesoValueForSession(session){
   const s=normalizeHuntSession(session);
   const price=toMesoBig(s.erdaUnitPrice);
   if(price<=0n) return 0n;
-  return feeNet(price*BigInt(unsettledErdaForSession(s)),validDropFee(s.erdaFee));
+  return feeNet(price*BigInt(s.erda-s.erdaSettled),validDropFee(s.erdaFee));
 }
 function erdaMesoValueForRecord(r){
   const nr=normalizeRecord(r);
@@ -6222,7 +6239,7 @@ function erdaMesoForSessionDisplay(session){
 }
 function huntSessionMesoTotal(session){
   const s=normalizeHuntSession(session);
-  return toMesoBig(s.meso)+toMesoBig(s.extraIncome)+(s.erdaMesoIncluded ? erdaMesoValueForSession(s) : 0n);
+  return toMesoBig(s.meso)+toMesoBig(s.extraIncome)-toMesoBig(s.erdaPurchaseCost)+(s.erdaMesoIncluded ? erdaMesoValueForSession(s) : 0n);
 }
 function recordMesoTotal(r){
   const nr=normalizeRecord(r);
@@ -6274,6 +6291,9 @@ function resetHuntEntryForm(){
   if(inMeso) inMeso.value='';
   if(inExtra) inExtra.value='';
   if(inErda) inErda.value='';
+  inErdaPurchased.value='';
+  inErdaPurchaseCost.value='';
+  huntErdaPurchaseFields.open=false;
   if(inErdaIncludeMeso) inErdaIncludeMeso.checked=false;
   const mesoHint=document.getElementById('meso-hint');
   const extraHint=document.getElementById('extra-hint');
@@ -6294,11 +6314,15 @@ function beginHuntSessionEdit(date,id){
   setHuntMesoInput(inMeso,'meso-hint',s.meso);
   setHuntMesoInput(inExtra,'extra-hint',s.extraIncome);
   if(inErda) inErda.value=s.erda ? String(s.erda) : '';
+  inErdaPurchased.value=s.erdaPurchased ? String(s.erdaPurchased) : '';
+  inErdaPurchaseCost.value=s.erdaPurchased ? fmt(s.erdaPurchaseCost) : '';
+  huntErdaPurchaseFields.open=Boolean(s.erdaPurchased);
   if(inErdaIncludeMeso) inErdaIncludeMeso.checked=!!s.erdaMesoIncluded;
   updateHuntEditState();
   inDate?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function saveHuntEntry(){
+  if(!huntLedgerIsCurrent()) return;
   const rawDate=inDate.value.trim();
   const date=normalizeDateInput(rawDate);
   if(!rawDate){ alert('날짜를 입력해 주세요.'); return; }
@@ -6307,7 +6331,15 @@ function saveHuntEntry(){
   if(date>todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
   const meso=mesoValueFromDigits(onlyDigits(inMeso.value));
   const extraIncome=mesoValueFromDigits(onlyDigits(inExtra ? inExtra.value : ''));
-  const erda=Math.max(0,Math.floor(Number(inErda.value)||0));
+  const erda=Number(inErda.value);
+  const erdaPurchased=Number(inErdaPurchased.value);
+  const erdaPurchaseCost=mesoValueFromDigits(inErdaPurchaseCost.value);
+  if(inErda.validity.badInput || inErdaPurchased.validity.badInput || !Number.isSafeInteger(erda+erdaPurchased) || !Number.isSafeInteger(erda) || !Number.isSafeInteger(erdaPurchased) || erda<0 || erdaPurchased<0){
+    alert('조각 수는 0 이상의 정수로 입력해 주세요.'); return;
+  }
+  if(!/^[\d,]*$/.test(inErdaPurchaseCost.value.trim()) || (erdaPurchased>0)!==(toMesoBig(erdaPurchaseCost)>0n)){
+    alert('구매한 조각 수와 총 구매 금액을 함께 입력해 주세요.'); return;
+  }
   const rawRuns=Number(inHuntRuns ? inHuntRuns.value : 1);
   if(!Number.isFinite(rawRuns) || rawRuns<0.5 || Math.abs(rawRuns*2-Math.round(rawRuns*2))>1e-9){
     alert('재획 횟수는 0.5 단위로 입력해 주세요.');
@@ -6321,6 +6353,8 @@ function saveHuntEntry(){
     meso,
     extraIncome,
     erda,
+    erdaPurchased,
+    erdaPurchaseCost,
     erdaMesoIncluded:!!(inErdaIncludeMeso && inErdaIncludeMeso.checked),
     charName:(inHuntChar ? inHuntChar.value : '').trim()
   };
@@ -6330,11 +6364,15 @@ function saveHuntEntry(){
     const oldIndex=oldSessions.findIndex(session=>session.id===huntEditTarget.id);
     if(oldIndex<0){ alert('수정할 재획 기록을 찾을 수 없습니다.'); resetHuntEntryForm(); return; }
     const previous=normalizeHuntSession(oldSessions[oldIndex]);
-    if(previous.erdaSettled>erda){
+    const useCurrentPrice=payload.erdaMesoIncluded && (!previous.erdaMesoIncluded || toMesoBig(previous.erdaUnitPrice)===0n);
+    if(useCurrentPrice && erda>0 && erdaUnitPrice()<=0n){
+      alert('바로 판매한 조각은 정산 카드에 판매 단가를 입력해 주세요.'); return;
+    }
+    if(previous.erdaSettled>erda || previous.erdaPurchasedSettled>erdaPurchased){
       alert('이미 판매 정산된 솔 에르다 조각보다 적게 수정할 수 없습니다. 정산 기록을 먼저 삭제해 주세요.');
       return;
     }
-    if(oldDate!==date && previous.erdaSettled>0){
+    if(oldDate!==date && (previous.erdaSettled>0 || previous.erdaPurchasedSettled>0)){
       alert('판매 정산된 솔 에르다 조각이 있어 날짜는 변경할 수 없습니다. 날짜를 유지하거나 정산 기록을 먼저 삭제해 주세요.');
       return;
     }
@@ -6344,8 +6382,8 @@ function saveHuntEntry(){
       createdAt:previous.createdAt,
       updatedAt:Date.now(),
       erdaSettled:previous.erdaSettled,
-      erdaUnitPrice:previous.erdaUnitPrice,
-      erdaFee:previous.erdaFee
+      erdaUnitPrice:useCurrentPrice ? erdaUnitPrice().toString() : previous.erdaUnitPrice,
+      erdaFee:useCurrentPrice ? erdaFee() : previous.erdaFee
     }),db.settings,oldIndex);
     oldSessions.splice(oldIndex,1);
     if(oldDate===date){
@@ -6358,6 +6396,9 @@ function saveHuntEntry(){
       writeHuntSessions(date,nextSessions);
     }
   } else {
+    if(payload.erdaMesoIncluded && erda>0 && erdaUnitPrice()<=0n){
+      alert('바로 판매한 조각은 정산 카드에 판매 단가를 입력해 주세요.'); return;
+    }
     appendHuntSession(date,Object.assign(payload,{
       erdaUnitPrice:mesoValueFromDigits(db.settings.erdaPrice||0),
       erdaFee:erdaFee()
@@ -6370,102 +6411,119 @@ function saveHuntEntry(){
   renderAll();
 }
 document.getElementById('btn-cancel-hunt-edit')?.addEventListener('click',resetHuntEntryForm);
-function restoreErdaSettlement(session){
-  const s=normalizeHuntSession(session);
-  if(s.kind!=='erda-settlement') return;
-  s.settlementSources.forEach(source=>{
-    const sessions=huntSessionsForDate(source.date);
-    const target=sessions.find(item=>item.id===source.id);
-    if(!target) return;
-    target.erdaSettled=Math.max(0,Math.min(Number(target.erda)||0,Number(target.erdaSettled||0)-source.count));
-    writeHuntSessions(source.date,sessions);
-  });
+function applyErdaSettlementSources(sources,direction){
+  const byDate=new Map();
+  for(const source of sources){
+    if(!byDate.has(source.date)) byDate.set(source.date,new Map());
+    byDate.get(source.date).set(source.id,source);
+  }
+  for(const [date,changes] of byDate){
+    const sessions=huntSessionsForDate(date);
+    sessions.forEach(target=>{
+      const source=changes.get(target.id);
+      if(!source) return;
+      const purchased=source.purchasedCount||0;
+      target.erdaSettled=Math.max(0,target.erdaSettled+direction*(source.count-purchased));
+      target.erdaPurchasedSettled=Math.max(0,target.erdaPurchasedSettled+direction*purchased);
+      target.updatedAt=Date.now();
+    });
+    writeHuntSessions(date,sessions);
+  }
 }
 function deleteHuntSession(date,id){
+  if(!huntLedgerIsCurrent()) return false;
   const sessions=huntSessionsForDate(date);
   const target=sessions.find(session=>session.id===id);
-  if(!target) return;
-  restoreErdaSettlement(target);
+  if(!target) return false;
+  if(target.erdaSettled || target.erdaPurchasedSettled){
+    alert('정산한 조각이 있습니다. 해당 판매일의 정산 기록을 먼저 삭제해 주세요.'); return false;
+  }
+  applyErdaSettlementSources(target.settlementSources,-1);
   addHuntTombstone(target,date);
-  writeHuntSessions(date,sessions.filter(session=>session.id!==id));
+  writeHuntSessions(date,huntSessionsForDate(date).filter(session=>session.id!==id));
+  return true;
 }
 function deleteHuntDate(date){
-  huntSessionsForDate(date).forEach(session=>{
-    restoreErdaSettlement(session);
+  if(!huntLedgerIsCurrent()) return false;
+  const sessions=huntSessionsForDate(date);
+  const sameDaySources=sessions.flatMap(session=>session.settlementSources).filter(source=>source.date===date);
+  if(sessions.some(session=>session.erdaSettled+session.erdaPurchasedSettled>sameDaySources.reduce((sum,source)=>sum+(source.id===session.id ? source.count : 0),0))){
+    alert('다른 날짜에 정산한 조각이 있습니다. 해당 판매일의 정산 기록을 먼저 삭제해 주세요.'); return false;
+  }
+  sessions.forEach(session=>{
+    applyErdaSettlementSources(session.settlementSources,-1);
     addHuntTombstone(session,date);
   });
   delete db.records[date];
+  return true;
 }
-function availableErdaSources(start='2000-01-01',end=todayStr()){
+function availableErdaSources(start='',end=todayStr()){
   const sources=[];
   Object.keys(db.records).sort().forEach(date=>{
     if(date<start || date>end) return;
     huntSessionsForDate(date).forEach(session=>{
       if(session.kind==='erda-settlement') return;
       const count=unsettledErdaForSession(session);
-      if(count>0) sources.push({date,id:session.id,count});
+      if(count>0) sources.push({date,id:session.id,count,purchasedCount:session.erdaPurchased-session.erdaPurchasedSettled});
     });
   });
   return sources;
 }
-function earliestUnsettledErdaDate(){
-  const first=availableErdaSources('2000-01-01',todayStr())[0];
-  return first ? first.date : todayStr();
-}
-function settlementInputDate(input, fallback){
-  return normalizeDateInput(input && input.value) || fallback;
-}
 function renderErdaSettlement(){
   const preview=document.getElementById('erda-settlement-preview');
   if(!preview || !erdaSettlementDate || !erdaSettlementStart || !erdaSettlementEnd) return;
-  const today=todayStr();
-  const start=settlementInputDate(erdaSettlementStart,earliestUnsettledErdaDate());
-  const end=settlementInputDate(erdaSettlementEnd,today);
+  const dates=normalizeSettlementInputs();
   const price=erdaUnitPrice();
   const fee=erdaFee();
-  if(start>end){
-    preview.innerHTML='<div class="pill">정산 기간<b>시작일이 종료일보다 늦습니다.</b></div>';
+  erdaSettlementBtn.disabled=true;
+  if(dates.error){
+    preview.textContent=dates.error;
     return;
   }
-  const sources=availableErdaSources(start,end);
-  const count=sources.reduce((sum,source)=>sum+source.count,0);
-  const payout=feeNet(price*BigInt(count),fee);
+  const sources=availableErdaSources(dates.start,dates.end);
+  const count=sources.reduce((sum,source)=>sum+BigInt(source.count),0n);
+  const payout=feeNet(price*count,fee);
+  const purchased=sources.reduce((sum,source)=>sum+BigInt(source.purchasedCount),0n);
+  erdaSettlementBtn.disabled=!count || price<=0n;
   preview.innerHTML=
-    '<div class="pill">정산 대상 조각<b>'+fmt(count)+'개</b></div>'+
-    '<div class="pill">예상 실수령<b>'+(price>0n ? korMeso(payout) : '조각 단가를 입력하세요')+'</b></div>'+
-    '<div class="pill">적용 기간<b>'+fmtShort(start)+'~'+fmtShort(end)+' · '+fee+'% 수수료</b></div>';
+    '<div class="pill">미정산 조각<b>'+fmt(count)+'개</b><span class="muted">사냥 '+fmt(count-purchased)+'개 · 구매 '+fmt(purchased)+'개</span></div>'+
+    '<div class="pill">예상 실수령<b>'+(price>0n ? korMeso(payout) : '판매 단가를 입력하세요')+'</b></div>';
 }
-function normalizeSettlementInputs(showAlert=true){
+function normalizeSettlementInputs(){
   const today=todayStr();
-  const saleDate=normalizeDateInput(erdaSettlementDate && erdaSettlementDate.value);
-  const start=normalizeDateInput(erdaSettlementStart && erdaSettlementStart.value);
-  const end=normalizeDateInput(erdaSettlementEnd && erdaSettlementEnd.value);
-  if(!saleDate || !start || !end){ if(showAlert) alert('판매 날짜와 정산 기간을 2026-07-06 형식으로 입력하세요.'); return null; }
-  if(saleDate>today || start>today || end>today){ if(showAlert) alert('미래 날짜는 정산할 수 없습니다.'); return null; }
-  if(start>end){ if(showAlert) alert('정산 시작일은 종료일보다 빠르거나 같아야 합니다.'); return null; }
-  erdaSettlementDate.value=saleDate;
-  erdaSettlementStart.value=start;
-  erdaSettlementEnd.value=end;
+  const saleDate=normalizeDateInput(erdaSettlementDate.value);
+  const customRange=document.getElementById('erda-settlement-range').open;
+  const start=customRange ? normalizeDateInput(erdaSettlementStart.value) || '' : '';
+  const end=customRange && erdaSettlementEnd.value.trim() ? normalizeDateInput(erdaSettlementEnd.value) : saleDate;
+  if(!saleDate || !end || (customRange && erdaSettlementStart.value.trim() && !start)) return {error:'날짜를 연도-월-일 형식으로 입력하세요.'};
+  if(saleDate>today) return {error:'미래 날짜는 정산할 수 없습니다.'};
+  if(start>end || end>saleDate) return {error:'정산 기간은 시작일부터 판매일 사이로 지정하세요.'};
   return {saleDate,start,end};
 }
+function huntLedgerIsCurrent(){
+  let stored;
+  try{ stored=JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }
+  catch{ alert('이 기기의 장부를 읽을 수 없습니다. 브라우저 저장소를 확인해 주세요.'); return false; }
+  if((stored.updatedAt||0)===(db.updatedAt||0)) return true;
+  alert('다른 탭에서 장부가 변경되었습니다. 새로고침해서 최근 재획 기록을 확인해 주세요.');
+  return false;
+}
 function addErdaSettlement(){
-  const dates=normalizeSettlementInputs(true);
-  if(!dates) return;
+  if(!huntLedgerIsCurrent()) return;
+  const dates=normalizeSettlementInputs();
+  if(dates.error){ alert(dates.error); return; }
   const price=erdaUnitPrice();
   const fee=erdaFee();
-  if(price<=0n){ alert('위 솔 에르다 조각 계산기에서 조각 1개 가격을 먼저 입력하세요.'); return; }
+  if(price<=0n){ alert('조각 1개 판매 단가를 입력하세요.'); return; }
   const sources=availableErdaSources(dates.start,dates.end);
-  const count=sources.reduce((sum,source)=>sum+source.count,0);
+  const count=sources.reduce((sum,source)=>sum+BigInt(source.count),0n);
   if(!count){ alert('선택한 기간에 아직 정산하지 않은 솔 에르다 조각이 없습니다.'); return; }
-  const payout=feeNet(price*BigInt(count),fee);
-  if(!confirm(fmtShort(dates.start)+'~'+fmtShort(dates.end)+'의 솔 에르다 조각 '+fmt(count)+'개를 '+korMeso(payout)+'로 정산할까요?')) return;
-  sources.forEach(source=>{
-    const sessions=huntSessionsForDate(source.date);
-    const target=sessions.find(session=>session.id===source.id);
-    if(target) target.erdaSettled=Math.min(Number(target.erda)||0,Number(target.erdaSettled||0)+source.count);
-    writeHuntSessions(source.date,sessions);
-  });
-  appendHuntSession(dates.saleDate,{
+  const payout=feeNet(price*count,fee);
+  if(!confirm(dates.saleDate+' 판매분으로 조각 '+fmt(count)+'개를 '+korMeso(payout)+'에 정산할까요?') || !huntLedgerIsCurrent()) return;
+  const previousRecords=db.records, previousUpdatedAt=db.updatedAt, previousBackups=db.backupSnapshots;
+  db.records={...previousRecords};
+  applyErdaSettlementSources(sources,1);
+  const receipt=appendHuntSession(dates.saleDate,{
     kind:'erda-settlement',
     label:'솔 에르다 조각 판매 정산',
     meso:0,
@@ -6473,11 +6531,23 @@ function addErdaSettlement(){
     erda:0,
     erdaUnitPrice:mesoValueFromDigits(price.toString()),
     erdaFee:fee,
-    settlementFrom:dates.start,
+    settlementFrom:dates.start || sources[0].date,
     settlementTo:dates.end,
     settlementSources:sources
   });
-  save();
+  try{
+    save({journalAfterStorage:true});
+  }catch(error){
+    const stored=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    if(!stored.records?.[dates.saleDate]?.sessions?.some(session=>session.id===receipt.id)){
+      db.records=previousRecords;
+      db.updatedAt=previousUpdatedAt;
+      db.backupSnapshots=previousBackups;
+      alert('정산을 저장하지 못했습니다. 브라우저의 저장 공간과 장부 연결 상태를 확인해 주세요.');
+    }else{
+      alert('정산은 이 기기에 저장되었습니다. 계정 동기화 상태를 확인해 주세요.');
+    }
+  }
   renderAll();
 }
 inDate.value = todayStr();
@@ -6486,9 +6556,8 @@ inDate.addEventListener('blur',()=>{
   if(d) inDate.value = d;
 });
 if(erdaSettlementDate && erdaSettlementStart && erdaSettlementEnd){
+  document.getElementById('erda-settlement-range').addEventListener('toggle',renderErdaSettlement);
   erdaSettlementDate.value=todayStr();
-  erdaSettlementStart.value=earliestUnsettledErdaDate();
-  erdaSettlementEnd.value=todayStr();
   [erdaSettlementDate,erdaSettlementStart,erdaSettlementEnd].forEach(input=>{
     input.addEventListener('blur',()=>{
       const d=normalizeDateInput(input.value);
@@ -6498,7 +6567,10 @@ if(erdaSettlementDate && erdaSettlementStart && erdaSettlementEnd){
     input.addEventListener('input',()=>renderErdaSettlement());
   });
 }
-if(erdaSettlementBtn) erdaSettlementBtn.addEventListener('click',addErdaSettlement);
+if(erdaSettlementBtn) erdaSettlementBtn.addEventListener('click',()=>{
+  if(navigator.locks) navigator.locks.request('maple-tracker-erda-settlement',addErdaSettlement);
+  else addErdaSettlement();
+});
 if(dailyBossDate){
   dailyBossDate.value = todayStr();
   dailyBossDate.addEventListener('blur',()=>{
@@ -6516,6 +6588,7 @@ if(dailyBossDate){
 if(inErdaPrice){
   inErdaPrice.value = db.settings.erdaPrice ? formatDigits(db.settings.erdaPrice) : '';
   inErdaPrice.addEventListener('input',()=>{
+    if(!huntLedgerIsCurrent()) return;
     const digits=onlyDigits(inErdaPrice.value);
     inErdaPrice.value = digits ? formatDigits(digits) : '';
     if(digits) db.settings.erdaPrice = mesoValueFromDigits(digits);
@@ -6528,6 +6601,7 @@ if(inErdaPrice){
 if(erdaFeeSelect){
   erdaFeeSelect.value=String(erdaFee());
   erdaFeeSelect.addEventListener('change',()=>{
+    if(!huntLedgerIsCurrent()) return;
     db.settings.erdaFee=validDropFee(erdaFeeSelect.value);
     save();
     renderErdaCalculator();
@@ -6573,37 +6647,6 @@ if(inExtra){
     document.getElementById('extra-hint').textContent = v>0 ? '= '+korMeso(v) : '';
   });
 }
-document.getElementById('btn-save').onclick=()=>{
-  const rawDate = inDate.value.trim();
-  const date=normalizeDateInput(rawDate);
-  if(!rawDate){ alert('날짜를 입력하세요.'); return; }
-  if(!date){ alert('날짜는 2026-07-06 형식으로 입력하세요.'); return; }
-  inDate.value = date;
-  if(date > todayStr()){ alert('미래 날짜는 기록할 수 없습니다.'); return; }
-  const mesoDigits = onlyDigits(inMeso.value);
-  const meso = mesoValueFromDigits(mesoDigits);
-  const extraDigits = inExtra ? onlyDigits(inExtra.value) : '';
-  const extraIncome = mesoValueFromDigits(extraDigits);
-  const erda = Math.max(0, Math.floor(Number(inErda.value)||0));
-  const charName = (inHuntChar ? inHuntChar.value : '').trim();
-  const nextSession=huntSessionsForDate(date).filter(session=>session.kind!=='erda-settlement').length+1;
-  const label=(inSessionLabel ? inSessionLabel.value : '').trim() || nextSession+'재획';
-  appendHuntSession(date,{
-    label,
-    meso,
-    extraIncome,
-    erda,
-    erdaMesoIncluded:!!(inErdaIncludeMeso && inErdaIncludeMeso.checked),
-    charName,
-    erdaUnitPrice:mesoValueFromDigits(db.settings.erdaPrice||0),
-    erdaFee:erdaFee()
-  });
-  save();
-  inMeso.value=''; if(inExtra) inExtra.value=''; inErda.value=''; if(inSessionLabel) inSessionLabel.value='';
-  document.getElementById('meso-hint').textContent='';
-  if(document.getElementById('extra-hint')) document.getElementById('extra-hint').textContent='';
-  renderAll();
-};
 function sortedDates(asc=true){
   const ks=Object.keys(db.records).sort();
   return asc?ks:ks.reverse();
@@ -6625,17 +6668,17 @@ function dailySessionCardHtml(date,session,index){
   const sourceCount=s.settlementSources.reduce((sum,source)=>sum+source.count,0);
   const meso=toMesoBig(s.meso)>0n ? korMeso(s.meso) : '<span class="muted">-</span>';
   const extra=toMesoBig(s.extraIncome)>0n ? korMeso(s.extraIncome) : '<span class="muted">-</span>';
-  const erdaIncomeState=!isSettlement && !isRecovery && s.erda ? (s.erdaMesoIncluded?' · 판매 수익 반영':' · 수익 미반영') : '';
-  const erda=s.erda
-    ? fmt(s.erda)+'개'+(s.erdaSettled?' · 정산 '+fmt(s.erdaSettled)+'개':'')+erdaIncomeState
-    : (isSettlement ? '정산 '+fmt(sourceCount)+'개' : '<span class="muted">-</span>');
+  const purchase=s.erdaPurchased ? '구매 '+fmt(s.erdaPurchased)+'개' : '';
+  const dropped=s.erda ? '사냥 '+fmt(s.erda)+'개'+(s.erdaMesoIncluded ? ' · 판매 반영' : '') : '';
+  const erda=isSettlement ? '정산 '+fmt(sourceCount)+'개<br><small>개당 '+fmt(s.erdaUnitPrice)+' 메소 · 수수료 '+s.erdaFee+'%</small>'
+    : [dropped,purchase].filter(Boolean).join('<br>') || '<span class="muted">-</span>';
   const total=korMeso(huntSessionMesoTotal(s));
   const actions=(isSettlement || isRecovery ? '' : '<button class="record-edit" type="button" data-session-edit="'+esc(s.id)+'" data-date="'+date+'">수정</button>')+
     '<button class="danger" type="button" data-session-delete="'+esc(s.id)+'" data-date="'+date+'">삭제</button>';
   return '<div class="daily-session">'+
     dailySessionFieldHtml(isRecovery?'복구 범위 / 메모':'회차 / 메모',esc(label),isSettlement?'settlement':(isRecovery?'recovery':''))+
     dailySessionFieldHtml('캐릭터',s.charName?esc(s.charName):'<span class="muted">-</span>')+
-    dailySessionFieldHtml('획득 메소',meso+(sessionErdaMeso?'<br><small>조각 판매 +'+korMeso(sessionErdaMeso)+'</small>':''),'meso')+
+    dailySessionFieldHtml('획득 메소',meso+(sessionErdaMeso?'<br><small>조각 판매 +'+korMeso(sessionErdaMeso)+'</small>':'')+(s.erdaPurchased?'<br><small>조각 구매 −'+korMeso(s.erdaPurchaseCost)+'</small>':''),'meso')+
     dailySessionFieldHtml('추가 부수입',extra,'extra')+
     dailySessionFieldHtml('솔 에르다 조각',erda,'erda')+
     dailySessionFieldHtml('회차 합계',total,'total')+
@@ -6731,13 +6774,12 @@ function expBarHistoryHtml(days,latestLevel){
     const rate=expSnapshotRate(snapshot);
     const hasData=!!snapshot && rate!==null;
     const height=hasData ? Math.max(rate>0?4:2,Math.min(100,rate)) : 2;
-    const valueBottom=Math.min(91,Math.max(4,height));
     const level=hasData ? Math.floor(Number(snapshot.level)||0) : 0;
     const levelChanged=hasData && level!==latestLevel;
     const label=hasData ? row.date+' · Lv.'+fmt(level)+' '+expRateLabel(rate) : row.date+' · 기록 없음';
     const tooltipAttrs=' data-exp-tooltip data-exp-date="'+esc(row.date)+'" data-exp-level="'+level+'" data-exp-rate="'+esc(hasData?String(rate):'')+'" data-exp-source="경험치 기록" data-exp-empty="'+(hasData?'0':'1')+'" tabindex="0" aria-label="'+esc(label)+'"';
     return '<div class="exp-bar-column">'+
-      '<span class="exp-bar-value'+(hasData?'':' empty')+'" style="bottom:calc('+valueBottom+'% + 3px)">'+(hasData?expRateLabel(rate):'-')+'</span>'+
+      '<span class="exp-bar-value'+(hasData?'':' empty')+'" style="bottom:calc('+height+'% + 3px)">'+(hasData?expRateLabel(rate):'-')+'</span>'+
       '<span class="exp-bar-fill'+(levelChanged?' level-change':'')+(hasData?'':' empty')+'" style="height:'+height+'%"'+tooltipAttrs+'></span>'+
     '</div>';
   }).join('');
@@ -6772,12 +6814,12 @@ function expLevelHistoryHtml(history){
   const min=Math.max(0,low-(low===high?1:0));
   const max=high+(low===high?1:0);
   const range=Math.max(1,max-min);
-  const svgWidth=600, svgHeight=160;
+  const svgWidth=600, svgHeight=160, pointInset=8;
   const points=series.map((row,index)=>{
-    const x=series.length===1 ? svgWidth/2 : (svgWidth/(series.length-1))*index;
-    const y=svgHeight-((row.level-min)/range)*svgHeight;
+    const x=series.length===1 ? svgWidth/2 : pointInset+(svgWidth-2*pointInset)*index/(series.length-1);
+    const y=svgHeight-pointInset-((row.level-min)/range)*(svgHeight-2*pointInset);
     const label=row.date+' · Lv.'+fmt(row.level)+(row.rate===null?'':' · '+expRateLabel(row.rate));
-    return {x,y,level:row.level,rate:row.rate,kind:row.kind,label};
+    return {x,y,date:row.date,level:row.level,rate:row.rate,kind:row.kind,label};
   });
   const path=points.map((point,index)=>(index?'L ':'M ')+point.x.toFixed(2)+' '+point.y.toFixed(2)).join(' ');
   const dots=points.map((point,index)=>'<circle class="exp-chart-point'+(index?' level-up':'')+'" cx="'+point.x.toFixed(2)+'" cy="'+point.y.toFixed(2)+'" r="5" data-exp-tooltip data-exp-date="'+esc(point.date)+'" data-exp-level="'+point.level+'" data-exp-rate="'+esc(point.rate===null?'':String(point.rate))+'" data-exp-source="'+esc(point.kind)+'" data-exp-empty="0" tabindex="0" role="img" aria-label="'+esc(point.label)+'"></circle>').join('');
@@ -6862,12 +6904,25 @@ function renderRecords(){
   if(!list) return;
   renderHuntRecoveryPanel();
   const asc=sortedDates(true);
+  const records=new Map(asc.map(date=>[date,normalizeRecord(db.records[date])]));
+  const shardChanges=new Map();
+  for(const [date,record] of records){
+    for(const session of record.sessions){
+      shardChanges.set(date,(shardChanges.get(date)||0)+unsettledErdaForSession(session));
+      for(const source of session.settlementSources){
+        if(!records.get(source.date)?.sessions.some(item=>item.id===source.id)) continue;
+        // 과거 일자의 보유량에는 그날 이후 판매한 조각이 아직 포함되어 있습니다.
+        shardChanges.set(source.date,(shardChanges.get(source.date)||0)+source.count);
+        shardChanges.set(date,(shardChanges.get(date)||0)-source.count);
+      }
+    }
+  }
   let cumM=0n, cumE=0;
   const totals={};
   asc.forEach(date=>{
-    const record=normalizeRecord(db.records[date]);
+    const record=records.get(date);
     cumM+=recordMesoTotal(record);
-    cumE+=Number(record.erda)||0;
+    cumE+=shardChanges.get(date)||0;
     totals[date]={meso:cumM,erda:cumE};
   });
   const dates=sortedDates(false);
@@ -6890,6 +6945,7 @@ function renderRecords(){
     const erdaMeso=erdaMesoForRecord(record);
     const extraMeso=toMesoBig(record.extraIncome);
     const hunts=record.sessions.filter(session=>session.kind==='hunt');
+    const purchaseCost=hunts.reduce((sum,session)=>sum+toMesoBig(session.erdaPurchaseCost),0n);
     const huntCount=hunts.length;
     const huntRuns=hunts.reduce((sum,session)=>sum+huntSessionRunCount(session),0);
     const settlementCount=record.sessions.filter(session=>session.kind==='erda-settlement').length;
@@ -6907,10 +6963,10 @@ function renderRecords(){
         '<div class="daily-day-actions"><button class="daily-day-toggle" type="button" data-day-toggle="'+date+'">'+(isCollapsed?'회차 펼치기':'회차 접기')+'</button><button class="danger" type="button" data-day-delete="'+date+'">하루 삭제</button></div>'+
       '</div>'+
       '<div class="daily-day-metrics">'+
-        dailyRecordMetricHtml('획득 메소',korMeso(record.meso),'meso',erdaMeso?'조각 판매 +'+korMeso(erdaMeso):'')+
+        dailyRecordMetricHtml('획득 메소',korMeso(record.meso),'meso',[erdaMeso?'조각 판매 +'+korMeso(erdaMeso):'',purchaseCost?'조각 구매 −'+korMeso(purchaseCost):''].filter(Boolean).join(' · '))+
         dailyRecordMetricHtml('추가 부수입',extraMeso>0n?korMeso(extraMeso):'-','meso')+
-        dailyRecordMetricHtml('솔 에르다 조각',fmt(Number(record.erda)||0)+'개','erda')+
-        dailyRecordMetricHtml('누적 메소',korMeso(totals[date].meso),'', '조각 '+fmt(totals[date].erda)+'개')+
+        dailyRecordMetricHtml('사냥으로 얻은 조각',fmt(Number(record.erda)||0)+'개','erda','구매 '+fmt(hunts.reduce((sum,session)=>sum+session.erdaPurchased,0))+'개')+
+        dailyRecordMetricHtml('누적 메소',korMeso(totals[date].meso),'', '이날 보유 조각 '+fmt(totals[date].erda)+'개')+
       '</div>'+
       '<div class="daily-sessions" '+(isCollapsed?'hidden':'')+'>'+sessions+'</div>'+
     '</section>';
@@ -6927,7 +6983,7 @@ function renderRecords(){
     button.onclick=()=>{
       const date=button.dataset.dayDelete;
       if(confirm(date+'의 모든 재획 회차를 삭제할까요?')){
-        deleteHuntDate(date);
+        if(!deleteHuntDate(date)) return;
         collapsedDailyRecordDates.delete(date);
         save();
         renderAll();
@@ -6940,7 +6996,7 @@ function renderRecords(){
   list.querySelectorAll('[data-session-delete]').forEach(button=>{
     button.onclick=()=>{
       if(confirm('이 재획 회차를 삭제할까요?')){
-        deleteHuntSession(button.dataset.date,button.dataset.sessionDelete);
+        if(!deleteHuntSession(button.dataset.date,button.dataset.sessionDelete)) return;
         save();
         renderAll();
       }
@@ -7077,7 +7133,7 @@ function resolveGoalState(){
     changed=true;
   }
   if(changed) save();
-  const pct=target>0n ? Math.min(100, Number((gp.total*10000n)/target)/100) : 0;
+  const pct=Math.max(0,Math.min(100,Number((gp.total*10000n)/target)/100));
   return {target, progress:gp.total, pct, days:gp.days, start, empty:false, lastReached:db.settings.goalLastReached||''};
 }
 function renderGoalProgress(){
@@ -7150,12 +7206,12 @@ function showMesoTooltip(anchor, evt){
   const el=chartTooltipEl();
   if(!el || !anchor) return;
   el.classList.remove('exp');
-  const meso=anchor.dataset.meso || '0';
+  const meso=BigInt(anchor.dataset.meso || '0');
   const label=anchor.dataset.label || '재획 메소';
   el.innerHTML=
     '<div class="chart-tip-title">'+esc(anchor.dataset.dateLabel || anchor.dataset.date || '')+'</div>'+
-    '<div class="chart-tip-row"><span class="chart-swatch"></span><span>'+esc(label)+'<b>'+fmt(meso)+' 메소</b></span></div>'+
-    '<div class="chart-tip-sub">'+korMeso(meso)+'</div>';
+    '<div class="chart-tip-row'+(meso<0n?' chart-tip-loss':'')+'"><span class="chart-swatch"></span><span>'+esc(label)+'<b>'+fmt(meso)+' 메소</b></span></div>'+
+    '<div class="chart-tip-sub">'+signedKorMeso(meso)+'</div>';
   el.classList.add('show');
   positionMesoTooltip(anchor, evt);
 }
@@ -7190,8 +7246,22 @@ function hideMesoTooltip(){
   if(el) el.classList.remove('show','exp');
 }
 if(typeof window!=='undefined'){
-  window.addEventListener('scroll', hideMesoTooltip, {passive:true});
-  window.addEventListener('resize', hideMesoTooltip);
+  function updateChartTooltipPosition(){
+    const anchor=document.activeElement;
+    if(anchor?.matches('[data-exp-tooltip], .bar[data-meso]') && document.getElementById('chart-float')?.classList.contains('show')){
+      const rect=anchor.getBoundingClientRect();
+      if(rect.height && rect.top<innerHeight && rect.bottom>0){
+        positionMesoTooltip(anchor);
+        return;
+      }
+    }
+    hideMesoTooltip();
+  }
+  window.addEventListener('scroll',updateChartTooltipPosition,{passive:true});
+  window.addEventListener('resize',updateChartTooltipPosition);
+  window.addEventListener('keydown',event=>{
+    if(event.key==='Escape') hideMesoTooltip();
+  });
 }
 function dashboardMonths(){
   const months=new Set([todayStr().slice(0,7)]);
@@ -7409,7 +7479,7 @@ function statsPeriodCardHtml(title,range,row,current,label){
       '<div class="stats-period-metric profit"><span>손익 계산기</span><b class="'+profitClass+'">'+signedKorMeso(row.profit)+'</b></div>'+
       '<div class="stats-period-metric expense"><span>직접 지출</span><b>'+outflowKorMeso(row.expense)+'</b></div>'+
     '</div>'+
-    '<div class="stats-period-footer"><span>획득 아이템 '+lootCellHtml(row.loot)+'</span><span>솔 에르다 <b>'+fmt(row.e)+'개</b></span></div>'+
+    '<div class="stats-period-footer"><span>획득 아이템 '+lootCellHtml(row.loot)+'</span><span>사냥으로 얻은 조각 <b>'+fmt(row.e)+'개</b></span></div>'+
   '</article>';
 }
 function statsPeriodHasActivity(row){
@@ -7475,10 +7545,10 @@ function renderStats(){
   const monthlyDropNow=lootEntryCount(resolvedMonthlyDropEntriesForMonth(mon));
   const mesoLabel=erdaMesoModeLabel();
   const cards=[
-    {t:'이번 주 '+mesoLabel+' ('+fmtShort(wkStart)+'~'+fmtShort(wkEnd)+')', v:korMeso(thisWeek.m), s:thisWeek.days+'일 재획 · 조각 '+fmt(thisWeek.e)+'개', tone:'income'},
-    {t:'이번 달 '+mesoLabel+' ('+mon.replace('-','년 ')+'월)', v:korMeso(thisMonth.m), s:thisMonth.days+'일 재획 · 조각 '+fmt(thisMonth.e)+'개', tone:'income'},
+    {t:'이번 주 '+mesoLabel+' ('+fmtShort(wkStart)+'~'+fmtShort(wkEnd)+')', v:korMeso(thisWeek.m), s:thisWeek.days+'일 재획 · 사냥 조각 '+fmt(thisWeek.e)+'개', tone:'income'},
+    {t:'이번 달 '+mesoLabel+' ('+mon.replace('-','년 ')+'월)', v:korMeso(thisMonth.m), s:thisMonth.days+'일 재획 · 사냥 조각 '+fmt(thisMonth.e)+'개', tone:'income'},
     {t:'전체 누적 '+mesoLabel, v:korMeso(total.m), s:'총 '+total.days+'일 재획', tone:'income'},
-    {t:'전체 누적 솔 에르다 조각', v:fmt(total.e)+'개', s:'', p:true, tone:'boss'},
+    {t:'보유 중인 솔 에르다 조각', v:fmt(availableErdaSources().reduce((sum,source)=>sum+source.count,0))+'개', s:'누적 사냥 드롭 '+fmt(total.e)+'개', p:true, tone:'boss'},
     {t:'이번 주 보스 수익', v:korMeso(bossNow), s:'주간 '+korMeso(bt.week)+' · 일일 '+korMeso(bt.daily)+' · 획득템 '+dropNow+'개 · 월간 보스 제외', tone:'boss'},
     {t:'이번 달 월간 보스 수익', v:korMeso(monthlyBossNow.meso), s:'결정석 '+monthlyBossNow.crystals+'개 · 획득템 '+monthlyDropNow+'개', tone:'boss'},
     {t:'이번 주 직접 지출', v:outflowKorMeso(thisWeekExpense.total), s:'지출 기록 '+thisWeekExpense.count+'건', tone:'expense', valueClass:'bad'},
@@ -7509,23 +7579,30 @@ function renderStats(){
   const days=[]; for(let i=13;i>=0;i--) days.push(addDays(today,-i));
   const vals=days.map(d=>db.records[d]?recordMesoTotal(normalizeRecord(db.records[d])):0n);
   const max=vals.reduce((mx,v)=>v>mx?v:mx,0n);
-  const step=niceMesoStep(max);
-  const axisTop=step*3n;
+  const min=vals.reduce((mn,v)=>v<mn?v:mn,0n);
+  const step=niceMesoStep(max>-min?max:-min);
+  const below=(-min+step-1n)/step;
+  const above=min===0n?3n:(max+step-1n)/step;
+  const span=(above+below)*step;
+  const percent=value=>Number(value*10000n/span)/100;
+  const zero=percent(below*step);
   const axis=document.createElement('div'); axis.className='chart-axis';
   const plot=document.createElement('div'); plot.className='chart-plot';
   const bars=document.createElement('div'); bars.className='chart-bars';
   const labels=document.createElement('div'); labels.className='chart-labels';
-  [1n,2n,3n].forEach(i=>{
-    const pct=Number((step*i*100n)/axisTop);
-    const tick=document.createElement('div'); tick.className='axis-tick'; tick.style.bottom=pct+'%'; tick.textContent=korShort(step*i);
-    const line=document.createElement('div'); line.className='chart-grid-line'; line.style.bottom=pct+'%';
+  for(let i=-below;i<=above;i++){
+    const pct=percent((i+below)*step);
+    const tick=document.createElement('div'); tick.className='axis-tick'; tick.style.bottom=pct+'%'; tick.textContent=i<0n?'−'+korShort(-step*i):korShort(step*i);
+    const line=document.createElement('div'); line.className='chart-grid-line'+(i===0n?' zero-line':''); line.style.bottom=pct+'%';
     axis.appendChild(tick); plot.appendChild(line);
-  });
+  }
   days.forEach((d,idx)=>{
     const v=vals[idx];
     const col=document.createElement('div'); col.className='bar-col';
-    const bar=document.createElement('div'); bar.className='bar'+(v===0n?' empty':'');
-    bar.style.height=Number((v*100n)/axisTop)+'%';
+    const bar=document.createElement('div'); bar.className='bar'+(v===0n?' empty':v<0n?' loss':'');
+    bar.style.height=percent(v<0n?-v:v)+'%';
+    if(v<0n || zero===100) bar.style.top=(100-zero)+'%';
+    else bar.style.bottom=zero+'%';
     bar.dataset.date=d;
     bar.dataset.dateLabel=chartDateLabel(d);
     bar.dataset.label=mesoLabel;
@@ -7787,7 +7864,7 @@ function missingErdaPrices(){
   Object.keys(ensureObj(db.records)).forEach(date=>{
     const missing=normalizeRecord(db.records[date]).sessions.some(session=>{
       const item=normalizeHuntSession(session);
-      return item.kind==='hunt' && item.erdaMesoIncluded && unsettledErdaForSession(item)>0 && toMesoBig(item.erdaUnitPrice)<=0n;
+      return item.kind==='hunt' && item.erdaMesoIncluded && item.erda>item.erdaSettled && toMesoBig(item.erdaUnitPrice)<=0n;
     });
     if(missing) dates.push(date);
   });
@@ -7902,7 +7979,7 @@ function renderHome(){
     '<div class="report-metric"><span>손익 계산기</span><b class="'+(report.profit.net<0n?'bad':'good')+'">'+signedKorMeso(report.profit.net)+'</b></div>'+
     '<div class="report-metric"><span>직접 지출</span><b class="bad">'+outflowKorMeso(report.expenses.total)+'</b></div>'+
     '<div class="report-metric"><span>순수익</span><b class="'+(report.net<0n?'bad':'good')+'">'+signedKorMeso(report.net)+'</b></div>'+
-    '</div><div class="monthly-report-note">재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개 · 조각 '+fmt(report.hunt.e)+'개</div>';
+    '</div><div class="monthly-report-note">재획 '+report.hunt.days+'일 · 결정석 '+report.bossCrystals+'개 · 획득 아이템 '+lootEntryCount(report.loot)+'개 · 사냥 조각 '+fmt(report.hunt.e)+'개</div>';
   document.getElementById('home-report-copy').onclick=()=>copyDashboardText(monthlyReportText(report));
   document.getElementById('home-report-image').onclick=()=>downloadMonthlyReportImage(report);
 
@@ -7943,10 +8020,8 @@ function renderErdaCalculator(){
   const el=document.getElementById('erda-price-result');
   if(!el) return;
   const today=todayStr(), wkStart=mapleWeekStart(today), mon=today.slice(0,7);
-  const price=toMesoBig(db.settings.erdaPrice||0);
-  const fee=erdaFee();
   const valueRange=predicate=>{
-    let count=0, available=0, included=0, meso=0n;
+    let count=0, purchased=0, available=0;
     for(const d in db.records){
       if(!predicate(d)) continue;
       const record=normalizeRecord(db.records[d]);
@@ -7955,24 +8030,14 @@ function renderErdaCalculator(){
         count+=Number(session.erda)||0;
         const unsettled=unsettledErdaForSession(session);
         available+=unsettled;
-        if(session.erdaMesoIncluded) included+=unsettled;
+        purchased+=session.erdaPurchased;
       });
-      meso+=erdaMesoValueForRecord(record);
     }
-    return {count,available,included,meso};
+    return {count,purchased,available};
   };
   const total=valueRange(()=>true), week=valueRange(d=>mapleWeekStart(d)===wkStart), month=valueRange(d=>d.slice(0,7)===mon);
-  const rangePill=(label,range)=>'<div class="pill">'+label+' 수집 '+fmt(range.count)+'개<b>'+korMeso(range.meso)+'</b><span class="muted">판매 수익 반영 '+fmt(range.included)+'개 · 미정산 '+fmt(range.available)+'개</span></div>';
-  const currentPricePills=price>0n
-    ? '<div class="pill">조각 1개 가격<b>'+fmt(price)+' 메소</b></div><div class="pill">조각 1개 실수령<b>'+fmt(feeNet(price,fee))+' 메소 ('+fee+'% 수수료 후)</b></div>'
-    : '<div class="pill">현재 조각 단가를 입력하면 새 재획 기록에 적용됩니다.</div>';
-  el.innerHTML=
-    currentPricePills+
-    '<div class="pill">합계 반영 방식<b>재획 회차별로 저장</b></div>'+
-    rangePill('이번 주',week)+
-    rangePill('이번 달',month)+
-    rangePill('전체',total)+
-    '<div class="muted">체크한 회차의 조각만 그 날짜 수익에 반영됩니다. 조각을 모아서 판매했다면 아래 정산으로 실제 판매액을 별도 수입으로 기록하세요.</div>';
+  const rangePill=(label,range)=>'<div class="pill">'+label+' 수집·구매<b>현재 보유 '+fmt(range.available)+'개</b><span class="muted">사냥 '+fmt(range.count)+'개 · 구매 '+fmt(range.purchased)+'개</span></div>';
+  el.innerHTML=rangePill('이번 주',week)+rangePill('이번 달',month)+rangePill('전체',total);
 }
 
 /* ───────── 손익 계산기 ───────── */
@@ -9049,9 +9114,10 @@ function communityWeekMetrics(){
   let production=0n, activeDays=0;
   Object.keys(db.records).forEach(date=>{
     if(mapleWeekStart(date)!==week) return;
-    const record=normalizeRecord(db.records[date]);
-    if(!record.sessions.some(session=>session.kind!=='erda-settlement')) return;
-    production+=recordMesoTotal(record);
+    const hunts=normalizeRecord(db.records[date]).sessions.filter(session=>session.kind==='hunt');
+    if(!hunts.length) return;
+    // 조각을 사 두거나 나중에 판 날짜가 사냥 생산량을 바꾸지 않도록 한다.
+    for(const session of hunts) production+=huntSessionMesoTotal(session)+toMesoBig(session.erdaPurchaseCost);
     activeDays++;
   });
   return {week,production,activeDays};
@@ -11760,7 +11826,7 @@ window.MapleEnhancementBridge={
 </script>
 <script src="assets/ledger-finance.js?v=20261125-2"></script>
 <script src="assets/ledger-activity.js?v=20261125-2"></script>
-<script src="assets/ledger-planner.js?v=20261125-2"></script>
+<script src="assets/ledger-planner.js?v=20261125-3"></script>
 <dialog id="boss-settlement-dialog" aria-labelledby="boss-settlement-title">
   <header class="boss-settlement-dialog-head">
     <h2 id="boss-settlement-title" tabindex="-1"><svg class="ui-icon" aria-hidden="true"><use href="assets/ui-icons.svg#receipt"></use></svg>보스 드랍 정산</h2>
@@ -11784,7 +11850,7 @@ window.MapleEnhancementBridge={
 <script src="assets/public-boss-demo.js?v=20261124-1"></script>
 <script src="assets/boss-settlement-entry.js?v=20261124-1"></script>
 <script src="assets/play-desk.js?v=20261124-settlement"></script>
-<script src="assets/maple-workspace.js?v=20261119-public"></script>
+<script src="assets/maple-workspace.js?v=20261125-focus"></script>
 <script src="assets/maple-official-theme.js?v=20261122-finder"></script>
 <script src="assets/home-characters.js?v=20261125-2"></script>
 <script src="assets/disclosure-motion.js?v=20261111-1"></script>

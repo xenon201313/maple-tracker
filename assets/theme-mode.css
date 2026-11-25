@@ -149,6 +149,7 @@ html[data-maple-theme=dark] .maple-official-theme .workspace-sidebar .tab.active
 
 /* 반복해서 보는 장부에서 같은 종류의 숫자와 행동에는 같은 색을 사용합니다. */
 .maple-official-theme {
+  --exp-ink: #11636c;
   --ledger-income: #116046;
   --ledger-boss: #584094;
   --ledger-expense: #a02d47;
@@ -159,6 +160,7 @@ html[data-maple-theme=dark] .maple-official-theme .workspace-sidebar .tab.active
   --ledger-current-bg: #ffecd9;
 }
 html[data-maple-theme=dark] .maple-official-theme {
+  --exp-ink: #8fe5e8;
   --ledger-income: #8ae3bd;
   --ledger-boss: #d4bcff;
   --ledger-expense: #ffb2c2;
@@ -230,3 +232,54 @@ html[data-maple-theme=dark] .maple-official-theme {
 #page-daily .daily-day-metric span, #page-daily .daily-day-metric small {font-size:12px;line-height:1.5}
 #page-daily .daily-day-metric b {font-size:15px;line-height:1.5;font-variant-numeric:tabular-nums}
 #page-daily .daily-day-metric.meso b {color:var(--ledger-income)}
+
+/* 숫자는 막대 밖에 놓아 100%에 가까운 날에도 같은 바탕에서 읽힌다. */
+.maple-official-theme .exp-bar-chart {padding-top:19px}
+.maple-official-theme .exp-bar-chart .exp-chart-plot {overflow:visible}
+.maple-official-theme .exp-bar-columns {padding-top:0}
+.maple-official-theme .exp-bar-value {color:var(--exp-ink);font-size:11px;font-variant-numeric:tabular-nums}
+.maple-official-theme .exp-bar-value.empty {color:var(--sub)}
+.maple-official-theme .exp-bar-value,
+.maple-official-theme .exp-level-event-label {background:var(--panel);padding-inline:2px}
+.maple-official-theme .exp-history-head b,
+.maple-official-theme .exp-level-event-label,
+.maple-official-theme .chart-tip-title,
+.maple-official-theme .chart-tip-row,
+.maple-official-theme .daily-day-date {color:var(--text)}
+.maple-official-theme .exp-summary.current b {color:var(--ledger-boss)}
+.maple-official-theme .exp-level-event-label {text-shadow:none}
+.maple-official-theme .exp-history-head span,
+.maple-official-theme .exp-axis-tick,
+.maple-official-theme .exp-chart-labels span {font-size:11px}
+.maple-official-theme .exp-grid-line,
+.maple-official-theme .exp-chart-axis,
+.maple-official-theme .exp-chart-plot {border-color:var(--line)}
+.maple-official-theme .exp-chart-line,
+.maple-official-theme .exp-chart-point {stroke:var(--exp-ink)}
+.maple-official-theme .exp-chart-point.level-up {stroke:var(--gold)}
+.maple-official-theme .chart-float.exp,
+.maple-official-theme .chart-float.exp .chart-swatch {border-color:var(--exp-ink)}
+.maple-official-theme .exp-bar-fill:focus-visible,
+.maple-official-theme .exp-chart-point:focus-visible {outline:2px solid var(--focus);outline-offset:1px}
+
+.maple-official-theme .goal-percent {color:var(--ledger-income)}
+.maple-official-theme .skip-link {color:var(--on-gold)}
+.maple-official-theme .hunt-edit-state {background:var(--panel-soft);color:var(--blue);border-color:var(--border-strong)}
+.maple-official-theme .server-choice label,
+.maple-official-theme .profit-check {background:var(--field);color:var(--text);border-color:var(--border-strong)}
+.maple-official-theme .server-choice label:has(:checked),
+.maple-official-theme .profit-check:has(:checked) {background:var(--ledger-current-bg);color:var(--ledger-current);border-color:currentColor}
+
+#page-daily :is(#hunt-erda-purchase-fields,.calc-card > details) {
+  margin-block:12px;padding-inline:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-soft)
+}
+#page-daily :is(#hunt-erda-purchase-fields,.calc-card > details) > summary {
+  min-height:44px;padding-block:10px;line-height:24px;color:var(--text);font-weight:650;cursor:pointer
+}
+#page-daily :is(#hunt-erda-purchase-fields,.calc-card > details)[open] {padding-bottom:12px}
+#page-daily :is(#hunt-erda-purchase-fields,#erda-settlement-range) > .row {
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px
+}
+#page-daily :is(#hunt-erda-purchase-fields,#erda-settlement-range) input {width:100%;min-width:0}
+#page-daily #btn-erda-settle {margin-top:12px;min-height:44px}
+#page-daily #btn-erda-settle:disabled {opacity:1;color:var(--sub);background:var(--panel2);border-color:var(--line)}

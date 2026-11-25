@@ -7,6 +7,52 @@ const server=http.createServer((req,res)=>{let name=new URL(req.url,'http://loca
 const snapshot=page=>page.evaluate(key=>JSON.stringify({local:Object.fromEntries(Object.keys(localStorage).filter(name=>name!==key).sort().map(name=>[name,localStorage.getItem(name)])),session:Object.fromEntries(Object.keys(sessionStorage).sort().map(name=>[name,sessionStorage.getItem(name)]))}),KEY);
 async function settle(page){await page.evaluate(()=>document.fonts.ready);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));}
 async function contrast(page,selector){return page.locator(selector).first().evaluate(el=>{const rgb=value=>(value.match(/[\d.]+/g)||[]).map(Number),blend=(a,b)=>{const alpha=a.length>3?a[3]:1;return [0,1,2].map(i=>a[i]*alpha+b[i]*(1-alpha));},chain=[];let bg=[255,255,255];for(let n=el;n;n=n.parentElement)chain.push(n);for(const n of chain.reverse())bg=blend(rgb(getComputedStyle(n).backgroundColor),bg);const fg=blend(rgb(getComputedStyle(el).color),bg),lum=value=>value.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);return {ratio:(Math.max(lum(fg),lum(bg))+.05)/(Math.min(lum(fg),lum(bg))+.05),fg,bg};});}
+async function checkExperienceContrast(page, contrasts) {
+  await page.evaluate(()=>{
+    const expHistory=[[-5,295,95],[-3,296,65],[-1,296,94.746],[0,296,99.99]].map(([offset,level,rate])=>({
+      date:addDays(todayStr(),offset),at:Date.now()+offset*86400000,level,rate
+    }));
+    db.chars=[normalizeChar({name:'경험치 대비 검증',server:'main',worldName:'크로아',expHistory})];
+    openPage('daily');
+    renderExpTracker();
+  });
+  for(const width of [320,1440]){
+    await page.setViewportSize({width,height:width===320?844:1000});
+    for(const mode of ['light','dark']){
+      await page.evaluate(mode=>MapleThemeMode.setPreference(mode),mode);
+      await settle(page);
+      await page.locator('.exp-bar-fill:not(.empty)').last().focus();
+      const tip=page.locator('#chart-float.show.exp');
+      await tip.waitFor();
+      assert.match(await tip.innerText(),/99.99%/);
+      const selectors=['.exp-history-head b','.exp-history-head span','.exp-summary.current b','.exp-summary.gain b','.exp-summary.predict b',
+        '.exp-chart-labels span','.exp-axis-tick','.exp-level-event-label','.exp-bar-value:not(.empty)','.exp-bar-value.empty',
+        '.chart-tip-title','.chart-tip-row','.chart-tip-row b','.chart-tip-sub'];
+      for(const selector of selectors){
+        const result=await contrast(page,selector);
+        assert(result.ratio>=4.5,mode+'/'+width+' '+selector+' contrast '+result.ratio.toFixed(2));
+        contrasts[mode+' experience '+selector]=result;
+      }
+      for(const selector of ['#hunt-erda-purchase-fields > summary','#erda-settlement-range > summary','#btn-erda-settle:disabled']){
+        const control=page.locator(selector);
+        assert(await control.isVisible(),'settlement control is visible '+selector);
+        assert((await control.boundingBox()).height>=44,'settlement control tap area '+selector);
+        const result=await contrast(page,selector);
+        assert(result.ratio>=4.5,mode+'/'+width+' '+selector+' contrast '+result.ratio.toFixed(2));
+        contrasts[mode+' settlement '+selector]=result;
+      }
+      assert(await page.locator('.exp-bar-column').last().evaluate(el=>
+        el.querySelector('.exp-bar-value').getBoundingClientRect().bottom<=el.querySelector('.exp-bar-fill').getBoundingClientRect().top
+      ),'near-full bars keep the percentage on the panel background');
+      const milestone=page.locator('.exp-chart-point.level-up').last();
+      await milestone.focus();
+      assert.match(await tip.innerText(),/레벨업 감지/);
+      assert(await tip.locator('.chart-tip-title').innerText(),'level-up tooltip includes the recorded date');
+      if(width===1440)await page.locator('#exp-tracker').screenshot({path:path.join(out,'experience-'+mode+'.png')});
+    }
+  }
+  await page.evaluate(()=>{document.activeElement.blur();openPage('home')});
+}
 async function checkToolFinder(page,width,theme) {
   await page.setViewportSize({width,height:width===320?844:1000});
   await page.evaluate(mode=>MapleThemeMode.setPreference(mode),theme);
@@ -14,6 +60,10 @@ async function checkToolFinder(page,width,theme) {
   await page.keyboard.press('Control+k');
   const selector='.desk-search-result', rows=page.locator(selector);
   assert.equal(await page.locator('#desk-search-input').evaluate(input=>input===document.activeElement),true);
+  await page.waitForFunction(()=>{
+    const icons=[...document.querySelectorAll('.desk-search-result small :is(img,svg)')];
+    return icons.length>0 && icons.every(icon=>icon.localName==='svg'?icon.getBBox().width>0:icon.naturalWidth>0);
+  });
   const groups=new Map(),surfaces=new Map();
   for(const [index,row] of (await rows.all()).entries()){
     const position=selector+':nth-child('+(index+1)+')';
@@ -70,6 +120,7 @@ async function checkToolFinder(page,width,theme) {
   await page.evaluate(()=>MapleThemeMode.setPreference('system'));assert.equal(await page.locator('html').getAttribute('data-maple-theme'),'dark');await page.emulateMedia({colorScheme:'light'});await page.waitForFunction(()=>document.documentElement.dataset.mapleTheme==='light');await page.emulateMedia({colorScheme:'dark'});await page.waitForFunction(()=>document.documentElement.dataset.mapleTheme==='dark');
   await page.evaluate(()=>MapleThemeMode.setPreference('dark'));await page.evaluate(()=>{db.chars=[normalizeChar({name:'다크 테마 검증',server:'main',worldName:'크로아'})];renderAll();});
   const contrasts={},widths=[320,390,768,1440];let screens=0;
+  await checkExperienceContrast(page, contrasts);
   for(const width of widths){
    await page.setViewportSize({width,height:width<700?844:1000});await page.evaluate(()=>openPage('home'));await settle(page);
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'no page overflow '+width);

@@ -38,7 +38,12 @@
     Object.entries(db.records).forEach(([date,record])=>normalizeRecord(record).sessions.forEach(session=>{
       if(session.kind==='recovery-adjustment')return;
       if(session.kind!=='erda-settlement')hunts.push({id:session.id,date,charName:session.charName,meso:String(session.meso||0),erda:session.erda,erdaSettled:session.erdaSettled,erdaUnitPrice:String(session.erdaUnitPrice||0),erdaFee:session.erdaFee,erdaMesoIncluded:session.erdaMesoIncluded,runs:session.runs,extraIncome:String(session.extraIncome||0)});
-      cashEntries.push({id:'hunt:'+session.id,date,amount:recordMesoTotal(recordFromSessions([session])).toString(),signedAmount:recordMesoTotal(recordFromSessions([session])).toString(),kind:'재획 장부(정산 포함 설정 기준)',charName:session.charName});
+      const purchaseCost=toMesoBig(session.erdaPurchaseCost||0);
+      const income=(huntSessionMesoTotal(session)+purchaseCost).toString();
+      cashEntries.push({id:'hunt:'+session.id,date,amount:income,signedAmount:income,kind:session.kind==='erda-settlement'?'조각 판매 정산':'재획 수입',charName:session.charName});
+      if(purchaseCost>0n){
+        cashEntries.push({id:'hunt-purchase:'+session.id,date,amount:purchaseCost.toString(),signedAmount:(-purchaseCost).toString(),kind:'솔 에르다 조각 매입',charName:session.charName});
+      }
     }));
     allProfitRecords().forEach(rec=>{const r=normalizeProfitRecord(rec),t=profitRecordTotals(r);cashEntries.push({id:'profit:'+r.id,date:r.date,amount:t.net.toString(),signedAmount:t.net.toString(),kind:'손익 장부',charName:''});});
     const expenses=(db.expenses||[]).map(normalizeExpenseRecord).map(r=>({id:'expense:'+r.id,date:r.date,charName:r.charName,category:expenseCategoryById(r.category).name,memo:r.memo,amount:String(r.amount)}));

@@ -76,7 +76,9 @@
       if(publicGuides && shortcuts.nextElementSibling!==publicGuides)shortcuts.after(publicGuides);
       if(active!==document.activeElement && (shortcuts.contains(active)||publicGuides?.contains(active)))active.focus({preventScroll:true});
     };
-    compact.addEventListener('change',placeShortcuts);placeShortcuts();
+    compact.addEventListener('change',placeShortcuts);
+    document.addEventListener('workspace:page',event=>{if(event.detail?.page==='home')placeShortcuts();});
+    placeShortcuts();
   }
   const bossAction=shortcuts?.querySelector('[data-open-page="boss"]');
   if(bossAction){bossAction.querySelector('strong').textContent='보스 기록';bossAction.querySelector('small').textContent='처치·판매·드랍 확인';}
