@@ -22,3 +22,8 @@ new_sqlite_classes = ["FriendsLedger"]
 [[kv_namespaces]]
 binding = "DATA"
 id = "a300687477cb4f45a35e6abb329bd367"
+
+[[ratelimits]]
+name = "PUBLIC_CHARACTER_LIMIT"
+namespace_id = "20261125"
+simple = { limit = 60, period = 60 }

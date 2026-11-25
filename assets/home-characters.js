@@ -75,7 +75,7 @@
     const chars=typeof db!=='undefined'&&Array.isArray(db.chars)?db.chars:[];
     return chars.map(character=>({
       name:String(character?.name||'이름 없는 캐릭터'),
-      world:String(character?.worldName||character?.world_name||character?.world||(character?.server==='challenger'?'과거 챌린저스':'본서버')),
+      world:String((character?.manualOnly && character?.publicWorldName)||character?.worldName||character?.world_name||character?.world||(character?.server==='challenger'?'과거 챌린저스':'본서버')),
       job:String(character?.characterClass||character?.character_class||character?.className||''),
       level:Number(character?.characterLevel||character?.character_level||character?.level||0),
       image:imageURL(character?.characterImage||character?.character_image||character?.image)

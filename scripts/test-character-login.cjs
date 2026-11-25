@@ -5,6 +5,7 @@ const path = require('node:path');
 const http = require('node:http');
 const { chromium } = require('playwright');
 const { fixtureDismissPatchNotes } = require('./helpers/patch-notes.cjs');
+const { verifyManualCharacterAppearance } = require('./helpers/manual-character-appearance.cjs');
 const root = path.resolve(__dirname, '..');
 const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css', '.png':'image/png', '.svg':'image/svg+xml', '.ttf':'font/ttf' };
 const server = http.createServer((req,res) => {
@@ -73,7 +74,8 @@ async function assertExternalCharacterRecords(page) {
   await page.locator('#btn-addchar').click();
   const card=page.locator('.registered-card').filter({hasText:name});
   assert(await card.isVisible());
-  assert.equal(await card.locator('.char-refresh-btn, .scheduler-scope-toggle').count(),0);
+  assert.equal(await card.getByRole('button',{name:'코디 갱신'}).count(),1);
+  assert.equal(await card.locator('.scheduler-scope-toggle').count(),0);
   assert.equal(await page.evaluate(name=>loginFixture.calls.some(call=>call.body.characterName===name),name),false);
   await page.evaluate(()=>runNexonAutoRefresh());
   await page.locator('#btn-refresh-all-chars').click();
@@ -125,7 +127,7 @@ async function assertExternalCharacterRecords(page) {
   await page.locator('#friends-characters-list button').first().click();
   assert(await page.evaluate(()=>db.chars.length===1 && !db.chars[0].manualOnly && loginRecordSnapshot()===loginBefore));
   await page.locator('#in-character-source').selectOption('auto');
-  console.log('PASS: 다른 계정 캐릭터 등록, 보스 3종·재획·계정별 한도·조회 제외·기기/계정/백업 보존');
+  console.log('PASS: 다른 계정 캐릭터 등록, 보스 3종·재획·계정별 한도·비공개 조회 제외·기기/계정/백업 보존');
 }
 
 async function assertProfiles(page, expectedCount=1) {
@@ -150,6 +152,7 @@ async function assertProfiles(page, expectedCount=1) {
   let browser;
   try {
     browser=await chromium.launch({headless:true,channel:process.env.PLAYWRIGHT_CHANNEL||'chrome'});
+    await verifyManualCharacterAppearance(browser,origin);
     const context=await browser.newContext({viewport:{width:1280,height:900},timezoneId:'America/Los_Angeles'});context.setDefaultTimeout(10000);
     await fixtureDismissPatchNotes(context);
     let directCalls=0;

@@ -1,4 +1,5 @@
 import { friendsRoute } from './friends.mjs';
+import { publicCharacterRoute } from './public-character.mjs';
 export { FriendsSession } from './friends.mjs';
 export { FriendsLedger } from './friends-ledger.mjs';
 
@@ -177,6 +178,7 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { headers });
     if (url.pathname === '/health') return json({ ok: true }, 200, headers);
     if (!ALLOWED_ORIGINS.has(origin)) return json({ error: 'Origin not allowed' }, 403, headers);
+    if (url.pathname === '/v1/public-character') return publicCharacterRoute(request, url, env, headers);
     if (url.pathname.startsWith('/v1/friends/')) {
       const response=await friendsRoute(request,env);
       return new Response(response.body,{status:response.status,headers:{...headers,...Object.fromEntries(response.headers)}});
